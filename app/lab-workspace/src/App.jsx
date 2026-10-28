@@ -3,6 +3,10 @@ import { useLabStore } from './store/useLabStore.js';
 import { LabCanvas } from './canvas/LabCanvas.jsx';
 import { TopologyToolbar } from './canvas/TopologyToolbar.jsx';
 import { BriefPanel } from './brief/BriefPanel.jsx';
+import { TicketPanel } from './brief/TicketPanel.jsx';
+import { SLABar } from './war/SLABar.jsx';
+import { PostMortemModal } from './war/PostMortemModal.jsx';
+import { useTicketStore } from './war/useTicketStore.js';
 import { Palette } from './canvas/Palette.jsx';
 import { CablePalette } from './canvas/CablePalette.jsx';
 import { InspectorPanel } from './inspector/InspectorPanel.jsx';
@@ -153,6 +157,8 @@ export default function App() {
   const topology = useLabStore(s => s.topology);
   const loading = useLabStore(s => s.loading);
   const error = useLabStore(s => s.error);
+  const ticket = useTicketStore(s => s.ticket);
+  const [postMortemOpen, setPostMortemOpen] = useState(false);
   const [mobilePane, setMobilePane] = useState('brief');
   const [libraryTab, setLibraryTab] = useState('equipment');
   const [panelSizes, setPanelSizes] = useState(readPanelSizes);
@@ -229,6 +235,33 @@ export default function App() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const ticketId = params.get('ticket');
+    if (ticketId) {
+      useLabStore.getState().setLoading(true);
+      fetch('/api/tickets/' + encodeURIComponent(ticketId))
+        .then(async response => {
+          const payload = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+          return payload;
+        })
+        .then(({ ticket: loadedTicket, scenario }) => {
+          useTicketStore.getState().setTicket(loadedTicket, scenario, loadedTicket.sla_left);
+          if (loadedTicket.status === 'pending_postmortem') setPostMortemOpen(true);
+          useLabStore.getState().loadLab(loadedTicket.id, {
+            title: scenario.title, level: 'War Room', module: 'ITSM / NOC',
+            prompt: scenario.story, objectives: (scenario.diagnostic_steps || []).map(step => step.title),
+            hints: [], xp_reward: scenario.reward_xp || 0, badges: [], ticketMode: true,
+          }, scenario.initial_topology);
+        })
+        .catch(err => {
+          console.error('War Room ticket could not load:', err);
+          useTicketStore.getState().clearTicket();
+          useLabStore.getState().setError(new Error('Impossible de charger le ticket "' + ticketId + '". Détail : ' + err.message));
+        });
+      return;
+    }
+    useTicketStore.getState().clearTicket();
+    setPostMortemOpen(false);
     const labId = params.get('id');
     const demo = params.get('demo');
     if (demo === '1') {
@@ -325,9 +358,9 @@ export default function App() {
         {/* Panneau gauche : mission pédagogique et bibliothèque matérielle */}
         <aside data-testid="lab-left-panel" className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[var(--lab-left-width)] xl:shrink-0`}>
           <section className="flex min-h-0 flex-1 flex-col">
-            <PanelHeader eyebrow="01 / Lab brief" title="Mission & objectifs" />
+            <PanelHeader eyebrow={ticket ? "01 / War Room" : "01 / Lab brief"} title={ticket ? "Ticket ITSM" : "Mission & objectifs"} />
             <div className="lab-scrollbar min-h-0 flex-1 overflow-y-auto">
-              <BriefPanel />
+              {ticket ? <TicketPanel /> : <BriefPanel />}
             </div>
           </section>
 
@@ -399,7 +432,8 @@ export default function App() {
 
         {/* Canvas central : la zone de travail principale */}
         <main className={`${mobilePane === 'canvas' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-1 flex-col overflow-hidden bg-[#0d1117] xl:w-auto`}>
-          <TopologyToolbar />
+          {ticket && <SLABar />}
+          <TopologyToolbar onOpenPostMortem={() => setPostMortemOpen(true)} />
           <LabCanvas />
         </main>
 
@@ -421,6 +455,7 @@ export default function App() {
           <InspectorPanel />
         </aside>
       </div>
+      {ticket && postMortemOpen && <PostMortemModal onClose={() => setPostMortemOpen(false)} />}
     </div>
   );
 }

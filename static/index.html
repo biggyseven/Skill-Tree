@@ -1990,7 +1990,57 @@
         </div>
       </section>
 
-    </main>
+    
+      <!-- ============ WAR ROOM / FILE D'ATTENTE NOC ============ -->
+      <section x-show="tab === 'war'" x-cloak class="space-y-6">
+        <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div class="mb-2 inline-flex items-center gap-2 rounded-full border border-rose-400/20 bg-rose-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-200"><span>🚨</span> ITSM · NOC</div>
+            <h1 class="text-3xl font-bold tracking-tight text-white">🚨 War Room</h1>
+            <p class="mt-2 text-sm text-zinc-400">File d’attente NOC · incidents, changements et problèmes de production.</p>
+          </div>
+          <button type="button" @click="loadTickets()" :disabled="warLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/[0.08] disabled:opacity-50"><span x-show="!warLoading">↻ Actualiser</span><span x-show="warLoading">Chargement…</span></button>
+        </header>
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrer les tickets War Room">
+          <button type="button" @click="warFilter='all'" :aria-pressed="warFilter==='all'" :class="warFilter==='all' ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-4 py-2 text-xs font-semibold transition">Tous</button>
+          <button type="button" @click="warFilter='incident'" :aria-pressed="warFilter==='incident'" :class="warFilter==='incident' ? 'border-rose-400/30 bg-rose-400/10 text-rose-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-4 py-2 text-xs font-semibold transition">Incidents</button>
+          <button type="button" @click="warFilter='change'" :aria-pressed="warFilter==='change'" :class="warFilter==='change' ? 'border-sky-400/30 bg-sky-400/10 text-sky-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-4 py-2 text-xs font-semibold transition">Changes</button>
+          <button type="button" @click="warFilter='problem'" :aria-pressed="warFilter==='problem'" :class="warFilter==='problem' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-4 py-2 text-xs font-semibold transition">Problems</button>
+        </div>
+        <div x-show="warError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warError"></div>
+        <div x-show="warLoading && !warTickets.length" class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">Chargement de la file NOC…</div>
+        <div x-show="!warLoading && !warError && filteredWarTickets.length === 0" class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
+          <div class="text-3xl">✅</div><h2 class="mt-3 text-base font-bold text-white">Aucun ticket dans ce filtre</h2><p class="mt-1 text-sm text-zinc-500">La file NOC ne contient pas de ticket ouvert pour cette catégorie.</p>
+        </div>
+        <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          <template x-for="ticket in filteredWarTickets" :key="ticket.id">
+            <article class="flex min-w-0 flex-col rounded-2xl border bg-[color:var(--s1)] p-5 shadow-lg transition hover:-translate-y-0.5 hover:border-white/20"
+              :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/25' : ticket.severity==='medium' ? 'border-amber-400/20' : 'border-white/10'">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="font-mono text-xs font-bold tracking-wide text-zinc-200" x-text="ticket.id"></span>
+                <span class="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
+                  :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : ticket.severity==='medium' ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-sky-400/30 bg-sky-500/10 text-sky-200'"
+                  x-text="ticket.severity==='high' ? 'Haute' : ticket.severity==='critical' ? 'Critique' : ticket.severity==='medium' ? 'Moyenne' : 'Basse'"></span>
+              </div>
+              <div class="mt-4 flex items-center justify-between gap-3">
+                <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500" x-text="ticket.type==='incident' ? 'Incident' : ticket.type==='change' ? 'Change' : 'Problem'"></span>
+                <span class="inline-flex items-center gap-1.5 rounded-lg bg-black/20 px-2.5 py-1.5 font-mono text-[11px] font-semibold"
+                  :class="ticket.sla_left === null ? 'text-zinc-400' : ticket.sla_left <= 300 ? 'text-rose-300' : 'text-emerald-300'">
+                  <span>⏱</span><span x-text="formatWarSla(ticket.sla_left)"></span>
+                </span>
+              </div>
+              <h2 class="mt-3 text-base font-bold leading-snug text-white" x-text="ticket.title || ticket.scenario?.title || ticket.scenario_id"></h2>
+              <p class="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-zinc-400" x-text="ticket.story || ticket.scenario?.story || 'Aucun résumé disponible.'"></p>
+              <p x-show="ticket.status==='pending_postmortem'" class="mt-3 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">Configuration validée · post-mortem à compléter</p>
+              <div class="mt-5 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
+                <span class="text-[11px] font-semibold text-cyan-300">⚡ <span x-text="ticket.reward_xp || 0"></span> XP</span>
+                <button type="button" @click="openWarTicket(ticket)" class="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-3.5 py-2.5 text-xs font-bold text-slate-950 transition hover:brightness-110">Ouvrir le ticket →</button>
+              </div>
+            </article>
+          </template>
+        </div>
+      </section>
+</main>
   </div>
 
   <!-- ================= MODALE DÉTAIL (LEÇON) ================= -->
@@ -3010,6 +3060,7 @@
             if (name === 'memo') await this.loadFlashcards();
             if (name === 'diagnostic') await this.loadDiagnostic();
             if (name === 'labs') await this.loadLabIndex();
+            if (name === 'war') await this.loadTickets();
             if (name === 'rewards') this.checkRewards();
           } catch (e) { console.error('setTab', name, e); }
         },
@@ -3133,6 +3184,51 @@
         async loadDiagnostic() {
           try { const r = await fetch('/api/diagnostics/network_down'); this.diagnostic = await r.json(); this.diagnosticStep = this.diagnostic.steps[this.diagnostic.start]; } catch(e){}
         },
+
+        async loadTickets() {
+          this.warLoading = true; this.warError = '';
+          try {
+            const response = await fetch('/api/tickets', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => []);
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warTickets = Array.isArray(payload) ? payload : [];
+            if (this._warTicketTimer) clearInterval(this._warTicketTimer);
+            this._warTicketTimer = setInterval(() => {
+              this.warTickets.forEach(ticket => {
+                if (typeof ticket.sla_left === 'number') ticket.sla_left = Math.max(0, ticket.sla_left - 1);
+              });
+            }, 1000);
+          } catch (error) { this.warError = 'Impossible de charger la file NOC : ' + error.message; }
+          finally { this.warLoading = false; }
+        },
+        get filteredWarTickets() {
+          return this.warTickets.filter(ticket => this.warFilter === 'all' || ticket.type === this.warFilter);
+        },
+        formatWarSla(seconds) {
+          if (seconds === null || seconds === undefined) return 'Sans SLA';
+          const total = Math.max(0, Number(seconds) || 0);
+          if (total === 0) return 'SLA dépassé';
+          const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), s = Math.floor(total % 60);
+          return h > 0 ? String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') : String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+        },
+        async openWarTicket(ticket) {
+          const url = '/lab.html?ticket=' + encodeURIComponent(ticket.id);
+          const target = window.open(url, '_blank');
+          if (!target) { window.location.assign(url); return; }
+          try {
+            const response = await fetch('/api/tickets/' + encodeURIComponent(ticket.scenario_id || ticket.id) + '/open', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: '{}'
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            const finalId = payload.ticket && payload.ticket.id ? payload.ticket.id : ticket.id;
+            if (finalId !== ticket.id) target.location.href = '/lab.html?ticket=' + encodeURIComponent(finalId);
+          } catch (error) {
+            this.warError = 'Impossible d’ouvrir le ticket : ' + error.message;
+            try { target.close(); } catch (_) {}
+          }
+        },
+
 
         // ================= LECTEUR DE COURS =================
         // Retire l'en-tête technique des fichiers de cours ("## node_id: ..." puis "title: ...") pour ne pas l'afficher
@@ -5526,6 +5622,7 @@
     const NAV_ITEMS = [
       { id: 'tree', label: 'Tableau de bord', title: 'Tableau de bord', svg: '<rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect>' },
       { id: 'labs', label: 'Labs', title: 'Labs pratiques', svg: '<path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2.2h12.4a1.5 1.5 0 0 0 1.3-2.2L14 9V3"></path><path d="M7.5 15h9"></path>' },
+      { id: 'war', label: 'War Room', title: 'War Room — File d’attente NOC', svg: '<text x="12" y="18" font-size="16" text-anchor="middle">🚨</text>' },
       { id: 'exam', label: 'Examens', title: "Centre d'évaluation", svg: '<rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4V3h6v1M9 9h6M9 13h6M9 17h3"></path>' },
       { id: 'challenges', label: 'Défis', title: "Défis d'architecture", svg: '<circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle>' },
       { id: 'diagnostic', label: 'Diagnostic', title: 'Diagnostic Interactif', svg: '<circle cx="5" cy="5" r="2"></circle><circle cx="19" cy="12" r="2"></circle><circle cx="5" cy="19" r="2"></circle><path d="M7 5h4a3 3 0 0 1 3 3v1a3 3 0 0 0 3 3M7 19h4a3 3 0 0 0 3-3v-1a3 3 0 0 1 3-3"></path>' },
@@ -5752,6 +5849,7 @@
       return {
         // ---------- état commun ----------
         navItems: NAV_ITEMS, modules: MODULES, levels: LEVELS,
+        warTickets: [], warFilter: 'all', warLoading: false, warError: '', _warTicketTimer: null,
         sidebarContextMenu: { open: false, x: 8, y: 8, id: '', label: '' },
         moduleFilter: 'all',
         moduleNextCourseId: null,

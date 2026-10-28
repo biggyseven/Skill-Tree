@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useLabStore } from '../store/useLabStore.js';
+import { useTicketStore } from '../war/useTicketStore.js';
 
-export function TopologyToolbar() {
+export function TopologyToolbar({ onOpenPostMortem }) {
   const topology = useLabStore(s => s.topology);
   const lab = useLabStore(s => s.lab);
   const loadLab = useLabStore(s => s.loadLab);
   const checkResult = useLabStore(s => s.checkResult);
   const loading = useLabStore(s => s.loading);
+  const ticket = useTicketStore(s => s.ticket);
   const [persistenceAction, setPersistenceAction] = useState(null);
   const persistenceBusy = persistenceAction !== null;
   const [persistenceMessage, setPersistenceMessage] = useState('');
@@ -49,20 +51,46 @@ export function TopologyToolbar() {
     }
   }
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     const state = useLabStore.getState();
-    if (
-      state.loading ||
-      state.lab?.id === 'demo' ||
-      state.lab?.sandbox === true
-    ) return;
-    window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
+    if (state.loading || persistenceBusy || state.lab?.id === 'demo' || state.lab?.sandbox === true) return;
+    if (!ticket) {
+      window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
+      return;
+    }
+    if (ticket.status === 'pending_postmortem') {
+      onOpenPostMortem?.();
+      return;
+    }
+    setPersistenceAction('resolve');
+    setPersistenceMessage('');
+    try {
+      const openedAt = ticket.opened_at ? new Date(ticket.opened_at).getTime() : Date.now();
+      const elapsedSeconds = Math.max(0, Math.floor((Date.now() - openedAt) / 1000));
+      const response = await fetch('/api/tickets/' + encodeURIComponent(ticket.id) + '/resolve', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ topology: useLabStore.getState().topology, elapsed_seconds: elapsedSeconds }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+      if (!payload.passed) {
+        const failed = (payload.checks || []).filter(check => !check.passed).map(check => check.description || (check.target + ' · ' + check.path));
+        setPersistenceMessage((payload.message || 'La vérification a échoué.') + (failed.length ? ' À corriger : ' + failed.join(', ') : ''));
+        return;
+      }
+      useTicketStore.getState().setTicket({ ...ticket, status: 'pending_postmortem' }, useTicketStore.getState().scenario, useTicketStore.getState().sla_left);
+      setPersistenceMessage(payload.message || 'Configuration validée. Post-mortem requis.');
+      onOpenPostMortem?.();
+    } catch (error) {
+      setPersistenceMessage('Échec de résolution : ' + error.message);
+    } finally { setPersistenceAction(null); }
   };
   const handleSubmit = () => {
     const state = useLabStore.getState();
     const result = state.checkResult;
     if (
       state.loading ||
+      ticket ||
       state.lab?.id === 'demo' ||
       state.lab?.sandbox === true ||
       !result ||
@@ -171,7 +199,7 @@ export function TopologyToolbar() {
           {persistenceAction === 'load' ? 'Chargement…' : 'Charger'}
         </button>
         <button type="button" onClick={handleCheck}
-          disabled={loading || lab?.id === 'demo' || lab?.sandbox === true}
+          disabled={loading || persistenceBusy || lab?.id === 'demo' || lab?.sandbox === true}
           title={lab?.courseLocked === true
             ? 'Mode entraînement : le contrôle est disponible, mais la validation du parcours reste bloquée. ' + (lab.courseLockMessage || '')
             : lab?.sandbox === true
@@ -180,8 +208,9 @@ export function TopologyToolbar() {
                 ? 'La démonstration ne peut pas être vérifiée.'
                 : 'Vérifier les règles du scénario'}
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
-          {loading ? '…' : lab?.courseLocked === true ? '✓ Vérifier en entraînement' : '✓ Vérifier'}
+          {persistenceAction === 'resolve' ? 'Vérification…' : ticket ? '📝 Résoudre le ticket' : loading ? '…' : lab?.courseLocked === true ? '✓ Vérifier en entraînement' : '✓ Vérifier'}
         </button>
+        {!ticket && (
         <button type="button" onClick={handleSubmit} disabled={submitDisabled}
           title={lab?.courseLocked === true
             ? (lab.courseLockMessage || 'Ce laboratoire est verrouillé par les prérequis du parcours.')
@@ -195,6 +224,7 @@ export function TopologyToolbar() {
           className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)] disabled:cursor-not-allowed disabled:opacity-40">
           ↑ Soumettre
         </button>
+      )}
         <button type="button" onClick={handleClose}
           className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)]">
           ✕ Fermer
