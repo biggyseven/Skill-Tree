@@ -178,6 +178,7 @@ test('les commandes War Room réparent shutdown, VLAN, trunk, passerelle, DHCP e
   assert.equal(device.config.interfaces['Fa0/7'].mode, 'trunk');
 
   parser.execute('end');
+  parser.execute('configure terminal');
   assert.equal(parser.execute('ip default-gateway 10.20.0.1').output, '');
   assert.equal(device.config.gateway, '10.20.0.1');
   assert.equal(parser.execute('no ip default-gateway').output, '');
