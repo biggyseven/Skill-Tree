@@ -22,6 +22,21 @@ Le cas « Centraliser le suivi d’un projet de déploiement » sert de fil roug
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser l’outil ou le processus sans résoudre le problème métier.
 
+```mermaid
+flowchart TD
+    A["Objectifs et bénéficiaires"] --> B["Type de travail"]
+    B --> C{"Quelle visibilité est nécessaire ?"}
+    C -->|"Flux de tâches"| D["Kanban / Trello"]
+    C -->|"Produit et traçabilité"| E["Jira"]
+    C -->|"Calendrier et dépendances"| F["MS Project"]
+    D --> G["Conventions partagées"]
+    E --> G
+    F --> G
+    G --> H["Décisions, preuves et amélioration"]
+```
+
+Ce schéma est un point de départ, pas une règle rigide : plusieurs outils peuvent coexister lorsque leurs responsabilités sont distinctes. Le choix dépend d’abord du travail à suivre, des dépendances, des obligations de reporting et du niveau de traçabilité. La priorité est d’éviter la duplication de la vérité entre tableaux concurrents.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -60,6 +75,20 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », besoin avant l’outil constitue une pratique qui doit répondre à une intention précise. La sélection commence par les décisions à prendre, les utilisateurs concernés et les problèmes observés, pas par la liste des fonctionnalités du produit. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Décrire le problème réel"] --> B["Identifier les utilisateurs et décisions"]
+    B --> C["Lister les informations nécessaires"]
+    C --> D["Évaluer complexité et dépendances"]
+    D --> E["Comparer les options et leur coût total"]
+    E --> F["Tester avec un cas représentatif"]
+    F --> G{"L'équipe peut-elle l'utiliser correctement ?"}
+    G -->|"Oui"| H["Définir les règles de gestion"]
+    G -->|"Non"| E
+```
+
+Un choix robuste commence par des scénarios réels : suivre un incident, planifier une migration, gérer un backlog ou rendre compte à une direction. Le test doit inclure les mises à jour quotidiennes, la recherche d’une décision ancienne, la gestion des droits et la production du rapport attendu. Le nombre de fonctions disponibles compte moins que leur utilité concrète.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une équipe choisit d’abord comment rendre les dépendances visibles et les blocages attribuables avant de comparer Jira, Trello et un tableur. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -75,6 +104,18 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 2. Structure du travail
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », structure du travail constitue une pratique qui doit répondre à une intention précise. Une structure simple relie objectifs, livrables, lots, tâches et défauts, tout en évitant une granularité administrative excessive. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Objectif du projet"] --> B["Résultats attendus"]
+    B --> C["Livrables vérifiables"]
+    C --> D["Lots de travail"]
+    D --> E["Tâches avec responsables"]
+    E --> F["Critères de fin et preuves"]
+    F --> G["Suivi du réel et du travail restant"]
+```
+
+Une structure cohérente permet de relier une tâche à la raison pour laquelle elle existe. Les niveaux et noms peuvent varier selon l’outil, mais il faut pouvoir répondre à quatre questions : quel résultat cette tâche sert-elle, qui s’en occupe, comment saura-t-on qu’elle est terminée et de quoi dépend-elle ?
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -92,6 +133,18 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », tableau kanban constitue une pratique qui doit répondre à une intention précise. Un tableau Kanban visualise les états réels du flux et rend les files d’attente, les blocages et le travail en cours visibles. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart LR
+    A["À préparer"] --> B["Prêt"]
+    B --> C["En cours"]
+    C --> D["En revue / test"]
+    D --> E["Terminé"]
+    C -. "limite de travail en cours" .-> C
+    D -. "retour pour correction" .-> C
+```
+
+Les colonnes doivent représenter des états observables, et non des impressions comme « presque fini ». L’équipe définit les conditions d’entrée et de sortie de chaque étape, limite le travail en cours si cela aide à réduire les blocages et inspecte l’âge des cartes. Un tableau n’améliore le flux que si l’on traite aussi les causes d’attente.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une carte passe de « À faire » à « En cours », « En revue » puis « Terminé » uniquement si les critères correspondants sont vérifiés. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -107,6 +160,19 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 4. Backlog et priorisation
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », backlog et priorisation constitue une pratique qui doit répondre à une intention précise. Un backlog est une liste ordonnée d’éléments à réaliser ; les critères de priorité doivent refléter la valeur, l’urgence, le risque et les dépendances. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Demandes recueillies"] --> B["Clarifier valeur et critères"]
+    B --> C["Évaluer taille, risque et dépendances"]
+    C --> D["Comparer l'urgence et le bénéfice"]
+    D --> E["Ordonner le backlog"]
+    E --> F["Choisir un élément réalisable"]
+    F --> G["Livrer et obtenir un retour"]
+    G --> B
+```
+
+Un backlog vivant n’est ni une simple boîte de réception ni une liste figée pour toute la durée du projet. Les critères de priorité doivent être explicites : valeur attendue, urgence, risque réduit, effort, obligations et dépendances. L’ordonnancement est réexaminé lorsque des faits changent, avec une trace des arbitrages qui modifient un engagement.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -124,6 +190,19 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », jira et traçabilité constitue une pratique qui doit répondre à une intention précise. Jira peut relier epics, tâches, bugs, versions et tableaux, mais sa valeur dépend d’une taxonomie comprise par toute l’équipe. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Objectif ou initiative"] --> B["Epic / grand ensemble de travail"]
+    B --> C["Story, tâche ou bug"]
+    C --> D["Responsable et critères d'acceptation"]
+    D --> E["Développement et revue"]
+    E --> F["Tests et résultat"]
+    F --> G["Version ou livraison"]
+    G --> H["Retour et suivi des défauts"]
+```
+
+Jira est souvent choisi lorsqu’il faut relier demandes, travaux, défauts, versions, règles de workflow et rapports. La structure exacte dépend du produit Jira et de sa configuration ; il ne faut donc pas imposer une hiérarchie identique à toutes les équipes. Une issue bien renseignée explique le besoin, le résultat attendu, les critères de fin et les liens utiles, sans transformer chaque champ en bureaucratie.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une anomalie de recette garde son identifiant, son responsable, sa sévérité, sa preuve et son lien vers la fonctionnalité. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -139,6 +218,19 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 6. Trello et simplicité
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », trello et simplicité constitue une pratique qui doit répondre à une intention précise. Trello convient à une visualisation légère par cartes et listes ; il devient insuffisant si la dépendance, le reporting ou les contrôles exigent des données plus structurées. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    A["Liste : À faire"] --> B["Carte de travail"]
+    B --> C["Liste : En cours"]
+    C --> D["Liste : À vérifier"]
+    D --> E["Liste : Terminé"]
+    B --- F["Description et critères"]
+    B --- G["Membre et échéance"]
+    B --- H["Checklist et pièces jointes"]
+```
+
+Trello privilégie une organisation visuelle par tableaux, listes et cartes. Il peut suffire pour une petite équipe si les cartes portent le contexte, un responsable, une date lorsqu’elle est utile et des critères de fin. Lorsqu’il faut des dépendances calendaires sophistiquées, une gouvernance détaillée ou des rapports complexes, il convient de vérifier les capacités du plan et des extensions utilisés plutôt que de supposer qu’un tableau simple répondra à tout.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -156,6 +248,24 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », ms project et dépendances calendaires constitue une pratique qui doit répondre à une intention précise. Un outil de planning relie les durées, ressources, calendriers et dépendances pour calculer des dates et marges cohérentes. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["A : cadrage"] --> B["B : conception"]
+    B --> C["C : préparation environnement"]
+    C --> D["D : migration pilote"]
+    D --> E["E : validation métier"]
+    E --> F["F : mise en production"]
+    G["Ressources et calendriers"] --> H["Dates prévisionnelles"]
+    A --> H
+    B --> H
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+```
+
+Un planificateur comme MS Project aide à relier les tâches par des dépendances, à modéliser les calendriers et à examiner les effets d’un retard. Les dates ne doivent pas être fixées indépendamment des relations logiques : si une activité dépend d’un livrable non disponible, avancer sa date manuellement ne supprime pas le blocage. Les hypothèses de durée et de disponibilité des ressources doivent rester visibles.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** La tâche d’essai de migration ne peut débuter qu’après la préparation de l’environnement cible et l’approbation du plan de retour arrière. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -171,6 +281,20 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 8. Champs et conventions
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », champs et conventions constitue une pratique qui doit répondre à une intention précise. Les statuts, types, priorités et champs doivent avoir une signification stable ; trop de champs créent du bruit et réduisent la qualité des données. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Définir les champs utiles"] --> B["Écrire les règles et exemples"]
+    B --> C["Configurer les statuts et transitions"]
+    C --> D["Former l'équipe et tester"]
+    D --> E["Contrôler les données réelles"]
+    E --> F{"Les rapports sont-ils fiables ?"}
+    F -->|"Oui"| G["Conserver et documenter"]
+    F -->|"Non"| H["Corriger conventions ou configuration"]
+    H --> D
+```
+
+Avant d’ajouter un champ obligatoire, préciser la décision qu’il permettra de prendre. Des valeurs cohérentes et des définitions partagées valent mieux que des dizaines de champs remplis différemment. Les statuts ont besoin d’un vocabulaire commun ; si une équipe considère « terminé » comme « développé » et une autre comme « testé et accepté », les tableaux de bord seront trompeurs.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -188,6 +312,21 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », automatisation constitue une pratique qui doit répondre à une intention précise. Une automatisation fiable réduit les opérations répétitives tout en conservant visibilité, contrôle et possibilité de correction. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Événement : tâche passe en revue"] --> B["Vérifier les conditions"]
+    B --> C{"Champs requis présents ?"}
+    C -->|"Oui"| D["Notifier le réviseur et consigner"]
+    C -->|"Non"| E["Demander la donnée manquante"]
+    D --> F["Mesurer le résultat de la règle"]
+    E --> F
+    F --> G{"Effet utile et sans doublon ?"}
+    G -->|"Oui"| H["Maintenir et documenter"]
+    G -->|"Non"| I["Désactiver ou ajuster"]
+```
+
+Automatiser une règle stable peut limiter les oublis, accélérer les notifications et harmoniser les transitions. Il faut néanmoins traiter les erreurs, les boucles de déclenchement, les doublons, les droits du compte d’automatisation et l’absence éventuelle de données. Chaque règle doit avoir un propriétaire, une raison d’exister, un test et une procédure de désactivation.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une alerte est émise lorsqu’une anomalie critique reste sans propriétaire pendant plus de quatre heures ouvrées. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -203,6 +342,18 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 10. Reporting et indicateurs
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », reporting et indicateurs constitue une pratique qui doit répondre à une intention précise. Le reporting doit servir une question précise et distinguer activité, débit, délai, qualité, prédiction et décision attendue. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Données de travail à jour"] --> B["Contrôle de qualité des données"]
+    B --> C["Calcul d'indicateurs définis"]
+    C --> D["Comparer tendance et objectif"]
+    D --> E["Identifier l'écart et sa cause"]
+    E --> F["Décision et action avec responsable"]
+    F --> G["Vérifier l'effet au point suivant"]
+```
+
+Un indicateur doit répondre à une question de gestion précise. Le volume de cartes terminées ne mesure pas à lui seul la valeur, et un pourcentage d’avancement subjectif peut masquer le travail restant. Pour les équipes orientées flux, on peut observer le temps de cycle, le débit et l’âge des éléments ; pour un plan calendrier, on examine aussi les jalons, les marges et les dépendances. Il faut interpréter les tendances dans leur contexte.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -220,6 +371,17 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », accès et sécurité constitue une pratique qui doit répondre à une intention précise. Les permissions, pièces jointes, intégrations et exportations peuvent exposer des informations sensibles ; l’outil doit respecter le principe du moindre privilège. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Identifier les données et risques"] --> B["Définir les rôles et besoins d'accès"]
+    B --> C["Attribuer le minimum de droits nécessaire"]
+    C --> D["Vérifier invités, intégrations et exports"]
+    D --> E["Contrôler journaux et comptes inactifs"]
+    E --> F["Revoir les droits à chaque changement majeur"]
+```
+
+Les outils de pilotage peuvent contenir des noms, des incidents, des détails d’architecture, des liens vers des dépôts ou des informations de fournisseur. Il faut appliquer le moindre privilège, des mécanismes d’authentification appropriés, la revue des comptes et les règles de conservation de l’organisation. Les secrets ne doivent pas être collés dans une description ou une pièce jointe ; utiliser le coffre et les canaux approuvés.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Les secrets de production ne sont jamais copiés dans un ticket public et les comptes externes reçoivent uniquement les droits nécessaires. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -235,6 +397,18 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 12. Adoption et discipline de mise à jour
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », adoption et discipline de mise à jour constitue une pratique qui doit répondre à une intention précise. Le tableau est utile seulement si l’équipe l’utilise comme source convenue, met à jour les états et sait qui corrige les données incohérentes. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Co-construire des règles simples"] --> B["Démontrer le flux sur un cas réel"]
+    B --> C["Mettre à jour au moment du travail"]
+    C --> D["Utiliser les données en réunion"]
+    D --> E["Identifier une friction récurrente"]
+    E --> F["Ajuster l'outil ou la règle"]
+    F --> C
+```
+
+La mise à jour doit faire partie du travail, pas constituer une corvée de fin de semaine. Les responsables doivent eux-mêmes se servir du tableau dans les décisions, sinon l’équipe comprendra que le suivi n’a qu’une fonction de contrôle administratif. Réduire les étapes inutiles, former les nouveaux membres et recueillir le retour d’usage favorisent l’adoption.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -252,6 +426,20 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », intégrations et limites constitue une pratique qui doit répondre à une intention précise. L’intégration entre dépôt de code, tests, documentation et tickets peut améliorer la traçabilité mais doit être testée et entretenue. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart LR
+    A["Outil de gestion"] --> B["Dépôt de code"]
+    A --> C["Pipeline de tests"]
+    A --> D["Documentation"]
+    A --> E["Chat et notifications"]
+    B --> F["Référence de commit ou pull request"]
+    C --> G["Résultat vérifiable"]
+    D --> H["Décision documentée"]
+    E --> I["Alerte, pas source officielle unique"]
+```
+
+Les intégrations sont utiles lorsqu’elles préservent les liens entre demande, changement technique, tests et documentation. Elles deviennent fragiles si elles créent des copies divergentes, accordent trop de droits ou dépendent d’un compte personnel. Pour chaque intégration, désigner la source de vérité, le propriétaire, les droits nécessaires et la manière de diagnostiquer une panne.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Un lien entre ticket et pipeline permet de retrouver la version testée sans prétendre que le statut automatique prouve toute la recette. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -267,6 +455,18 @@ G -- Non --> I[Reconfigurer ou remplacer]
 ### 14. Maintenance de la configuration
 
 **Comprendre le concept.** Dans « Outils de gestion (Jira, Trello, MS Project) », maintenance de la configuration constitue une pratique qui doit répondre à une intention précise. Un outil de gestion est lui-même un petit produit : ses conventions, automatisations et rapports doivent être revus à mesure que l’équipe évolue. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Demande de changement"] --> B["Évaluer utilisateurs, rapports et intégrations"]
+    B --> C["Tester dans un espace adapté"]
+    C --> D["Préparer migration et retour arrière"]
+    D --> E["Communiquer et déployer"]
+    E --> F["Vérifier les workflows et indicateurs"]
+    F --> G["Documenter la configuration"]
+```
+
+Une configuration de projet est un produit à maintenir : les workflows, champs, modèles, automatisations et permissions évoluent avec l’organisation. Un changement apparemment petit peut casser un rapport ou bloquer la transition d’une carte. Il faut vérifier l’impact, tester les cas représentatifs, planifier un retour arrière lorsque nécessaire et documenter l’état obtenu.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -284,6 +484,20 @@ G -- Non --> I[Reconfigurer ou remplacer]
 
 Une petite équipe doit déployer une application de gestion. Certains membres utilisent un tableur, d’autres un tableau Kanban et le responsable transmet un planning PDF chaque semaine. Les statuts sont incohérents et les blocages apparaissent trop tard.
 
+```mermaid
+flowchart TD
+    A["Équipe : informations dispersées"] --> B["Lister les décisions et rapports attendus"]
+    B --> C["Choisir un espace de suivi principal"]
+    C --> D["Migrer les tâches actives et leurs liens"]
+    D --> E["Définir statuts, responsables et critères"]
+    E --> F["Tester le flux avec un lot pilote"]
+    F --> G{"L'équipe retrouve-t-elle la bonne information ?"}
+    G -->|"Oui"| H["Étendre et abandonner les doublons"]
+    G -->|"Non"| C
+```
+
+La centralisation ne consiste pas à recopier tous les anciens fichiers sans tri. L’équipe doit identifier les informations encore actives, conserver les décisions nécessaires à la traçabilité, établir les liens entre éléments et nommer le système qui fera foi. Un lot pilote permet de découvrir tôt les champs manquants, les workflows incompris et les rapports qui ne répondent pas au besoin.
+
 ### Cadrage et données de départ
 
 Les acteurs commencent par décrire le problème avec des faits vérifiables, puis identifient les bénéficiaires, les exigences et les contraintes. Ils séparent les obligations impératives des préférences, écrivent les hypothèses et demandent une confirmation lorsque celles-ci conditionnent fortement le coût ou la date. Le responsable du projet désigne un propriétaire pour chaque décision majeure, fixe un mécanisme d’escalade et conserve une trace des validations. La première sortie attendue est une compréhension commune du travail, et non une liste exhaustive de tâches écrite avant d’avoir compris le besoin.
@@ -296,9 +510,33 @@ L’équipe compare au moins deux options réalistes, dont une option limitée o
 
 Le plan est découpé en livrables que l’on peut vérifier. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier la définition de l’indicateur. La communication est adaptée à chaque public et les décisions qui dépassent les délégations remontent à la gouvernance.
 
+```mermaid
+flowchart LR
+    A["Planifier le lot"] --> B["Créer les tâches avec responsables"]
+    B --> C["Exécuter et mettre à jour les preuves"]
+    C --> D["Examiner blocages et dépendances"]
+    D --> E["Réviser prévisions et priorités"]
+    E --> F["Informer les parties prenantes"]
+    F --> C
+```
+
+Le suivi doit faire ressortir les obstacles et les décisions plutôt que recopier la liste des tâches. Une carte bloquée indique la cause, la personne chargée de la lever et la prochaine échéance ; un jalon à risque inclut une prévision et ses hypothèses. Le planning et le tableau de flux peuvent coexister si chacun a une finalité claire et si les données ne se contredisent pas.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités d’exploitation sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, la cause des écarts, les adaptations utiles et les pratiques à conserver. Elle ne doit pas désigner des coupables : elle cherche à rendre le système de travail plus fiable et l’organisation plus apte à apprendre.
+
+```mermaid
+flowchart TD
+    A["Vérifier les livrables et critères"] --> B["Confirmer l'acceptation"]
+    B --> C["Transférer les responsabilités d'exploitation"]
+    C --> D["Mesurer adoption et résultats"]
+    D --> E["Recueillir le retour de l'équipe"]
+    E --> F["Supprimer les champs et règles inutiles"]
+    F --> G["Conserver les pratiques qui apportent de la valeur"]
+```
+
+La clôture ne se limite pas à fermer toutes les cartes. Elle vérifie que le résultat attendu est accepté, que les documents et responsabilités d’exploitation sont transférés et que l’outil de suivi ne conserve pas inutilement des données temporaires. Une courte rétrospective permet d’ajuster le dispositif pour le prochain projet.
 
 ## Atelier pratique
 
