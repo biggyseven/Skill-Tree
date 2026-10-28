@@ -1240,6 +1240,62 @@ test('le titre et le menu Actions sont alignés, et le menu contient les command
   await expect(menu).toBeHidden();
 });
 
+
+test('la barre supérieure reste sans chevauchement pendant le redimensionnement', async ({ page }) => {
+  await openDashboard(page);
+
+  for (const width of [390, 768, 1024, 1100, 1279, 1280, 1366, 1440, 1536, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+
+    const layoutIsValid = await page.evaluate(() => {
+      const header = document.querySelector('header.app-main-header');
+      const title = header?.firstElementChild;
+      const actions = header?.querySelector('.app-header-actions');
+      const trigger = header?.querySelector('.mobile-header-menu-trigger');
+      const center = header?.children?.[1];
+      if (!header || !title || !actions || !trigger || !center) return false;
+
+      const visible = element => {
+        const style = getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden';
+      };
+      const box = element => element.getBoundingClientRect();
+      const headerBox = box(header);
+      const titleBox = box(title);
+      const actionsBox = box(actions);
+      const inHeader = rect => rect.left >= headerBox.left - 1
+        && rect.right <= headerBox.right + 1;
+      if (!inHeader(titleBox) || !inHeader(actionsBox)) return false;
+
+      if (visible(trigger)) {
+        const triggerBox = box(trigger);
+        return inHeader(triggerBox)
+          && titleBox.right <= triggerBox.left + 1
+          && Math.abs((titleBox.top + titleBox.height / 2)
+            - (triggerBox.top + triggerBox.height / 2)) <= 18;
+      }
+
+      if (titleBox.right > actionsBox.left + 1) return false;
+      if (visible(center)) {
+        const centerBox = box(center);
+        if (!inHeader(centerBox)) return false;
+        if (titleBox.right > centerBox.left + 1 || centerBox.right > actionsBox.left + 1) return false;
+      }
+      return true;
+    });
+
+    expect(layoutIsValid, \`chevauchement détecté à \${width}px\`).toBe(true);
+
+    const trigger = page.locator('header.app-main-header .mobile-header-menu-trigger');
+    if (width <= 1279) await expect(trigger).toBeVisible();
+    else await expect(trigger).toBeHidden();
+
+    const center = page.locator('header.app-main-header > div.absolute');
+    if (width < 1536) await expect(center).toBeHidden();
+    else await expect(center).toBeVisible();
+  }
+});
+
 test('les bibliothèques affichent de nombreux modèles d’équipements et de câbles distincts', async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await page.goto('/lab.html?demo=1', { waitUntil: 'domcontentloaded' });
