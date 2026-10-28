@@ -22,6 +22,28 @@ Le fil rouge du cours est le cas « Le portail de support interne ». Il permet 
 
 ## Concepts clés
 
+## Carte générale : du besoin à la valeur
+
+```mermaid
+flowchart TD
+    A["Besoin métier ou problème"] --> B["Diagnostic et justification"]
+    B --> C["Objectifs mesurables"]
+    C --> D["Périmètre et livrables"]
+    D --> E["Organisation et gouvernance"]
+    E --> F["Plan de référence"]
+    F --> G["Réalisation et suivi"]
+    G --> H["Vérification et acceptation"]
+    H --> I["Mise en service et transfert"]
+    I --> J["Mesure des bénéfices"]
+    J --> K{"Valeur attendue obtenue ?"}
+    K -- Oui --> L["Capitaliser et clôturer"]
+    K -- Non --> M["Analyser l'écart et décider"]
+    M --> G
+```
+
+Cette vue rappelle qu’un projet ne se résume pas à produire une fonctionnalité : il relie un besoin à un résultat accepté, puis à des bénéfices mesurés. Le retour de la mesure vers la décision évite de confondre livraison technique et création de valeur.
+
+
 **Résultat et livrable.** Un livrable est un élément produit et vérifiable : application, procédure, modèle, environnement, formation ou rapport. Le résultat décrit ce qui change grâce à ce livrable. Le bénéfice mesure l’amélioration obtenue dans la durée. La distinction évite de déclarer un projet réussi parce qu’un logiciel a été installé alors que personne ne l’utilise ou que le processus reste inefficace.
 
 **Valeur et critères de succès.** La valeur doit être reliée à un besoin réel, à un bénéficiaire identifiable et à un effet attendu. Un objectif vague comme « moderniser le système » doit être traduit en résultats observables : réduction du délai, diminution d’erreurs, meilleure disponibilité, baisse d’un coût ou amélioration de l’expérience. Les indicateurs doivent être définis avant la livraison, avec une valeur de référence et un horizon de mesure.
@@ -141,6 +163,25 @@ G --> H[Adoption et bénéfices]
 
 ### 6. Contraintes
 
+### Visualiser les contraintes et leurs arbitrages
+
+```mermaid
+flowchart LR
+    B["Budget"] --- P["Périmètre"]
+    P --- D["Délais"]
+    D --- Q["Qualité"]
+    Q --- R["Ressources et compétences"]
+    R --- B
+    C["Conformité / sécurité"] -. "contrainte non négociable" .-> P
+    C -.-> Q
+    U["Incertitude"] --> A["Marge et réserves"]
+    A --> D
+    A --> B
+```
+
+Les contraintes sont interdépendantes : ajouter des fonctionnalités peut augmenter la charge, repousser une date ou nécessiter des ressources supplémentaires. La sécurité, la conformité et les obligations contractuelles ne doivent pas être traitées comme de simples variables d’ajustement.
+
+
 **Comprendre le sujet.** Dans le cadre de « Introduction à la gestion de projet IT », contraintes doit être traité comme un élément de décision et non comme une formalité isolée. Le triangle coût-délai-périmètre doit être complété par la qualité, les risques, les ressources et les obligations de conformité. La bonne pratique consiste à expliciter le but recherché, l’autorité concernée, les hypothèses encore ouvertes, les contraintes applicables et la preuve qui permettra de conclure. Sans cette explicitation, deux personnes peuvent utiliser les mêmes mots tout en poursuivant des résultats différents. Le responsable doit demander ce qui est attendu, pourquoi cela compte et quelle conséquence aurait une décision erronée.
 
 **Relier le principe à l’ensemble du projet.** Un élément de gestion n’agit jamais seul. Il influence le périmètre, la date, le budget, la qualité, la charge et l’acceptation du résultat. Avant d’agir, vérifier les dépendances en amont et en aval, identifier les équipes qui seront touchées et repérer les décisions qui pourraient être difficiles à inverser. Une solution locale apparemment efficace peut créer une dette opérationnelle, un défaut de conformité ou un coût de support durable. Une décision solide rend ces effets visibles et explique les compromis.
@@ -157,6 +198,25 @@ G --> H[Adoption et bénéfices]
 
 ### 7. Parties prenantes
 
+### Cartographier les parties prenantes
+
+```mermaid
+flowchart TB
+    S["Sponsor"] --> CP["Chef de projet"]
+    CP --> MET["Représentants métier"]
+    CP --> TECH["Équipe technique"]
+    CP --> OPS["Exploitation / support"]
+    MET --> U["Utilisateurs finaux"]
+    TECH --> SEC["Sécurité et architecture"]
+    OPS --> RUN["Service en production"]
+    SEC -. "avis et exigences" .-> CP
+    U -. "retours d'usage" .-> MET
+    RUN -. "contraintes opérationnelles" .-> TECH
+```
+
+Cette carte est un exemple à adapter, pas un organigramme universel. Elle met en évidence les interfaces souvent oubliées : sécurité, exploitation et utilisateurs finaux. Une partie prenante peut conseiller, décider, réaliser, valider ou subir les impacts ; ces rôles doivent être clarifiés.
+
+
 **Comprendre le sujet.** Dans le cadre de « Introduction à la gestion de projet IT », parties prenantes doit être traité comme un élément de décision et non comme une formalité isolée. Les parties prenantes influencent le projet ou subissent ses effets ; leurs attentes peuvent être contradictoires. La bonne pratique consiste à expliciter le but recherché, l’autorité concernée, les hypothèses encore ouvertes, les contraintes applicables et la preuve qui permettra de conclure. Sans cette explicitation, deux personnes peuvent utiliser les mêmes mots tout en poursuivant des résultats différents. Le responsable doit demander ce qui est attendu, pourquoi cela compte et quelle conséquence aurait une décision erronée.
 
 **Relier le principe à l’ensemble du projet.** Un élément de gestion n’agit jamais seul. Il influence le périmètre, la date, le budget, la qualité, la charge et l’acceptation du résultat. Avant d’agir, vérifier les dépendances en amont et en aval, identifier les équipes qui seront touchées et repérer les décisions qui pourraient être difficiles à inverser. Une solution locale apparemment efficace peut créer une dette opérationnelle, un défaut de conformité ou un coût de support durable. Une décision solide rend ces effets visibles et explique les compromis.
@@ -172,6 +232,26 @@ G --> H[Adoption et bénéfices]
 **Approfondissement.** Pour les projets à forte criticité, la rigueur doit augmenter avec le coût d’une erreur : revue indépendante, approbation formelle, contrôle des accès, traçabilité renforcée ou répétition en environnement représentatif. Pour un petit projet réversible, la même intention peut être satisfaite par un contrôle plus léger. Le principe est de calibrer les pratiques sans abolir les contrôles essentiels. À chaque étape, demander : « Quelle preuve rend cette décision défendable, qui peut l’accepter et qu’est-ce qui nous ferait changer d’avis ? »
 
 ### 8. Sponsor et gouvernance
+
+### Circuit de décision et escalade
+
+```mermaid
+flowchart TD
+    X["Question, risque ou demande de changement"] --> Y{"Décision dans la délégation du chef de projet ?"}
+    Y -- Oui --> Z["Décider dans le cadre approuvé"]
+    Y -- Non --> G["Préparer options, impacts et recommandation"]
+    G --> C["Comité de pilotage / sponsor"]
+    C --> D{"Décision"}
+    D -- Accepter --> A["Mettre à jour les références"]
+    D -- Refuser --> R["Documenter le refus et ses motifs"]
+    D -- Différer --> W["Attribuer une action et une échéance"]
+    A --> E["Communiquer et exécuter"]
+    R --> E
+    W --> E
+```
+
+Une gouvernance saine ne signifie pas faire valider chaque détail par un comité. Elle définit à l’avance qui peut décider, avec quelles limites, sous quel délai et avec quelles informations.
+
 
 **Comprendre le sujet.** Dans le cadre de « Introduction à la gestion de projet IT », sponsor et gouvernance doit être traité comme un élément de décision et non comme une formalité isolée. Le sponsor porte la justification, débloque les arbitrages et accepte le risque métier résiduel dans les limites de son autorité. La bonne pratique consiste à expliciter le but recherché, l’autorité concernée, les hypothèses encore ouvertes, les contraintes applicables et la preuve qui permettra de conclure. Sans cette explicitation, deux personnes peuvent utiliser les mêmes mots tout en poursuivant des résultats différents. Le responsable doit demander ce qui est attendu, pourquoi cela compte et quelle conséquence aurait une décision erronée.
 
@@ -268,6 +348,23 @@ G --> H[Adoption et bénéfices]
 **Approfondissement.** Pour les projets à forte criticité, la rigueur doit augmenter avec le coût d’une erreur : revue indépendante, approbation formelle, contrôle des accès, traçabilité renforcée ou répétition en environnement représentatif. Pour un petit projet réversible, la même intention peut être satisfaite par un contrôle plus léger. Le principe est de calibrer les pratiques sans abolir les contrôles essentiels. À chaque étape, demander : « Quelle preuve rend cette décision défendable, qui peut l’accepter et qu’est-ce qui nous ferait changer d’avis ? »
 
 ## Étude de cas : Le portail de support interne
+
+## Du dossier initial au pilotage : chaîne de traçabilité
+
+```mermaid
+flowchart LR
+    N["Besoin exprimé"] --> O["Objectif mesurable"]
+    O --> R["Exigence"]
+    R --> L["Livrable"]
+    L --> T["Test / preuve"]
+    T --> A["Acceptation"]
+    A --> B["Bénéfice mesuré"]
+    R -. "risque associé" .-> K["Registre des risques"]
+    L -. "responsable" .-> W["Lot de travail"]
+```
+
+La traçabilité relie la raison d’agir aux preuves de réalisation et au bénéfice recherché. Elle permet de répondre à des questions concrètes : pourquoi ce livrable existe-t-il, qui le vérifie, comment sera-t-il accepté et quel résultat doit-il produire ?
+
 
 Une entreprise de 180 personnes veut remplacer les demandes envoyées par e-mail par un portail de support. La direction attend une mise en service rapide, les équipes IT craignent une intégration complexe et les utilisateurs demandent une expérience simple.
 
