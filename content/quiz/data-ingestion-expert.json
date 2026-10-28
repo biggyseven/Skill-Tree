@@ -109,6 +109,66 @@
       ],
       "answer": 1,
       "explanation": "Mesurer la fraîcheur du produit détecte un retard même si le job se termine en succès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la principale limite d’une garantie de livraison « exactement une fois » dans un broker ?",
+      "choices": [
+        "Elle garantit que toutes les API externes ne seront jamais appelées deux fois",
+        "Elle supprime le besoin d’identifier les événements",
+        "Sa portée dépend du périmètre transactionnel et ne garantit pas automatiquement l’unicité des effets externes",
+        "Elle empêche toute panne de destination"
+      ],
+      "answer": 2,
+      "explanation": "La garantie s’applique à un périmètre défini. Un effet externe hors de ce périmètre peut être répété après un crash ; il faut alors idempotence, outbox ou réconciliation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas l’outbox transactionnelle est-elle particulièrement utile ?",
+      "choices": [
+        "Rendre atomiques la mutation métier en base et l’enregistrement de l’intention de publier un événement",
+        "Supprimer les identifiants d’événement",
+        "Publier sans persister la mutation métier",
+        "Remplacer l’ensemble des contrôles d’accès"
+      ],
+      "answer": 0,
+      "explanation": "L’outbox permet d’enregistrer l’état métier et l’intention de publication dans la même transaction locale. Le relais peut publier plusieurs fois, donc les consommateurs doivent rester idempotents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un timestamp seul est-il souvent un curseur incrémental fragile ?",
+      "choices": [
+        "Il ne peut jamais être stocké en UTC",
+        "Plusieurs lignes peuvent avoir le même timestamp et des mises à jour tardives peuvent être antérieures au watermark",
+        "Il chiffre automatiquement les lignes",
+        "Les systèmes CDC ne possèdent aucun horodatage"
+      ],
+      "answer": 1,
+      "explanation": "Un timestamp n’impose pas toujours un ordre total et certaines sources livrent des écritures tardives. Une clé de départage, une fenêtre de recouvrement et une réconciliation peuvent limiter les omissions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but principal d’une dead-letter queue (DLQ) ?",
+      "choices": [
+        "Accélérer automatiquement toutes les requêtes SQL",
+        "Remplacer la validation des schémas",
+        "Stocker indéfiniment les messages sans restriction",
+        "Isoler les messages qui échouent durablement pour permettre diagnostic et reprise contrôlée"
+      ],
+      "answer": 3,
+      "explanation": "La DLQ sépare les messages problématiques du flux normal. Elle exige une politique de sécurité, de rétention, de responsabilité, de diagnostic et de rejeu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement convient à deux messages de même identifiant mais de contenus différents ?",
+      "choices": [
+        "Les traiter toujours comme des doublons identiques",
+        "Écraser silencieusement l’enregistrement initial",
+        "Détecter le conflit, le tracer et appliquer une politique de quarantaine ou de correction",
+        "Créer un nouvel identifiant à chaque replay sans signaler le problème"
+      ],
+      "answer": 2,
+      "explanation": "Un identifiant réutilisé avec un contenu différent peut signaler une erreur du producteur ou une collision métier. Le conflit doit rester visible plutôt que d’être ignoré."
     }
   ]
 }
