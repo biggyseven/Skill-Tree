@@ -40,6 +40,42 @@ async function main() {
   });
 
   try {
+    // La production exige une authentification. Quand le secret de test existe,
+    // la vérification se connecte sans afficher ni journaliser le mot de passe.
+    // Sans secret, on valide explicitement l'écran de connexion et on marque les
+    // contrôles du tableau de bord comme ignorés plutôt que de confondre le login
+    // attendu avec une régression de l'interface.
+    await page.goto(BASE_URL, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    const loginForm = page.locator('#login-form');
+    const loginRequired = new URL(page.url()).pathname === '/login.html' || await loginForm.count() > 0;
+    if (loginRequired) {
+      const passwordInput = page.getByLabel("Mot de passe de l'application");
+      await passwordInput.waitFor({ state: 'visible', timeout: 15000 });
+      const visualPassword = process.env.SKILLTREE_VISUAL_TEST_PASSWORD;
+      if (!visualPassword) {
+        await page.getByRole('button', { name: 'Se connecter' }).waitFor({ state: 'visible', timeout: 10000 });
+        const loginShot = path.join(OUT, 'production-login-auth-required.png');
+        await page.screenshot({ path: loginShot, fullPage: true, animations: 'disabled' });
+        report.screenshots.push(loginShot);
+        report.checks.authenticationRequired = true;
+        report.checks.loginFormVisible = true;
+        report.checks.authenticatedDashboardChecks = 'skipped: configure the SKILLTREE_VISUAL_TEST_PASSWORD GitHub Actions secret to enable dashboard, responsive layout, and Lab Workspace production checks';
+        report.status = 'passed-with-auth-skip';
+        report.completedAt = new Date().toISOString();
+        await fs.writeFile(path.join(OUT, 'production-visual-summary.json'), JSON.stringify(report, null, 2));
+        console.warn('::warning::Production login page is reachable, but authenticated dashboard/Lab Workspace visual checks were skipped because SKILLTREE_VISUAL_TEST_PASSWORD is not configured.');
+        console.log(JSON.stringify(report, null, 2));
+        return;
+      }
+      await passwordInput.fill(visualPassword);
+      await page.getByRole('button', { name: 'Se connecter' }).click();
+      await page.waitForURL(url => url.origin === origin && url.pathname === '/', {
+        waitUntil: 'domcontentloaded',
+        timeout: 45000,
+      });
+      report.checks.authenticatedSession = true;
+    }
+
     // Après une fusion, Render peut déployer quelques instants après GitHub Actions.
     // On attend la version attendue via GET seulement; aucune écriture de production n'est faite.
     const readyDeadline = Date.now() + 8 * 60 * 1000;
