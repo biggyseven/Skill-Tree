@@ -40,6 +40,31 @@ test('la connexion reprend le lien Labs demandé au lieu du tableau de bord', as
   expect(getStatusCalls()).toBeGreaterThanOrEqual(2);
 });
 
+test('un nouvel onglet affiche directement la section de sidebar demandée', async ({ page }) => {
+  const getStatusCalls = await mockAuthentication(page);
+  let signalTreeStarted;
+  const treeStarted = new Promise(resolve => { signalTreeStarted = resolve; });
+  let releaseTreeRequest;
+  const treeGate = new Promise(resolve => { releaseTreeRequest = resolve; });
+
+  // Simule un chargement de données lent : la destination doit déjà être affichée.
+  await page.route('**/api/tree', async route => {
+    signalTreeStarted();
+    await treeGate;
+    await route.continue();
+  });
+
+  await submitLogin(page, '/?openTab=labs');
+  await page.waitForURL(url => url.pathname === '/', { waitUntil: 'domcontentloaded' });
+  await treeStarted;
+
+  await expect(page.getByRole('heading', { name: 'Labs pratiques', exact: true })).toBeVisible();
+  expect(getStatusCalls()).toBeGreaterThanOrEqual(2);
+
+  releaseTreeRequest();
+  await expect(page.getByRole('heading', { name: 'Labs par niveau' })).toBeVisible();
+});
+
 test('une destination next externe est ignorée après connexion', async ({ page }) => {
   await mockAuthentication(page);
   await page.goto('/login.html?next=' + encodeURIComponent('https://attacker.example/steal'));

@@ -2573,7 +2573,13 @@
         theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
         focusMode: false, treeFilter: 'all', sidebarCollapsed: false,
         compactUi: false, reduceMotion: false,
-        notificationsOpen: false, settingsMenuOpen: false, tab: 'tree', tabHistory: [],
+        notificationsOpen: false, settingsMenuOpen: false,
+        // Résoudre la destination dès la création de l’état Alpine pour éviter un flash du tableau de bord.
+        tab: (() => {
+          const requested = new URLSearchParams(window.location.search).get('openTab');
+          return NAV_ITEMS.some(item => item.id === requested) ? requested : 'tree';
+        })(),
+        tabHistory: [],
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         lastOpenedNodeId: localStorage.getItem('skilltree-last-node') || '',
         lastOpenedNodeStatus: localStorage.getItem('skilltree-last-status') || '',
@@ -2645,7 +2651,8 @@
             try { window.history.replaceState(window.history.state, '', cleanUrl); } catch (_) { }
           }
           if (requestedTabId && this.navItems.some(item => item.id === requestedTabId)) {
-            await this.setTab(requestedTabId);
+            // L’onglet est déjà sélectionné à l’initialisation ; forcer son chargement différé après refreshAll().
+            await this.setTab(requestedTabId, { skipHistory: true, forceLoad: true });
           }
           if (requestedModuleId && (requestedModuleId === 'all' || this.modules.some(module => module.id === requestedModuleId))) {
             await this.setTab('tree');
@@ -2988,13 +2995,16 @@
           }
           this.notificationsOpen = false; this.settingsMenuOpen = false; this.profileMenuOpen = false;
           // Un clic sur l’onglet déjà actif ne doit pas interrompre la lecture en cours.
-          if (!tabChanged) return;
-          this.$nextTick(() => {
-            const m = this.$refs.mainScroll;
-            if (!m) return;
-            if (this.reduceMotion || typeof m.scrollTo !== 'function') m.scrollTop = 0;
-            else m.scrollTo({ top: 0, behavior: 'smooth' });
-          });
+          // forceLoad permet d'initialiser son contenu si l'onglet venait de l'URL.
+          if (!tabChanged && !options.forceLoad) return;
+          if (tabChanged) {
+            this.$nextTick(() => {
+              const m = this.$refs.mainScroll;
+              if (!m) return;
+              if (this.reduceMotion || typeof m.scrollTo !== 'function') m.scrollTop = 0;
+              else m.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+          }
           try {
             if (name === 'stats') await this.loadStats();
             if (name === 'memo') await this.loadFlashcards();
