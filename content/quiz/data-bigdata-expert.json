@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "Les métriques et le plan d’exécution orientent vers la vraie cause : partitionnement, skew, mémoire, I/O, jointure ou capacité. Ajouter des nœuds n’est pas toujours la solution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une application Spark déployée sur YARN, quel rôle joue principalement YARN ?",
+      "choices": [
+        "Il remplace les DataFrames par des tables SQL",
+        "Il garantit que toute requête Spark est exactement une fois",
+        "Il fournit l'allocation et la gestion des ressources du cluster à l'application",
+        "Il compresse lui-même toutes les données Parquet"
+      ],
+      "answer": 2,
+      "explanation": "YARN coordonne les ressources du cluster via le ResourceManager et les NodeManagers. Spark organise les stages et tâches qui utilisent les ressources allouées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les millions de petits fichiers peuvent-ils devenir un problème sur HDFS ?",
+      "choices": [
+        "Chaque petit fichier désactive automatiquement la réplication",
+        "Ils augmentent les métadonnées et les coûts d'ouverture, de planification et de gestion",
+        "HDFS ne sait stocker que des fichiers d'une taille exactement identique",
+        "Ils forcent automatiquement toutes les lectures à être séquentielles"
+      ],
+      "answer": 1,
+      "explanation": "Un nombre excessif de petits fichiers accroît la pression sur le NameNode et l'overhead de lecture. Le compactage et un meilleur choix de granularité peuvent aider."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage offre souvent un format colonne tel que Parquet pour une requête analytique qui lit peu de colonnes ?",
+      "choices": [
+        "Le moteur peut ne lire que les colonnes nécessaires et profiter de la compression et des statistiques",
+        "Il garantit automatiquement que les données sont sans doublons",
+        "Il rend le partitionnement inutile",
+        "Il fournit à lui seul un contrôle d'accès par utilisateur"
+      ],
+      "answer": 0,
+      "explanation": "Les formats colonne réduisent potentiellement les données lues pour les requêtes sélectives et utilisent des optimisations de stockage. Le bénéfice dépend du moteur et de la disposition."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle relation entre une partition Spark et une tâche est la plus juste ?",
+      "choices": [
+        "Une partition équivaut toujours à un nœud physique et à un conteneur YARN",
+        "Une tâche Spark est un fichier et ne dépend jamais du partitionnement",
+        "Chaque exécuteur ne peut exécuter qu'une seule tâche dans toute sa durée de vie",
+        "Une tâche traite généralement une partition pour une étape donnée, tandis que l'exécuteur peut exécuter plusieurs tâches au fil du temps"
+      ],
+      "answer": 3,
+      "explanation": "Les partitions sont des unités logiques de données et les tâches réalisent le travail sur ces partitions. Elles ne sont pas synonymes d'exécuteur, de conteneur ou de fichier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi collect() est-il dangereux sur un DataFrame de grande taille ?",
+      "choices": [
+        "Il désactive systématiquement le moteur SQL",
+        "Il rassemble toutes les lignes sur le Driver, ce qui peut saturer sa mémoire et le réseau",
+        "Il transforme les données en stockage HDFS répliqué",
+        "Il garantit que les lignes sont dédupliquées"
+      ],
+      "answer": 1,
+      "explanation": "collect() rapatrie le résultat complet vers le Driver. Pour un gros volume, privilégiez les calculs distribués, les écritures et les inspections limitées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand persist() est-il généralement pertinent dans Spark ?",
+      "choices": [
+        "Dès qu'un DataFrame est créé, même s'il est utilisé une seule fois",
+        "Uniquement pour rendre le résultat durable et remplaçant une sauvegarde",
+        "Lorsque plusieurs actions réutilisent un résultat coûteux et que le bénéfice dépasse le coût de stockage",
+        "Pour garantir que les résultats sont transactionnels dans toutes les destinations"
+      ],
+      "answer": 2,
+      "explanation": "La persistance peut éviter de recalculer un résultat intermédiaire utilisé plusieurs fois. Elle consomme des ressources et ne remplace pas la persistance durable du résultat final."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement le watermark dans une agrégation temporelle Structured Streaming ?",
+      "choices": [
+        "À définir une politique de traitement des retards et de gestion de l'état pour certains événements tardifs",
+        "À garantir que tous les événements, même arbitrairement tardifs, seront toujours intégrés",
+        "À chiffrer les offsets Kafka",
+        "À supprimer toute nécessité d'un checkpoint"
+      ],
+      "answer": 0,
+      "explanation": "Le watermark aide le moteur à gérer les événements tardifs et la rétention de l'état. La limite doit suivre le contrat de source et ne garantit pas que tout événement excessivement tardif sera intégré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur la garantie exactly-once est la plus prudente ?",
+      "choices": [
+        "Le nom Structured Streaming garantit que tous les effets d'API externes ne se produisent jamais deux fois",
+        "Un checkpoint suffit à rendre atomique tout appel réseau externe",
+        "La garantie est identique pour toutes les sources et destinations",
+        "Elle doit être évaluée de bout en bout, selon la source, le checkpoint, le sink et l'idempotence des effets externes"
+      ],
+      "answer": 3,
+      "explanation": "La livraison exactement une fois dépend du périmètre et du contrat de chaque composant. Une API externe sans idempotence peut subir un effet répété après un échec."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode convient le mieux lorsqu'un job Spark a une poignée de tâches beaucoup plus lentes que les autres ?",
+      "choices": [
+        "Augmenter la taille du cluster sans consulter les métriques",
+        "Comparer durée et volumes par tâche, inspecter les clés dominantes puis tester une correction de skew",
+        "Désactiver toutes les vérifications de qualité",
+        "Collecter les données complètes vers le Driver pour les répartir manuellement"
+      ],
+      "answer": 1,
+      "explanation": "La durée et la taille des tâches permettent d'identifier le skew ou d'autres goulots. Il faut diagnostiquer les clés et les shuffles avant de choisir salting, pré-agrégation ou autre stratégie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique renforce la sécurité d'un pipeline Big Data ?",
+      "choices": [
+        "Placer les secrets en clair dans les arguments de soumission pour faciliter le support",
+        "Donner des droits lecture-écriture sur toutes les zones brutes à chaque analyste",
+        "Utiliser des identités de service et le moindre privilège, protéger les secrets et appliquer une politique aux logs et quarantaines",
+        "Considérer qu'un réseau privé suffit à remplacer l'authentification"
+      ],
+      "answer": 2,
+      "explanation": "Le moindre privilège, les identités propres aux workloads, la protection des secrets et la gestion des données temporaires réduisent la surface d'attaque."
     }
   ]
 }
