@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Métriques avec Prometheus ».",
+      "prompt": "Dans l'architecture habituelle de Prometheus, comment les métriques d'une cible sont-elles collectées ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "La cible doit obligatoirement ouvrir une connexion vers Grafana à chaque événement",
+        "Prometheus interroge périodiquement un endpoint HTTP exposé par la cible",
+        "Alertmanager stocke les métriques et les envoie ensuite à Prometheus",
+        "Prometheus reçoit uniquement les métriques poussées et ne peut pas interroger des endpoints"
+      ],
+      "answer": 1,
+      "explanation": "Prometheus utilise normalement un modèle pull : il planifie des scrapes et interroge les endpoints HTTP des cibles afin de récupérer leurs métriques. Cette organisation lui permet d'observer le résultat de collecte, notamment via la métrique up. Le push est possible dans des cas spécifiques via des mécanismes intermédiaires, mais ce n'est pas le modèle général recommandé pour toutes les applications de longue durée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un label comme user_id ou request_id est-il souvent déconseillé dans une métrique Prometheus ?",
+      "choices": [
+        "Parce que PromQL ne permet jamais de filtrer une série par label",
+        "Parce que les labels ne peuvent contenir que des nombres",
+        "Parce qu'il crée potentiellement une série par valeur distincte, ce qui provoque une forte cardinalité",
+        "Parce qu'un label ne peut pas être utilisé dans Grafana"
+      ],
+      "answer": 2,
+      "explanation": "Chaque combinaison distincte du nom de métrique et de ses valeurs de labels représente une série temporelle. Les identifiants d'utilisateurs, de requêtes ou de commandes peuvent avoir un nombre de valeurs très élevé et difficile à borner. Cette cardinalité augmente la mémoire, le stockage et le coût des requêtes. Les détails individuels conviennent généralement mieux aux logs ou aux traces, tandis que les métriques utilisent des dimensions agrégées et stables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la bonne manière d'estimer le taux de requêtes par seconde à partir d'un compteur cumulatif ?",
+      "choices": [
+        "Appliquer rate() au compteur sur une fenêtre de temps puis agréger les résultats si besoin",
+        "Prendre la valeur brute du compteur et la diviser systématiquement par 100",
+        "Utiliser rate() sur une jauge de mémoire pour corriger les resets",
+        "Additionner les valeurs du compteur de toutes les instances sans tenir compte de leur historique"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Un compteur cumulatif représente le total d'événements depuis son dernier reset ; il ne décrit pas directement le rythme courant. rate(metric[5m]) estime la croissance par seconde sur la fenêtre et tient compte des resets observés dans les séries. Il est généralement préférable d'appliquer rate à chaque série de compteur avant d'agréger avec sum, afin de ne pas masquer les redémarrages propres à certaines instances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d'Alertmanager dans l'écosystème Prometheus ?",
+      "choices": [
+        "Exposer les métriques système de tous les serveurs",
+        "Remplacer PromQL par un langage de tableaux de bord",
+        "Compiler le code source de chaque exporter au moment du scrape",
+        "Dédupliquer, grouper, router et gérer les silences et inhibitions des alertes"
+      ],
+      "answer": 3,
+      "explanation": "Prometheus évalue les règles et envoie les alertes qui deviennent actives. Alertmanager prend ensuite en charge les préoccupations de notification : déduplication, groupement de plusieurs alertes en un message, routage vers les bons récepteurs, silences temporaires et inhibitions pour réduire les symptômes secondaires. Une règle qui est firing mais dont le message n'arrive pas doit être diagnostiquée du côté du transport, du routage, des silences, des récepteurs et de leurs journaux."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas l'usage du Pushgateway est-il généralement le plus approprié ?",
+      "choices": [
+        "Pour remplacer tous les scrapes d'applications qui fonctionnent en continu",
+        "Pour recueillir le résultat de certains jobs de courte durée, souvent au niveau du service",
+        "Pour stocker les logs détaillés de chaque requête HTTP",
+        "Pour garantir que les anciennes séries poussées sont automatiquement supprimées à l'arrêt du job"
+      ],
+      "answer": 1,
+      "explanation": "Le Pushgateway est destiné à des usages limités, notamment aux jobs très courts qui peuvent terminer avant d'être interrogés par un scrape et dont le résultat est pertinent au niveau du service. Il ne lie pas automatiquement le cycle de vie des séries au job producteur : des valeurs peuvent rester exposées après la fin ou la disparition du job. Il faut donc prévoir la fraîcheur des résultats et le nettoyage des séries, plutôt que l'utiliser comme mécanisme universel d'envoi."
     }
   ]
 }
