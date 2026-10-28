@@ -81,6 +81,18 @@
     @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
     .animate-rise { animation: rise 0.5s ease both; }
 
+    /* --- War Room / supervision NOC --- */
+    @keyframes warSlaBorderPulse {
+      0%, 100% { border-color: rgba(248, 113, 113, 0.48); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.05); }
+      50% { border-color: rgba(248, 113, 113, 1); box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.24), 0 0 18px -7px rgba(239, 68, 68, 0.7); }
+    }
+    .war-ticket-sla-critical { animation: warSlaBorderPulse 1.4s ease-in-out infinite; }
+    .war-sparkbar { display: block; width: 100%; min-height: 3px; border-radius: 3px 3px 1px 1px; transition: height 0.25s ease, opacity 0.25s ease; }
+    @media (prefers-reduced-motion: reduce) {
+      .war-ticket-sla-critical { animation: none; border-color: rgba(248, 113, 113, 0.95); box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.25); }
+      .war-sparkbar { transition: none; }
+    }
+
     /* --- Flashcards (flip) --- */
     .flashcard-scene { perspective: 1200px; }
     .flashcard-card { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
@@ -731,12 +743,19 @@
             <h1 class="text-3xl font-bold tracking-tight text-white">🚨 War Room</h1>
             <p class="mt-2 text-sm text-zinc-400">File d’attente NOC · incidents, changements et problèmes de production.</p>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" @click="createRandomWarTicket()" :disabled="warRandomBusy" class="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-50" x-text="warRandomBusy ? 'Création…' : '🎲 Ticket surprise'"></button>
-            <button type="button" @click="openScenarioCreator()" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-500/20">🛠 Créer un scénario</button>
-            <button type="button" @click="$refs.warScenarioImportFile.click()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3.5 py-2.5 text-xs font-bold text-violet-100 transition hover:bg-violet-500/20">📥 Importer un scénario</button>
-            <input x-ref="warScenarioImportFile" type="file" accept=".json,application/json" class="hidden" @change="importWarScenario($event)">
-            <button type="button" @click="loadTickets()" :disabled="warLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/[0.08] disabled:opacity-50"><span x-show="!warLoading">↻ Actualiser</span><span x-show="warLoading">Chargement…</span></button>
+          <div class="flex flex-col items-start gap-3 sm:items-end">
+            <div class="inline-flex items-center gap-3 rounded-xl border border-rose-400/20 bg-rose-500/[0.06] px-3.5 py-2" aria-label="Horloge locale">
+              <span class="relative flex h-2 w-2" aria-hidden="true"><span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50"></span><span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-400"></span></span>
+              <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">Local</span>
+              <time class="font-mono text-lg font-bold tabular-nums tracking-[0.08em] text-white" x-text="warClock || '--:--:--'"></time>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button type="button" @click="createRandomWarTicket()" :disabled="warRandomBusy" class="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-50" x-text="warRandomBusy ? 'Création…' : '🎲 Ticket surprise'"></button>
+              <button type="button" @click="openScenarioCreator()" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-500/20">🛠 Créer un scénario</button>
+              <button type="button" @click="$refs.warScenarioImportFile.click()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3.5 py-2.5 text-xs font-bold text-violet-100 transition hover:bg-violet-500/20">📥 Importer un scénario</button>
+              <input x-ref="warScenarioImportFile" type="file" accept=".json,application/json" class="hidden" @change="importWarScenario($event)">
+              <button type="button" @click="loadTickets()" :disabled="warLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/[0.08] disabled:opacity-50"><span x-show="!warLoading">↻ Actualiser</span><span x-show="warLoading">Chargement…</span></button>
+            </div>
           </div>
         </header>
         <nav class="flex flex-wrap gap-2 border-b border-white/[0.08] pb-3" role="tablist" aria-label="Vues War Room">
@@ -760,7 +779,16 @@
         <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           <template x-for="ticket in filteredWarTickets" :key="ticket.id">
             <article class="flex min-w-0 flex-col rounded-2xl border bg-[color:var(--s1)] p-5 shadow-lg transition hover:-translate-y-0.5 hover:border-white/20"
-              :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/25' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/20' : 'border-white/10'">
+              :class="[
+                ticket.sla_left !== null && typeof ticket.sla_left === 'number' && ticket.sla_left < 300 ? 'war-ticket-sla-critical border-rose-400/70' :
+                ticket.severity === 'critical' ? 'border-rose-400/40' :
+                ticket.severity === 'high' ? 'border-orange-400/40' :
+                (ticket.severity === 'medium' || ticket.severity === 'normal') ? 'border-amber-400/20' : 'border-white/10'
+              ]"
+              :style="ticket.sla_left !== null && typeof ticket.sla_left === 'number' && ticket.sla_left < 300
+                ? 'background:rgba(127,29,29,0.2)'
+                : ticket.severity === 'critical' ? 'background:rgba(244,63,94,0.075)'
+                : ticket.severity === 'high' ? 'background:rgba(249,115,22,0.075)' : ''">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="font-mono text-xs font-bold tracking-wide text-zinc-200" x-text="ticket.id"></span>
                 <span class="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
@@ -770,7 +798,7 @@
               <div class="mt-4 flex items-center justify-between gap-3">
                 <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500" x-text="ticket.type==='incident' ? 'Incident' : ticket.type==='change' ? 'Change' : 'Problem'"></span>
                 <span class="inline-flex items-center gap-1.5 rounded-lg bg-black/20 px-2.5 py-1.5 font-mono text-[11px] font-semibold"
-                  :class="ticket.sla_left === null ? 'text-zinc-400' : ticket.sla_left <= 300 ? 'text-rose-300' : 'text-emerald-300'">
+                  :class="ticket.sla_left === null ? 'text-zinc-400' : ticket.sla_left < 300 ? 'text-rose-300' : 'text-emerald-300'">
                   <span>⏱</span><span x-text="formatWarSla(ticket.sla_left)"></span>
                 </span>
               </div>
@@ -793,7 +821,7 @@
           </div>
           <div x-show="warStatsError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warStatsError"></div>
           <div x-show="warLiveLoading" class="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs text-zinc-500">Mise à jour des KPI…</div>
-          <div class="grid gap-4 md:grid-cols-3">
+          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <article class="rounded-2xl border border-cyan-400/20 bg-[color:var(--s1)] p-5 shadow-lg">
               <div class="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">⏱ MTTR</div>
               <div class="mt-3 text-3xl font-black tracking-tight text-white"><span x-text="Number(warStats.mttr_minutes || 0).toLocaleString('fr-FR', {maximumFractionDigits: 1})"></span><span class="ml-2 text-sm font-semibold text-zinc-400">min</span></div>
@@ -809,6 +837,33 @@
               <div class="mt-3 text-3xl font-black tracking-tight text-white" x-text="warStats.total_resolved || 0"></div>
               <p class="mt-2 text-xs font-semibold text-rose-300">Échoués : <span x-text="warStats.total_failed || 0"></span></p>
               <p class="mt-1 text-xs text-zinc-500">Tickets créés aujourd’hui : <span x-text="warStats.incidents_today || 0"></span></p>
+            </article>
+            <article class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-lg">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">Flux · 7 jours</p>
+                  <h3 class="mt-1 text-sm font-bold text-white">Tickets ouverts / résolus</h3>
+                </div>
+                <span x-show="warWeeklyStatsLoading" class="text-[10px] text-zinc-500">Maj…</span>
+              </div>
+              <p x-show="warWeeklyStatsError" x-cloak class="mt-2 text-[10px] text-amber-200" x-text="warWeeklyStatsError"></p>
+              <div x-show="warWeeklyStatsLoading && !(warWeeklyStats.daily_breakdown || []).length" class="mt-4 flex h-16 items-center justify-center text-xs text-zinc-500">Chargement de l’historique…</div>
+              <div x-show="!(warWeeklyStatsLoading && !(warWeeklyStats.daily_breakdown || []).length)" class="mt-4 flex h-16 items-end gap-2">
+                <template x-for="day in (warWeeklyStats.daily_breakdown || [])" :key="day.date">
+                  <div class="flex h-full min-w-0 flex-1 flex-col justify-end">
+                    <div class="flex h-[52px] min-w-0 items-end justify-center gap-1" :title="day.date + ' · ' + day.opened + ' ouverts · ' + day.resolved + ' résolus'">
+                      <span class="war-sparkbar bg-rose-400" :style="'height:' + warSparklineHeight(day.opened) + '%;opacity:' + (Number(day.opened) > 0 ? 1 : 0.25)" role="img" :aria-label="day.opened + ' tickets ouverts'"></span>
+                      <span class="war-sparkbar bg-cyan-400" :style="'height:' + warSparklineHeight(day.resolved) + '%;opacity:' + (Number(day.resolved) > 0 ? 1 : 0.25)" role="img" :aria-label="day.resolved + ' tickets résolus'"></span>
+                    </div>
+                    <span class="mt-2 text-center text-[9px] capitalize text-zinc-500" x-text="formatWarDay(day.date)"></span>
+                  </div>
+                </template>
+                <div x-show="!warWeeklyStatsLoading && !(warWeeklyStats.daily_breakdown || []).length" class="w-full self-center text-center text-xs text-zinc-500">Aucune donnée sur cette période.</div>
+              </div>
+              <div class="mt-4 flex flex-wrap items-center gap-3 text-[10px] font-medium text-zinc-400">
+                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-rose-400"></span> Ouverts</span>
+                <span class="inline-flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-cyan-400"></span> Résolus</span>
+              </div>
             </article>
           </div>
           <div class="overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-lg">
@@ -1227,7 +1282,9 @@
 
         diagnostic: null, diagnosticStep: null,
         warTickets: [], warFilter: 'all', warTab: 'inbox', warLoading: false, warError: '', warNotice: '', _warTicketTimer: null,
+        warClock: '--:--:--', _warClockTimer: null,
         warStats: { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [] }, warLiveLoading: false, warStatsError: '',
+        warWeeklyStats: { daily_breakdown: [] }, warWeeklyStatsLoading: false, warWeeklyStatsError: '',
         warArchive: [], warArchiveLoading: false, warArchiveError: '', warReplayBusy: null,
         warScenarios: [], warScenariosLoading: false, warScenarioError: '', warScenarioNotice: '', warScenarioFilter: 'all',
         warRandomBusy: false, warScenarioOptions: null, createScenarioOpen: false, createScenarioBusy: false,
@@ -1247,6 +1304,9 @@
         topologyEditor: null, topologyReady: false,
 
         async init() {
+          this.updateWarClock();
+          if (this._warClockTimer) clearInterval(this._warClockTimer);
+          this._warClockTimer = setInterval(() => this.updateWarClock(), 1000);
           this.loadUiPrefs();
           await this.refreshAll();
           const requestedTab = new URLSearchParams(window.location.search).get('openTab');
@@ -1363,13 +1423,30 @@
 
         async loadItSMStats() {
           this.warLiveLoading = true; this.warStatsError = '';
+          this.warWeeklyStatsLoading = true; this.warWeeklyStatsError = '';
           try {
             const response = await fetch('/api/itsm/stats', { credentials: 'same-origin', cache: 'no-store' });
             const payload = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
             this.warStats = { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [], ...payload };
-          } catch (error) { this.warStatsError = 'Impossible de charger les KPI ITSM : ' + error.message; }
-          finally { this.warLiveLoading = false; }
+          } catch (error) {
+            this.warStatsError = 'Impossible de charger les KPI ITSM : ' + (error?.message || 'erreur inconnue');
+          }
+          try {
+            const response = await fetch('/api/itsm/weekly-report', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warWeeklyStats = {
+              ...payload,
+              daily_breakdown: Array.isArray(payload.daily_breakdown) ? payload.daily_breakdown : []
+            };
+          } catch (error) {
+            this.warWeeklyStatsError = 'Historique 7 jours indisponible : ' + (error?.message || 'erreur inconnue');
+            this.warWeeklyStats = { daily_breakdown: [] };
+          } finally {
+            this.warLiveLoading = false;
+            this.warWeeklyStatsLoading = false;
+          }
         },
         async loadWarArchive() {
           this.warArchiveLoading = true; this.warArchiveError = '';
@@ -1606,6 +1683,22 @@
         },
         get filteredWarTickets() {
           return this.warTickets.filter(ticket => this.warFilter === 'all' || ticket.type === this.warFilter);
+        },
+        updateWarClock() {
+          this.warClock = new Date().toLocaleTimeString('fr-FR', {
+            hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false
+          });
+        },
+        warSparklineHeight(value) {
+          const days = Array.isArray(this.warWeeklyStats?.daily_breakdown) ? this.warWeeklyStats.daily_breakdown : [];
+          const peak = Math.max(1, ...days.map(day => Math.max(Number(day.opened) || 0, Number(day.resolved) || 0)));
+          const count = Math.max(0, Number(value) || 0);
+          return count > 0 ? Math.max(12, Math.round(count / peak * 100)) : 5;
+        },
+        formatWarDay(date) {
+          if (!date) return '';
+          const parsed = new Date(date + 'T12:00:00');
+          return Number.isNaN(parsed.getTime()) ? date : parsed.toLocaleDateString('fr-FR', { weekday: 'short' }).replace('.', '');
         },
         formatWarSla(seconds) {
           if (seconds === null || seconds === undefined) return 'Sans SLA';
