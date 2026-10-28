@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « NetFlow, sFlow, IPFIX ».",
+      "prompt": "Quelle différence résume le mieux le rôle de NetFlow, sFlow et IPFIX ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Les trois sont uniquement des outils de capture de paquets contenant toujours tous les paquets et leurs données applicatives",
+        "NetFlow est une famille de technologies d'export de flux, sFlow utilise l'échantillonnage et les compteurs, et IPFIX standardise un protocole d'export extensible",
+        "IPFIX est seulement un tableau de bord graphique tandis que sFlow est une base SQL",
+        "NetFlow et IPFIX ne fonctionnent qu'avec des paquets IPv4, tandis que sFlow ne transporte que des logs"
+      ],
+      "answer": 1,
+      "explanation": "NetFlow désigne une famille de technologies qui exportent des records de flux selon la version et la plateforme. sFlow offre une visibilité statistique en combinant l'échantillonnage de paquets et la remontée de compteurs. IPFIX est un protocole normalisé par l'IETF qui utilise notamment des Information Elements et des templates pour décrire les records. Aucune de ces descriptions ne signifie qu'une capture complète du contenu de chaque paquet est systématiquement conservée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un collecteur IPFIX peut-il recevoir des messages mais ne pas parvenir à interpréter les records ?",
+      "choices": [
+        "Parce que IPFIX ne transporte pas de données numériques",
+        "Parce que tous les records IPFIX doivent être convertis en logs HTTP avant décodage",
+        "Parce que le collecteur peut ne pas disposer du template qui décrit la structure des data records",
+        "Parce que le protocole ne permet jamais d'exporter les ports TCP ou UDP"
+      ],
+      "answer": 2,
+      "explanation": "IPFIX utilise des templates qui décrivent la structure des enregistrements transmis, notamment les champs et leur longueur. Le collecteur doit connaître le template correspondant pour décoder correctement les data records. Si un template manque, a changé ou n'est pas reconnu, les paquets peuvent arriver sans être interprétables. Le dépannage doit vérifier les templates, leurs identifiants, la compatibilité de la version et les erreurs de décodage du collecteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la limite principale à garder en tête lors d'une analyse sFlow ?",
+      "choices": [
+        "L'échantillonnage peut manquer certains flux courts ou rares ; les résultats doivent être interprétés comme une estimation statistique",
+        "sFlow garantit l'enregistrement intégral de chaque paquet et de tout son contenu",
+        "sFlow ne peut fournir que des adresses IP sans aucun compteur d'interface",
+        "Le facteur d'échantillonnage n'a aucune influence sur l'interprétation du volume"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "sFlow sélectionne statistiquement des paquets et peut également remonter des compteurs d'interface. Ce modèle rend l'observation de réseaux à haut débit plus scalable, mais un flux rare ou très court peut ne pas apparaître dans un échantillon donné. Le facteur et la méthode de sampling influencent l'estimation des volumes. Pour une analyse exhaustive d'un événement précis, il peut être nécessaire de croiser les données avec des logs ou une capture ciblée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il définir précisément les points d'observation avant d'agréger les volumes de plusieurs exporteurs ?",
+      "choices": [
+        "Parce qu'une adresse IP ne peut être présente que dans un seul flux",
+        "Parce que les compteurs d'interface ne peuvent pas être comparés à des données temporelles",
+        "Parce que l'export d'un flux supprime automatiquement tous les enregistrements similaires ailleurs",
+        "Parce que le même trafic peut être observé à plusieurs interfaces ou équipements, entraînant un double comptage"
+      ],
+      "answer": 3,
+      "explanation": "Un paquet peut être observé à l'entrée d'un routeur puis à la sortie d'un autre équipement, et les enregistrements peuvent représenter des directions séparées. Les NAT, tunnels et chemins asymétriques compliquent encore la corrélation. Avant d'additionner les records, il faut définir le périmètre, les interfaces et le sens du trafic. Les volumes devraient être comparés aux compteurs d'interface sur des fenêtres compatibles, en tenant compte du sampling et des couches mesurées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si les principaux flux montrent un transfert très volumineux vers un serveur de sauvegarde pendant une saturation WAN ?",
+      "choices": [
+        "Bloquer immédiatement le serveur sans vérifier l'impact de la sauvegarde",
+        "Vérifier le calendrier, le propriétaire, les compteurs et la latence applicative avant de décider d'un décalage, d'une politique QoS ou d'une extension de capacité",
+        "Conclure automatiquement à une compromission parce que le volume est élevé",
+        "Ignorer les flux et se baser uniquement sur le CPU du routeur"
+      ],
+      "answer": 1,
+      "explanation": "Un flux volumineux est un indice de contribution à la charge, mais pas une preuve de comportement malveillant. Il peut correspondre à une sauvegarde ou une réplication légitime exécutée au mauvais moment. Il faut confirmer le périmètre de mesure, consulter le calendrier et le propriétaire, puis corréler avec les compteurs WAN et l'impact applicatif. Une action comme décaler le transfert, ajuster une politique QoS ou augmenter la capacité doit suivre l'analyse de risque et être vérifiée après changement."
     }
   ]
 }
