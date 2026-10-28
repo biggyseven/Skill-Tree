@@ -471,7 +471,7 @@ Avant de choisir une plateforme, décris ce que l'utilisateur essaie de faire. P
 
 Définis quatre éléments : le parcours utilisateur, le niveau de service attendu, les dépendances qui rendent ce parcours possible et les conséquences d'une indisponibilité. Un service à faible criticité peut tolérer une analyse différée. Une plateforme de paiement, une chaîne industrielle ou un service de santé demandent des seuils et des procédures bien plus prudents. Le niveau de risque détermine aussi si une recommandation peut être exécutée automatiquement ou si elle doit toujours être approuvée par une personne.
 
-~~~mermaid
+```mermaid
 flowchart TD
     U["Besoin utilisateur"] --> P["Parcours métier"]
     P --> S["Service à surveiller"]
@@ -483,7 +483,7 @@ flowchart TD
     O --> E["Règles d'évaluation"]
     Q --> E
     E --> R["Recommandation justifiable"]
-~~~
+```
 
 Ce schéma rappelle qu'un projet ne commence pas par l'installation d'un outil de collecte. Si l'objectif n'est pas connu, il est impossible de dire si une alerte est utile, si le délai de détection s'améliore ou si une action a un effet réel. En atelier, choisis un seul parcours, comme l'ouverture d'une page, puis formule une phrase mesurable : « 95 % des ouvertures de la page de cours doivent aboutir en moins de deux secondes sur une fenêtre de quinze minutes ». Ce chiffre n'est qu'un exemple de travail ; l'objectif réel doit être négocié avec le propriétaire du service.
 
@@ -493,7 +493,7 @@ La première fiche du service doit préciser son nom, son propriétaire techniqu
 
 La télémétrie désigne les données qui rendent observable le fonctionnement d'un système. On distingue couramment les métriques, les journaux et les traces. Une métrique résume un phénomène sur une période ou à un instant, comme le taux d'erreurs HTTP. Un journal décrit un événement précis, comme un refus d'authentification. Une trace relie plusieurs opérations ayant participé à une même requête, par exemple le navigateur, l'API et la base de données. Ces trois signaux sont complémentaires : un pic de latence indique qu'il existe un problème possible, un journal peut préciser le contexte, et une trace peut aider à localiser l'étape lente.
 
-~~~mermaid
+```mermaid
 flowchart LR
     APP["Application"] --> MET["Métriques"]
     APP --> LOG["Journaux structurés"]
@@ -506,7 +506,7 @@ flowchart LR
     COR --> ANA["Analyse et corrélation"]
     ANA --> VIZ["Tableau de bord"]
     ANA --> INC["Dossier d'incident"]
-~~~
+```
 
 Le contrat de télémétrie doit être explicite. Pour chaque source, indique le propriétaire, la fréquence d'émission, la rétention, l'unité, la zone temporelle, les identifiants utiles, le niveau de sensibilité et le comportement en cas d'absence. Par exemple, si la métrique de latence disparaît, le système ne doit surtout pas interpréter l'absence de points comme une latence nulle. L'état doit devenir « donnée inconnue » ou « couverture insuffisante ».
 
@@ -528,7 +528,7 @@ Un signal doit avoir une finalité. Ne collecte pas des données sensibles « au
 
 Les systèmes hétérogènes emploient des champs différents. Un produit appelle parfois son champ temporel timestamp, un autre time, et un troisième observed_at. Les unités varient également : une latence en secondes peut être confondue avec une latence en millisecondes si le contrat n'est pas appliqué. La normalisation consiste à convertir les champs dans un format commun tout en conservant la provenance d'origine.
 
-~~~mermaid
+```mermaid
 sequenceDiagram
     participant A as Application
     participant C as Collecteur
@@ -545,7 +545,7 @@ sequenceDiagram
     else Données incohérentes
         V-->>S: Quarantaine avec motif
     end
-~~~
+```
 
 Chaque événement normalisé doit, au minimum, posséder un horodatage, un nom de service, une source, un type de signal, une valeur ou un contenu, une unité lorsqu'elle s'applique, un statut de qualité et une version de schéma. Selon le cas, on ajoutera la région, la zone, l'hôte, le composant ou un identifiant de trace. Si la conversion ne peut pas être effectuée sans supposition, le système doit mettre l'enregistrement en quarantaine au lieu de fabriquer une valeur.
 
@@ -612,7 +612,7 @@ Ce code est un exercice de validation, pas un collecteur prêt à être exposé 
 
 Toute analyse temporelle doit préciser sa fenêtre : les dernières cinq minutes, une heure, une journée ou une période comparable de la semaine précédente. Une moyenne sur une minute peut masquer un pic de deux secondes. Une moyenne sur une journée peut masquer une saturation à huit heures du matin. Le choix dépend du service et de la question. Les données doivent être alignées sur des intervalles comparables avant de calculer un taux ou de relier deux signaux.
 
-~~~mermaid
+```mermaid
 flowchart TD
     R["Mesures reçues"] --> H["Vérifier la cohérence des horloges"]
     H --> D{"Écart temporel acceptable ?"}
@@ -622,7 +622,7 @@ flowchart TD
     C -- Oui --> A["Autoriser l'analyse"]
     C -- Non --> U["Résultat inconnu / investigation"]
     Q --> U
-~~~
+```
 
 Imaginons une collecte attendue toutes les trente secondes. Sur une fenêtre de cinq minutes, dix mesures devraient être reçues si la source est régulière. Si seulement trois mesures existent, la moyenne calculée sur ces trois valeurs peut être trompeuse : les sept mesures absentes pourraient correspondre aux moments les plus dégradés. Le système doit présenter le taux de couverture avec le résultat. Dans certaines situations, une absence de télémétrie est elle-même une alerte distincte, mais elle ne prouve pas que le service est en panne.
 
@@ -636,7 +636,7 @@ Une anomalie est une observation suffisamment inhabituelle par rapport à un com
 
 Une baseline est une référence calculée ou définie à partir de périodes où le service fonctionne comme attendu. La première baseline peut être très simple : comparer une mesure à une borne validée par le propriétaire du service. Une deuxième étape peut comparer l'heure courante à la même heure de jours précédents. Des techniques plus sophistiquées n'ont de valeur que si elles améliorent les résultats par rapport à ces méthodes simples, sur des périodes de test représentatives.
 
-~~~mermaid
+```mermaid
 flowchart TD
     M["Mesure et contexte"] --> Q{"Qualité suffisante ?"}
     Q -- Non --> HOLD["Ne pas conclure : vérifier la collecte"]
@@ -647,7 +647,7 @@ flowchart TD
     X -- Oui --> F{"Répétition ou preuves croisées ?"}
     F -- Oui --> ALERT["Créer une alerte contextualisée"]
     F -- Non --> WATCH["Surveiller pendant une fenêtre adaptée"]
-~~~
+```
 
 Pour un débutant, il est utile de distinguer trois familles de méthodes :
 
@@ -697,7 +697,7 @@ Un jeu de test utile comprend au moins : une période stable, une augmentation b
 
 Un événement est un fait observé. Une anomalie est un écart qui mérite un examen. Une alerte est une notification adressée à une personne ou à un système selon des critères connus. Un incident est une situation ayant un impact ou un risque concret sur le service. Ces termes ne sont pas interchangeables : si chaque événement déclenche un incident, l'équipe finit par ignorer la plupart des messages.
 
-~~~mermaid
+```mermaid
 stateDiagram-v2
     [*] --> Observe: mesure reçue
     Observe --> Invalid: qualité insuffisante
@@ -712,7 +712,7 @@ stateDiagram-v2
     Verify --> Closed: postconditions validées
     Verify --> Investigate: symptôme persistant
     Closed --> [*]
-~~~
+```
 
 Ce cycle permet de distinguer la notification de la résolution. Une alerte peut être acquittée sans que le problème soit résolu. Une action peut être exécutée sans que le service soit revenu à l'état attendu. La clôture exige donc un contrôle indépendant, par exemple une sonde synthétique qui vérifie que la page fonctionne de nouveau, plutôt que la simple confirmation d'un script terminé.
 
@@ -724,7 +724,7 @@ Le regroupement peut utiliser une clé composée d'un service, d'un type de symp
 
 La corrélation temporelle est un début, pas une preuve causale. Plusieurs services peuvent se dégrader à la même heure parce qu'ils partagent un réseau, une identité, une base de données, un fournisseur DNS ou une chaîne de déploiement. Une carte de dépendances permet de formuler de meilleures hypothèses. Elle doit préciser d'où vient la relation : configuration déclarée, découverte technique, trace observée, ou hypothèse encore à vérifier.
 
-~~~mermaid
+```mermaid
 flowchart TD
     USER["Parcours utilisateur"] --> WEB["Interface web"]
     WEB --> API["API applicative"]
@@ -738,13 +738,13 @@ flowchart TD
     WEB -. "résout" .-> DNS
     API -. "résout" .-> DNS
     IDP -. "résout" .-> DNS
-~~~
+```
 
 Dans cet exemple, une dégradation simultanée de l'interface, de l'API et de l'identité peut suggérer un composant partagé, mais ce n'est encore qu'une hypothèse. Il faut rechercher des preuves : échecs de résolution DNS, délais de connexion, changements récents, traces d'appels, erreurs côté client et comparaison avec un site non affecté. Une dépendance cartographiée n'implique pas que chaque panne de son voisin soit sa conséquence.
 
 Une méthode pratique consiste à générer une liste de causes candidates. Pour chacune, indique les observations favorables, les éléments contradictoires, les données manquantes, le coût d'un test et le risque d'une action. Une hypothèse qui explique un symptôme mais contredit plusieurs observations devrait baisser dans le classement. Les explications doivent rester lisibles par l'équipe, avec les liens vers les sources et les intervalles de temps exacts.
 
-~~~mermaid
+```mermaid
 flowchart LR
     E["Événements rapprochés"] --> T["Vérifier les temps"]
     T --> D["Consulter les dépendances"]
@@ -755,7 +755,7 @@ flowchart LR
     M --> H
     X -- Oui --> R["Préparer une action proportionnée"]
     R --> V["Vérifier le résultat"]
-~~~
+```
 
 Pour éviter un raisonnement circulaire, le signal qui a généré l'alerte ne devrait pas être la seule preuve de sa propre cause. Par exemple, si un seuil de latence est franchi, il ne suffit pas d'utiliser ce même seuil comme preuve qu'un redémarrage est nécessaire. Une autre observation, telle qu'un état de dépendance, une erreur de connexion ou une vérification synthétique, devrait soutenir la recommandation.
 
@@ -765,7 +765,7 @@ Un score de confiance n'est pas une vérité universelle. Il peut combiner la qu
 
 Une proposition peut être classée dans des catégories compréhensibles : preuve insuffisante, piste à examiner, hypothèse soutenue, ou cause confirmée par une vérification indépendante. Les seuils numériques éventuels doivent être calibrés sur des cas historiques représentatifs, et non choisis simplement parce qu'ils donnent une belle courbe. La confiance technique doit aussi être séparée du risque métier : une cause peut être très probable, mais l'action proposée peut rester trop dangereuse.
 
-~~~mermaid
+```mermaid
 flowchart TD
     C["Cause candidate"] --> Q["Évaluer la qualité des sources"]
     Q --> I["Mesurer l'indépendance des preuves"]
@@ -777,7 +777,7 @@ flowchart TD
     F -- Non --> N
     F -- Oui --> D["Cause fortement étayée"]
     N --> H["Escalade humaine si impact important"]
-~~~
+```
 
 La sortie idéale explique non seulement ce que le système recommande, mais également pourquoi : « La latence de l'API augmente depuis 6 minutes ; les appels à la base représentent 78 % de la durée des traces échantillonnées ; le taux de connexions échouées augmente ; aucun déploiement n'a été enregistré sur la période. Hypothèse à vérifier : saturation du pool de connexions. Les métriques du serveur de base de données manquent, donc aucune action automatique ne sera exécutée. » Cette formulation est plus utile qu'un simple « anomalie à 92 % ».
 
@@ -785,7 +785,7 @@ La sortie idéale explique non seulement ce que le système recommande, mais ég
 
 La première version d'un système AIOps devrait fonctionner en lecture seule et produire des recommandations. Une fois sa qualité mesurée, certaines actions à faible risque peuvent être autorisées dans un environnement contrôlé. Les actions destructrices, globales, irréversibles ou touchant un service critique doivent exiger des contrôles plus stricts. Le niveau d'autonomie doit être accordé action par action, jamais à tout le système de manière indistincte.
 
-~~~mermaid
+```mermaid
 flowchart TD
     REC["Recommandation"] --> PRE["Vérifier préconditions"]
     PRE --> RISK{"Risque autorisé ?"}
@@ -800,7 +800,7 @@ flowchart TD
     OK -- Non --> RB["Rollback ou escalade"]
     HUMAN --> AUD
     RB --> AUD
-~~~
+```
 
 Une action automatisée doit posséder au minimum un identifiant, un but, un périmètre, un propriétaire, des préconditions, un délai maximal, une limite de répétition, une procédure de retour arrière et des critères de réussite. Le système doit aussi empêcher qu'une même boucle relance sans fin une action qui échoue. Un délai de refroidissement, une limite quotidienne et un verrou par ressource peuvent éviter plusieurs interventions concurrentes.
 
@@ -845,7 +845,7 @@ Les identités utilisées par le système doivent avoir des permissions minimale
 
 Un cycle de diagnostic n'est pas achevé au moment où une personne reconnaît une cause probable. Il faut également limiter l'impact, confirmer le retour du service, documenter la décision et vérifier que l'incident ne se répète pas. Les événements, recommandations, approbations, actions et résultats devraient être corrélables par un identifiant d'incident unique.
 
-~~~mermaid
+```mermaid
 sequenceDiagram
     participant O as Observabilité
     participant A as AIOps
@@ -860,7 +860,7 @@ sequenceDiagram
     O-->>A: État après action
     A->>P: Résultat mesuré, succès ou échec
     P->>A: Validation et retour d'expérience
-~~~
+```
 
 Le dossier d'incident devrait contenir : les symptômes observés, la période, l'impact, les sources utilisées, leur qualité, les hypothèses classées, les contre-indices, les changements récents, la décision prise, l'identité qui a approuvé l'action, les commandes exécutées, les postconditions et la méthode de retour arrière. Une telle structure rend l'analyse plus reproductible et aide à améliorer les règles.
 
@@ -870,7 +870,7 @@ Il faut préserver la distinction entre donnée brute, transformation et interpr
 
 Les métriques techniques de la plateforme AIOps ne suffisent pas. Une plateforme peut ingérer des millions d'événements par seconde tout en étant incapable d'identifier une cause utile. Il faut relier les indicateurs de la solution aux résultats du service et au travail de l'équipe.
 
-~~~mermaid
+```mermaid
 flowchart TD
     TECH["Indicateurs techniques"] --> QUAL["Qualité de l'analyse"]
     TECH --> COST["Coût et latence du pipeline"]
@@ -880,7 +880,7 @@ flowchart TD
     COST --> REV
     REV --> IMP["Adapter les objectifs et les contrôles"]
     IMP --> TECH
-~~~
+```
 
 Les indicateurs possibles comprennent :
 
@@ -895,7 +895,7 @@ Les indicateurs possibles comprennent :
 
 Il ne faut pas améliorer un indicateur en détériorant les autres. Diminuer le volume d'alertes en supprimant des règles trop sensibles peut diminuer les faux positifs, mais aussi cacher les incidents. Réduire le MTTR en fermant les incidents avant vérification améliore artificiellement le chiffre sans améliorer le service. Chaque mesure doit donc être accompagnée d'une définition, d'une source, d'un propriétaire, d'une segmentation appropriée et d'un contrôle contre les effets pervers.
 
-~~~mermaid
+```mermaid
 flowchart LR
     SLA["Objectif de service"] --> SLI["Indicateur mesuré"]
     SLI --> BUD["Budget d'erreur"]
@@ -905,7 +905,7 @@ flowchart LR
     CHANGE --> VERIFY["Vérifier l'impact"]
     STAB --> VERIFY
     VERIFY --> SLI
-~~~
+```
 
 Le budget d'erreur est une manière de rendre explicite la quantité de dégradation tolérée par rapport à un objectif de service sur une fenêtre déterminée. Il peut guider la priorité entre nouvelles fonctionnalités et fiabilité, mais la définition exacte dépend du contrat et du contexte. Ce concept ne signifie pas qu'une panne est acceptable pour chaque utilisateur, et ne remplace ni les obligations réglementaires ni une analyse de sécurité.
 
@@ -913,7 +913,7 @@ Le budget d'erreur est une manière de rendre explicite la quantité de dégrada
 
 Les projets AIOps doivent pouvoir démontrer leur valeur avant de recevoir davantage de permissions. Une progression classique commence par la collecte et l'observation, continue par des recommandations évaluées hors ligne ou par des simulations, et ne permet ensuite que quelques actions bien délimitées. Chaque étape nécessite des critères de passage et des conditions d'arrêt.
 
-~~~mermaid
+```mermaid
 flowchart TD
     A["Étape 1 : collecte et qualité"] --> B{"Données suffisamment fiables ?"}
     B -- Non --> FIX["Corriger la collecte"]
@@ -929,7 +929,7 @@ flowchart TD
     H -- Non --> F
     H -- Oui --> I["Étape 4 : automatisation bornée"]
     I --> J["Suivi renforcé, rollback et arrêt d'urgence"]
-~~~
+```
 
 Un déploiement prudent prévoit une fenêtre pilote, un groupe de services restreint, une comparaison avec la méthode antérieure, des tests de charge, des essais sur données manquantes et une procédure claire pour désactiver les recommandations. Le comportement de secours doit être connu avant la mise en service. Si le composant AIOps tombe en panne, le service métier doit continuer autant que possible à être surveillé et exploité par les procédures habituelles.
 
@@ -948,7 +948,7 @@ Prépare cinq types de fichiers ou de tableaux :
 
 Crée au moins trois scénarios. Dans le premier, la latence augmente avec une hausse des erreurs de connexion à la base de données. Dans le deuxième, la latence augmente parce qu'une charge planifiée se produit, mais les erreurs restent stables et le parcours utilisateur satisfait toujours l'objectif. Dans le troisième, plusieurs mesures disparaissent en même temps. Le premier scénario demande une investigation de la base, le deuxième ne justifie pas nécessairement un incident, et le troisième doit marquer l'analyse comme incertaine.
 
-~~~mermaid
+```mermaid
 flowchart TD
     START["Charger les données synthétiques"] --> VALID["Contrôler schéma et horodatages"]
     VALID --> COVER["Calculer la couverture"]
@@ -961,7 +961,7 @@ flowchart TD
     DEC -- Oui --> REC["Rédiger une recommandation limitée"]
     ABST --> REPORT["Générer le compte rendu d'incident"]
     REC --> REPORT
-~~~
+```
 
 #### Étape 1 — Contrôler la qualité
 
