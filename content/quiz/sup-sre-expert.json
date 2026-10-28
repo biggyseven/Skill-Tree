@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « SRE et culture de la fiabilité ».",
+      "prompt": "Quelle est la différence essentielle entre une approche SRE et une exploitation fondée principalement sur des opérations manuelles ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Le SRE interdit toute intervention humaine, même en cas d’incident.",
+        "Le SRE applique l’ingénierie, la mesure et l’automatisation pour améliorer durablement la fiabilité et réduire les tâches répétitives.",
+        "Le SRE consiste surtout à installer un outil de dashboarding.",
+        "Le SRE délègue toute responsabilité de production à une équipe centrale."
+      ],
+      "answer": 1,
+      "explanation": "Le SRE cherche à rendre l’exploitation plus fiable en concevant des systèmes, des mesures, des automatisations et des processus reproductibles. Les interventions humaines restent nécessaires pour les décisions et les incidents, mais le travail répétitif qui peut être prévenu ou automatisé ne devrait pas devenir une dépendance permanente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans la terminologie SRE, quel énoncé décrit le mieux le toil ?",
+      "choices": [
+        "Toute tâche technique qui nécessite une revue de code.",
+        "Tout incident qui dure plus de trente minutes.",
+        "Un travail opérationnel répétitif, souvent manuel, qui croît avec le service sans produire d’amélioration durable après son exécution.",
+        "Une tâche exceptionnelle d’architecture qui demande un jugement humain."
+      ],
+      "answer": 2,
+      "explanation": "Le toil est généralement répétitif, opérationnel et sans bénéfice durable à chaque exécution. Il mérite d’être mesuré afin d’en supprimer la cause, de prévenir sa réapparition ou de l’automatiser de façon sûre. Une tâche manuelle rare qui exige une analyse nouvelle n’est pas automatiquement du toil."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l’objectif principal d’un postmortem sans blâme après un incident significatif ?",
+      "choices": [
+        "Comprendre les facteurs techniques et organisationnels, puis suivre des actions qui réduisent le risque de récidive.",
+        "Trouver la personne à sanctionner afin d’éviter tout nouvel incident.",
+        "Prouver que l’équipe d’exploitation est la seule responsable.",
+        "Remplacer les tests et la supervision par un rapport écrit."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Un postmortem sans blâme reconstitue la chronologie, l’impact, les informations disponibles, les décisions et les facteurs contributifs. Il vise des améliorations concrètes avec un propriétaire et une échéance. Il n’élimine pas les responsabilités, mais évite que la recherche d’un coupable remplace l’analyse des mécanismes qui ont permis l’incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un déploiement progressif ou un canari doit-il disposer de critères d’arrêt et d’une stratégie de rollback définis à l’avance ?",
+      "choices": [
+        "Pour éviter de mesurer les indicateurs après la livraison.",
+        "Parce qu’un canari garantit automatiquement l’absence de tout incident.",
+        "Pour pouvoir décider uniquement à partir du nombre de commits.",
+        "Pour limiter l’exposition à une régression, interpréter les signaux de santé et interrompre le déploiement lorsque les conditions ne sont pas respectées."
+      ],
+      "answer": 3,
+      "explanation": "Un canari réduit le rayon d’impact en exposant progressivement le trafic à la nouvelle version. Les critères d’arrêt, les signaux de comparaison et le rollback doivent être prévus avant le lancement, sinon l’équipe risque de poursuivre l’exposition pendant qu’elle débat de la gravité. Les migrations et effets persistants doivent aussi être pris en compte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment différencier correctement une page urgente, un ticket et un signal de diagnostic ?",
+      "choices": [
+        "Toutes les alertes doivent déclencher une page pour garantir que personne ne les manque.",
+        "Une page exige une action immédiate, un ticket organise une action différée et un signal de diagnostic conserve une information sans action immédiate attendue.",
+        "Un ticket sert uniquement à conserver des métriques, tandis qu’une page sert à documenter le code.",
+        "Le type de notification doit dépendre uniquement de la valeur CPU, indépendamment de l’impact utilisateur."
+      ],
+      "answer": 1,
+      "explanation": "Le canal et la sévérité doivent découler de l’action attendue. Une page est justifiée lorsqu’une personne doit agir immédiatement pour réduire un impact ou un risque important. Un ticket convient à un travail pouvant attendre, tandis que les signaux de diagnostic aident à l’analyse. Une classification cohérente réduit le bruit et protège l’attention de l’astreinte."
     }
   ]
 }
