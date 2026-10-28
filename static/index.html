@@ -1139,7 +1139,7 @@
       <section x-show="tab === 'diagnostic'" x-cloak x-transition.opacity.duration.150ms>
         <template x-if="!diagData">
           <div>
-            <div class="learning-section-header mb-6"><p class="eyebrow">Dépannage</p><h2 class="mt-1 text-2xl font-semibold text-white">Diagnostic interactif</h2><p class="mt-1 text-sm text-zinc-400">Choisis un scénario de panne et mène l'enquête pas à pas. Tes décisions sont évaluées.</p></div>
+            <div class="learning-page-intro mb-6"><p class="eyebrow">Dépannage</p><h2 class="mt-1 text-2xl font-semibold text-white">Diagnostic interactif</h2><p class="mt-1 text-sm text-zinc-400">Choisis un scénario de panne et mène l'enquête pas à pas. Tes décisions sont évaluées.</p></div>
             <section class="diagnostic-overview mb-5 grid gap-3 sm:grid-cols-3" aria-label="Progression des diagnostics">
               <article class="learning-stat-card"><span class="learning-stat-icon" aria-hidden="true">🧭</span><div class="min-w-0"><p class="learning-stat-label">Scénarios</p><p class="learning-stat-value" x-text="diagList.length">0</p></div></article>
               <article class="learning-stat-card"><span class="learning-stat-icon" aria-hidden="true">▶</span><div class="min-w-0"><p class="learning-stat-label">À reprendre</p><p class="learning-stat-value" x-text="diagList.filter(s => diagProgressMap[s.id]).length">0</p></div></article>
@@ -1292,7 +1292,7 @@
             <p x-show="examBusy" x-cloak role="status" aria-live="polite" class="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-3 text-sm text-emerald-200">Préparation de l’examen… sélection et vérification des questions.</p>
 
             <section id="learning-phase4-overview" aria-label="Synthèse des examens" class="grid gap-3 sm:grid-cols-3">
-              <article class="learning-stat-card"><span class="learning-stat-icon" aria-hidden="true">📝</span><div class="min-w-0"><p class="learning-stat-label">Sessions passées</p><p class="learning-stat-value" x-text="examHistory.length">0</p></div></article>
+              <article class="learning-stat-card"><span class="learning-stat-icon" aria-hidden="true">📝</span><div class="min-w-0"><p class="learning-stat-label">Sessions terminées</p><p class="learning-stat-value" x-text="examHistory.length">0</p></div></article>
               <article class="learning-stat-card"><span class="learning-stat-icon" aria-hidden="true">✅</span><div class="min-w-0"><p class="learning-stat-label">Réussites</p><p class="learning-stat-value" x-text="examHistory.filter(item => item.passed).length">0</p></div></article>
               <article class="learning-stat-card"><span class="learning-stat-icon" aria-hidden="true">🎯</span><div class="min-w-0"><p class="learning-stat-label">Seuil de réussite</p><p class="learning-stat-value">80<span class="learning-stat-unit">%</span></p></div></article>
             </section>
@@ -1437,7 +1437,7 @@
 
       <!-- ============ ONGLET RÉCOMPENSES ============ -->
       <section x-show="tab === 'rewards'" x-cloak x-transition.opacity.duration.150ms>
-        <div class="learning-section-header mb-6"><p class="eyebrow">Progression</p><h2 class="mt-1 text-2xl font-semibold text-white">Récompenses et diplômes</h2><p class="mt-1 text-sm text-zinc-400">Un diplôme s'obtient quand tous les cours d'un niveau sont validés et que l'examen de ce niveau est réussi (80 % minimum).</p></div>
+        <div class="learning-page-intro mb-6"><p class="eyebrow">Progression</p><h2 class="mt-1 text-2xl font-semibold text-white">Récompenses et diplômes</h2><p class="mt-1 text-sm text-zinc-400">Un diplôme s'obtient quand tous les cours d'un niveau sont validés et que l'examen de ce niveau est réussi (80 % minimum).</p></div>
         <div class="rewards-summary-grid mb-8 grid gap-3 sm:grid-cols-4">
           <div class="reward-summary-card card-sm text-center"><p class="eyebrow">Niveau</p><p class="mt-1 font-mono text-2xl text-emerald-400" x-text="userStatsLoaded ? userStats.current_level + ' · ' + userStats.level_name : '—'"></p></div>
           <div class="reward-summary-card card-sm text-center"><p class="eyebrow">XP</p><p class="mt-1 font-mono text-2xl text-cyan-400" x-text="userStatsLoaded ? userStats.total_xp : '—'"></p></div>
