@@ -9328,12 +9328,15 @@
         };
 
         // Examen : pause explicite, minuteur figé, et durée mesurée hors périodes de pause.
-        const originalLaunchExam = app.launchExam.bind(app);
-        const originalResetExam = app.resetExam.bind(app);
+        // Ne pas lier ces méthodes à l'objet brut créé avant Alpine : les mutations
+        // doivent être appliquées au proxy réactif reçu via `this`, sinon l'API répond
+        // mais x-if conserve le formulaire et n'affiche jamais les questions.
+        const originalLaunchExam = app.launchExam;
+        const originalResetExam = app.resetExam;
         app.launchExam = async function (cfg) {
           this.examPaused = false;
           this.examInitialTime = Number(cfg.minutes || 30) * 60;
-          await originalLaunchExam(cfg);
+          await originalLaunchExam.call(this, cfg);
           if (this.exam && !this.examResult) {
             this.examInitialTime = this.examLeft || this.examInitialTime;
             this.examPaused = false;
@@ -9462,7 +9465,7 @@
         app.resetExam = function () {
           this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false;
           this.examPaused = false; this.examInitialTime = 0; this.examAnswers = []; this.examFlags = {}; this.examLeft = 0;
-          originalResetExam();
+          originalResetExam.call(this);
         };
 
         // Labs : erreur réseau lisible au lieu d’une promesse rejetée silencieuse.
