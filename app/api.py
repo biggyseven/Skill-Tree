@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import io
 import json
 import os
@@ -62,7 +63,7 @@ from .lab_routes import (
     seed_lab_v2_catalog,
 )
 from .lab_schema_v2 import Topology
-from .scenario_loader import load_scenario, list_scenarios
+from .scenario_loader import (SCENARIO_DIR, build_scenario, generate_random_scenario, get_scenario_options, load_scenario, list_scenarios)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -429,6 +430,16 @@ class TicketPostMortemRequest(BaseModel):
     impact: str = Field(min_length=3, max_length=5000)
     corrective_action: str = Field(min_length=3, max_length=5000)
 
+class ScenarioSaveRequest(BaseModel):
+    name: str = Field(min_length=3, max_length=160)
+    type: str
+    severity: str
+    topology: str
+    fault_id: str
+    target_device: str
+    target_port: str
+    sla_minutes: int = Field(ge=5, le=240)
+
 
 def _war_room_now() -> datetime:
     return datetime.now(timezone.utc)
@@ -468,6 +479,82 @@ def _ticket_action(conn: Any, ticket_id: str, action_type: str, payload: dict[st
         (ticket_id, action_type, json.dumps(payload, ensure_ascii=False), _war_room_iso(_war_room_now())),
     )
 
+def _load_scenario_by_id(scenario_id: str, conn: Any | None = None) -> dict[str, Any]:
+    """Charge les scénarios fichier, puis les scénarios RND enregistrés en base."""
+    try:
+        return load_scenario(scenario_id)
+    except FileNotFoundError:
+        if conn is not None:
+            row = conn.execute(
+                "SELECT scenario_json FROM war_room_scenarios WHERE scenario_id = ?",
+                (str(scenario_id),),
+            ).fetchone()
+            if row:
+                try:
+                    scenario = json.loads(row["scenario_json"])
+                    if isinstance(scenario, dict) and scenario.get("id") == scenario_id:
+                        return scenario
+                except (TypeError, json.JSONDecodeError):
+                    pass
+        raise FileNotFoundError(f"Scénario introuvable : {scenario_id}") from None
+
+
+def _new_user_scenario_id() -> str:
+    return "USER-" + _war_room_now().strftime("%Y%m%d%H%M%S%f") + "-" + secrets.token_hex(3).upper()
+
+
+def _save_user_scenario_file(scenario: dict[str, Any]) -> str:
+    """Écrit uniquement des identifiants USER-* et ne remplace jamais un fichier existant."""
+    SCENARIO_DIR.mkdir(parents=True, exist_ok=True)
+    for _ in range(5):
+        scenario_id = _new_user_scenario_id()
+        path = SCENARIO_DIR / f"{scenario_id}.json"
+        candidate = dict(scenario)
+        candidate["id"] = scenario_id
+        try:
+            with path.open("x", encoding="utf-8") as handle:
+                json.dump(candidate, handle, ensure_ascii=False, indent=2)
+                handle.write("\n")
+            scenario.clear()
+            scenario.update(candidate)
+            return f"content/scenarios/{path.name}"
+        except FileExistsError:
+            continue
+        except OSError as exc:
+            raise HTTPException(status_code=500, detail=f"Impossible d'enregistrer le scénario : {exc}") from exc
+    raise HTTPException(status_code=500, detail="Impossible de générer un identifiant utilisateur unique.")
+
+
+def _validate_scenario_document(scenario: Any) -> dict[str, Any]:
+    """Vérifie les clés et la forme minimale d'un scénario partagé."""
+    if not isinstance(scenario, dict):
+        raise HTTPException(status_code=422, detail="Le scénario doit être un objet JSON.")
+    missing = [key for key in ("id", "type", "initial_topology", "resolution_check") if key not in scenario]
+    if missing:
+        raise HTTPException(status_code=422, detail=f"Clés manquantes : {', '.join(missing)}.")
+    if not isinstance(scenario.get("id"), str) or not scenario["id"].strip():
+        raise HTTPException(status_code=422, detail="L'identifiant source du scénario est invalide.")
+    if scenario.get("type") not in {"incident", "change", "problem"}:
+        raise HTTPException(status_code=422, detail="Le type doit être incident, change ou problem.")
+    topology = scenario.get("initial_topology")
+    if not isinstance(topology, dict) or not isinstance(topology.get("nodes"), list) or not isinstance(topology.get("links"), list):
+        raise HTTPException(status_code=422, detail="initial_topology doit contenir nodes et links.")
+    node_ids = [str(node.get("id", "")) for node in topology["nodes"] if isinstance(node, dict)]
+    if not node_ids or len(node_ids) != len(topology["nodes"]) or any(not node_id for node_id in node_ids):
+        raise HTTPException(status_code=422, detail="La topologie doit contenir des équipements identifiés.")
+    if len(node_ids) != len(set(node_ids)):
+        raise HTTPException(status_code=422, detail="Les identifiants des équipements doivent être uniques.")
+    checks = scenario.get("resolution_check")
+    if not isinstance(checks, dict) or not isinstance(checks.get("rules"), list) or not checks["rules"]:
+        raise HTTPException(status_code=422, detail="resolution_check doit contenir au moins une règle.")
+    if not str(scenario.get("title") or "").strip():
+        scenario["title"] = scenario["id"]
+    if scenario.get("severity") not in {"low", "normal", "medium", "high", "critical"}:
+        scenario["severity"] = "normal"
+    scenario.setdefault("sla_minutes", 30)
+    scenario.setdefault("reward_xp", 150)
+    return scenario
+
 
 def _expire_war_room_tickets(conn: Any, now: datetime | None = None) -> int:
     """Marque comme échoués les tickets actifs dont l'échéance SLA est dépassée."""
@@ -503,10 +590,10 @@ def _expire_war_room_tickets(conn: Any, now: datetime | None = None) -> int:
     return expired
 
 
-def _war_ticket_summary(row: Any) -> dict[str, Any]:
+def _war_ticket_summary(row: Any, conn: Any | None = None) -> dict[str, Any]:
     ticket = _ticket_payload(row)
     try:
-        scenario = load_scenario(ticket["scenario_id"])
+        scenario = _load_scenario_by_id(ticket["scenario_id"], conn)
     except FileNotFoundError:
         scenario = {}
     opened_at = _war_room_parse_time(ticket.get("opened_at"))
@@ -620,7 +707,7 @@ def list_open_tickets() -> list[dict[str, Any]]:
         for row in rows:
             ticket = _ticket_payload(row)
             try:
-                scenario = load_scenario(ticket["scenario_id"])
+                scenario = _load_scenario_by_id(ticket["scenario_id"], conn)
             except FileNotFoundError:
                 scenario = {}
             deadline = _war_room_parse_time(ticket.get("sla_deadline"))
@@ -638,6 +725,106 @@ def list_open_tickets() -> list[dict[str, Any]]:
         conn.close()
 
 
+@app.get("/api/scenarios/options")
+def war_room_scenario_options() -> dict[str, Any]:
+    return get_scenario_options()
+
+
+@app.post("/api/tickets/random")
+def create_random_war_room_ticket() -> dict[str, Any]:
+    """Crée un ticket surprise ; le scénario est stocké en base, jamais en fichier."""
+    scenario = generate_random_scenario()
+    conn = _open_ticket_conn()
+    try:
+        now = _war_room_now()
+        deadline = _war_room_iso(now + timedelta(minutes=int(scenario["sla_minutes"])))
+        conn.execute(
+            "INSERT INTO war_room_scenarios (scenario_id, scenario_json, created_at) VALUES (?, ?, ?)",
+            (scenario["id"], json.dumps(scenario, ensure_ascii=False), _war_room_iso(now)),
+        )
+        conn.execute(
+            "INSERT INTO tickets (id, scenario_id, type, severity, status, opened_at, sla_deadline, resolution_data, xp_earned) "
+            "VALUES (?, ?, ?, ?, 'open', ?, ?, '{}', 0)",
+            (scenario["id"], scenario["id"], scenario["type"], scenario["severity"], _war_room_iso(now), deadline),
+        )
+        _ticket_action(conn, scenario["id"], "opened", {
+            "source": "random", "fault_id": scenario["fault_id"],
+            "target_device": scenario["target_device"], "target_port": scenario["target_port"],
+        })
+        conn.commit()
+        return {"ticket_id": scenario["id"], "scenario": scenario}
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+@app.post("/api/scenarios/save")
+def save_user_scenario(payload: ScenarioSaveRequest) -> dict[str, Any]:
+    try:
+        topology_id = {
+            "LAN simple": "lan_simple", "LAN+WAN": "lan_wan", "LAN + WAN": "lan_wan",
+            "VLANs multiples": "multi_vlan",
+        }.get(payload.topology, payload.topology)
+        scenario = build_scenario(
+            scenario_id=_new_user_scenario_id(),
+            title=payload.name,
+            scenario_type=payload.type,
+            severity=payload.severity,
+            topology_id=topology_id,
+            fault_id=payload.fault_id,
+            target_device=payload.target_device,
+            target_port=payload.target_port,
+            sla_minutes=payload.sla_minutes,
+            reward_xp=150,
+        )
+        _validate_scenario_document(scenario)
+        file_path = _save_user_scenario_file(scenario)
+        return {"scenario_id": scenario["id"], "file_path": file_path, "scenario": scenario}
+    except HTTPException:
+        raise
+    except (ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@app.get("/api/scenarios/list")
+def list_war_room_scenarios() -> list[dict[str, Any]]:
+    return [
+        {"id": scenario["id"], "title": scenario.get("title", scenario["id"]),
+         "type": scenario.get("type", "incident"),
+         "is_user_created": str(scenario["id"]).startswith("USER-")}
+        for scenario in list_scenarios()
+    ]
+
+
+@app.post("/api/scenarios/import")
+def import_user_scenario(payload: dict[str, Any] = Body(...)) -> dict[str, Any]:
+    scenario = payload.get("scenario") if isinstance(payload, dict) and isinstance(payload.get("scenario"), dict) else payload
+    scenario = _validate_scenario_document(scenario)
+    imported = copy.deepcopy(scenario)
+    file_path = _save_user_scenario_file(imported)
+    return {"scenario_id": imported["id"], "file_path": file_path, "title": imported["title"]}
+
+
+@app.get("/api/scenarios/{scenario_id}/export")
+def export_war_room_scenario(scenario_id: str) -> Response:
+    conn = _open_ticket_conn()
+    try:
+        try:
+            scenario = _validate_scenario_document(_load_scenario_by_id(scenario_id, conn))
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="Scénario War Room introuvable.")
+        content = json.dumps(scenario, ensure_ascii=False, indent=2) + "\n"
+        return Response(
+            content=content,
+            media_type="application/json",
+            headers={"Content-Disposition": f'attachment; filename="{scenario_id}.json"'},
+        )
+    finally:
+        conn.close()
+
+
 @app.get("/api/tickets/archive")
 def list_archived_tickets() -> list[dict[str, Any]]:
     """Retourne l'historique des tickets résolus ou échoués, du plus récent au plus ancien."""
@@ -648,7 +835,7 @@ def list_archived_tickets() -> list[dict[str, Any]]:
             "SELECT * FROM tickets WHERE status IN ('resolved', 'failed') "
             "ORDER BY COALESCE(resolved_at, opened_at) DESC, opened_at DESC"
         ).fetchall()
-        return [_war_ticket_summary(row) for row in rows]
+        return [_war_ticket_summary(row, conn) for row in rows]
     finally:
         conn.close()
 
@@ -690,7 +877,7 @@ def get_itsm_stats() -> dict[str, Any]:
             "total_resolved": total_resolved,
             "total_failed": int(row["total_failed"] or 0),
             "incidents_today": int(today["n"] or 0),
-            "recent_resolved": [_war_ticket_summary(item) for item in recent_rows],
+            "recent_resolved": [_war_ticket_summary(item, conn) for item in recent_rows],
         }
     finally:
         conn.close()
@@ -698,18 +885,21 @@ def get_itsm_stats() -> dict[str, Any]:
 
 @app.post("/api/tickets/{scenario_id}/open")
 def open_ticket(scenario_id: str) -> dict[str, Any]:
-    try:
-        scenario = load_scenario(scenario_id)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Scénario War Room introuvable.")
     conn = _open_ticket_conn()
     try:
+        # Les tickets RND ont leur JSON en base ; les USER/pilotes sont des fichiers.
         active = conn.execute(
-            "SELECT * FROM tickets WHERE scenario_id = ? AND status IN ('open', 'pending_postmortem') ORDER BY opened_at DESC LIMIT 1",
-            (scenario_id,),
+            "SELECT * FROM tickets WHERE (scenario_id = ? OR id = ?) "
+            "AND status IN ('open', 'pending_postmortem') ORDER BY opened_at DESC LIMIT 1",
+            (scenario_id, scenario_id),
         ).fetchone()
         if active:
+            scenario = _load_scenario_by_id(str(active["scenario_id"]), conn)
             return {"ticket": _ticket_payload(active), "scenario": scenario, "existing": True}
+        try:
+            scenario = _load_scenario_by_id(scenario_id, conn)
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="Scénario War Room introuvable.")
         base_exists = conn.execute("SELECT id FROM tickets WHERE id = ?", (scenario_id,)).fetchone()
         ticket_id = f"{scenario_id}-{uuid.uuid4().hex[:6].upper()}" if base_exists else scenario_id
         now = _war_room_now()
@@ -745,7 +935,7 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
             ).fetchone()
         target_scenario_id = str(old["scenario_id"]) if old else scenario_id
         try:
-            scenario = load_scenario(target_scenario_id)
+            scenario = _load_scenario_by_id(target_scenario_id, conn)
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="Ticket ou scénario War Room introuvable.")
         active = conn.execute(
@@ -783,7 +973,7 @@ def get_ticket(ticket_id: str) -> dict[str, Any]:
             raise HTTPException(status_code=404, detail="Ticket introuvable.")
         ticket = _ticket_payload(row)
         try:
-            scenario = load_scenario(ticket["scenario_id"])
+            scenario = _load_scenario_by_id(ticket["scenario_id"], conn)
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="Scénario associé au ticket introuvable.")
         deadline = _war_room_parse_time(ticket.get("sla_deadline"))
@@ -806,7 +996,7 @@ def resolve_ticket(ticket_id: str, payload: TicketResolveRequest) -> dict[str, A
             raise HTTPException(status_code=409, detail="Ce ticket est déjà clôturé.")
         if ticket["status"] == "pending_postmortem":
             raise HTTPException(status_code=409, detail="Le post-mortem de ce ticket reste à valider.")
-        scenario = load_scenario(ticket["scenario_id"])
+        scenario = _load_scenario_by_id(ticket["scenario_id"], conn)
         checks = _scenario_topology_checks(scenario, payload.topology)
         config_passed = all(check["passed"] for check in checks)
         now = _war_room_now()
@@ -887,7 +1077,7 @@ def save_ticket_post_mortem(ticket_id: str, payload: TicketPostMortemRequest) ->
             raise HTTPException(status_code=409, detail="SLA dépassé : le ticket a été marqué comme échoué.")
         if ticket["status"] != "pending_postmortem":
             raise HTTPException(status_code=409, detail="Validez d'abord la résolution technique du ticket.")
-        scenario = load_scenario(ticket["scenario_id"])
+        scenario = _load_scenario_by_id(ticket["scenario_id"], conn)
         post_mortem = {
             "root_cause": payload.root_cause.strip(),
             "impact": payload.impact.strip(),
