@@ -1593,8 +1593,10 @@ def _lesson_progress_payload(node: Node, tree: SkillTree, row=None) -> dict[str,
     progress_percent = int(row["progress_percent"] or 0) if row else 0
     active_seconds = int(row["active_seconds"] or 0) if row else 0
     started = row is not None
-    # Recalcule le statut depuis les valeurs sauvegardées plutôt que de faire
-    # confiance au seul marqueur read_completed d'une ancienne version.
+    # Une validation déjà acquise autorise les révisions sans refaire le
+    # chronomètre de lecture ajouté par cette fonctionnalité.
+    status = tree.status(node.id).value
+    already_validated = status == Status.VALIDATED.value
     read_completed = target_seconds == 0 or (
         progress_percent >= 90 and active_seconds >= target_seconds
     )
@@ -1607,8 +1609,9 @@ def _lesson_progress_payload(node: Node, tree: SkillTree, row=None) -> dict[str,
         "target_seconds": target_seconds,
         "read_completed": read_completed,
         "requires_reading": requires_reading,
-        "ready_for_assessment": not requires_reading or read_completed,
-        "status": tree.status(node.id).value,
+        "already_validated": already_validated,
+        "ready_for_assessment": already_validated or not requires_reading or read_completed,
+        "status": status,
     }
 
 
