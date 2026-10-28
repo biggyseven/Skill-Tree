@@ -461,6 +461,76 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — inventaire et déploiement réseau contrôlé
+
+### Énoncé
+
+Tu dois recueillir les versions et l'état des interfaces sur vingt équipements, puis pousser une bannière commune sur cinq commutateurs de laboratoire. Le collecteur doit tolérer une panne d'équipement, mais le changement doit s'arrêter si un précontrôle échoue. Propose une solution Ansible pour la configuration et explique où Nornir peut compléter le workflow.
+
+### Séquence de travail
+
+```mermaid
+flowchart TD
+  A["Inventaire explicite"] --> B["Contrôle d'accès et connectivité"]
+  B --> C["Collecte en lecture seule"]
+  C --> D["Rapport de précontrôle"]
+  D --> E{"Toutes les cibles autorisées ?"}
+  E -- "Non" --> F["Exclure et signaler les cibles"]
+  E -- "Oui" --> G["Plan de changement"]
+  G --> H["Approbation du périmètre"]
+  H --> I["Déploiement limité et idempotent"]
+  I --> J["Read-back et comparaison"]
+  J --> K["Rapport et rollback si nécessaire"]
+```
+
+### Exemple Ansible
+
+```yaml
+- name: Précontrôle avant changement limité
+  hosts: lab_switches
+  gather_facts: false
+  serial: 1
+  any_errors_fatal: true
+  tasks:
+    - name: Vérifier que la cible est joignable
+      ansible.netcommon.cli_command:
+        command: show version
+      register: version_output
+      changed_when: false
+
+    - name: Vérifier un identifiant attendu du laboratoire
+      ansible.builtin.assert:
+        that:
+          - version_output.stdout is defined
+          - version_output.stdout | length > 0
+        fail_msg: "Précontrôle incomplet : aucune sortie exploitable"
+
+    - name: Déployer uniquement après précontrôle
+      ansible.netcommon.cli_config:
+        lines:
+          - "banner motd ^CAccès réservé au laboratoire^C"
+```
+
+Adapte les collections, le transport et la syntaxe à la plateforme cible. Ce playbook illustre la structure et ne doit pas être lancé sur un parc réel sans validation du pilote, du mode de configuration et de la stratégie de rollback.
+
+### Proposition de correction
+
+L'inventaire est la source de vérité pour les noms, groupes, familles d'OS, adresses et paramètres non secrets. Les identifiants restent dans un coffre ou le mécanisme sécurisé de l'environnement d'exécution. Les tâches de collecte sont en lecture seule et marquées comme non modificatrices. Nornir peut être utile lorsque le traitement en Python, l'orchestration de tâches et la concurrence par équipement doivent être personnalisés ; Ansible reste souvent plus lisible pour des états déclaratifs et des playbooks partagés.
+
+Le changement doit commencer sur un équipement de laboratoire, puis sur un petit lot, avec un contrôle de diff et une fenêtre d'intervention. Utilise un compte doté de droits minimaux, un timeout, une journalisation structurée et un résultat de validation distinct du simple résultat de connexion. Si le précontrôle échoue, aucun changement ne doit être tenté sur la cible concernée.
+
+### Contrôles demandés
+
+Vérifie une cible valide, une cible inaccessible, une cible de mauvaise famille et un playbook rejoué deux fois. Le second passage doit annoncer aucun changement si l'état cible est déjà présent. Prévois un rollback basé sur l'état sauvegardé ou le mécanisme supporté par la plateforme.
+
+### Barème d'autoévaluation
+
+- Inventaire maintenable et secrets séparés du dépôt.
+- Collecte et changement séparés.
+- Concurrence et arrêt contrôlés.
+- Idempotence vérifiée par une seconde exécution.
+- Précontrôle, read-back et retour arrière prévus.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
