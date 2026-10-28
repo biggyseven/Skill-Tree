@@ -64,25 +64,32 @@ class WarRoomApiTests(unittest.TestCase):
             )
             self.assertEqual(failed.status_code, 200, failed.text)
             self.assertFalse(failed.json()["passed"])
+            self.assertEqual(failed.json()["reason"], "config_incorrect")
+
+            # Un échec est désormais terminal : le workflow de récupération passe par Rejouer.
+            replay = client.post("/api/tickets/INC-001/replay")
+            self.assertEqual(replay.status_code, 200, replay.text)
+            ticket_id = replay.json()["new_ticket_id"]
+            self.assertNotEqual(ticket_id, "INC-001")
 
             sw1 = next(node for node in topology["nodes"] if node["id"] == "SW1")
             fa07 = next(port for port in sw1["ports"] if port["id"] == "Fa0/7")
             fa07["vlan"] = 20
             resolved_config = client.post(
-                "/api/tickets/INC-001/resolve",
+                f"/api/tickets/{ticket_id}/resolve",
                 json={"topology": topology, "elapsed_seconds": 20},
             )
             self.assertEqual(resolved_config.status_code, 200, resolved_config.text)
             self.assertTrue(resolved_config.json()["passed"])
 
             incomplete = client.post(
-                "/api/tickets/INC-001/post-mortem",
+                f"/api/tickets/{ticket_id}/post-mortem",
                 json={"root_cause": "VLAN incorrect", "impact": "", "corrective_action": "Port corrigé"},
             )
             self.assertEqual(incomplete.status_code, 422)
 
             closed = client.post(
-                "/api/tickets/INC-001/post-mortem",
+                f"/api/tickets/{ticket_id}/post-mortem",
                 json={
                     "root_cause": "Le port SW1 Fa0/7 était resté dans le VLAN 1 au lieu du VLAN 20.",
                     "impact": "Les utilisateurs concernés ne pouvaient plus joindre le serveur ERP.",
@@ -93,7 +100,7 @@ class WarRoomApiTests(unittest.TestCase):
             self.assertEqual(closed.json()["status"], "resolved")
             self.assertEqual(closed.json()["xp_earned"], 150)
 
-            detail = client.get("/api/tickets/INC-001")
+            detail = client.get(f"/api/tickets/{ticket_id}")
             self.assertEqual(detail.json()["ticket"]["status"], "resolved")
             saved = detail.json()["ticket"]["resolution_data"]
             self.assertIn("post_mortem", saved)
@@ -101,11 +108,11 @@ class WarRoomApiTests(unittest.TestCase):
                 self.assertEqual(conn.execute("SELECT total_xp FROM user_stats WHERE id = 1").fetchone()[0], 150)
                 actions = conn.execute(
                     "SELECT action_type FROM ticket_actions WHERE ticket_id = ? ORDER BY id",
-                    ("INC-001",),
+                    (ticket_id,),
                 ).fetchall()
             self.assertIn("configuration_verified", {row[0] for row in actions})
             self.assertIn("post_mortem_submitted", {row[0] for row in actions})
-            self.assertNotIn("INC-001", {item["id"] for item in client.get("/api/tickets").json()})
+            self.assertNotIn(ticket_id, {item["id"] for item in client.get("/api/tickets").json()})
 
     def test_change_acl_assertion_and_problem_root_cause_validation(self) -> None:
         with self._client() as client:
