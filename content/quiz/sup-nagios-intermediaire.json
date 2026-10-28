@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Supervision avec Nagios/Centreon ».",
+      "prompt": "Quel est le rôle principal d'un plugin dans Nagios Core ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Effectuer la vérification spécialisée puis retourner un code d'état et une sortie lisible",
+        "Administrer à lui seul toute la base de données de configuration",
+        "Choisir automatiquement les équipes et les horaires de notification",
+        "Remplacer l'ordonnanceur et recalculer la topologie du réseau"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Le moteur planifie les contrôles et traite leurs résultats ; le plugin réalise la mesure concrète, par exemple tester un port, interroger un service ou lire une métrique. Il retourne un code qui permet au moteur d'interpréter OK, WARNING, CRITICAL ou UNKNOWN, ainsi qu'une sortie texte. Les notifications, l'historique, les dépendances et la planification relèvent de la logique du moteur et de sa configuration, pas du rôle isolé du plugin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle interprétation correspond au code de sortie 3 d'un plugin de service Nagios ?",
+      "choices": [
+        "OK : le service respecte les conditions attendues",
+        "WARNING : le seuil d'avertissement est dépassé",
+        "CRITICAL : la panne de service est confirmée",
+        "UNKNOWN : le plugin ne peut pas établir un résultat interprétable"
+      ],
+      "answer": 3,
+      "explanation": "Pour les contrôles de service, les codes classiques sont 0 pour OK, 1 pour WARNING, 2 pour CRITICAL et 3 pour UNKNOWN. UNKNOWN indique que le plugin n'a pas pu déterminer l'état ou que la vérification s'est exécutée dans des conditions qui empêchent de conclure normalement. Il faut examiner les paramètres, les droits, les dépendances, le réseau ou le résultat du plugin au lieu d'assimiler automatiquement UNKNOWN à une panne de la cible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence essentielle existe entre un contrôle actif et un contrôle passif ?",
+      "choices": [
+        "Un contrôle actif ne peut jamais déclencher de notification",
+        "Un contrôle actif est lancé par le moteur, tandis qu'un contrôle passif est réalisé à l'extérieur et son résultat est soumis au moteur",
+        "Un contrôle passif est toujours plus fiable qu'un contrôle actif",
+        "Un contrôle actif sert uniquement aux hôtes et le passif uniquement aux services"
+      ],
+      "answer": 1,
+      "explanation": "Les contrôles actifs sont initiés et planifiés par le moteur, qui lance un plugin à intervalles définis. Pour un contrôle passif, une application ou un processus externe effectue la vérification puis soumet le résultat à la supervision. Les contrôles passifs sont utiles pour des événements asynchrones, des ressources derrière un pare-feu ou des résultats produits par des systèmes tiers. Ils nécessitent une gestion de fraîcheur, car le silence de l'émetteur ne signifie pas que le service reste sain."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi surveiller la fraîcheur des résultats passifs de sauvegarde ?",
+      "choices": [
+        "Pour supprimer les codes retour du plugin et éviter les historiques",
+        "Parce qu'un ancien état OK peut rester affiché même si la tâche ou l'émetteur a cessé de produire des résultats",
+        "Pour forcer toutes les sauvegardes à être exécutées par le poller central",
+        "Parce que le format de données de performance ne prend pas en charge les sauvegardes"
+      ],
+      "answer": 1,
+      "explanation": "La supervision conserve un état à partir du dernier résultat reçu. Pour une sauvegarde qui ne transmet pas de nouveau résultat, cet état peut rester OK alors que le traitement planifié ne s'exécute plus ou que le transport est cassé. Une règle de fraîcheur contrôle l'âge de la dernière réception, tandis qu'un service séparé peut représenter le résultat de la dernière sauvegarde. Cette séparation aide à distinguer un échec de sauvegarde d'une défaillance de collecte ou de transmission."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus sûre avant de recharger une configuration Nagios Core modifiée ?",
+      "choices": [
+        "Recharger immédiatement afin que les erreurs apparaissent en production",
+        "Supprimer tous les templates puis recréer les hôtes manuellement",
+        "Valider la configuration avec l'outil prévu, corriger les références et erreurs, puis vérifier l'exécution après rechargement",
+        "Tester le plugin uniquement depuis le compte personnel de l'administrateur"
+      ],
+      "answer": 2,
+      "explanation": "La validation de configuration détecte notamment des erreurs de syntaxe, des objets référencés inexistants et des définitions incohérentes avant qu'elles n'affectent le moteur. Après cette étape, il faut vérifier que le plugin s'exécute sous le compte réel de supervision avec ses permissions, ses chemins et son environnement. Un test manuel avec un compte administrateur peut réussir alors que le moteur échoue, et un changement de template partagé peut toucher de nombreux services."
     }
   ]
 }
