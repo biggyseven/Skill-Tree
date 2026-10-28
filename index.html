@@ -598,7 +598,7 @@
                 <span class="font-mono text-xs font-bold tracking-wide text-zinc-200" x-text="ticket.id"></span>
                 <span class="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                   :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-sky-400/30 bg-sky-500/10 text-sky-200'"
-                  x-text="ticket.severity==='high' ? 'Haute' : ticket.severity==='critical' ? 'Critique' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'Moyenne' : 'Basse'"></span>
+                  x-text="ticket.severity==='high' ? 'Haute' : ticket.severity==='critical' ? 'Critique' : ticket.severity==='medium' ? 'Moyenne' : ticket.severity==='normal' ? 'Normale' : 'Basse'"></span>
               </div>
               <div class="mt-4 flex items-center justify-between gap-3">
                 <span class="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500" x-text="ticket.type==='incident' ? 'Incident' : ticket.type==='change' ? 'Change' : 'Problem'"></span>
