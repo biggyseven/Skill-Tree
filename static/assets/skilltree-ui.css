@@ -199,3 +199,5 @@ select:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .learning-panel, .learning-stat-card, .exam-option-card, .diagnostic-scenario-card, .reward-badge-card { transition-duration:.01ms !important; }
 }
+
+.learning-page-intro { display:flex; flex-direction:column; gap:.35rem; }
