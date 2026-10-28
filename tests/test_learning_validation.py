@@ -78,6 +78,16 @@ class LearningValidationTests(unittest.TestCase):
                     self.assertTrue(passed.json()["validated"])
                     self.assertEqual(passed.json()["status"], "validated")
 
+                    review_state = client.get(f"/api/node/{NODE_ID}/learning-progress")
+                    self.assertTrue(review_state.json()["already_validated"])
+                    self.assertTrue(review_state.json()["ready_for_assessment"])
+                    reassessment = client.post(
+                        f"/api/node/{NODE_ID}/quiz",
+                        json={"answers": correct_answers},
+                    )
+                    self.assertEqual(reassessment.status_code, 200, reassessment.text)
+                    self.assertTrue(reassessment.json()["validated"])
+
                     tree = client.get("/api/tree").json()
                     self.assertGreaterEqual(tree["validated"], 1)
                     course = next(node for node in tree["nodes"] if node["id"] == NODE_ID)
