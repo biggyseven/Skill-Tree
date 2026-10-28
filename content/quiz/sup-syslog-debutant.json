@@ -4,63 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Un collecteur reçoit des messages Syslog via UDP et l'équipement indique que les événements ont été envoyés. Une partie des événements n'apparaît pas dans la recherche. Quelle conclusion est la plus rigoureuse ?",
+      "prompt": "Un équipement envoie des messages Syslog vers un collecteur via TCP/TLS. La session est établie et les octets arrivent, mais le nombre d'événements indexés est inférieur au nombre de messages reçus. Quelle démarche est la plus pertinente ?",
       "choices": [
-        "UDP confirme l'enregistrement durable dès que l'émetteur a envoyé le paquet.",
-        "L'indexeur est nécessairement en panne, car UDP ne peut perdre aucun paquet sur un réseau local.",
-        "Il faut vérifier séparément la génération à la source, le transport, la réception, le parsing, le stockage et l'indexation, car l'envoi UDP ne garantit pas la livraison ni le traitement final.",
-        "Il suffit de changer le port de réception sans examiner les compteurs du collecteur."
-      ],
-      "answer": 2,
-      "explanation": "UDP n'offre pas d'accusé de réception ou de livraison garantie au niveau du protocole. Un message peut être perdu dans le réseau, rejeté à la réception, mal parsé, mis en file ou ne pas atteindre l'index. Le diagnostic doit suivre la chaîne de bout en bout et mesurer les entrées, rejets, retards et sorties. Il faut distinguer l'absence de génération du message d'une perte de transport et d'un problème de recherche. L'état « envoyé » du côté émetteur ne prouve pas que l'événement a été durablement conservé."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une équipe filtre les messages Syslog en fonction de leur sévérité. Elle constate qu'un événement noté « informational » s'avère essentiel à une enquête de sécurité. Quelle amélioration est la plus pertinente ?",
-      "choices": [
-        "Conserver la sévérité source comme un attribut, puis appliquer des règles fondées également sur le type de source, le contexte, la criticité et les besoins de l'enquête.",
-        "Supprimer la notion de sévérité et traiter chaque message comme une alerte critique.",
-        "Ignorer les événements informatifs, car cette sévérité signifie qu'ils ne peuvent jamais avoir de valeur de sécurité.",
-        "Faire confiance exclusivement au texte libre, sans préserver la source ni les champs structurés."
-      ],
-      "answer": 0,
-      "explanation": "La sévérité Syslog est un attribut utile mais ne constitue pas à elle seule un jugement complet sur l'impact métier ou la valeur forensique. Un événement informatif peut décrire une modification de configuration ou une action d'administration importante. La politique doit combiner la sévérité à la source, au type d'événement, au contexte et aux objectifs opérationnels ou de sécurité. Les règles de filtrage doivent être testées et documentées afin d'éviter de supprimer des preuves utiles. Le message brut et la provenance doivent rester accessibles selon la politique de rétention."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une entreprise utilise Syslog sur TCP entre un routeur et son collecteur et suppose que les journaux sont ainsi garantis dans le SIEM. Quelle affirmation corrige le mieux cette hypothèse ?",
-      "choices": [
-        "TCP chiffre automatiquement le contenu et garantit que le SIEM a indexé chaque événement.",
-        "TCP améliore la fiabilité du flux entre les deux points, mais il faut encore surveiller la réception, les files, l'écriture durable et la livraison au SIEM ; TLS est une configuration distincte pour protéger le transport.",
-        "TCP est identique à UDP, mais utilise systématiquement le port 6514.",
-        "TCP ne peut pas être utilisé avec Syslog."
+        "Considérer automatiquement que tous les messages reçus ont été durablement stockés, puisque TLS est actif.",
+        "Examiner les compteurs de parsing, de rejet, de file et d'indexation, ainsi que les erreurs de taille ou de format ; tester un événement de bout en bout identifiable.",
+        "Désactiver TLS pour garantir que le parseur ne modifie plus les messages.",
+        "Augmenter la sévérité de tous les messages afin qu'ils soient indexés plus vite."
       ],
       "answer": 1,
-      "explanation": "TCP fournit un flux fiable entre les extrémités de la connexion, avec retransmission et contrôle de flux. Cela ne garantit pas qu'un message reçu soit écrit durablement ou indexé dans un système aval. Un collecteur peut rencontrer une panne après réception, une file peut saturer ou la destination SIEM peut être indisponible. Le chiffrement n'est pas automatique avec TCP : Syslog sur TLS doit être configuré explicitement, avec des certificats et des paramètres compatibles. La chaîne complète doit être mesurée et testée."
+      "explanation": "TCP/TLS protège le transport et permet d'établir une session, mais ne garantit pas à lui seul l'écriture durable et l'indexation par les composants situés en aval. Les événements peuvent être rejetés par un parseur, une limite de taille, une politique ou une destination de stockage saturée. Il faut mesurer chaque étape et valider un message identifiable du début à la fin."
     },
     {
       "type": "qcm",
-      "prompt": "Un serveur Syslog connaît une hausse soudaine de volume et son stockage atteint 95 %. Quel plan de réponse protège le mieux la collecte utile ?",
+      "prompt": "Un parseur Syslog sur TCP découpe les messages à chaque retour à la ligne, mais une source transmet des événements dont le contenu peut comporter plusieurs lignes. Quel risque et quelle correction correspondent le mieux au problème ?",
       "choices": [
-        "Supprimer tous les journaux les plus anciens sans vérifier la politique de rétention ni les investigations en cours.",
-        "Désactiver la centralisation pour toutes les sources et considérer le problème comme résolu.",
-        "Ignorer le disque jusqu'à ce qu'il soit rempli afin de déterminer le volume maximal exact.",
-        "Identifier les sources dominantes et la cause de la rafale, surveiller files et retards, préserver les événements critiques, appliquer une mesure contrôlée, augmenter la capacité si nécessaire et corriger la source excessive."
+        "Aucun risque : TCP préserve automatiquement les frontières logiques de chaque message applicatif.",
+        "Le parseur peut scinder un événement ou mélanger des messages ; il faut employer le framing attendu par les deux extrémités, par exemple un comptage de longueur si pris en charge, et tester les contenus multilignes.",
+        "Il faut supprimer tous les retours à la ligne dans la source sans vérifier le format.",
+        "La seule solution consiste à remplacer les événements par des métriques numériques."
       ],
-      "answer": 3,
-      "explanation": "Une saturation du collecteur menace la conservation et peut affecter d'autres services. Il faut d'abord identifier si le volume provient d'une charge normale, d'un incident, d'une boucle de messages ou d'un niveau de diagnostic trop détaillé. La réponse doit préserver les événements importants, suivre les files et les rejets, appliquer une réduction contrôlée et documentée si nécessaire, et prévoir la capacité. Une suppression aveugle ou l'arrêt de toutes les sources peut masquer des preuves et transformer un problème de volume en perte de visibilité. Après stabilisation, il faut corriger la cause et réviser les alertes de capacité."
+      "answer": 1,
+      "explanation": "TCP transporte un flux d'octets et ne conserve pas les frontières des messages applicatifs. Un délimiteur simple peut être ambigu si ce caractère apparaît dans le contenu ou si l'événement est multiligne. Le framing doit être compatible entre l'émetteur et le récepteur, et les tests doivent couvrir les cas de ponctuation, de retours à la ligne et les limites de message."
     },
     {
       "type": "qcm",
-      "prompt": "Une recherche SIEM montre qu'un changement réseau semble avoir eu lieu après les erreurs applicatives, mais les horloges des appareils diffèrent de plusieurs minutes. Quelle démarche est la plus fiable ?",
+      "prompt": "Un SIEM reçoit un message dont l'en-tête Syslog déclare une sévérité Informational, mais le message correspond à des échecs répétés d'authentification sur un serveur critique. Quelle pratique est la plus saine ?",
       "choices": [
-        "Classer immédiatement le changement réseau comme conséquence, puisque l'ordre d'affichage prouve la causalité.",
-        "Supprimer les horodatages des sources et ne conserver que le texte libre.",
-        "Vérifier la synchronisation, comparer l'heure source à l'heure de réception lorsque disponibles, tenir compte des formats historiques et corroborer la chronologie par d'autres signaux avant de conclure.",
-        "Corriger manuellement toutes les dates de l'historique sans consigner la transformation."
+        "Ignorer l'événement, car la sévérité déclarée par la source détermine automatiquement son importance métier.",
+        "Réécrire la sévérité d'origine et supprimer sa valeur avant l'indexation.",
+        "Conserver la sévérité originale, puis évaluer séparément le motif, la fréquence, l'identité de l'actif et le contexte pour décider d'une alerte.",
+        "Interpréter la valeur numérique du PRI comme un score universel de risque sans décoder facility et severity."
       ],
       "answer": 2,
-      "explanation": "Une chronologie incorrecte peut provenir de l'horloge de la source, d'un fuseau absent ou d'un délai de transport et d'ingestion. Le collecteur doit conserver le contexte temporel disponible, idéalement l'heure déclarée par la source et l'heure de réception, puis documenter les règles d'interprétation. Il faut vérifier la synchronisation et chercher des corroborations, comme les métriques, les changements enregistrés par d'autres systèmes ou des contrôles applicatifs. L'ordre des messages dans l'interface n'est pas, à lui seul, une preuve de causalité."
+      "explanation": "La sévérité Syslog est une indication de la source, pas un verdict métier universel. La facility et la sévérité doivent être décodées correctement, puis les règles peuvent intégrer fréquence, criticité de l'actif, identité et contexte. Garder le champ d'origine est essentiel pour l'audit et permet de distinguer ce que la source a déclaré de l'interprétation faite par le SIEM."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une mise à jour, le nombre de messages reçus reste normal mais les alertes fondées sur certains champs cessent de se déclencher. Quelle vérification devrait être prioritaire ?",
+      "choices": [
+        "Augmenter immédiatement la rétention des journaux.",
+        "Vérifier la version du parseur, les exemples bruts avant/après, les champs extraits et le taux de rejet, puis exécuter des tests de contrat sur les formats nouveaux et anciens.",
+        "Supprimer le message brut afin que seuls les champs normalisés restent disponibles.",
+        "Déclarer que les événements n'existent plus puisque l'alerte ne se déclenche pas."
+      ],
+      "answer": 1,
+      "explanation": "Une évolution du format peut faire échouer silencieusement une extraction tout en laissant le transport fonctionner. Conserver le message brut, surveiller le taux de parsing et versionner les règles permet de déterminer si le contenu a changé ou si le parseur ne produit plus les champs attendus. Les tests doivent inclure des exemples représentatifs, des champs absents et les variantes des versions prises en charge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un relais conserve une file persistante pendant une panne du SIEM, puis retransmet les événements à la reprise. Quel point faut-il vérifier avant de conclure que la chaîne est fiable ?",
+      "choices": [
+        "La file persistante garantit à elle seule l'absence de doublons et le stockage final de chaque événement.",
+        "Il suffit de vérifier que le disque n'a jamais atteint 100 %, sans regarder les rejets.",
+        "Vérifier la capacité et la politique de saturation, le comportement au redémarrage, les métriques de retard et de rejets, puis tester la reprise et la gestion de doublons de bout en bout.",
+        "Désactiver toute file pour que les événements n'aient jamais de retard."
+      ],
+      "answer": 2,
+      "explanation": "Une file persistante peut absorber une interruption si sa capacité et sa durabilité sont suffisantes, mais elle ne garantit pas à elle seule la réussite du parsing et de l'indexation finale. La reprise peut également produire des doublons, et une file saturée entraîne un risque de perte. Il faut surveiller profondeur et ancienneté de file, rejets et erreurs de destination, puis tester le scénario de panne et de reprise."
     }
   ]
 }
