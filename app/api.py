@@ -491,9 +491,18 @@ def _exam_bounded_integer(value, name: str, default: int, minimum: int, maximum:
     return number
 
 
-def _exam_level(node_id: str) -> str:
+def _exam_level(node_id: str, title: str = "") -> str:
     suffix = str(node_id or "").strip().lower().replace("_", "-").rsplit("-", 1)[-1]
-    return suffix if suffix in {"debutant", "intermediaire", "expert"} else ""
+    if suffix in {"debutant", "intermediaire", "expert"}:
+        return suffix
+    lowered_title = str(title or "").casefold().rstrip()
+    if lowered_title.endswith("expert"):
+        return "expert"
+    if lowered_title.endswith(("intermédiaire", "intermediaire")):
+        return "intermediaire"
+    if lowered_title.endswith("débutant"):
+        return "debutant"
+    return ""
 
 
 def _exam_is_placeholder(question: Question) -> bool:
@@ -518,11 +527,12 @@ def _exam_question_pool(tree: SkillTree, nodes: list[Node]) -> list[Question]:
     return pool
 
 
-def _exam_public_question(question: Question) -> dict:
+def _exam_public_question(question: Question, nodes_by_id: dict[str, Node] | None = None) -> dict:
+    node = (nodes_by_id or {}).get(question.node_id)
     return {
         "id": question.id,
         "node_id": question.node_id,
-        "level": _exam_level(question.node_id),
+        "level": _exam_level(question.node_id, node.title if node else ""),
         "type": question.question_type,
         "prompt": question.prompt,
         "choices": list(question.choices),
@@ -682,7 +692,7 @@ def exam_build(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -
         str(level).strip().lower() for level in raw_levels
     ]:
         levels = {str(level).strip().lower() for level in raw_levels}
-        nodes = [node for node in nodes if _exam_level(node.id) in levels]
+        nodes = [node for node in nodes if _exam_level(node.id, node.title) in levels]
     if not nodes:
         raise HTTPException(422, "Aucun cours ne correspond au périmètre demandé.")
 
@@ -737,7 +747,7 @@ def exam_build(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -
         "passing_score": EXAM_PASS_SCORE,
         "requested_count": count,
         "question_count": len(selected),
-        "questions": [_exam_public_question(question) for question in selected],
+        "questions": [_exam_public_question(question, nodes_by_id) for question in selected],
     }
 
 
@@ -833,20 +843,53 @@ def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) 
 @app.post("/api/exam/start")
 def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
     category = payload.get("category")
+    if not isinstance(category, str) or not category.strip():
+        raise HTTPException(422, "Catégorie d'examen manquante ou invalide.")
+    category = category.strip()
     nodes = [node for node in tree.nodes() if node.category == category]
-    pool = [(node, q) for node in nodes for q in tree.questions(node.id, ProofKind.QUIZ)]
-    selected = random.sample(pool, min(EXAM_QUESTION_COUNT, len(pool)))
-    
+    if not nodes:
+        raise HTTPException(404, "Catégorie d'examen introuvable.")
+    pool = [
+        (node, question)
+        for node in nodes
+        for question in (tree.questions(node.id, ProofKind.EXAM) or tree.questions(node.id, ProofKind.QUIZ))
+        if not _exam_is_placeholder(question)
+    ]
+    if not pool:
+        raise HTTPException(422, "Aucune question exploitable dans cette catégorie.")
+    requested_count = _exam_bounded_integer(
+        payload.get("count"), "count", EXAM_QUESTION_COUNT, 1, EXAM_MAX_QUESTION_COUNT
+    )
+    if payload.get("time_limit") is not None:
+        time_limit = _exam_bounded_integer(
+            payload.get("time_limit"), "time_limit", EXAM_DURATION_SECONDS,
+            EXAM_MIN_DURATION_SECONDS, EXAM_MAX_DURATION_SECONDS,
+        )
+    else:
+        time_limit = EXAM_DURATION_SECONDS
+    selected = random.sample(pool, min(requested_count, len(pool)))
     now = int(time.time())
     session_id = uuid.uuid4().hex
     tree.conn.execute(
-        "INSERT INTO exam_sessions (session_id, category, question_ids, started_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-        (session_id, category, json.dumps([q.id for _, q in selected]), now, now + EXAM_DURATION_SECONDS)
+        "INSERT INTO exam_sessions "
+        "(session_id, category, question_ids, started_at, expires_at, total, passing_score) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            session_id, category, json.dumps([question.id for _, question in selected]),
+            now, now + time_limit, len(selected), EXAM_PASS_SCORE,
+        ),
     )
     tree.conn.commit()
+    nodes_by_id = {node.id: node for node in nodes}
     return {
-        "id": session_id, "category": category, "duration_seconds": EXAM_DURATION_SECONDS,
-        "questions": [{"id": q.id, "type": q.question_type, "prompt": q.prompt, "choices": list(q.choices)} for _, q in selected]
+        "id": session_id,
+        "category": category,
+        "duration_seconds": time_limit,
+        "time_limit": time_limit,
+        "pass_score": EXAM_PASS_SCORE,
+        "passing_score": EXAM_PASS_SCORE,
+        "question_count": len(selected),
+        "questions": [_exam_public_question(question, nodes_by_id) for _, question in selected],
     }
 
 @app.post("/api/tutor")
