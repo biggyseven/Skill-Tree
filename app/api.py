@@ -2182,7 +2182,12 @@ def read_quiz(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
 
 @app.post("/api/node/{node_id}/quiz")
 def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
-    node = tree.playable(node_id)
+    node = _get_node(tree, node_id)
+    current_status = tree.status(node.id)
+    if current_status is Status.LOCKED:
+        raise HTTPException(409, "Cours verrouillé : valide ses prérequis avant le quiz.")
+
+    already_validated = is_validated(node)
     requirement = node.requirement(ProofKind.QUIZ)
     if requirement is None:
         raise HTTPException(404, "Aucun quiz n'est configuré pour ce cours.")
@@ -2192,13 +2197,14 @@ def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTr
 
     # Le quiz mesure la compréhension ; le lecteur doit aussi avoir parcouru
     # le cours et y avoir consacré un temps actif minimal estimé côté serveur.
+    # Une révision d'un cours déjà validé n'impose pas de refaire la lecture.
     progress_row = tree.conn.execute(
         "SELECT progress_percent, active_seconds FROM lesson_progress WHERE node_id = ?",
         (node.id,),
     ).fetchone()
     source_id = _configured_lesson_sources().get(node.id, node.id)
     target_seconds = _lesson_reading_target_seconds(source_id)
-    if not is_validated(node) and target_seconds > 0 and not (
+    if not already_validated and target_seconds > 0 and not (
         progress_row
         and int(progress_row["progress_percent"] or 0) >= 90
         and int(progress_row["active_seconds"] or 0) >= target_seconds
@@ -2234,15 +2240,33 @@ def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTr
 
     score = round(100 * correct / len(questions))
     passed = score >= requirement.min_score
-    attempt, validated = tree.record(
-        node_id, ProofKind.QUIZ, score, passed,
-        detail=f"{correct}/{len(questions)} bonnes réponses"
-    )
+    if already_validated:
+        # La révision affiche une correction, mais ne crée ni tentative de
+        # progression ni récompense supplémentaire.
+        validated = True
+        status = Status.VALIDATED.value
+        xp_gained = 0
+        coins_gained = 0
+        badges_unlocked = []
+    else:
+        tree.record(
+            node_id, ProofKind.QUIZ, score, passed,
+            detail=f"{correct}/{len(questions)} bonnes réponses"
+        )
+        status = tree.status(node.id).value
+        validated = status == Status.VALIDATED.value
+        reward = tree.last_reward or {}
+        xp_gained = int(reward.get("xp", 0) or 0)
+        coins_gained = int(reward.get("coins", 0) or 0)
+        badges_unlocked = tree.last_badges
 
     return {
         "success": True, "score": score, "passed": passed, "correct": correct, "total": len(questions),
-        "validated": validated, "status": tree.status(node_id).value, "results": results,
+        "validated": validated, "status": status, "results": results,
+        "reassessment": already_validated, "attempt_recorded": not already_validated,
+        "xp_gained": xp_gained, "coins_gained": coins_gained, "badges_unlocked": badges_unlocked,
     }
+
 
 @app.post("/api/node/{node_id}/submit-answer")
 def submit_answer(node_id: str, payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
