@@ -677,7 +677,129 @@ Après la correction, l’équipe rejoue les données selon une procédure repro
 
 Les métriques devraient inclure les résultats des règles critiques, la fraîcheur, les incidents par produit et leur récurrence, le temps de détection et de résolution, la proportion de produits avec contrats et lignage fiables, le taux d’actifs avec un propriétaire actif, la quantité et l’âge des exceptions et la couverture des tests automatiques. Elles sont interprétées avec le contexte et ne remplacent pas l’examen des causes.
 
-## 19. Checklist avant publication d’un produit de données
+## 19. Atelier avancé : transformer un contrat de données en contrôle de CI
+
+Une description de qualité ne devient opérationnelle que si elle peut bloquer une publication incorrecte. Dans cet atelier, le contrat précise la granularité, les champs indispensables, le domaine de valeurs, le propriétaire, les attentes de fraîcheur et la politique d'évolution. Le fichier YAML ci-dessous est un exemple pédagogique de contrat ; sa syntaxe n'est pas un standard universel. Validez-le avec l'outil effectivement retenu par l'équipe et traitez les résultats de tests comme des preuves versionnées.
+
+### Extrait de contrat de données
+
+```yaml
+contract_version: 1
+product:
+  name: learner_progress_events
+  owner: learning-data
+  purpose: reporting de progression et analyse de qualité
+  grain: une ligne par event_id
+fields:
+  event_id:
+    type: string
+    required: true
+    unique: true
+  learner_id:
+    type: string
+    required: true
+  course_id:
+    type: string
+    required: true
+  progress_pct:
+    type: number
+    required: true
+    minimum: 0
+    maximum: 100
+service_level:
+  illustrative_freshness_minutes: 15
+  publication_requires_quality_checks: true
+evolution:
+  compatible: ajout d'un champ nullable sans changement sémantique
+  breaking: renommage, suppression, type incompatible ou redéfinition du sens métier
+```
+
+Le champ « grain » est particulièrement important : la règle d'unicité ne signifie rien si l'équipe n'a pas défini ce qu'une ligne représente. Une ligne par événement et une ligne par apprenant/cours/jour sont deux granularités différentes. Les règles de qualité, de déduplication et de réconciliation doivent toutes utiliser la même définition.
+
+### Contrôles SQL qui font échouer une promotion
+
+La version suivante vise PostgreSQL et suppose une table de laboratoire `analytics.progress_events` avec les colonnes `event_id` et `progress_pct`. Adaptez les noms, les unités et la stratégie de tolérance au modèle réel.
+
+```sql
+DO $
+DECLARE
+    invalid_rows BIGINT;
+BEGIN
+    SELECT COUNT(*)
+    INTO invalid_rows
+    FROM analytics.progress_events
+    WHERE event_id IS NULL
+       OR BTRIM(event_id) = ''
+       OR progress_pct IS NULL
+       OR progress_pct < 0
+       OR progress_pct > 100;
+
+    IF invalid_rows > 0 THEN
+        RAISE EXCEPTION
+            'Contrat qualité violé : % ligne(s) invalide(s)',
+            invalid_rows;
+    END IF;
+
+    IF EXISTS (
+        SELECT event_id
+        FROM analytics.progress_events
+        GROUP BY event_id
+        HAVING COUNT(*) > 1
+    ) THEN
+        RAISE EXCEPTION 'Contrat qualité violé : event_id dupliqué';
+    END IF;
+END;
+$;
+```
+
+Dans le pipeline, ce bloc s'exécute après l'écriture du candidat mais avant la publication du produit. Le job de CI ou l'orchestrateur doit interpréter l'exception comme un échec de validation et conserver les résultats utiles au diagnostic. Ne transformez pas un échec de qualité en simple avertissement si le produit sert une facturation, une certification ou une décision à fort impact.
+
+### Lignage technique et métier
+
+```mermaid
+flowchart LR
+    A["Événement source"] --> B["Validation du contrat"]
+    B --> C["Table de staging"]
+    C --> D["Déduplication et règles métier"]
+    D --> E["Produit publié"]
+    E --> F["Indicateur BI"]
+    D --> G["Tests de qualité"]
+    G --> H["Preuve de publication"]
+    A -.-> I["Identité du producteur"]
+    D -.-> J["Version de transformation"]
+```
+
+Le lignage technique décrit les exécutions, les jeux de données et les dépendances effectivement observées. Le lignage métier explique comment une définition ou une règle de calcul contribue à un indicateur. Ces deux vues sont complémentaires : un graphe de tables ne prouve pas que deux équipes utilisent la même définition du « taux de progression ».
+
+### SLO de qualité et boucle d'incident
+
+Prenons un objectif illustratif : 99,5 % des lignes respectent les règles critiques et le p95 de fraîcheur reste sous 15 minutes sur une fenêtre glissante. Ces chiffres sont un exemple, pas une recommandation universelle. Pour les fixer, identifiez l'impact d'une donnée fausse ou tardive, la capacité de correction, les heures de service et le coût d'une interruption.
+
+Lorsqu'une règle échoue :
+
+1. Bloquer la promotion de la version concernée et marquer le produit comme dégradé si des consommateurs l'utilisent déjà.
+2. Déterminer la portée : premières périodes affectées, partitions, consommateurs, métriques et données personnelles éventuelles.
+3. Comparer le résultat avec la source de référence et l'exécution précédente ; séparer un défaut de source, de transformation et de définition métier.
+4. Attribuer une personne responsable, une gravité, une échéance et une décision explicite sur l'usage des données touchées.
+5. Corriger par une transformation versionnée, rejouer la plage nécessaire puis rapprocher les résultats avant de republier.
+6. Ajouter un test de non-régression reproduisant la cause et vérifier que le signal de surveillance détectera une récidive.
+7. Fermer l'incident seulement lorsque l'impact, la correction, les consommateurs à informer et les limites résiduelles sont documentés.
+
+Les exceptions temporaires doivent avoir un propriétaire et une date d'expiration. Une dérogation sans date de révision devient une règle cachée et fragilise le contrat.
+
+### Critères de validation
+
+- Le contrat est versionné avec le code et un propriétaire identifiable.
+- Les tests s'exécutent contre un schéma réel ou un environnement de test représentatif.
+- Une donnée invalide et un identifiant dupliqué font échouer la promotion.
+- Un changement incompatible ne passe pas sans migration et accord des consommateurs.
+- Les métriques décrivent le périmètre, le dénominateur, la fraîcheur et les limites.
+- Le lignage permet de retrouver la source, la version de transformation et les produits touchés.
+- Une exception possède une justification, un responsable, une échéance et un plan de sortie.
+
+Un catalogue devient fiable lorsque les métadonnées influencent réellement les droits, les publications, la qualité et la résolution d'incidents, plutôt que de rester un inventaire documentaire.
+
+## 20. Checklist avant publication d’un produit de données
 
 - [ ] La finalité et les consommateurs sont décrits.
 - [ ] Le propriétaire métier, le steward et le responsable technique sont identifiés.
@@ -695,7 +817,7 @@ Les métriques devraient inclure les résultats des règles critiques, la fraîc
 - [ ] Les exceptions ont un propriétaire et une date de réévaluation.
 - [ ] Les consommateurs peuvent connaître la version, la fraîcheur et les limites du produit.
 
-## 20. Glossaire
+## 21. Glossaire
 
 **Data owner :** responsable des décisions métier et des risques liés à un domaine de données.  
 **Data steward :** personne qui coordonne la définition, les métadonnées, les règles et les pratiques du domaine.  
@@ -718,7 +840,7 @@ Les métriques devraient inclure les résultats des règles critiques, la fraîc
 **Quarantaine :** espace contrôlé où les enregistrements ou lots non conformes attendent une décision.  
 **Exception de gouvernance :** dérogation limitée et documentée à une règle, avec justification, risque accepté, propriétaire et échéance.
 
-## 21. Références techniques et méthodologiques
+## 22. Références techniques et méthodologiques
 
 - **DAMA International — Data Management Body of Knowledge (DAMA-DMBOK).** Référence de pratique pour la gouvernance, la qualité, les métadonnées, l’architecture et les données de référence : https://www.dama.org/
 - **Data Contracts specification.** Référence communautaire à examiner avec l’outillage choisi pour concevoir et valider les contrats : https://datacontract.com/
