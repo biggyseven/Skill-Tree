@@ -214,16 +214,13 @@ def _port_by_id(device: dict[str, Any], port_id: str) -> dict[str, Any] | None:
 
 
 def _compatible_device_types(fault_id: str) -> set[str]:
-    return {
-        "vlan_mismatch": {"switch"},
-        "port_shutdown": {"switch", "router", "pc"},
-        "ip_wrong": {"router", "pc"},
-        "acl_missing": {"router"},
-        "trunk_missing": {"switch"},
-        "ospf_down": {"router"},
-        "default_gateway_missing": {"pc"},
-        "dhcp_off": {"router"},
-    }.get(fault_id, set())
+    fault = SCENARIO_FAULTS.get(fault_id)
+    if not fault:
+        return set()
+    target_type = fault.get("target_type")
+    if target_type == "any":
+        return {"switch", "router", "pc"}
+    return {str(target_type)} if target_type in {"switch", "router", "pc"} else set()
 
 
 def _eligible_ports(device: dict[str, Any], fault_id: str) -> list[dict[str, Any]]:
@@ -371,6 +368,10 @@ def build_scenario(
     port = _port_by_id(device, target_port)
     if port is None or target_port not in {item["id"] for target in get_compatible_targets(topology_id, fault_id) for item in target["ports"] if target["id"] == target_device}:
         raise ValueError("Le port cible est absent ou incompatible avec la faute.")
+    # Vérifier d'abord que le modèle est sain sur cette propriété, puis que
+    # l'injection le fait effectivement échouer avant de générer le scénario.
+    if not fault["fix_validator"](device, port):
+        raise ValueError(f"La topologie {topology_id} ne permet pas d'injecter {fault_id} sur cette cible.")
     rule = _fault_rule(fault_id, device, port)
     fault["apply"](device, port)
     if fault["fix_validator"](device, port):
