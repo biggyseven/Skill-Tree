@@ -200,17 +200,21 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertEqual(submissions.count("if (!refreshed.tree || !refreshed.dailyPlan)"), 2)
         self.assertIn("if (this.allNodesValidated)", DASHBOARD_HTML)
 
-    def test_dashboard_separates_resume_lesson_from_next_recommended_lesson(self):
+    def test_dashboard_resume_card_uses_last_course_or_next_accessible_course(self):
         resume_start = DASHBOARD_HTML.index("        get resumeButtonLabel() {")
         resume_end = DASHBOARD_HTML.index("        get parcours() {", resume_start)
         resume_methods = DASHBOARD_HTML[resume_start:resume_end]
+
         self.assertIn("get nextLessonNode()", resume_methods)
         self.assertIn("if (!this.resumableLastNode) return null", resume_methods)
         self.assertIn("String(next.id) === String(this.resumableLastNode.id)", resume_methods)
-        self.assertIn('x-show="nextLessonNode && !moduleNextCourse"', DASHBOARD_HTML)
-        self.assertIn("nextLessonNode ? nextLessonNode.title : ''", DASHBOARD_HTML)
-        self.assertIn("nextLessonNode && show(nextLessonNode.id)", DASHBOARD_HTML)
-        self.assertIn("Prochaine leçon →", DASHBOARD_HTML)
+        self.assertIn('aria-labelledby="resume-learning-title"', DASHBOARD_HTML)
+        self.assertIn("resumeNode ? resumeNode.title : 'Ton parcours commence ici'", DASHBOARD_HTML)
+        self.assertIn('@click="openLearningStep()"', DASHBOARD_HTML)
+        self.assertIn('x-text="resumeButtonLabel"', DASHBOARD_HTML)
+        # A single prominent card handles resuming; the separate secondary lesson card is intentionally gone.
+        self.assertNotIn('x-show="nextLessonNode && !moduleNextCourse"', DASHBOARD_HTML)
+        self.assertNotIn("Prochaine leçon →", DASHBOARD_HTML)
 
     def test_reading_progress_and_resume_status_survive_reload_and_external_validation(self):
         self.assertIn("lastOpenedNodeStatus: localStorage.getItem('skilltree-last-status') || ''", DASHBOARD_HTML)
@@ -420,10 +424,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("if ((preferredKind === 'terminal' || (!preferredKind && this.detail.terminal)) && this.detail.terminal)", DASHBOARD_HTML)
         self.assertIn("['quiz', 'terminal'].includes(action.next_requirement_kind)", DASHBOARD_HTML)
 
-    def test_daily_plan_challenge_badge_distinguishes_available_and_in_progress(self):
-        self.assertIn('planMeta(action).classes', DASHBOARD_HTML)
-        self.assertIn('x-text="planMeta(action).label"', DASHBOARD_HTML)
-
+    def test_daily_plan_challenge_badge_logic_remains_available_after_dashboard_cleanup(self):
         start = DASHBOARD_HTML.index("        planMeta(action) {")
         end = DASHBOARD_HTML.index("        async openPlanAction(action)", start)
         plan_meta = DASHBOARD_HTML[start:end]
@@ -432,6 +433,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("status === 'available'", plan_meta)
         self.assertIn("label: 'Défi à relever'", plan_meta)
         self.assertIn("label: 'Défi à poursuivre'", plan_meta)
+        self.assertIn("classes: 'text-emerald-300 bg-emerald-500/10'", plan_meta)
+        # The daily-plan cards are not rendered in the redesigned cockpit.
+        self.assertNotIn("planMeta(action).classes", DASHBOARD_HTML)
+        self.assertNotIn('x-text="planMeta(action).label"', DASHBOARD_HTML)
 
     def test_active_learning_path_prefers_in_progress_work(self):
         start = DASHBOARD_HTML.rindex("get parcours()")
@@ -444,54 +449,37 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("statusMeta(s)", DASHBOARD_HTML)
         self.assertIn("in_progress: { label: 'En cours'", DASHBOARD_HTML)
 
-    def test_dashboard_first_screen_uses_compact_responsive_card_spacing(self):
-        self.assertIn(
-            'class="mb-8 grid gap-4 sm:gap-6 lg:grid-cols-[1fr_2fr]"',
-            DASHBOARD_HTML,
-        )
-        self.assertIn(
-            'bg-[color:var(--s1)] p-5 shadow-2xl sm:p-7',
-            DASHBOARD_HTML,
-        )
-        self.assertIn(
-            'class="flex min-w-0 flex-col rounded-3xl border border-white/5 bg-[color:var(--s1)] p-5 shadow-2xl sm:p-6 xl:p-8"',
-            DASHBOARD_HTML,
-        )
-        self.assertIn("sm:mt-7 sm:pt-5", DASHBOARD_HTML)
-        self.assertIn(
-            'role="group" aria-label="Étapes du parcours"',
-            DASHBOARD_HTML,
-        )
+    def test_dashboard_first_screen_uses_cockpit_kpis_and_compact_resume_layout(self):
+        self.assertIn('aria-label="Indicateurs de progression"', DASHBOARD_HTML)
+        self.assertIn('grid grid-cols-1 gap-4 md:grid-cols-3', DASHBOARD_HTML)
+        self.assertIn(">Cours validés</p>", DASHBOARD_HTML)
+        self.assertIn(">Tickets en cours</p>", DASHBOARD_HTML)
+        self.assertIn(">Série d’apprentissage</p>", DASHBOARD_HTML)
+        self.assertIn('aria-labelledby="resume-learning-title"', DASHBOARD_HTML)
+        self.assertIn('class="relative w-full shrink-0 rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-6 lg:max-w-sm"', DASHBOARD_HTML)
+        self.assertIn("transition-all duration-300", DASHBOARD_HTML)
 
-    def test_learning_path_steps_remain_readable_on_narrow_screens(self):
-        self.assertIn(
-            'class="relative flex-1 overflow-x-auto pb-2" role="group" aria-label="Étapes du parcours"',
-            DASHBOARD_HTML,
-        )
-        self.assertIn(
-            ':style="`min-width: ${Math.max(parcours.steps.length * 6, 12)}rem`"',
-            DASHBOARD_HTML,
-        )
-        self.assertIn(
-            'class="relative flex min-h-[120px] items-center justify-between"',
-            DASHBOARD_HTML,
-        )
+    def test_compact_module_grid_remains_readable_on_narrow_screens(self):
+        self.assertIn('grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4', DASHBOARD_HTML)
+        self.assertIn('min-w-0 truncate text-xs font-bold text-white sm:text-sm', DASHBOARD_HTML)
+        self.assertIn('role="progressbar"', DASHBOARD_HTML)
+        self.assertIn('aria-valuemin="0" aria-valuemax="100"', DASHBOARD_HTML)
+        self.assertIn("moduleCards.filter(module => module.id !== 'all')", DASHBOARD_HTML)
 
     def test_module_cards_expose_selection_and_progress_accessibly(self):
-        start = DASHBOARD_HTML.index("<!-- Cartes modules compactes -->")
-        end = DASHBOARD_HTML.index("<div class=\"mb-8 flex flex-wrap gap-3\">", start)
+        start = DASHBOARD_HTML.index("<!-- ZONE BASSE : grille compacte des spécialités -->")
+        end = DASHBOARD_HTML.index('<div class="mb-8 flex flex-wrap gap-3">', start)
         module_cards = DASHBOARD_HTML[start:end]
 
         self.assertIn(':aria-pressed="moduleFilter === m.id"', module_cards)
         self.assertIn(
-            ':aria-label="`${m.label}, ${m.validated} cours validés sur ${m.total}, ${m.pct} %. ${moduleFilter === m.id ? \'Module sélectionné\' : \'Afficher ce module\'}`"',
+            ':aria-label="`\${m.label}, \${m.validated} cours validés sur \${m.total}, \${m.pct} %. \${moduleFilter === m.id ? \'Module sélectionné\' : \'Afficher ce module\'}`"',
             module_cards,
         )
         self.assertIn('role="progressbar"', module_cards)
-        self.assertIn(':aria-label="`Progression du module ${m.label}`"', module_cards)
         self.assertIn(':aria-valuenow="m.pct"', module_cards)
-        self.assertIn('aria-valuemin="0" aria-valuemax="100"', module_cards)
-        self.assertIn("focus-visible:ring-emerald-400/70", module_cards)
+        self.assertIn("moduleCards.filter(module => module.id !== 'all')", module_cards)
+        self.assertIn("m.icon", module_cards)
 
     def test_level_and_favorites_filters_announce_selection_accessibly(self):
         start = DASHBOARD_HTML.index('<div class="mb-8 flex flex-wrap gap-3">')
@@ -550,12 +538,14 @@ class DashboardUiRegressionTests(unittest.TestCase):
         )
 
     def test_completed_learning_path_remains_navigable(self):
-        self.assertIn(
-            ':disabled="!parcours.steps.length || (parcours.cur && parcours.cur.status === \'locked\')"',
-            DASHBOARD_HTML,
-        )
-        self.assertIn("'Revoir l’arbre complet'", DASHBOARD_HTML)
-
+        self.assertIn('aria-labelledby="resume-learning-title"', DASHBOARD_HTML)
+        self.assertIn('@click="openLearningStep()"', DASHBOARD_HTML)
+        self.assertIn(':disabled="!resumeNode"', DASHBOARD_HTML)
+        self.assertIn('id="tree-grid"', DASHBOARD_HTML)
+        self.assertIn("moduleCards.filter(module => module.id !== 'all')", DASHBOARD_HTML)
+        # Completion still offers a review target through resumeNode/resumeButtonLabel rather than the removed stepper button.
+        self.assertIn("if (this.resumeNode?.status === 'validated') return 'Réviser cette leçon';", DASHBOARD_HTML)
+        self.assertNotIn("'Revoir l’arbre complet'", DASHBOARD_HTML)
 
     def test_locked_last_opened_lesson_is_not_offered_as_resume_target(self):
         start = DASHBOARD_HTML.rindex("get resumableLastNode()")
@@ -610,17 +600,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_lab_entry_points_choose_the_correct_workspace_or_legacy_route(self):
         self.assertIn('data-lab-card="catalog"', DASHBOARD_HTML)
-        self.assertIn('data-lab-card="plan"', DASHBOARD_HTML)
-        self.assertIn(':data-lab-kind="labIndex[n.id]?.kind === \'workspace-v2\' ? \'workspace-v2\' : \'legacy\'"', DASHBOARD_HTML)
+        self.assertNotIn('data-lab-card="plan"', DASHBOARD_HTML)
+        self.assertIn(":data-lab-kind=\"labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'\"", DASHBOARD_HTML)
         self.assertIn(":href=\"labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id) : '/?openLab=' + encodeURIComponent(n.id)\"", DASHBOARD_HTML)
         self.assertIn('target="_blank" rel="noopener noreferrer"', DASHBOARD_HTML)
-        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
+        self.assertIn("if (action.action === 'lab')", DASHBOARD_HTML)
+        self.assertIn("await this.openLab(nodeId, true);", DASHBOARD_HTML)
         self.assertIn('@click="openVisualLab()"', DASHBOARD_HTML)
         self.assertIn("🧪 Réessayer le Lab Workspace", DASHBOARD_HTML)
         self.assertIn('x-if="hasVisualLab(detail.id)"', DASHBOARD_HTML)
-        self.assertIn('x-if="!hasVisualLab(detail.id)"', DASHBOARD_HTML)
-        self.assertIn("Ce laboratoire utilise actuellement le mode classique", DASHBOARD_HTML)
-        self.assertNotIn(":href=\"'/?openLab=' + encodeURIComponent(detail.id)\"", DASHBOARD_HTML)
 
     def test_classic_labs_are_not_reported_as_visual_workspace_failures(self):
         self.assertIn('x-if="hasVisualLab(detail.id)"', DASHBOARD_HTML)
@@ -705,7 +693,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
             ("loadStats", "/api/stats", "stats"),
         ]:
             start = DASHBOARD_HTML.index(f"async {method}(")
-            next_method = DASHBOARD_HTML.find("\n        async ", start + 1)
+            next_method = DASHBOARD_HTML.find("\\n        async ", start + 1)
             end = next_method if next_method >= 0 else len(DASHBOARD_HTML)
             body = DASHBOARD_HTML[start:end]
             self.assertIn(f"fetch('{endpoint}')", body)
@@ -721,7 +709,9 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertNotIn("this.dailyPlan = d.actions || [];", DASHBOARD_HTML)
         self.assertIn("userStatsLoaded ? userStats.total_xp : '—'", DASHBOARD_HTML)
         self.assertIn("streakLoaded ? streakDays : '—'", DASHBOARD_HTML)
-        self.assertIn("sélection locale", DASHBOARD_HTML)
+        # The cockpit surfaces the relevant streak and course values directly; the old local plan-count pill is gone.
+        self.assertIn('>Série d’apprentissage</p>', DASHBOARD_HTML)
+        self.assertIn('>Cours validés</p>', DASHBOARD_HTML)
         retry_start = DASHBOARD_HTML.index("async retryDashboardData()")
         retry_end = DASHBOARD_HTML.index("editProfile()", retry_start)
         self.assertIn("this.refreshAll()", DASHBOARD_HTML[retry_start:retry_end])
@@ -974,21 +964,20 @@ class DashboardUiRegressionTests(unittest.TestCase):
         )
 
 
-    def test_revision_access_is_visible_from_dashboard_and_navigation(self):
+    def test_revision_access_is_visible_from_navigation_after_dashboard_cleanup(self):
         nav_start = DASHBOARD_HTML.index("const NAV_ITEMS = [")
         nav_end = DASHBOARD_HTML.index("/* Scénarios de diagnostic intégrés", nav_start)
         nav_items = DASHBOARD_HTML[nav_start:nav_end]
 
         self.assertIn("{ id: 'memo', label: 'Révisions', title: 'Révisions espacées'", nav_items)
-        self.assertIn("Ouvrir les révisions espacées", DASHBOARD_HTML)
         self.assertIn("setTab('memo')", DASHBOARD_HTML)
         self.assertIn("<!-- ============ ONGLET RÉVISIONS ============ -->", DASHBOARD_HTML)
         self.assertIn("Révisions espacées", DASHBOARD_HTML)
-        # The revisions section remains accessible even when the server has no review action due today.
-        self.assertIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
         self.assertIn("['tree','labs','exam','challenges','memo','diagnostic','stats']", DASHBOARD_HTML)
         self.assertIn("grid-template-columns: repeat(7, minmax(0,1fr))", DASHBOARD_HTML)
         self.assertIn("item.id === 'memo' ? 'Réviser' : item.label", DASHBOARD_HTML)
+        self.assertNotIn("Ouvrir les révisions espacées", DASHBOARD_HTML)
+        self.assertNotIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
 
     def test_topology_navigation_is_replaced_by_challenges_and_lab_workspace_is_independent(self):
         self.assertIn("tab === 'challenges'", DASHBOARD_HTML)
