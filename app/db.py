@@ -245,7 +245,7 @@ def _migrate(conn: sqlite3.Connection) -> None:
         if column not in exam_columns:
             conn.execute(f"ALTER TABLE exam_sessions ADD COLUMN {column} {definition}")
 
-        terminal_columns = {row["name"] for row in conn.execute("PRAGMA table_info(terminal_specs)")}
+    terminal_columns = {row["name"] for row in conn.execute("PRAGMA table_info(terminal_specs)")}
     if "explanation" not in terminal_columns:
         conn.execute(
             "ALTER TABLE terminal_specs ADD COLUMN explanation TEXT NOT NULL DEFAULT ''"
