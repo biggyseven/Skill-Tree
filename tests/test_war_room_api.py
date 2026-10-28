@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +11,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from app import api
+import app.scenario_loader as scenario_loader
 from app.scenario_loader import list_scenarios, load_scenario
 
 
@@ -18,11 +20,23 @@ class WarRoomApiTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
         self.db_path = Path(self.temp_dir.name) / "war-room.sqlite3"
+        self.scenario_dir = Path(self.temp_dir.name) / "scenarios"
+        self.scenario_dir.mkdir()
+        source_scenarios = scenario_loader.SCENARIO_DIR
+        for source in source_scenarios.glob("*.json"):
+            shutil.copy2(source, self.scenario_dir / source.name)
+
         self.db_patch = patch.object(api, "DB_PATH", self.db_path)
         self.db_patch.start()
         self.addCleanup(self.db_patch.stop)
-        self.addCleanup(self.temp_dir.cleanup)
+        self.loader_scenarios_patch = patch.object(scenario_loader, "SCENARIO_DIR", self.scenario_dir)
+        self.loader_scenarios_patch.start()
+        self.addCleanup(self.loader_scenarios_patch.stop)
+        self.api_scenarios_patch = patch.object(api, "SCENARIO_DIR", self.scenario_dir)
+        self.api_scenarios_patch.start()
+        self.addCleanup(self.api_scenarios_patch.stop)
 
     def _client(self) -> TestClient:
         return TestClient(api.app)
@@ -267,6 +281,108 @@ class WarRoomApiTests(unittest.TestCase):
             with sqlite3.connect(self.db_path) as conn:
                 self.assertEqual(conn.execute("SELECT status FROM tickets WHERE id = 'CHG-001'").fetchone()[0], "failed")
 
+
+
+    def test_random_ticket_is_persisted_in_database_without_a_scenario_file(self) -> None:
+        with self._client() as client:
+            response = client.post("/api/tickets/random")
+            self.assertEqual(response.status_code, 200, response.text)
+            payload = response.json()
+            ticket_id = payload["ticket_id"]
+            scenario = payload["scenario"]
+            self.assertTrue(ticket_id.startswith("RND-"))
+            self.assertEqual(scenario["id"], ticket_id)
+            self.assertGreaterEqual(scenario["sla_minutes"], 20)
+            self.assertLessEqual(scenario["sla_minutes"], 45)
+            self.assertGreaterEqual(scenario["reward_xp"], 100)
+            self.assertLessEqual(scenario["reward_xp"], 200)
+            self.assertFalse((self.scenario_dir / f"{ticket_id}.json").exists())
+
+            with sqlite3.connect(self.db_path) as conn:
+                stored = conn.execute(
+                    "SELECT scenario_json FROM war_room_scenarios WHERE scenario_id = ?",
+                    (ticket_id,),
+                ).fetchone()
+            self.assertIsNotNone(stored)
+            self.assertEqual(json.loads(stored[0])["id"], ticket_id)
+
+            detail = client.get(f"/api/tickets/{ticket_id}")
+            self.assertEqual(detail.status_code, 200, detail.text)
+            self.assertEqual(detail.json()["scenario"]["fault_id"], scenario["fault_id"])
+            opened = client.post(f"/api/tickets/{ticket_id}/open")
+            self.assertEqual(opened.status_code, 200, opened.text)
+            self.assertTrue(opened.json()["existing"])
+
+    def test_scenario_creation_shutdown_fix_export_and_import(self) -> None:
+        request_body = {
+            "name": "SW1 Fa0/7 désactivé après maintenance",
+            "type": "incident",
+            "severity": "normal",
+            "topology": "lan_simple",
+            "fault_id": "port_shutdown",
+            "target_device": "SW1",
+            "target_port": "Fa0/7",
+            "sla_minutes": 30,
+        }
+        with self._client() as client:
+            saved = client.post("/api/scenarios/save", json=request_body)
+            self.assertEqual(saved.status_code, 200, saved.text)
+            saved_payload = saved.json()
+            scenario_id = saved_payload["scenario_id"]
+            self.assertTrue(scenario_id.startswith("USER-"))
+            self.assertTrue((self.scenario_dir / f"{scenario_id}.json").is_file())
+            file_content = json.loads((self.scenario_dir / f"{scenario_id}.json").read_text(encoding="utf-8"))
+            self.assertEqual(file_content["id"], scenario_id)
+
+            listed = client.get("/api/scenarios/list")
+            self.assertEqual(listed.status_code, 200, listed.text)
+            personal = next(item for item in listed.json() if item["id"] == scenario_id)
+            self.assertTrue(personal["is_user_created"])
+
+            opened = client.post(f"/api/tickets/{scenario_id}/open")
+            self.assertEqual(opened.status_code, 200, opened.text)
+            ticket_id = opened.json()["ticket"]["id"]
+            topology = opened.json()["scenario"]["initial_topology"]
+            sw1 = next(node for node in topology["nodes"] if node["id"] == "SW1")
+            fa07 = next(port for port in sw1["ports"] if port["id"] == "Fa0/7")
+            self.assertEqual(fa07["state"], "down")
+            fa07["state"] = "up"  # Même résultat que la commande CLI « no shutdown ».
+            resolved = client.post(
+                f"/api/tickets/{ticket_id}/resolve",
+                json={"topology": topology, "elapsed_seconds": 1},
+            )
+            self.assertEqual(resolved.status_code, 200, resolved.text)
+            self.assertTrue(resolved.json()["passed"], resolved.json())
+
+            exported = client.get(f"/api/scenarios/{scenario_id}/export")
+            self.assertEqual(exported.status_code, 200, exported.text)
+            self.assertIn(f'filename="{scenario_id}.json"', exported.headers.get("content-disposition", ""))
+            exported_scenario = exported.json()
+            self.assertEqual(exported_scenario["id"], scenario_id)
+
+            imported = client.post("/api/scenarios/import", json=exported_scenario)
+            self.assertEqual(imported.status_code, 200, imported.text)
+            imported_id = imported.json()["scenario_id"]
+            self.assertTrue(imported_id.startswith("USER-"))
+            self.assertNotEqual(imported_id, scenario_id)
+            self.assertTrue((self.scenario_dir / f"{imported_id}.json").is_file())
+            listed_after_import = client.get("/api/scenarios/list").json()
+            self.assertTrue(next(item for item in listed_after_import if item["id"] == imported_id)["is_user_created"])
+
+    def test_fault_options_are_filtered_by_topology_and_keep_the_eight_faults(self) -> None:
+        with self._client() as client:
+            response = client.get("/api/scenarios/options")
+            self.assertEqual(response.status_code, 200, response.text)
+            options = response.json()
+            self.assertEqual(len(options["faults"]), 8)
+            faults = {item["id"]: item for item in options["faults"]}
+            self.assertNotIn("lan_simple", faults["trunk_missing"]["topologies"])
+            self.assertIn("lan_wan", faults["trunk_missing"]["topologies"])
+            self.assertIn("multi_vlan", faults["trunk_missing"]["topologies"])
+            self.assertIn(
+                {"id": "Fa0/7", "label": "Fa0/7"},
+                options["targets"]["lan_simple"]["port_shutdown"][0]["ports"],
+            )
 
 if __name__ == "__main__":
     unittest.main()
