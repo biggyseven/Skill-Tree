@@ -382,8 +382,8 @@ class WarRoomApiTests(unittest.TestCase):
             self.assertEqual(len(options["faults"]), 8)
             faults = {item["id"]: item for item in options["faults"]}
             self.assertNotIn("lan_simple", faults["trunk_missing"]["topologies"])
-            self.assertIn("lan_wan", faults["trunk_missing"]["topologies"])
-            self.assertIn("multi_vlan", faults["trunk_missing"]["topologies"])
+            self.assertNotIn("lan_wan", faults["trunk_missing"]["topologies"])
+            self.assertEqual(faults["trunk_missing"]["topologies"], ["multi_vlan"])
             self.assertIn(
                 {"id": "Fa0/7", "label": "Fa0/7"},
                 next(target for target in options["targets"]["lan_simple"]["port_shutdown"] if target["id"] == "SW1")["ports"],
