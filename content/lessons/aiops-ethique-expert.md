@@ -437,6 +437,300 @@ Un modèle de priorisation des incidents est utilisé ensuite pour évaluer la p
 
 **Correction :** c'est une nouvelle finalité qui n'a pas été évaluée. Les données et scores peuvent refléter la complexité des incidents ou les différences de contexte, pas la performance individuelle. Suspendre l'usage détourné, effectuer une analyse d'impact dédiée et exiger une approbation claire avant tout nouveau déploiement.
 
+## Atelier approfondi — gouverner un système AIOps à risque
+
+Cet atelier transforme les principes éthiques en pratiques de conception, de validation et d'exploitation. Le cas de référence est un système AIOps qui priorise les incidents, estime le risque pour les sites et recommande certaines actions. Les données sont hétérogènes : certains sites disposent d'une télémétrie abondante, d'autres de collecteurs plus anciens ; les historiques d'incident ne sont pas uniformes ; des recommandations peuvent orienter les budgets et l'attention des équipes. Dans ce contexte, un modèle peut être statistiquement performant à l'échelle globale tout en défavorisant certains services ou en encourageant des actions risquées.
+
+La gouvernance ne se limite pas à documenter l'intention de faire le bien. Elle décrit qui est responsable, quelles décisions sont autorisées, quelles preuves sont exigées, comment les effets indésirables sont détectés, et comment le système peut être contesté, corrigé ou retiré. Les contrôles proposés doivent être adaptés à la juridiction, au secteur, à la criticité de l'infrastructure et aux engagements contractuels de l'organisation. Ce contenu fournit une méthode de travail et ne remplace pas l'avis juridique ou réglementaire spécialisé.
+
+### 1. Cartographier les usages réels, pas seulement le modèle
+
+Un système d'IA n'est pas uniquement un modèle entraîné. Il comprend les sources de données, les transformations, les règles de seuil, l'interface, les opérateurs, les politiques d'escalade, les intégrations et les actions qui peuvent suivre une recommandation. Un même modèle peut avoir des risques très différents selon son usage. Une estimation consultative affichée à un ingénieur ne possède pas les mêmes conséquences qu'une commande automatique qui modifie le routage d'un site.
+
+La cartographie d'usage commence par les décisions. Qui utilise le résultat ? Quel choix est influencé ? Quelle population ou quel système est concerné ? Quelles conséquences peuvent survenir en cas d'erreur ? Le système peut-il déclencher une action sans intervention humaine ? Existe-t-il un moyen alternatif de prendre la décision lorsque le modèle est indisponible ? Ces questions établissent le contexte de risque bien plus efficacement que le seul nom de la technique.
+
+```mermaid
+flowchart TD
+    A["Modèle et données"] --> B["Interface et recommandations"]
+    B --> C["Décision de l'opérateur"]
+    C --> D["Action opérationnelle"]
+    D --> E["Effets sur le service"]
+    E --> F["Coûts et conséquences"]
+    F --> G["Revoir le risque de bout en bout"]
+    A --> H["Surveillance et gouvernance"]
+    B --> H
+    C --> H
+    D --> H
+    E --> H
+```
+
+Décrivez les limites d'usage de manière explicite : populations couvertes, environnements autorisés, types d'événements pris en charge, conditions d'abstention, dépendances et décisions interdites. Une note générique comme « les résultats peuvent comporter des erreurs » n'est pas assez utile pour gouverner le système. Il faut indiquer quelles erreurs sont plausibles, comment les détecter et ce que l'utilisateur doit faire si elles apparaissent.
+
+Documentez aussi les usages secondaires prévisibles. Un score conçu pour aider à prioriser la maintenance peut être réutilisé par une direction pour allouer les budgets, comparer les ingénieurs ou justifier des sanctions. Un tel usage peut sortir du domaine pour lequel les données et le modèle ont été évalués. Le propriétaire doit définir les usages permis et le processus de demande pour toute extension. Une réutilisation du système doit être évaluée selon ses propres conséquences, même si elle ne nécessite aucun changement du code.
+
+### 2. Établir une classification des risques qui change le contrôle
+
+La classification des risques doit conduire à des différences concrètes de traitement. Un outil qui résume une documentation interne peut exiger des contrôles différents d'un outil qui recommande des changements sur un réseau de production. La classification doit considérer les effets possibles sur la sécurité, la disponibilité, la confidentialité, la continuité, l'accès aux ressources et la capacité de contester une décision.
+
+Une grille de risque peut examiner la gravité de l'impact, la probabilité d'erreur, l'ampleur du périmètre, la vitesse d'exécution, la réversibilité et le niveau d'incertitude. Un score global facilite le triage, mais ne doit pas permettre de compenser une conséquence catastrophique par plusieurs facteurs de faible risque. Certaines conditions doivent être des interdictions ou des portes de validation, par exemple l'absence de mécanisme de reprise pour une opération irréversible.
+
+```mermaid
+flowchart TD
+    A["Décrire système et usage"] --> B["Évaluer gravité potentielle"]
+    A --> C["Évaluer probabilité d'erreur"]
+    A --> D["Évaluer échelle et vitesse"]
+    A --> E["Évaluer réversibilité"]
+    B --> F["Classification de risque"]
+    C --> F
+    D --> F
+    E --> F
+    F --> G{"Contrôle renforcé requis ?"}
+    G -- "Oui" --> H["Validation, approbation et tests additionnels"]
+    G -- "Non" --> I["Contrôles standards documentés"]
+    H --> J["Autorisation limitée et surveillance"]
+    I --> J
+```
+
+Évitez les catégories purement décoratives. Associez chaque niveau à des exigences : qualité minimale des données, validation indépendante, approbation avant action, profondeur de journalisation, fréquence de revue, tests adverses, limites de fonctionnement et autorité de suspension. Si les critères de classement ne sont pas déterministes, documentez qui tranche et comment les désaccords sont résolus.
+
+Le risque résiduel doit être évalué après les contrôles. La présence d'une revue humaine ne signifie pas que le risque est nul, notamment si le volume de recommandations est très élevé, si les délais sont courts ou si les utilisateurs ont tendance à suivre automatiquement la première suggestion. Une approbation n'est efficace que lorsque la personne dispose d'informations, de temps et d'autorité réels pour accepter, modifier ou refuser la proposition.
+
+### 3. Construire une fiche système exploitable
+
+La fiche système décrit le périmètre, le propriétaire, l'objectif, les utilisateurs, les données, le modèle, les versions, les sorties, les dépendances, les risques et les limites. Elle doit être suffisamment concrète pour qu'une autre équipe comprenne le fonctionnement sans interroger oralement les auteurs. Elle n'a pas besoin de devenir une encyclopédie : les informations détaillées peuvent être stockées dans des références versionnées, à condition que le dossier indique clairement où les trouver.
+
+La fiche doit répondre à plusieurs questions : quelle décision le système influence-t-il ? Quel est son périmètre d'utilisation ? Quelles données ne sont pas disponibles ? Comment le modèle a-t-il été évalué ? Dans quelles conditions doit-il s'abstenir ? Quel est le comportement en cas de panne ? Quelle personne ou équipe peut arrêter le système ? Comment une nouvelle version est-elle approuvée ? Que se passe-t-il si le fournisseur, l'API ou le modèle disparaît ?
+
+```mermaid
+flowchart LR
+    A["Objectif et usages autorisés"] --> F["Fiche système versionnée"]
+    B["Données et provenance"] --> F
+    C["Modèle et évaluation"] --> F
+    D["Risques et contrôles"] --> F
+    E["Responsabilités et limites"] --> F
+    F --> G["Revue de mise en service"]
+    G --> H["Revue périodique et à chaque changement majeur"]
+```
+
+La fiche ne doit pas prétendre que les résultats sont universellement fiables. Indiquez les populations, les périodes et les catégories pour lesquelles l'évaluation a été réalisée. Si le modèle est performant sur les grands sites mais mal évalué sur les petites agences, cette restriction doit être accessible aux utilisateurs et aux responsables qui prennent des décisions de déploiement.
+
+Un résumé lisible par les utilisateurs peut compléter la documentation technique. Il précise ce que signifie un score, ce qu'il ne signifie pas, quelles données peuvent manquer, comment contester une recommandation et qui contacter en cas d'effet indésirable. Les messages d'interface doivent reprendre les limites essentielles au bon moment, plutôt que d'attendre que l'utilisateur lise un document long avant de prendre une décision.
+
+### 4. Gouverner les données de bout en bout
+
+Le risque éthique commence souvent avant l'entraînement. Les sources peuvent couvrir inégalement les sites, utiliser des définitions différentes, présenter des périodes d'interruption ou inclure davantage d'événements dans les environnements les plus surveillés. La base d'incidents peut être influencée par les pratiques des équipes : un site qui reçoit plus d'attention produit plus de tickets et donc davantage de labels, même si son risque réel n'est pas supérieur.
+
+Établissez la provenance de chaque ensemble de données : source, période, unité, transformations, exclusions, labels et droits d'utilisation. Conservez une trace des filtres appliqués et des raisons d'exclusion. Des exclusions automatiques de données incomplètes peuvent elles-mêmes créer une disparité si elles touchent principalement certains groupes d'actifs. L'analyse doit donc mesurer ce qui a été retiré, pourquoi et pour qui.
+
+```mermaid
+flowchart TD
+    A["Sources de données"] --> B["Provenance et autorisation d'usage"]
+    B --> C["Contrôles de couverture"]
+    C --> D["Mesurer absences par groupe"]
+    D --> E["Évaluer labels et transformations"]
+    E --> F["Documenter exclusions et biais possibles"]
+    F --> G["Jeu de données candidat"]
+    G --> H["Revue et validation avant usage"]
+```
+
+La qualité doit être ventilée par population, site, classe d'actif, région et période lorsque ces dimensions sont pertinentes et autorisées. Une couverture globale de 98 % peut masquer une couverture de 60 % sur un groupe minoritaire dans l'inventaire. Les mesures doivent aussi tenir compte de la qualité des labels. Une catégorie avec peu de cas documentés ne permet pas de conclure à l'absence d'erreur ; elle indique d'abord un déficit d'information.
+
+Appliquez le principe de minimisation : ne collectez et ne conservez que les éléments nécessaires à l'objectif. La topologie, les identifiants d'utilisateurs, les traces détaillées ou les commandes peuvent révéler des informations sensibles même si aucun nom de personne n'est visible. Les pseudonymes restent parfois réidentifiables par recoupement. Définissez les finalités, les droits d'accès, la durée de rétention et les mécanismes de suppression ou d'archivage selon les contraintes applicables.
+
+### 5. Distinguer équité, performance et allocation de ressources
+
+Dans une organisation IT, une disparité de score peut affecter l'allocation de maintenance, les délais de prise en charge ou l'accès au support spécialisé. Un modèle qui priorise les incidents d'après des historiques peut systématiquement préférer les sites qui disposent d'une télémétrie plus riche, car les observations y sont plus faciles à interpréter. Le système confond alors visibilité et importance réelle du risque.
+
+Il faut choisir la définition d'équité qui correspond à la décision. Veut-on que les incidents critiques soient détectés avec une qualité comparable entre groupes ? Que les délais de triage soient comparables pour des incidents de gravité similaire ? Que le taux d'erreurs soit comparable ? Ces objectifs ne sont pas toujours équivalents et peuvent entrer en tension. Il est nécessaire de montrer le compromis, le justifier et obtenir l'accord des propriétaires opérationnels au lieu d'optimiser une métrique arbitraire.
+
+```mermaid
+flowchart TD
+    A["Définir l'impact décisionnel"] --> B["Choisir groupes pertinents et autorisés"]
+    B --> C["Mesurer couverture et qualité"]
+    C --> D["Mesurer erreurs par groupe"]
+    D --> E["Examiner gravité et charge de triage"]
+    E --> F["Identifier disparités robustes"]
+    F --> G["Choisir atténuation et garde-fous"]
+    G --> H["Réévaluer après changement"]
+```
+
+Ne concluez pas à une disparité significative sur la seule base de pourcentages lorsque les effectifs diffèrent fortement. Publiez les effectifs, les intervalles d'incertitude et les périodes. Lorsque les données sont trop peu nombreuses, signalez le manque de preuve et proposez un plan de collecte ou de revue manuelle. Il serait trompeur de déclarer un système équitable parce qu'aucun écart n'a été détecté sur un échantillon trop petit.
+
+L'atténuation ne consiste pas toujours à modifier le modèle. On peut améliorer la couverture de télémétrie, corriger un processus de triage, changer la définition des labels, introduire une file de révision pour les cas incertains ou rééquilibrer l'allocation de maintenance. Si l'algorithme est corrigé sans traiter la cause opérationnelle, la disparité peut réapparaître dans les données futures. Testez l'effet de l'atténuation sur les groupes concernés et sur la performance globale, puis documentez les effets secondaires.
+
+### 6. Mesurer l'explicabilité utile à une décision
+
+Une explication utile aide l'utilisateur à comprendre les éléments qui ont influencé le résultat, les limites de l'information et les vérifications qui pourraient le remettre en cause. Elle ne doit pas donner l'illusion d'une causalité que le modèle ne fournit pas. Une importance de variable indique une contribution au calcul selon une méthode donnée, pas nécessairement une cause réelle du phénomène.
+
+Adaptez l'explication à l'utilisateur. L'ingénieur a besoin de la mesure, de sa référence, de la fenêtre, du contexte, des éléments contraires et de l'identifiant du modèle. Le responsable doit comprendre les conséquences, le périmètre, la confiance et les options de décision. L'auditeur a besoin de la version, des sources, des tests, des approbations et des règles. Une explication unique peut servir de base, mais les vues doivent être adaptées sans inventer de faits différents.
+
+```mermaid
+flowchart TD
+    A["Sortie du modèle"] --> B["Extraire les contributions calculées"]
+    B --> C["Relier les contributions aux sources"]
+    C --> D["Exposer hypothèses et contre-preuves"]
+    D --> E["Présenter limites et confiance"]
+    E --> F["Permettre contestation et correction"]
+    F --> G["Tracer décision et résultat"]
+```
+
+Évaluez l'explication séparément de la performance. Demandez aux utilisateurs de retrouver la source d'une conclusion, d'identifier une hypothèse qui pourrait être fausse et de décider quelle vérification faire ensuite. Une explication longue peut être peu utile si l'utilisateur ne peut pas l'utiliser dans le temps disponible. À l'inverse, un résumé concis relié à une chronologie et à des preuves consultables peut faciliter une décision sans masquer la complexité.
+
+Évitez les formulations absolues lorsque le modèle est probabiliste ou que les données sont incomplètes. « La cause est le routeur X » est très différent de « le routeur X est le premier candidat, car la dégradation a suivi un changement sur ce chemin ; deux hypothèses restent non éliminées ». La formulation doit correspondre au niveau de preuve et au type de sortie. Une confidence score brute ne doit pas être présentée comme une probabilité de vérité sans calibration.
+
+### 7. Gouverner les systèmes génératifs et les agents
+
+Les systèmes génératifs peuvent résumer des incidents, analyser des tickets, proposer des hypothèses ou générer du code d'automatisation. Leur capacité de synthèse crée aussi des risques : ils peuvent compléter des lacunes par une proposition plausible, confondre des consignes présentes dans un log avec des instructions à suivre ou citer une source inexistante. Les données d'entrée doivent être traitées comme du contenu non fiable et les consignes de politique doivent rester séparées du texte provenant des systèmes surveillés.
+
+Définissez les tâches permises au modèle, les outils disponibles, les données visibles, les limites de sortie et les opérations interdites. Un agent qui peut lire un incident n'a pas automatiquement besoin d'une permission de modifier l'infrastructure. La séparation des outils, des identités et des environnements limite les effets d'une erreur ou d'une manipulation de contexte.
+
+```mermaid
+flowchart TD
+    A["Ticket, log et télémétrie"] --> B["Données non fiables"]
+    B --> C["Préparer contexte autorisé"]
+    C --> D["Modèle génératif"]
+    D --> E["Réponse structurée avec références"]
+    E --> F["Validation des sources et du format"]
+    F --> G{"Sortie conforme et étayée ?"}
+    G -- "Non" --> H["Rejeter ou demander une revue"]
+    G -- "Oui" --> I["Usage consultatif ou outil permis"]
+    I --> J["Journaliser décision et résultat"]
+```
+
+Vérifiez les affirmations produites par rapprochement avec les données structurées. Une référence d'événement doit exister, les champs cités doivent correspondre à la source, les dates doivent être cohérentes et les faits doivent être distingués des interprétations. Les synthèses doivent être testées sur des cas incomplets, contradictoires et adverses, pas uniquement sur les incidents clairs qui favorisent le modèle.
+
+Si un agent peut proposer du code, la sortie doit passer par des tests, une revue et un environnement contrôlé avant de toucher la production. Si un agent peut appeler un outil, chaque appel doit être autorisé selon une politique indépendante du texte généré. N'utilisez pas un modèle comme seul mécanisme de contrôle d'accès ou d'approbation. Les actions à fort impact doivent avoir des limites déterministes, des préconditions, des traces et un moyen d'arrêt.
+
+### 8. Évaluer les effets réels après déploiement
+
+L'évaluation ne s'arrête pas à un rapport avant production. Les données changent, les équipes modifient leurs usages, le modèle peut être réentraîné et de nouvelles catégories d'incident apparaissent. Définissez un plan de surveillance avec des indicateurs d'entrée, de qualité, de résultat, d'équité et de charge opérationnelle. Chaque mesure doit être associée à un responsable et à une action si elle franchit une limite.
+
+Ne confondez pas dérive statistique et dommage éthique démontré. Une hausse d'un taux d'erreur peut venir d'un changement légitime des conditions ; une distribution stable peut toutefois cacher un changement de qualité des labels ou des pratiques de traitement. Examinez les impacts par groupe et par usage, ainsi que les retours et recours des utilisateurs.
+
+```mermaid
+flowchart LR
+    A["Entrées et couverture"] --> D["Tableau de gouvernance"]
+    B["Erreurs et performance"] --> D
+    C["Impacts et recours"] --> D
+    D --> E["Revue par le propriétaire"]
+    E --> F{"Seuil de risque dépassé ?"}
+    F -- "Non" --> G["Poursuivre et réévaluer"]
+    F -- "Oui" --> H["Limiter ou suspendre l'usage"]
+    H --> I["Enquête et plan correctif"]
+    I --> J["Réévaluation avant reprise"]
+```
+
+La surveillance doit aussi repérer le contournement des contrôles : recommandations ignorées systématiquement, approbations quasi automatiques, comptes techniques trop privilégiés, exportations de données non prévues ou utilisation du score dans un processus non autorisé. Ces usages peuvent se développer sans modification du modèle. Des audits de processus et des échanges avec les utilisateurs sont donc nécessaires en complément des métriques de performance.
+
+Prévoyez un registre des incidents impliquant le système d'IA. Il peut inclure une recommandation erronée, une action excessive, un refus injustifié, une atteinte à la confidentialité, une disparité inattendue ou une explication trompeuse. Le traitement doit préserver les preuves, évaluer l'impact, limiter les conséquences, informer les responsables appropriés et déterminer si le système doit être suspendu. L'objectif n'est pas seulement de corriger le modèle, mais aussi de réparer les contrôles de bout en bout qui ont permis l'incident.
+
+### 9. Construire une procédure de suspension et de retrait
+
+Un système doit pouvoir être limité ou retiré lorsque les risques dépassent les bénéfices. La procédure peut réduire le périmètre, désactiver certaines recommandations, passer en mode observation, revenir à une version précédente ou désactiver les appels d'outils. L'option adaptée dépend de l'incident. Supprimer entièrement le service n'est pas toujours nécessaire, mais continuer comme si de rien n'était n'est pas acceptable lorsque les preuves de sécurité ou de qualité ont disparu.
+
+Les critères de suspension doivent être définis avant la production : perte de traçabilité, dégradation sévère d'une population, taux d'erreurs dépassant une limite, violation de politique, comportement génératif non étayé, indisponibilité de la revue humaine ou impossibilité de restaurer une configuration. Des seuils automatiques peuvent déclencher une mise en mode prudent, tandis que les décisions de reprise doivent suivre une procédure d'approbation adaptée au risque.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Approved
+    Approved --> Monitored: usage en production
+    Monitored --> Restricted: risque accru
+    Monitored --> Suspended: condition critique
+    Restricted --> Monitored: correction validée
+    Restricted --> Suspended: risque non maîtrisé
+    Suspended --> Investigating: preuves préservées
+    Investigating --> Retired: retrait décidé
+    Investigating --> Restricted: reprise limitée approuvée
+    Restricted --> Retired: bénéfice insuffisant
+    Retired --> [*]
+```
+
+La suspension doit être techniquement effective. Retirer un bouton de l'interface ne suffit pas si une API reste accessible au compte d'automatisation. Vérifiez les permissions, les clés, les queues de tâches et les workers déjà en cours. Il faut définir ce qui advient des opérations actives, des résultats en attente et des demandes non traitées. Les traces nécessaires à l'enquête doivent être conservées dans le respect des politiques de rétention.
+
+La reprise exige des preuves : cause de l'incident comprise ou suffisamment maîtrisée, correction validée, tests de régression passés, limites documentées et surveillance renforcée en place. Une reprise progressive et réversible est préférable à la remise en service complète immédiate. Si l'usage ne présente plus de bénéfice ou si les risques demeurent trop élevés, le retrait constitue une décision légitime de gouvernance.
+
+### 10. Gouverner les fournisseurs et les composants tiers
+
+Un système AIOps peut intégrer un modèle hébergé, une bibliothèque open source, un service cloud, une source de données externe et des outils d'orchestration. La responsabilité de l'organisation ne disparaît pas lorsqu'un composant est fourni par un tiers. Il faut comprendre quelles données sont transmises, où elles sont traitées, comment les changements de version sont annoncés, quelles garanties de disponibilité existent et comment quitter le service si les conditions changent.
+
+L'évaluation du fournisseur devrait examiner la provenance et les droits d'utilisation des données, les mécanismes de sécurité, les sous-traitants pertinents, la gestion des incidents, les possibilités d'audit, la rétention et la suppression, ainsi que la portabilité des configurations. Si une API change silencieusement ou qu'un modèle est remplacé sans contrôle, les décisions opérationnelles peuvent évoluer sans que le propriétaire du système le sache.
+
+```mermaid
+flowchart TD
+    A["Composant tiers"] --> B["Évaluer données et finalités"]
+    A --> C["Évaluer sécurité et droits"]
+    A --> D["Évaluer versions et changements"]
+    A --> E["Évaluer export et sortie"]
+    B --> F["Registre de dépendance"]
+    C --> F
+    D --> F
+    E --> F
+    F --> G["Approbation et contrôle périodique"]
+```
+
+Les composants doivent être inventoriés avec leurs versions et leurs dépendances. La liste est particulièrement importante pour les bibliothèques de prétraitement et les modèles : une mise à jour peut modifier les scores, les explications ou le comportement face aux entrées limites. Les mises à jour de sécurité restent nécessaires, mais elles doivent être testées selon une procédure qui vérifie les fonctionnalités critiques et permet de revenir à une version connue si une régression apparaît.
+
+Préparez une stratégie de sortie avant d'en avoir besoin. Elle peut comprendre l'export des dossiers, la conservation des preuves, le remplacement des appels externes, la révocation des identifiants et la migration des données. Le plan doit tenir compte des formats propriétaires et des limites de portabilité. Un système dont les données ou les preuves ne peuvent pas être récupérées crée une dépendance de gouvernance au même titre qu'une dépendance technique.
+
+### 11. Laboratoire : auditer une recommandation de priorité d'incident
+
+Le laboratoire part d'un score qui classe les incidents pour l'équipe d'exploitation. Les grands sites disposent de capteurs plus récents et d'un historique plus complet ; les petites agences ont parfois des trous de collecte. Le modèle peut accorder davantage de priorité aux grands sites parce que leurs incidents sont mieux documentés. Le travail consiste à identifier la chaîne de décision, mesurer la couverture, comparer les erreurs et évaluer les effets sur les délais de prise en charge.
+
+Construisez un jeu de données synthétique avec plusieurs groupes d'actifs, des incidents annotés, des données manquantes et des exemples ambigus. Séparez les colonnes disponibles au moment de la décision des informations connues après l'incident. Les labels ne doivent pas être réinjectés dans les caractéristiques, et les données destinées à l'évaluation doivent être distinctes de celles utilisées pour ajuster le modèle ou ses seuils.
+
+```mermaid
+flowchart TD
+    A["Inventorier données et décision"] --> B["Mesurer couverture par groupe"]
+    B --> C["Reproduire scores et priorités"]
+    C --> D["Comparer erreurs et délais"]
+    D --> E["Étudier cas sous-représentés"]
+    E --> F["Proposer correction technique ou processus"]
+    F --> G["Tester effets secondaires"]
+    G --> H["Décider, documenter et surveiller"]
+```
+
+Effectuez trois analyses. Premièrement, comparez les taux de données manquantes et la fraîcheur par groupe. Deuxièmement, mesurez la précision, le rappel, le délai de détection et la priorité moyenne pour des incidents de gravité comparable. Troisièmement, comparez les résultats avant et après une intervention : meilleure collecte, catégorie de données insuffisantes, changement de règle ou revue humaine. Il faut déterminer si l'amélioration vient de la qualité des données, du modèle ou du processus opérationnel.
+
+La correction proposée doit décrire les compromis. Un seuil adapté par groupe peut améliorer certains indicateurs mais rendre les scores moins directement comparables ; une meilleure collecte peut demander du temps et des investissements ; une revue manuelle protège certains cas mais augmente la charge. Ne choisissez pas simplement la solution qui fait disparaître le plus grand écart numérique. Évaluez les objectifs métier, les incertitudes, les effets secondaires et l'équité de la procédure de maintenance.
+
+Le dossier final doit montrer les résultats avec les effectifs et l'incertitude, les limites des données, les décisions prises, le recours disponible aux opérateurs et le plan de surveillance. Si le jeu d'essai est synthétique ou trop petit, indiquez que les conclusions sont provisoires et définissez les données supplémentaires nécessaires pour valider la correction dans un contexte réel.
+
+### 12. Grille de revue avant lancement
+
+La revue avant lancement réunit le propriétaire métier, l'équipe technique, la sécurité, la confidentialité et les personnes qui utiliseront les recommandations. Chaque fonction doit pouvoir exprimer les risques de son domaine. Une revue efficace ne se limite pas à signer une fiche : elle vérifie que les tests existent, que les responsabilités sont attribuées et qu'un mécanisme de suspension est opérationnel.
+
+```mermaid
+flowchart TD
+    A["Préparer dossier système"] --> B["Revue des données et biais"]
+    B --> C["Revue de sécurité et confidentialité"]
+    C --> D["Revue opérationnelle et recours"]
+    D --> E["Vérifier tests et preuves"]
+    E --> F{"Risques résiduels acceptés ?"}
+    F -- "Non" --> G["Limiter, corriger ou refuser"]
+    F -- "Oui" --> H["Autoriser lancement borné"]
+    H --> I["Surveillance et revue périodique"]
+```
+
+La revue doit considérer les limites de l'évaluation. Un modèle évalué uniquement sur un jeu historique peut ne pas refléter des changements futurs. Une interface claire ne suffit pas si la décision est prise trop rapidement. Un processus de contestation est peu utile si aucune personne n'est responsable de traiter les recours. Un plan de réponse à incident est incomplet s'il ne permet pas de désactiver réellement l'usage et de préserver les preuves.
+
+La décision de lancement peut comporter des conditions : certains usages restent consultatifs, certains groupes passent par une revue humaine, les actions à fort impact sont bloquées, ou une période d'observation est obligatoire. Ces conditions doivent être appliquées techniquement et réévaluées à une date définie. Une condition temporaire ne doit pas devenir un contournement permanent sans décision documentée.
+
+### Critères d'acceptation de l'atelier
+
+- [ ] L'usage et les décisions influencées par l'IA sont clairement cartographiés.
+- [ ] Les usages autorisés et interdits sont documentés.
+- [ ] Le niveau de risque entraîne des contrôles concrets.
+- [ ] La fiche système décrit les données, versions, limites et responsabilités.
+- [ ] La provenance, les exclusions et la couverture des données sont mesurées.
+- [ ] Les disparités sont étudiées avec effectifs et incertitude.
+- [ ] Les explications sont testées du point de vue des utilisateurs.
+- [ ] Les sorties génératives sont reliées à des preuves vérifiables.
+- [ ] Les identités, outils et permissions sont séparés selon le risque.
+- [ ] Les effets réels et les usages détournés sont surveillés.
+- [ ] Les critères de suspension, reprise et retrait sont définis.
+- [ ] Les fournisseurs et composants tiers ont un plan de contrôle et de sortie.
+- [ ] Les décisions de lancement sont documentées et révisables.
+
 ## 15. Défi final, checklist et références
 
 ### Défi
