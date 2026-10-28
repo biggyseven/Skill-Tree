@@ -6742,10 +6742,9 @@
           }
           const levelsBody = allLevels ? ['debutant', 'intermediaire', 'expert'] : cfg.levels;
           const body = {
-            ...(allModules ? {} : { module: cfg.module }),
+            ...(allModules ? {} : { module: cfg.module, node_ids: pool.map(n => n.id) }),
             levels: levelsBody,
             count: cfg.count,
-            node_ids: pool.map(n => n.id),
             time_limit: cfg.minutes * 60
           };
           try {
@@ -6755,9 +6754,17 @@
               const category = Object.keys(c).sort((a, b) => c[b] - c[a])[0];
               r = await fetch('/api/exam/start', { method: 'POST', headers: H, body: JSON.stringify({ ...body, category }) });
             }
-            if (!r.ok) throw new Error((await r.text()) || 'Erreur ' + r.status);
+            if (!r.ok) {
+              const responseText = await r.text();
+              let message = responseText;
+              try {
+                const errorPayload = JSON.parse(responseText);
+                message = errorPayload.detail || errorPayload.message || errorPayload.error || responseText;
+              } catch (_) { /* Le serveur peut aussi renvoyer un texte brut. */ }
+              throw new Error(message || ('Erreur HTTP ' + r.status));
+            }
             const data = await r.json();
-            const rawQs = data.questions || [];
+            const rawQs = Array.isArray(data.questions) ? data.questions : [];
             const realQs = rawQs.filter(q => !/question temporaire/i.test(String(q.prompt || '')));
             const sourceQs = realQs.length ? realQs : rawQs;
             if (!sourceQs.length) throw new Error('Aucune question disponible pour ce périmètre.');
@@ -6766,7 +6773,10 @@
             this.exam = { ...data, questions: qs, cfg: { ...cfg }, category: allModules ? '🎲 Aléatoire · Tous modules' : (data.category || this.moduleMeta(cfg.module).label) };
             this.examAnswers = qs.map(() => null); this.examFlags = {}; this.examIdx = 0; this.examResult = null; this.examConfirm = false;
             this.examLeft = data.time_limit || cfg.minutes * 60; this.examStarted = Date.now(); this.startExamTimer();
-          } catch (e) { this.examErr = e.message; } finally { this.examBusy = false; }
+          } catch (e) {
+            this.examErr = e && e.message ? e.message : 'Impossible de démarrer cet examen. Réessaie.';
+            this.notify(this.examErr);
+          } finally { this.examBusy = false; }
         },
         startExamTimer() { this.stopExamTimer(); this.examTimerId = setInterval(() => { this.examLeft--; if (this.examLeft <= 0) this.submitExam(true); }, 1000); },
         stopExamTimer() { if (this.examTimerId) { clearInterval(this.examTimerId); this.examTimerId = null; } },
