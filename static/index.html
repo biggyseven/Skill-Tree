@@ -5352,6 +5352,58 @@
           'Pipelines de données complexes'
         ]
       } },
+      { id: 'aiops', label: 'AIOps & Intelligence Artificielle', short: 'AIOps', icon: '🤖', roadmap: {
+        debutant: [
+          "Qu'est-ce que l'AIOps ?",
+          "IA, Machine Learning, Deep Learning",
+          "Automatisation avec Python et Bash",
+          "Automatiser via Slack/Teams (ChatOps)",
+          "Intent-Based Networking (IBN)",
+          "Outils (Ansible, Nornir)"
+        ],
+        intermediaire: [
+          "ML pour la supervision réseau",
+          "Détection d'anomalies (Z-score, clustering)",
+          "Pipelines CI/CD pour le réseau",
+          "Introduction aux LLMs pour l'administration réseau",
+          "Streaming Telemetry (gNMI, gRPC)",
+          "Jumeaux numériques réseau"
+        ],
+        expert: [
+          "IA générative pour le diagnostic d'incidents",
+          "Réseaux auto-cicatrisants",
+          "Maintenance prédictive par IA",
+          "Corrélation d'événements et RCA automatisée",
+          "MLOps pour l'infrastructure",
+          "Éthique de l'IA et biais algorithmiques"
+        ]
+      } },
+      { id: 'gestion-projet-it', label: 'Gestion de Projet IT', short: 'Projet IT', icon: '📋', roadmap: {
+        debutant: [
+          "Introduction à la gestion de projet IT",
+          "Phases d'un projet (Initiation, Planification)",
+          "Rôles (Chef de projet, MOA, MOE)",
+          "Outils de gestion (Jira, Trello, MS Project)",
+          "Notions de Gantt et PERT",
+          "Estimation des coûts et budget"
+        ],
+        intermediaire: [
+          "Manifeste Agile et framework Scrum",
+          "Rôle du Scrum Master et cérémonies",
+          "Fondamentaux du PMI et de la certification PMP",
+          "Méthodologie PRINCE2",
+          "Identification et mitigation des risques",
+          "Assurance qualité et tests de recette"
+        ],
+        expert: [
+          "Direction de programme et portefeuille",
+          "Conduite du changement IT",
+          "Méthodologies hybrides Agile/Waterfall",
+          "Leadership et gestion des parties prenantes",
+          "Intégration ITSM et stratégie",
+          "Audit de projet et capitalisation"
+        ]
+      } },
       { id: 'telecom', label: 'Opérateurs & Télécoms', short: 'Télécoms', icon: '📡', roadmap: {} },
       { id: 'voix', label: 'Voix & Collaboration', short: 'Voix', icon: '📞', roadmap: {} },
       { id: 'ot', label: 'Réseaux Industriels (OT)', short: 'OT', icon: '🏭', roadmap: {} },
@@ -5696,6 +5748,8 @@
           // 1. D'abord, on vérifie le champ "module" exact.
           const raw = String(n.module || '').trim();
           if (raw === 'Data & Bases de données' || raw.toLowerCase().startsWith('data')) return 'data';
+          if (raw === 'AIOps & Intelligence Artificielle' || raw.toLowerCase().startsWith('aiops')) return 'aiops';
+          if (raw.toLowerCase() === 'gestion de projet it') return 'gestion-projet-it';
           if (raw === 'Cybersécurité') return 'cybersecurite';
           
           if (raw === 'Réseaux Industriels (OT)') return 'ot';
@@ -5708,6 +5762,8 @@
 
           // 2. Ensuite, on vérifie l'ID du cours (au cas où le champ module serait absent).
           if (id.startsWith('data-')) return 'data';
+          if (id.startsWith('aiops-')) return 'aiops';
+          if (id.startsWith('proj-')) return 'gestion-projet-it';
           if (id.startsWith('secu-')) return 'cybersecurite';
           if (id.startsWith('ot-')) return 'ot';
           if (id.startsWith('cloud-aws') || id.startsWith('cloud-azure') || id.startsWith('cloud-gcp') || id.startsWith('cloud-serverless')) return 'cloud';

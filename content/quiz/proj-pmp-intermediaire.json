@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-pmp-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un candidat révise un ancien cours PMP dont la pondération diffère de la page PMI pour l’examen qu’il passera en novembre 2026. Quelle démarche est la plus sûre ?",
+      "choices": [
+        "Utiliser l’ancien cours car les fondamentaux ne changent jamais",
+        "Suivre uniquement des questions mémorisées trouvées sur un forum",
+        "Choisir le support ayant le plus de pages, même si l’édition n’est pas indiquée",
+        "Partir de l’Exam Content Outline officiel applicable à la date d’examen puis aligner le plan d’étude et les simulations sur cette version"
+      ],
+      "answer": 3,
+      "explanation": "La préparation doit suivre les documents officiels applicables à la date prévue de l’examen. Le PMBOK Guide et l’ECO ne sont pas interchangeables : le premier fournit des connaissances, tandis que l’ECO définit le contenu évalué. Un support volumineux ou des questions mémorisées ne garantissent pas qu’ils correspondent à l’examen actuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un projet est livré à l’heure, mais ne produit aucun bénéfice car le processus métier n’a pas été adapté. Quelle orientation de pilotage est la plus cohérente avec une approche axée sur la valeur ?",
+      "choices": [
+        "Vérifier les résultats, l’engagement des parties prenantes et la réalisation des bénéfices, puis décider d’une action corrective avec le responsable métier",
+        "Déclarer le projet réussi sur la seule base du triple objectif coût-délai-périmètre",
+        "Supprimer l’indicateur de bénéfice car il est mesuré après le projet",
+        "Transférer toute responsabilité du bénéfice à l’équipe de développement"
+      ],
+      "answer": 0,
+      "explanation": "La livraison d’un résultat technique n’assure pas automatiquement l’atteinte des bénéfices. Le pilotage doit relier les livrables aux résultats observés, à l’adoption et à un propriétaire métier. Une approche axée sur la valeur inclut l’environnement opérationnel et permet de corriger les causes d’un bénéfice non réalisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe découvre un risque qui menace un jalon contractuel. Un membre propose de modifier la baseline tout de suite, puis d’avertir le sponsor uniquement si le retard persiste. Quelle action est préférable ?",
+      "choices": [
+        "Modifier la date dans le planning sans laisser de trace",
+        "Escalader immédiatement tout détail, sans options ni analyse",
+        "Évaluer la probabilité, l’impact et les réponses possibles, mettre à jour la prévision et engager l’escalade prévue avant de dépasser les seuils",
+        "Attendre la réalisation du risque car les risques ne sont pas des problèmes"
+      ],
+      "answer": 2,
+      "explanation": "Le risque doit être traité avant qu’il ne devienne un problème si des mesures préventives peuvent réduire son exposition. Le chef de projet actualise la prévision, examine les réponses et alerte selon les seuils et délais de gouvernance. La baseline ne doit pas être modifiée silencieusement pour masquer une menace."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un examinateur demande quelle ressource détermine le contenu officiel de l’examen PMP, et non le champ général des connaissances en gestion de projet. Quelle réponse est correcte ?",
+      "choices": [
+        "Le journal des risques de chaque projet",
+        "L’Exam Content Outline (ECO) applicable, à distinguer du PMBOK Guide",
+        "Le planning de référence du candidat",
+        "Les instructions internes de l’organisme employeur"
+      ],
+      "answer": 1,
+      "explanation": "L’ECO décrit les domaines, tâches et compétences évalués à l’examen. Le PMBOK Guide est un référentiel de connaissances important, mais il n’est pas une substitution automatique à l’ECO. Le candidat doit vérifier la version en vigueur sur le site officiel PMI."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans un scénario d’examen, une partie prenante exige un changement immédiat mais les impacts sur l’architecture et le coût sont inconnus. Quelle réponse est la plus robuste ?",
+      "choices": [
+        "Accepter immédiatement pour préserver la relation",
+        "Refuser sans chercher le besoin sous-jacent",
+        "Demander à l’équipe de faire le changement puis de le documenter",
+        "Clarifier le besoin, analyser impacts et options, collaborer avec les acteurs et obtenir la décision selon le processus de changement"
+      ],
+      "answer": 3,
+      "explanation": "Une réponse efficace ne consiste ni à accepter aveuglément ni à refuser sans analyse. Il faut comprendre le besoin, évaluer les conséquences sur les objectifs et la qualité, collaborer avec les personnes compétentes, puis appliquer la gouvernance de changement. Cette démarche protège la valeur et la transparence."
+    }
+  ]
+}

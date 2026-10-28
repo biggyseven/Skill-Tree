@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-qualite-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Une exigence dit « l’accès doit être sécurisé », sans préciser les rôles ni les comportements attendus. Que faut-il faire avant la recette ?",
+      "choices": [
+        "Commencer les tests avec l’interprétation personnelle de chaque testeur",
+        "Transformer l’exigence en critères vérifiables, scénarios autorisés et refusés, et preuves attendues avec le métier et la sécurité",
+        "Retirer le contrôle d’accès pour réduire le nombre de cas",
+        "N’évaluer que la performance de la page de connexion"
+      ],
+      "answer": 1,
+      "explanation": "Une formulation vague ne permet pas une décision d’acceptation reproductible. Les critères doivent décrire les rôles, les permissions et les comportements attendus dans les cas normaux et négatifs. Le métier et la sécurité clarifient les exigences, et les tests produisent des preuves liées à ces critères."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test de bout en bout échoue. L’équipe corrige le défaut, mais ne relance que ce scénario. Quel risque de test subsiste ?",
+      "choices": [
+        "Aucun, un seul test suffit après une correction",
+        "La correction est prouvée dès que le développeur confirme le changement",
+        "Le test de bout en bout doit toujours être remplacé par une revue visuelle",
+        "Un effet secondaire peut avoir cassé d’autres fonctions ; les tests ciblés et la non-régression doivent être définis selon l’impact du changement"
+      ],
+      "answer": 3,
+      "explanation": "Un test ciblé vérifie le défaut initial, mais la correction peut aussi affecter des composants ou parcours liés. Une stratégie de non-régression proportionnée au risque permet de détecter ces effets. L’automatisation des tests répétables aide, mais ne remplace pas les validations nécessaires d’intégration et d’usage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une anomalie visuelle touche presque tous les utilisateurs, mais ne bloque aucun parcours. Une seconde anomalie très rare expose des dossiers personnels sans autorisation. Comment décider la priorité ?",
+      "choices": [
+        "Évaluer la gravité, la portée, le risque de sécurité, les obligations et l’urgence ; la seconde anomalie peut être plus prioritaire malgré sa rareté",
+        "Traiter toujours l’anomalie touchant le plus de personnes en premier",
+        "Classer les anomalies selon l’ordre d’ouverture uniquement",
+        "Laisser les développeurs choisir la priorité sans critères partagés"
+      ],
+      "answer": 0,
+      "explanation": "La sévérité et la priorité ne sont pas synonymes de fréquence seule. Une exposition de données sensibles peut exiger une action immédiate en raison de ses conséquences et obligations, même si le scénario est rare. Les critères de triage doivent être compris et appliqués de façon cohérente."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Toutes les étapes du plan de recette sont exécutées, mais 7 % des dossiers migrés ne sont pas retrouvés dans le système cible. Quel statut d’acceptation est approprié ?",
+      "choices": [
+        "Accepté car 93 % des données sont correctes",
+        "Accepté puisque les tests ont été exécutés",
+        "Non accepté tant que l’écart n’est pas expliqué et traité ou explicitement accepté selon le mandat et les critères applicables",
+        "Accepté si le tableau de bord de projet est vert"
+      ],
+      "answer": 2,
+      "explanation": "L’exécution des tests n’est pas la même chose que leur réussite. Le résultat doit être comparé aux critères et aux niveaux de tolérance définis avant la recette. Une dérogation ne peut être accordée que par une autorité habilitée, avec une évaluation explicite des conséquences et obligations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La CI affiche tous les tests automatisés en succès, mais le service desk n’a pas reçu de runbook ni de procédure de restauration. Que faut-il faire avant le transfert opérationnel ?",
+      "choices": [
+        "Déclarer le transfert complet car la CI a passé",
+        "Compléter les livrables d’exploitation, faire vérifier leur utilisabilité par le support et confirmer la préparation à l’incident",
+        "Demander au service desk de rédiger les procédures après la mise en production",
+        "Remplacer les tests par une formation d’une heure"
+      ],
+      "answer": 1,
+      "explanation": "La CI montre une partie des preuves techniques, mais n’établit pas que le service est supportable. Les runbooks, la restauration, la supervision, les accès et les responsabilités doivent être préparés et compris par l’équipe qui exploitera le service. Le transfert nécessite une acceptation de ces éléments, pas seulement la réussite du pipeline."
+    }
+  ]
+}

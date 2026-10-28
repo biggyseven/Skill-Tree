@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-prince2-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "À la fin d’une séquence PRINCE2, les coûts prévisionnels dépassent la tolérance autorisée. Quel mécanisme est le plus approprié ?",
+      "choices": [
+        "Le chef de projet modifie lui-même les tolérances pour éviter l’escalade",
+        "L’équipe continue jusqu’à la fin puis décrit l’écart dans le rapport final",
+        "Préparer un rapport d’exception avec la situation, les conséquences et les options pour décision par l’autorité compétente",
+        "Arrêter immédiatement toutes les activités sans analyse"
+      ],
+      "answer": 2,
+      "explanation": "Le management par exception délègue la gestion dans des tolérances convenues et exige une escalade quand une tolérance risque d’être dépassée. Le rapport d’exception donne aux décideurs les faits, les conséquences et les options. Changer silencieusement la tolérance contredit la gouvernance et l’objectif de transparence."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un projet était justifié au lancement, mais un changement réglementaire élimine une partie des bénéfices prévus. Quel principe PRINCE2 doit guider la décision ?",
+      "choices": [
+        "Justification continue du business case, afin de réévaluer si le projet reste souhaitable, viable et réalisable",
+        "Focalisation produit uniquement, sans réexaminer l’investissement",
+        "Management par exception, qui dispense de revoir la justification",
+        "Leçons de l’expérience, qui impose de continuer jusqu’à la clôture"
+      ],
+      "answer": 0,
+      "explanation": "La justification continue exige que le business case reste valide pendant le projet. Les coûts déjà engagés ne constituent pas à eux seuls une raison de continuer. La gouvernance doit comparer les nouveaux bénéfices, coûts, risques et options, y compris l’arrêt ou le changement de solution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une petite équipe estime que PRINCE2 serait trop lourd. Quelle adaptation respecte le mieux la logique de la méthode ?",
+      "choices": [
+        "Supprimer les rôles, les critères qualité et le suivi de progression",
+        "Conserver les principes et décisions nécessaires, mais réduire les documents et rituels à une forme proportionnée au risque et au contexte",
+        "Utiliser PRINCE2 uniquement pour rédiger un business case puis l’abandonner",
+        "Remplacer les critères de produit par une déclaration orale de fin"
+      ],
+      "answer": 1,
+      "explanation": "PRINCE2 demande une adaptation au contexte, pas l’application uniforme de documents volumineux. Une organisation peut rendre les artefacts compacts tout en conservant une justification, des rôles clairs, la focalisation produit, les tolérances et les décisions traçables. Enlever ces mécanismes essentiels supprimerait la maîtrise que la méthode cherche à apporter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un produit est marqué « livré », mais ses critères qualité n’ont pas été testés et le senior user ne l’a pas accepté. Quel problème la méthode permet-elle de prévenir ?",
+      "choices": [
+        "Un besoin excessif de réunions quotidiennes",
+        "Une absence de seuil de budget uniquement",
+        "Une impossibilité de créer un planning visuel",
+        "Une déclaration de livraison sans preuve qualité ni acceptation selon les responsabilités définies"
+      ],
+      "answer": 3,
+      "explanation": "La focalisation produit oblige à décrire ce qui doit être fourni et les critères permettant d’en juger la qualité. Le statut de livraison ne remplace ni le test ni l’acceptation par le rôle compétent. Cette discipline réduit les ambiguïtés et les litiges sur ce que signifie « terminé »."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une dérogation de sécurité est acceptée mais aucune durée ni mesure compensatoire n’est documentée. Quelle correction est la plus importante ?",
+      "choices": [
+        "Documenter l’autorité, le risque résiduel, la durée, les contrôles compensatoires et la condition de réexamen",
+        "Considérer le risque clos puisque le comité a prononcé le mot « accepté »",
+        "Enlever la dérogation du journal pour éviter les questions ultérieures",
+        "Reporter la formalisation au moment où le risque se réalise"
+      ],
+      "answer": 0,
+      "explanation": "L’acceptation d’un risque doit être explicite, limitée par le mandat de l’autorité et accompagnée d’éléments permettant d’en contrôler la validité. Une durée, des compensations et une condition de réexamen rendent l’exception gouvernable. Sans ces détails, le risque peut devenir permanent ou être accepté par une personne non habilitée."
+    }
+  ]
+}

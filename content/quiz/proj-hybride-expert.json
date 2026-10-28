@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-hybride-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Le matériel nécessite un délai d’achat de quatre mois, tandis que l’interface utilisateur est encore incertaine et peut être testée avec un prototype. Quelle organisation hybride est la plus cohérente ?",
+      "choices": [
+        "Prédire en détail toute l’interface dès aujourd’hui et interdire les changements",
+        "Gérer achats et dépendances longues par jalons et prévisions, tout en livrant l’interface par incréments adaptatifs dans des contraintes d’architecture explicites",
+        "Utiliser uniquement des Sprints pour modifier les délais du fournisseur",
+        "Créer deux plannings indépendants sans vue d’intégration"
+      ],
+      "answer": 1,
+      "explanation": "Une approche hybride attribue un mode de pilotage au contexte de chaque composante, tout en gardant une cohérence intégrée. Les achats à délai long nécessitent des engagements et dépendances planifiés ; l’interface gagne à apprendre par prototypes et feedback. Une vue intégrée reste essentielle pour synchroniser les interfaces et les dates de validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "L’équipe API et l’équipe interface livrent selon des cadences différentes. Elles découvrent à chaque intégration que les formats de données ne correspondent pas. Quelle mesure réduit le risque sans imposer un cycle unique ?",
+      "choices": [
+        "Définir des contrats d’interface versionnés et des critères d’intégration, puis automatiser les tests de contrat dès que possible",
+        "Forcer les deux équipes à produire le même nombre de fonctionnalités chaque semaine",
+        "Retarder tous les tests jusqu’à la fin du programme",
+        "Laisser chaque équipe changer ses formats sans prévenir pour maximiser son autonomie"
+      ],
+      "answer": 0,
+      "explanation": "Des contrats d’interface explicites permettent aux équipes de travailler à des cadences différentes tout en respectant une compatibilité attendue. Les mocks et tests de contrat détectent rapidement les divergences et réduisent la dépendance au déploiement simultané. L’autonomie n’exclut pas des engagements d’intégration communs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le comité exige une revue de sécurité avant la production, alors que l’équipe agile teste déjà les contrôles dans la CI à chaque changement. Quelle solution évite à la fois duplication inutile et perte de gouvernance ?",
+      "choices": [
+        "Supprimer la revue de sécurité car des tests automatisés existent",
+        "Attendre la production pour compiler les résultats de CI",
+        "Répéter manuellement chaque contrôle à chaque Sprint, même sans changement",
+        "Relier les preuves automatisées aux exigences, et conserver une revue formelle qui vérifie les critères de passage et les risques résiduels"
+      ],
+      "answer": 3,
+      "explanation": "La qualité peut être intégrée en continu et fournir des preuves réutilisables, alors qu’une porte formelle vérifie le dossier de décision et les conditions de production. Les deux pratiques répondent à des objectifs différents ; les relier évite de refaire inutilement les mêmes opérations tout en maintenant les obligations de gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le Product Owner demande une nouvelle fonction pendant un Sprint. Elle ne modifie pas le Sprint Goal, mais affecterait le périmètre certifié du système. Que faut-il distinguer ?",
+      "choices": [
+        "Toutes les demandes agiles sont automatiquement autorisées sans examen",
+        "Le backlog produit peut être réordonné, mais l’impact sur le périmètre certifié et les obligations de changement doit être évalué par la gouvernance compétente",
+        "Le Product Owner doit attendre obligatoirement la clôture annuelle",
+        "La fonction doit être livrée sans tests parce que le Sprint Goal n’a pas changé"
+      ],
+      "answer": 1,
+      "explanation": "L’adaptation agile n’abolit pas les contrôles de conformité ou les engagements certifiés. Le Product Owner peut gérer l’ordre du backlog, mais le changement doit être évalué s’il modifie une frontière de certification, des exigences ou des preuves formelles. Le maintien du Sprint Goal ne justifie pas de contourner la gouvernance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le planning de haut niveau affiche une date de production fixe, mais le backlog montre encore des inconnues de capacité et de migration. Quelle pratique de planification hybride est la plus robuste ?",
+      "choices": [
+        "Figer tous les détails du backlog pour donner une impression de certitude",
+        "Remplacer le planning intégré par une liste de souhaits agile",
+        "Garder des jalons et dépendances à long terme, détailler le travail à court terme, actualiser les prévisions et fixer des critères de readiness pour la release",
+        "Promettre la date sans analyser les marges puisqu’elle a été annoncée publiquement"
+      ],
+      "answer": 2,
+      "explanation": "La planification multi-horizon maintient la visibilité sur les engagements longs et garde de la souplesse pour le travail proche. Les prévisions sont actualisées au fil des preuves et des dépendances ; les critères de readiness protègent la qualité et la mise en service. Une date publique ne supprime pas l’incertitude réelle."
+    }
+  ]
+}

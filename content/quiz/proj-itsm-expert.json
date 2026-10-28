@@ -1,0 +1,66 @@
+{
+  "node_id": "proj-itsm-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "La nouvelle application réussit ses tests mais aucun service desk ne connaît les procédures d’incident ni le processus d’escalade. Le projet doit-il transférer le service ?",
+      "choices": [
+        "Oui, puisque tous les tests applicatifs sont verts",
+        "Oui, si le développeur principal accepte d’être joignable de manière informelle",
+        "Non, tant que tout transfert opérationnel n’est pas considéré comme un projet distinct",
+        "Le transfert ne devrait être accepté qu’après vérification des runbooks, responsabilités, accès, supervision et capacité support selon les critères de readiness"
+      ],
+      "answer": 3,
+      "explanation": "La réussite du produit n’assure pas l’exploitabilité du service. Les opérations doivent avoir les procédures, accès, capacités de support, supervision et règles d’escalade nécessaires. Ces conditions doivent être évaluées avant le transfert, même si le code a passé tous les tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un incident récurrent est chaque fois résolu par un redémarrage, mais aucune cause n’est analysée. Quelle distinction ITSM est la plus utile ?",
+      "choices": [
+        "Incident management cherche à restaurer le service ; problem management recherche les causes et réduit les répétitions",
+        "Problem management ne commence qu’après la clôture annuelle du service",
+        "Les incidents récurrents doivent être supprimés du système de tickets",
+        "Le redémarrage constitue toujours une correction définitive"
+      ],
+      "answer": 0,
+      "explanation": "La gestion des incidents vise à minimiser l’impact en restaurant le service. La gestion des problèmes cherche les causes, les contournements et les actions qui préviennent la répétition. Un contournement peut être nécessaire, mais ne doit pas être confondu avec une correction de fond."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un changement standard, répétable et peu risqué est soumis au même comité que chaque changement majeur, créant plusieurs semaines d’attente. Quel ajustement conserve la gouvernance sans créer de bureaucratie inutile ?",
+      "choices": [
+        "Supprimer toute autorisation de changement dans l’organisation",
+        "Établir une voie standard préautorisée avec critères, conditions et contrôle d’exécution, tout en réservant l’évaluation renforcée aux changements à risque",
+        "Autoriser tous les changements dès lors qu’un développeur a écrit un test",
+        "Faire approuver tous les changements par les utilisateurs finaux"
+      ],
+      "answer": 1,
+      "explanation": "Le contrôle des changements doit être proportionné au risque. Une catégorie standard peut être préautorisée si les étapes, conditions et contrôles sont éprouvés et respectés. Les changements significatifs continuent à recevoir une évaluation adaptée ; la simplification n’est pas une absence de contrôle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le SLA promet un temps de résolution de quatre heures, mais le rapport exclut sans le dire les tickets en attente d’un fournisseur. Quelle faiblesse est la plus critique ?",
+      "choices": [
+        "Un SLA doit uniquement mesurer le nombre de tickets reçus",
+        "Les fournisseurs doivent toujours être exclus de la mesure",
+        "La définition de la mesure n’est pas transparente et peut rendre la performance incomparable ou trompeuse ; la règle d’horloge doit être convenue",
+        "La mesure de résolution est inutile pour tous les services IT"
+      ],
+      "answer": 2,
+      "explanation": "Les indicateurs de service doivent avoir une définition transparente, une source, des horaires et des règles de pause convenues avec les parties concernées. Une exclusion cachée fausse les comparaisons et peut masquer les impacts réels. Les dépendances fournisseur doivent être rendues visibles même si certaines durées sont mesurées séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après déploiement, les alertes d’infrastructure sont toutes vertes mais les utilisateurs signalent que la création de demandes échoue fréquemment. Quelle amélioration est la plus pertinente ?",
+      "choices": [
+        "Arrêter la mesure des alertes pour éviter les contradictions",
+        "Ajouter uniquement davantage de métriques CPU et mémoire",
+        "Considérer la satisfaction comme secondaire à la disponibilité du serveur",
+        "Corréler les signaux techniques à des indicateurs de parcours utilisateur, erreurs applicatives et résultats de service"
+      ],
+      "answer": 3,
+      "explanation": "La santé des composants n’est pas identique à la qualité perçue par les utilisateurs. L’observabilité doit relier disponibilité technique, erreurs de parcours, délais, volumes affectés et objectifs métier. Cette approche aide à repérer une dégradation fonctionnelle même lorsque les ressources d’infrastructure semblent normales."
+    }
+  ]
+}
