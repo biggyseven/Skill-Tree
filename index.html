@@ -515,20 +515,77 @@
         <div id="tree-grid" class="flex flex-col gap-10">
           <template x-for="(category, categoryIndex) in categories" :key="category.name">
             <section>
-              <div class="mb-5 flex items-center gap-4"><h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name"></h2><span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400"><span x-text="category.validated"></span>/<span x-text="category.items.length"></span></span><div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div></div>
-              <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div class="mb-5 flex items-center gap-4">
+                <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-white" x-text="category.name"></h2>
+                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-[11px] text-zinc-400">
+                  <span x-text="category.validated"></span>/<span x-text="category.items.length"></span>
+                </span>
+                <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+              </div>
+
+              <!-- Parcours vertical en serpentin : chaque cours reste cliquable. -->
+              <div class="relative mx-auto mt-4 w-full max-w-4xl py-2">
                 <template x-for="(node, nodeIndex) in category.items" :key="node.id">
-                  <div class="animate-rise" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
-                    <button type="button" @click="show(node.id)" class="card-shine group relative h-full w-full rounded-3xl p-px text-left transition-transform duration-300 hover:-translate-y-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/80" :class="cardShell(node.status)">
-                      <div class="relative flex h-full flex-col rounded-[23px] bg-[#0c0c0c] p-6 shadow-xl">
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl" :class="statusMeta(node.status).icon"><template x-if="node.status === 'validated'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></template><template x-if="node.status === 'locked'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></template><template x-if="node.status === 'available'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg></template><template x-if="node.status === 'in_progress'"><svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v4.5l3 1.8"></path></svg></template></span><span class="text-[11px] font-bold uppercase tracking-[0.14em]" :class="statusMeta(node.status).text" x-text="statusMeta(node.status).label"></span></div>
-                          <span class="rounded-lg border border-white/5 bg-white/5 px-2 py-1 font-mono text-[10px] text-zinc-500" x-text="node.id"></span>
-                        </div>
-                        <h3 class="mt-4 text-[16px] font-bold leading-snug text-white" x-text="node.title"></h3>
-                        <div class="mt-4 flex flex-wrap gap-2"><template x-for="req in node.requirements_detail" :key="req.kind"><span class="rounded-lg border border-white/5 bg-white/5 px-2.5 py-1 font-mono text-[10px] tracking-wide text-zinc-300" x-text="`${kindLabel(req.kind)} ≥ ${req.min_score}`"></span></template></div>
-                        <div class="mt-5 flex items-center justify-between text-[11px] text-zinc-500"><span x-text="node.prereqs.length ? `${node.prereqs.length} prérequis` : 'Nœud racine'"></span><span class="flex items-center gap-1 transition group-hover:text-white">Détails <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></div>
-                      </div>
+                  <div class="course-path-step animate-rise relative h-28" :style="`animation-delay: ${Math.min(categoryIndex * 60 + nodeIndex * 45, 500)}ms`">
+                    <svg
+                      x-show="nodeIndex < category.items.length - 1"
+                      class="pointer-events-none absolute left-0 top-0 z-0 h-[168px] w-full overflow-visible"
+                      viewBox="0 0 100 168"
+                      preserveAspectRatio="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        :d="nodeIndex % 2 === 0 ? 'M 25 56 C 25 92 75 132 75 168' : 'M 75 56 C 75 92 25 132 25 168'"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        :class="category.items[nodeIndex + 1]?.status === 'locked' ? 'text-zinc-600' : (category.items[nodeIndex + 1]?.status === 'validated' ? 'text-emerald-400' : 'text-sky-400')"
+                        :stroke-dasharray="category.items[nodeIndex + 1]?.status === 'locked' ? '4 5' : '0'"
+                      ></path>
+                    </svg>
+
+                    <div
+                      class="absolute top-1/2 z-10 flex -translate-y-1/2 flex-col gap-1"
+                      :style="nodeIndex % 2 === 0 ? 'left:calc(25% + 42px);right:0;text-align:left' : 'left:0;right:calc(25% + 42px);text-align:right'"
+                    >
+                      <span
+                        class="text-[10px] font-bold uppercase tracking-[0.15em] sm:text-[11px]"
+                        :class="node.status === 'validated' ? 'text-emerald-400' : (node.status === 'locked' ? 'text-zinc-500' : 'text-sky-300')"
+                        x-text="node.status === 'validated' ? 'Validé' : (node.status === 'locked' ? 'Verrouillé' : (node.status === 'in_progress' ? 'En cours' : 'Disponible'))"
+                      ></span>
+                      <h3 class="text-[12px] font-bold leading-snug text-white sm:text-sm" x-text="node.title"></h3>
+                      <p x-show="node.prereqs && node.prereqs.length" class="text-[10px] text-zinc-500 sm:text-[11px]" x-text="`${node.prereqs.length} prérequis`"></p>
+                    </div>
+
+                    <button
+                      type="button"
+                      @click="show(node.id)"
+                      :aria-label="`Ouvrir le cours : ${node.title}`"
+                      class="absolute top-[26px] z-20 flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-full border-[3px] transition duration-200 hover:scale-105 focus:outline-none focus-visible:ring-4"
+                      :style="`left:calc(${nodeIndex % 2 === 0 ? 25 : 75}% - 30px)`"
+                      :class="node.status === 'validated'
+                        ? 'border-emerald-300 bg-emerald-500 text-white shadow-[0_0_26px_-8px_rgba(52,211,153,0.9)] focus-visible:ring-emerald-400/30'
+                        : (node.status === 'locked'
+                          ? 'border-zinc-700 bg-zinc-800 text-zinc-500 focus-visible:ring-zinc-500/30'
+                          : 'border-sky-300 bg-sky-500 text-white shadow-[0_0_26px_-8px_rgba(56,189,248,0.9)] focus-visible:ring-sky-400/30')"
+                    >
+                      <template x-if="node.status === 'validated'">
+                        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <path d="M20 6 9 17l-5-5"></path>
+                        </svg>
+                      </template>
+                      <template x-if="node.status === 'locked'">
+                        <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <rect x="4" y="10" width="16" height="10" rx="2"></rect>
+                          <path d="M8 10V7a4 4 0 0 1 8 0v3"></path>
+                        </svg>
+                      </template>
+                      <template x-if="node.status !== 'validated' && node.status !== 'locked'">
+                        <svg class="h-6 w-6" :class="node.status === 'available' ? 'animate-pulse' : ''" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                          <path d="M8 5.5v13l10-6.5z"></path>
+                        </svg>
+                      </template>
                     </button>
                   </div>
                 </template>
