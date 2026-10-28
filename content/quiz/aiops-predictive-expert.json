@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-predictive-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle formulation décrit une cible de maintenance prédictive exploitable ?",
+      "choices": [
+        "Prévoir les problèmes en général.",
+        "Calculer un score sans unité ni horizon.",
+        "Estimer le risque qu'un composant subisse une défaillance confirmée dans les 14 jours suivant chaque date de scoring.",
+        "Classer les tickets selon la longueur de leur texte final."
+      ],
+      "answer": 2,
+      "explanation": "Une cible doit spécifier l'unité, l'événement et l'horizon. Elle doit être reliée à une décision opérationnelle et à une source de labels documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une séparation chronologique est-elle importante pour une prédiction future ?",
+      "choices": [
+        "Elle garantit automatiquement un score parfait.",
+        "Elle évite que des observations futures ou très proches du même incident contaminent l'entraînement et gonflent l'évaluation.",
+        "Elle supprime le besoin d'un jeu de test.",
+        "Elle transforme les événements rares en événements fréquents."
+      ],
+      "answer": 1,
+      "explanation": "Le test doit reproduire la question de prévision de l'avenir. Un partage aléatoire peut exposer au modèle des informations temporellement trop proches ou futures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un modèle de maintenance atteint 99 % d'exactitude mais ne détecte aucune panne, qui sont rares. Quelle conclusion est correcte ?",
+      "choices": [
+        "L'exactitude seule est insuffisante ; il faut examiner précision, rappel, courbe précision-rappel et nombre de pannes manquées.",
+        "Le modèle est nécessairement prêt pour la production.",
+        "Le taux de panne peut être ignoré.",
+        "La meilleure solution est de déclarer toutes les prédictions positives sans test."
+      ],
+      "answer": 0,
+      "explanation": "Avec des événements rares, un classifieur qui prédit toujours la classe majoritaire peut sembler exact tout en étant inutile. Les métriques doivent refléter les erreurs coûteuses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une variable inclut le statut final du ticket, mis à jour après la panne. Quel risque présente-t-elle ?",
+      "choices": [
+        "Elle améliore toujours la généralisation.",
+        "Elle est une variable nécessaire dans tous les cas.",
+        "Elle garantit la calibration du modèle.",
+        "Elle introduit une fuite de données, car cette information n'était pas disponible au moment du score."
+      ],
+      "answer": 3,
+      "explanation": "Les caractéristiques doivent représenter les informations réellement disponibles à l'instant de prédiction. Une information postérieure donne un avantage artificiel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre un score d'anomalie et une probabilité calibrée de panne ?",
+      "choices": [
+        "Aucune, tous les scores entre 0 et 1 sont des probabilités.",
+        "Un score d'anomalie mesure un écart selon une méthode ; il n'est pas une probabilité de panne sans calibration et validation explicites.",
+        "Un score d'anomalie prouve une causalité.",
+        "Une probabilité calibrée n'a jamais besoin de validation."
+      ],
+      "answer": 1,
+      "explanation": "La signification du score doit être documentée. La conversion en probabilité exige une calibration évaluée sur des données indépendantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un composant est remplacé préventivement avant la fin de l'horizon ; on ne sait pas s'il aurait échoué. Comment étiqueter ce cas ?",
+      "choices": [
+        "Toujours vrai positif.",
+        "Toujours vrai négatif.",
+        "Comme un cas censuré ou incertain selon une règle définie, sans prétendre connaître le résultat contrefactuel.",
+        "Supprimer toute la période historique."
+      ],
+      "answer": 2,
+      "explanation": "L'intervention empêche l'observation directe de ce qui se serait produit. Le résultat opérationnel et la justesse de la prédiction sont deux questions différentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire avant de réentraîner après un pic soudain de scores ?",
+      "choices": [
+        "Vérifier d'abord les unités, le schéma, la fraîcheur et la collecte pour identifier un possible changement de données.",
+        "Réentraîner immédiatement sur toutes les données actuelles.",
+        "Retirer les sites les plus touchés sans analyse.",
+        "Baisser les scores manuellement."
+      ],
+      "answer": 0,
+      "explanation": "Une dérive apparente peut provenir d'une modification de collecteur ou d'un défaut de pipeline. Le réentraînement ne répare pas des données dont la signification a changé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pour une équipe pouvant inspecter seulement cinq équipements par semaine, quelle approche peut être pertinente ?",
+      "choices": [
+        "Choisir aléatoirement les plus anciens scores et ignorer le risque.",
+        "Augmenter le seuil jusqu'à ce qu'il ne reste aucune alerte.",
+        "Traiter tout score élevé comme une panne certaine.",
+        "Évaluer le classement au budget disponible, par exemple les pannes détectées parmi les cinq premières recommandations."
+      ],
+      "answer": 3,
+      "explanation": "La valeur opérationnelle dépend du budget d'intervention. Une métrique de priorité peut relier directement le classement à la capacité réelle de l'équipe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un modèle temporel doit-il définir un horizon de prédiction ?",
+      "choices": [
+        "Pour faciliter la mise en forme du tableau uniquement.",
+        "Parce que le risque prédit et le délai d'action changent selon que l'on cherche une panne dans une heure, un jour ou deux semaines.",
+        "Parce que toutes les pannes sont prévisibles au même horizon.",
+        "Pour éviter de conserver les labels."
+      ],
+      "answer": 1,
+      "explanation": "L'horizon doit correspondre au temps utile pour agir et détermine comment la cible et les caractéristiques sont construites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel retour terrain est le plus utile après une inspection prédictive ?",
+      "choices": [
+        "Un simple statut 'ticket fermé' dans tous les cas.",
+        "Le score du modèle copié comme preuve.",
+        "Un résultat structuré distinguant panne confirmée, anomalie sans panne, remplacement préventif et cas non concluant.",
+        "La suppression des prédictions historiques."
+      ],
+      "answer": 2,
+      "explanation": "Des labels qui distinguent les résultats réels et les incertitudes permettent de mesurer la qualité sans assimiler une intervention à une panne confirmée."
+    }
+  ]
+}
