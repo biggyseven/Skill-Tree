@@ -6,6 +6,7 @@ on:
       - feature/lab-workspace
       - perf/compiled-tailwind-main-20261028
       - perf/main-assets-cache-20261028
+      - perf/local-alpine-js-20261028
     paths:
       - "static/index.html"
       - "static/tailwind.config.cjs"
@@ -39,12 +40,28 @@ jobs:
       - name: Compile main app stylesheet
         run: ./app/lab-workspace/node_modules/.bin/tailwindcss --config ./static/tailwind.config.cjs --input ./static/tailwind.input.css --output ./static/app.css --minify
 
-      - name: Commit compiled stylesheet when it changed
+      - name: Vendor pinned Alpine.js runtime
         shell: bash
         run: |
-          git add -A static/app.css
-          if git diff --cached --quiet -- static/app.css; then
-            echo "MAIN_STYLESHEET=unchanged"
+          set -euo pipefail
+          package_dir="$(mktemp -d)"
+          npm pack alpinejs@3.17.5 --pack-destination "$package_dir" >/dev/null
+          tar -xzf "$package_dir/alpinejs-3.17.5.tgz" -C "$package_dir"
+          install -D "$package_dir/package/dist/cdn.min.js" static/assets/alpine-3.17.5.min.js
+          license_file="$(find "$package_dir/package" -maxdepth 1 -type f -iname 'license*' -print -quit)"
+          test -n "$license_file"
+          install -D "$license_file" static/assets/alpinejs-LICENSE.md
+          asset_hash="$(sha256sum static/assets/alpine-3.17.5.min.js | cut -c1-12)"
+          if grep -q 'ALPINE_VENDOR_HASH' static/index.html; then
+            sed -i "s/ALPINE_VENDOR_HASH/$asset_hash/g" static/index.html
+          fi
+
+      - name: Commit compiled stylesheet and pinned vendor asset when changed
+        shell: bash
+        run: |
+          git add -A static/app.css static/assets/alpine-3.17.5.min.js static/assets/alpinejs-LICENSE.md static/index.html
+          if git diff --cached --quiet -- static/app.css static/assets/alpine-3.17.5.min.js static/assets/alpinejs-LICENSE.md static/index.html; then
+            echo "FRONTEND_ASSETS=unchanged"
             exit 0
           fi
           git config user.name "github-actions[bot]"
