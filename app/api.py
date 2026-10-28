@@ -464,11 +464,66 @@ def _ticket_action(conn: Any, ticket_id: str, action_type: str, payload: dict[st
     )
 
 
+def _expire_war_room_tickets(conn: Any, now: datetime | None = None) -> int:
+    """Marque comme échoués les tickets actifs dont l'échéance SLA est dépassée."""
+    current = now or _war_room_now()
+    current_iso = _war_room_iso(current)
+    rows = conn.execute(
+        "SELECT * FROM tickets WHERE status IN ('open', 'pending_postmortem') AND sla_deadline IS NOT NULL"
+    ).fetchall()
+    expired = 0
+    for row in rows:
+        ticket = _ticket_payload(row)
+        deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+        if deadline is None or current <= deadline:
+            continue
+        resolution_data = ticket.get("resolution_data") if isinstance(ticket.get("resolution_data"), dict) else {}
+        resolution_data.update({
+            "reason": "sla_exceeded",
+            "failed_at": current_iso,
+            "sla_met": False,
+        })
+        conn.execute(
+            "UPDATE tickets SET status = 'failed', resolved_at = ?, resolution_data = ? WHERE id = ?",
+            (current_iso, json.dumps(resolution_data, ensure_ascii=False), ticket["id"]),
+        )
+        _ticket_action(conn, ticket["id"], "failed", {
+            "reason": "sla_exceeded",
+            "sla_deadline": ticket.get("sla_deadline"),
+            "failed_at": current_iso,
+        })
+        expired += 1
+    if expired:
+        conn.commit()
+    return expired
+
+
+def _war_ticket_summary(row: Any) -> dict[str, Any]:
+    ticket = _ticket_payload(row)
+    try:
+        scenario = load_scenario(ticket["scenario_id"])
+    except FileNotFoundError:
+        scenario = {}
+    opened_at = _war_room_parse_time(ticket.get("opened_at"))
+    ended_at = _war_room_parse_time(ticket.get("resolved_at"))
+    duration_seconds = max(0, int((ended_at - opened_at).total_seconds())) if opened_at and ended_at else None
+    ticket.update({
+        "title": scenario.get("title", ticket.get("scenario_id", ticket.get("id"))),
+        "scenario_title": scenario.get("title", ticket.get("scenario_id", ticket.get("id"))),
+        "type": scenario.get("type", ticket.get("type")),
+        "severity": scenario.get("severity", ticket.get("severity")),
+        "duration_seconds": duration_seconds,
+        "duration_minutes": round(duration_seconds / 60, 1) if duration_seconds is not None else None,
+    })
+    return ticket
+
+
 def _seed_war_room_tickets(conn: Any) -> None:
     """Crée une seule fois les trois tickets pilotes pour que la file NOC soit immédiatement exploitable."""
     for scenario in list_scenarios():
         scenario_id = str(scenario["id"])
-        exists = conn.execute("SELECT id FROM tickets WHERE id = ?", (scenario_id,)).fetchone()
+        # Un scénario ayant déjà un historique ne doit pas être réensemencé au redémarrage.
+        exists = conn.execute("SELECT id FROM tickets WHERE scenario_id = ? LIMIT 1", (scenario_id,)).fetchone()
         if exists:
             continue
         now = _war_room_now()
@@ -551,6 +606,7 @@ def _open_ticket_conn():
 def list_open_tickets() -> list[dict[str, Any]]:
     conn = _open_ticket_conn()
     try:
+        _expire_war_room_tickets(conn)
         rows = conn.execute(
             "SELECT * FROM tickets WHERE status IN ('open', 'pending_postmortem') ORDER BY opened_at ASC"
         ).fetchall()
@@ -573,6 +629,64 @@ def list_open_tickets() -> list[dict[str, Any]]:
             ticket["reward_xp"] = scenario.get("reward_xp", 0)
             result.append(ticket)
         return result
+    finally:
+        conn.close()
+
+
+@app.get("/api/tickets/archive")
+def list_archived_tickets() -> list[dict[str, Any]]:
+    """Retourne l'historique des tickets résolus ou échoués, du plus récent au plus ancien."""
+    conn = _open_ticket_conn()
+    try:
+        _expire_war_room_tickets(conn)
+        rows = conn.execute(
+            "SELECT * FROM tickets WHERE status IN ('resolved', 'failed') "
+            "ORDER BY COALESCE(resolved_at, opened_at) DESC, opened_at DESC"
+        ).fetchall()
+        return [_war_ticket_summary(row) for row in rows]
+    finally:
+        conn.close()
+
+
+@app.get("/api/itsm/stats")
+def get_itsm_stats() -> dict[str, Any]:
+    """Calcule les indicateurs ITSM directement avec les fonctions de dates SQLite."""
+    conn = _open_ticket_conn()
+    try:
+        now = _war_room_now()
+        _expire_war_room_tickets(conn, now)
+        row = conn.execute(
+            """
+            SELECT
+                COALESCE(AVG(
+                    CASE WHEN status = 'resolved' AND resolved_at IS NOT NULL
+                    THEN (julianday(resolved_at) - julianday(opened_at)) * 1440.0 END
+                ), 0) AS mttr_minutes,
+                COUNT(CASE WHEN status = 'resolved' THEN 1 END) AS total_resolved,
+                COUNT(CASE WHEN status = 'failed' THEN 1 END) AS total_failed,
+                COUNT(CASE WHEN status = 'resolved' AND resolved_at IS NOT NULL
+                    AND sla_deadline IS NOT NULL
+                    AND julianday(resolved_at) <= julianday(sla_deadline) THEN 1 END) AS sla_met
+            FROM tickets
+            """
+        ).fetchone()
+        total_resolved = int(row["total_resolved"] or 0)
+        sla_compliance_pct = (int(row["sla_met"] or 0) / total_resolved * 100.0) if total_resolved else 0.0
+        today = conn.execute(
+            "SELECT COUNT(*) AS n FROM tickets WHERE date(opened_at) = date(?)",
+            (_war_room_iso(now),),
+        ).fetchone()
+        recent_rows = conn.execute(
+            "SELECT * FROM tickets WHERE status = 'resolved' ORDER BY resolved_at DESC LIMIT 5"
+        ).fetchall()
+        return {
+            "mttr_minutes": round(float(row["mttr_minutes"] or 0), 1),
+            "sla_compliance_pct": round(sla_compliance_pct, 1),
+            "total_resolved": total_resolved,
+            "total_failed": int(row["total_failed"] or 0),
+            "incidents_today": int(today["n"] or 0),
+            "recent_resolved": [_war_ticket_summary(item) for item in recent_rows],
+        }
     finally:
         conn.close()
 
@@ -609,10 +723,47 @@ def open_ticket(scenario_id: str) -> dict[str, Any]:
         conn.close()
 
 
+@app.post("/api/tickets/{scenario_id}/replay")
+def replay_ticket(scenario_id: str) -> dict[str, Any]:
+    """Supprime le ticket archivé ciblé et rouvre le scénario avec un nouveau timer SLA."""
+    conn = _open_ticket_conn()
+    try:
+        _expire_war_room_tickets(conn)
+        old = conn.execute("SELECT * FROM tickets WHERE id = ?", (scenario_id,)).fetchone()
+        target_scenario_id = str(old["scenario_id"]) if old else scenario_id
+        try:
+            scenario = load_scenario(target_scenario_id)
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="Ticket ou scénario War Room introuvable.")
+        active = conn.execute(
+            "SELECT id FROM tickets WHERE scenario_id = ? AND status IN ('open', 'pending_postmortem') LIMIT 1",
+            (target_scenario_id,),
+        ).fetchone()
+        if active and (not old or str(active["id"]) != str(old["id"])):
+            raise HTTPException(status_code=409, detail="Ce scénario possède déjà un ticket actif.")
+        if old:
+            conn.execute("DELETE FROM tickets WHERE id = ?", (old["id"],))
+        ticket_id = f"{target_scenario_id}-{uuid.uuid4().hex[:8].upper()}"
+        now = _war_room_now()
+        sla_minutes = scenario.get("sla_minutes")
+        deadline = _war_room_iso(now + timedelta(minutes=int(sla_minutes))) if sla_minutes is not None else None
+        conn.execute(
+            "INSERT INTO tickets (id, scenario_id, type, severity, status, opened_at, sla_deadline, resolution_data, xp_earned) "
+            "VALUES (?, ?, ?, ?, 'open', ?, ?, '{}', 0)",
+            (ticket_id, target_scenario_id, scenario["type"], scenario["severity"], _war_room_iso(now), deadline),
+        )
+        _ticket_action(conn, ticket_id, "opened", {"source": "replay", "replayed_ticket_id": str(old["id"]) if old else None})
+        conn.commit()
+        return {"success": True, "new_ticket_id": ticket_id}
+    finally:
+        conn.close()
+
+
 @app.get("/api/tickets/{ticket_id}")
 def get_ticket(ticket_id: str) -> dict[str, Any]:
     conn = _open_ticket_conn()
     try:
+        _expire_war_room_tickets(conn)
         row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
         if not row:
             raise HTTPException(status_code=404, detail="Ticket introuvable.")
@@ -637,18 +788,20 @@ def resolve_ticket(ticket_id: str, payload: TicketResolveRequest) -> dict[str, A
         if not row:
             raise HTTPException(status_code=404, detail="Ticket introuvable.")
         ticket = _ticket_payload(row)
-        if ticket["status"] == "resolved":
+        if ticket["status"] in {"resolved", "failed"}:
             raise HTTPException(status_code=409, detail="Ce ticket est déjà clôturé.")
         if ticket["status"] == "pending_postmortem":
             raise HTTPException(status_code=409, detail="Le post-mortem de ce ticket reste à valider.")
         scenario = load_scenario(ticket["scenario_id"])
         checks = _scenario_topology_checks(scenario, payload.topology)
-        passed = all(check["passed"] for check in checks)
+        config_passed = all(check["passed"] for check in checks)
         now = _war_room_now()
         opened_at = _war_room_parse_time(ticket.get("opened_at"))
         server_elapsed = max(0.0, (now - opened_at).total_seconds()) if opened_at else float(payload.elapsed_seconds)
         deadline = _war_room_parse_time(ticket.get("sla_deadline"))
         sla_met = deadline is None or now <= deadline
+        reason = "sla_exceeded" if not sla_met else (None if config_passed else "config_incorrect")
+        passed = config_passed and sla_met
         resolution_data = {
             "topology": payload.topology,
             "checks": checks,
@@ -664,12 +817,31 @@ def resolve_ticket(ticket_id: str, payload: TicketResolveRequest) -> dict[str, A
             )
             _ticket_action(conn, ticket_id, "configuration_verified", {"checks": checks, "sla_met": sla_met, "server_elapsed_seconds": round(server_elapsed, 2)})
         else:
-            _ticket_action(conn, ticket_id, "check_failed", {"checks": checks, "sla_met": sla_met})
+            resolution_data["reason"] = reason
+            resolution_data["failed_at"] = _war_room_iso(now)
+            conn.execute(
+                "UPDATE tickets SET status = 'failed', resolved_at = ?, resolution_data = ? WHERE id = ?",
+                (_war_room_iso(now), json.dumps(resolution_data, ensure_ascii=False), ticket_id),
+            )
+            _ticket_action(conn, ticket_id, "failed", {
+                "reason": reason,
+                "checks": checks,
+                "sla_met": sla_met,
+                "server_elapsed_seconds": round(server_elapsed, 2),
+            })
         conn.commit()
         return {
             "passed": bool(passed),
+            "reason": reason,
             "checks": checks,
-            "message": "Configuration validée. Complétez le post-mortem pour clôturer le ticket." if passed else "La configuration ne satisfait pas toutes les règles de résolution.",
+            "message": (
+                "Configuration validée. Complétez le post-mortem pour clôturer le ticket."
+                if passed else (
+                    "Échec SLA : le délai de résolution est dépassé."
+                    if reason == "sla_exceeded" else
+                    "Échec de validation : la configuration ne satisfait pas les règles du scénario."
+                )
+            ),
             "sla_met": sla_met,
             "elapsed_seconds": round(server_elapsed, 2),
         }
@@ -685,8 +857,20 @@ def save_ticket_post_mortem(ticket_id: str, payload: TicketPostMortemRequest) ->
         if not row:
             raise HTTPException(status_code=404, detail="Ticket introuvable.")
         ticket = _ticket_payload(row)
-        if ticket["status"] == "resolved":
+        if ticket["status"] in {"resolved", "failed"}:
             raise HTTPException(status_code=409, detail="Ce ticket est déjà clôturé.")
+        deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+        if deadline is not None and _war_room_now() > deadline:
+            now = _war_room_now()
+            resolution_data = ticket.get("resolution_data") if isinstance(ticket.get("resolution_data"), dict) else {}
+            resolution_data.update({"reason": "sla_exceeded", "failed_at": _war_room_iso(now), "sla_met": False})
+            conn.execute(
+                "UPDATE tickets SET status = 'failed', resolved_at = ?, resolution_data = ? WHERE id = ?",
+                (_war_room_iso(now), json.dumps(resolution_data, ensure_ascii=False), ticket_id),
+            )
+            _ticket_action(conn, ticket_id, "failed", {"reason": "sla_exceeded", "failed_at": _war_room_iso(now)})
+            conn.commit()
+            raise HTTPException(status_code=409, detail="SLA dépassé : le ticket a été marqué comme échoué.")
         if ticket["status"] != "pending_postmortem":
             raise HTTPException(status_code=409, detail="Validez d'abord la résolution technique du ticket.")
         scenario = load_scenario(ticket["scenario_id"])
