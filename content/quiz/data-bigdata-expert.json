@@ -4,27 +4,27 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle principal de HDFS dans l’écosystème Hadoop ?",
+      "prompt": "Un job Spark lit 4 To, mais passe 70 % de son temps dans une jointure alors que le volume en sortie est faible. Quelle première démarche donne le diagnostic le plus fiable ?",
       "choices": [
-        "Exécuter le JavaScript du navigateur",
-        "Conserver des fichiers volumineux répartis en blocs sur plusieurs nœuds avec réplication configurable",
-        "Garantir une transaction SQL globale entre toutes les applications",
-        "Remplacer les outils de gouvernance des données"
+        "Doubler immédiatement le nombre d’exécuteurs",
+        "Examiner le plan physique, les statistiques de jointure et les volumes de shuffle avant de modifier la capacité",
+        "Remplacer toutes les transformations par des RDD",
+        "Augmenter la mémoire du Driver sans mesurer son utilisation"
       ],
       "answer": 1,
-      "explanation": "HDFS répartit les blocs et conserve des répliques selon la politique configurée, ce qui vise la tolérance aux pannes et le traitement de grands volumes."
+      "explanation": "Le plan et les métriques permettent d'identifier une jointure mal choisie, une faible sélectivité, un skew ou des échanges inutiles. Augmenter les ressources sans diagnostic peut augmenter le coût sans corriger la cause."
     },
     {
       "type": "qcm",
-      "prompt": "Dans MapReduce, que fait l’étape Reduce ?",
+      "prompt": "Dans un job Spark, 199 tâches terminent en 40 secondes et une tâche dure 25 minutes. Les métriques montrent que cette tâche traite une clé très fréquente. Quelle réponse est la plus adaptée ?",
       "choices": [
-        "Elle configure les utilisateurs du cluster",
-        "Elle compresse toujours chaque fichier avant ingestion",
-        "Elle agrège ou combine les valeurs regroupées par clé après le shuffle",
-        "Elle remplace les blocs HDFS par des tables SQL"
+        "Réduire le nombre de partitions pour que toutes les tâches fusionnent",
+        "Augmenter uniquement la mémoire du Driver",
+        "Mesurer la distribution des clés puis tester une pré-agrégation ou un salting compatible avec les invariants métier",
+        "Désactiver la tolérance aux pannes du cluster"
       ],
       "answer": 2,
-      "explanation": "La phase Reduce reçoit les valeurs regroupées par clé et produit les résultats agrégés ou transformés du calcul distribué."
+      "explanation": "Le profil est typique d'un skew. La correction doit réduire le travail concentré sur la clé dominante tout en préservant la sémantique de l'agrégation ; elle se valide par comparaison des résultats et des durées."
     },
     {
       "type": "qcm",
@@ -76,15 +76,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quel est l’intérêt du data locality dans un cluster Hadoop ?",
+      "prompt": "Une agrégation distribuée fonctionne, mais le Driver tombe en OutOfMemory au moment d'exporter le résultat. Le code appelle collect() avant d'écrire un fichier. Quel changement est le plus sûr ?",
       "choices": [
-        "Réduire les transferts en rapprochant le calcul des données lorsque le planificateur le permet",
-        "Forcer toutes les données à voyager vers un nœud unique",
-        "Garantir que le réseau n’est jamais utilisé",
-        "Remplacer le besoin de répliquer des blocs"
+        "Augmenter sans limite la mémoire du Driver et conserver collect()",
+        "Convertir toutes les lignes en chaînes dans le Driver",
+        "Désactiver les partitions de sortie",
+        "Garder le résultat distribué et utiliser une écriture prise en charge par Spark, avec un échantillon limité pour l'inspection"
       ],
-      "answer": 0,
-      "explanation": "Exécuter le calcul près des blocs réduit les transferts réseau. La localité reste une optimisation, pas une garantie pour chaque tâche."
+      "answer": 3,
+      "explanation": "collect() rapatrie toutes les lignes sur le Driver. L'écriture distribuée évite ce point de concentration ; le Driver ne devrait récupérer que de petits échantillons explicitement bornés."
     },
     {
       "type": "qcm",
@@ -100,15 +100,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Dans une application Spark déployée sur YARN, quel rôle joue principalement YARN ?",
+      "prompt": "Un pipeline Spark écrit des fichiers dans un répertoire final puis tombe avant d'enregistrer le lot comme validé. Les consommateurs lisent directement ce répertoire. Quelle amélioration réduit le risque d'exposer un lot incomplet ?",
       "choices": [
-        "Il remplace les DataFrames par des tables SQL",
-        "Il garantit que toute requête Spark est exactement une fois",
-        "Il fournit l'allocation et la gestion des ressources du cluster à l'application",
-        "Il compresse lui-même toutes les données Parquet"
+        "Écrire dans une zone de staging versionnée, valider les contrôles puis publier atomiquement un manifeste ou un pointeur de version",
+        "Considérer tout répertoire existant comme complet",
+        "Supprimer le checkpoint avant chaque tentative",
+        "Publier les fichiers un par un dès leur arrivée"
       ],
-      "answer": 2,
-      "explanation": "YARN coordonne les ressources du cluster via le ResourceManager et les NodeManagers. Spark organise les stages et tâches qui utilisent les ressources allouées."
+      "answer": 0,
+      "explanation": "La présence de fichiers ne prouve pas qu'un lot est complet. Une frontière de publication distincte de l'écriture permet de n'exposer que des versions ayant passé les contrôles et facilite la reprise."
     },
     {
       "type": "qcm",
@@ -124,15 +124,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quel avantage offre souvent un format colonne tel que Parquet pour une requête analytique qui lit peu de colonnes ?",
+      "prompt": "Une requête analytique lit trois colonnes sur un dataset Parquet qui en contient quatre-vingts, mais les métriques montrent que presque toutes les données sont lues. Quelle vérification est prioritaire ?",
       "choices": [
-        "Le moteur peut ne lire que les colonnes nécessaires et profiter de la compression et des statistiques",
-        "Il garantit automatiquement que les données sont sans doublons",
-        "Il rend le partitionnement inutile",
-        "Il fournit à lui seul un contrôle d'accès par utilisateur"
+        "Remplacer Parquet par un fichier texte sans mesurer",
+        "Vérifier le plan, le column pruning, les filtres et la disposition des fichiers/partitions",
+        "Augmenter le nombre d'utilisateurs du cluster",
+        "Mettre en cache le dataset entier dans le Driver"
       ],
-      "answer": 0,
-      "explanation": "Les formats colonne réduisent potentiellement les données lues pour les requêtes sélectives et utilisent des optimisations de stockage. Le bénéfice dépend du moteur et de la disposition."
+      "answer": 1,
+      "explanation": "Le format colonne ne suffit pas à garantir une lecture minimale. Le plan d'exécution et les filtres doivent permettre l'élimination des colonnes et des partitions non nécessaires."
     },
     {
       "type": "qcm",
