@@ -227,6 +227,12 @@ CREATE TABLE IF NOT EXISTS tickets (
 CREATE INDEX IF NOT EXISTS idx_tickets_status_opened
     ON tickets(status, opened_at);
 
+CREATE TABLE IF NOT EXISTS war_room_scenarios (
+    scenario_id TEXT PRIMARY KEY,
+    scenario_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS ticket_actions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     ticket_id TEXT NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
