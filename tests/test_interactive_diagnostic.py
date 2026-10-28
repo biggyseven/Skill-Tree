@@ -7,7 +7,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DASHBOARD = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+from scripts.dashboard_source import load_dashboard_source
+
+DASHBOARD = load_dashboard_source(ROOT)
 NETWORK_DOWN = json.loads(
     (ROOT / "content" / "diagnostics" / "network_down.json").read_text(encoding="utf-8")
 )
