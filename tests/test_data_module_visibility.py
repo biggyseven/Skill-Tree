@@ -9,7 +9,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class DataModuleVisibilityTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        cls.html = load_dashboard_source(ROOT)
         cls.nodes = json.loads((ROOT / "content" / "nodes.json").read_text(encoding="utf-8"))
 
     def test_data_module_is_registered_in_the_module_cards(self):
