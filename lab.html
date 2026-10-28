@@ -8,7 +8,7 @@
   <script>
     (function () {
       try {
-        var t = localStorage.getItem('skilltree-theme2') || 'aurore';
+        var t = localStorage.getItem('skilltree-theme2') || 'graphite';
         document.documentElement.dataset.theme = t;
       } catch (e) {}
     })();
@@ -22,8 +22,73 @@
   (() => {
     'use strict';
     const ticketId = new URLSearchParams(window.location.search).get('ticket');
-    if (!ticketId) return;
     let ticket = null, openCount = 0, busy = false, observer = null;
+
+    function showToast(message) {
+      let toast = document.querySelector('[data-st-polish-toast]');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'st-polish-toast';
+        toast.dataset.stPolishToast = 'true';
+        toast.setAttribute('role', 'status');
+        toast.setAttribute('aria-live', 'polite');
+        document.body.appendChild(toast);
+      }
+      toast.textContent = String(message || '');
+      toast.classList.add('is-visible');
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 4200);
+    }
+
+    function informDashboard(type, detail) {
+      try {
+        if (window.opener && !window.opener.closed) {
+          window.opener.postMessage({ type, detail }, window.location.origin);
+        }
+      } catch (_) {}
+    }
+
+    // Intercepter les deux événements métier sans consommer le corps du fetch React.
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async function (...args) {
+      const response = await nativeFetch(...args);
+      try {
+        const input = args[0];
+        const rawUrl = typeof input === 'string' ? input : input && input.url;
+        const url = new URL(rawUrl, window.location.href);
+        const method = String((args[1] && args[1].method) || (input && input.method) || 'GET').toUpperCase();
+        const match = url.pathname.match(/^\\/api\\/tickets\\/([^/]+)\\/(resolve|post-mortem)$/);
+        if (method === 'POST' && match) {
+          response.clone().json().then(payload => {
+            if (!response.ok || !payload || payload.passed !== true) return;
+            const ticket = decodeURIComponent(match[1]);
+            if (match[2] === 'resolve') {
+              const detail = { ticket_id: ticket, message: '✅ Ticket ' + ticket + ' validé. Termine le post-mortem pour le clôturer.' };
+              showToast(detail.message);
+              informDashboard('war-room:ticket-validated', detail);
+            } else {
+              const detail = { ticket_id: ticket, xp_earned: Number(payload.xp_earned) || 0 };
+              showToast('🏁 Ticket clôturé.' + (detail.xp_earned > 0 ? ' +' + detail.xp_earned + ' XP gagnés.' : ''));
+              informDashboard('war-room:ticket-resolved', detail);
+            }
+          }).catch(() => {});
+        }
+      } catch (_) {}
+      return response;
+    };
+
+    function polishInteractiveElements(root) {
+      if (!root || !root.querySelectorAll) return;
+      const selector = 'button,a,[role="button"],input,select,textarea,summary,.react-flow__controls button';
+      const elements = [];
+      if (root.matches && root.matches(selector)) elements.push(root);
+      elements.push(...root.querySelectorAll(selector));
+      elements.forEach(element => {
+        element.classList.add('transition-all', 'duration-300');
+        const label = String(element.innerText || element.getAttribute('aria-label') || element.value || '').replace(/\\s+/g, ' ').trim().toLocaleLowerCase('fr');
+        if (/\\b(vérifier|soumettre|valider)\\b/.test(label) || /ouvrir (le )?lab/.test(label)) element.classList.add('btn-glow');
+      });
+    }
     const api = async (path, options = {}) => {
       const response = await fetch(path, {
         credentials: 'same-origin', cache: 'no-store',
@@ -35,7 +100,7 @@
       return payload;
     };
     function findSlaSection() {
-      return Array.from(document.querySelectorAll('section'))document.querySelector('section[aria-label="SLA"]') || Array.from(document.querySelectorAll('section')).find(section => {
+      return document.querySelector('section[aria-label="SLA"]') || Array.from(document.querySelectorAll('section')).find(section => {
         const label = (section.innerText || section.textContent || '').replace(/\s+/g, ' ');
         return /\bSLA\b/.test(label) && (label.includes('Objectif :') || label.includes('Analyse de problème'));
       }) || null;
@@ -119,9 +184,15 @@
       } catch (_) { /* Retenter au prochain cycle sans bloquer le Lab. */ }
     }
     function boot() {
-      loadTicket(); updateCount();
+      if (!ticketId) return;
+      loadTicket(); updateCount(); polishInteractiveElements(document.body);
       window.setInterval(updateCount, 5000);
-      observer = new MutationObserver(() => { addControls(); paintStatus(); });
+      observer = new MutationObserver(changes => {
+        changes.forEach(change => change.addedNodes.forEach(node => {
+          if (node.nodeType === 1) polishInteractiveElements(node);
+        }));
+        addControls(); paintStatus();
+      });
       observer.observe(document.documentElement, { childList: true, subtree: true });
       window.addEventListener('beforeunload', () => observer && observer.disconnect(), { once: true });
     }
