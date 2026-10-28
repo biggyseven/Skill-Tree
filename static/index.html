@@ -22,7 +22,7 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 
   <link rel="stylesheet" href="/app.css">
-  <link rel="preload" href="/assets/skilltree-ui.css?v=dashboard-v2-20261028" as="style">
+  <link rel="preload" href="/assets/skilltree-ui.css?v=noc-catalog-v3-20261028" as="style">
   <link rel="preload" href="/assets/skilltree-core.js?v=faf3f6d6e47a" as="script">
   <link rel="preload" href="/assets/skilltree-catalog.js?v=c4d9677c1276" as="script">
   <link rel="preload" href="/assets/skilltree-study.js?v=b28b3330745a" as="script">
@@ -966,10 +966,11 @@
       </section>
 
       <!-- ============ ONGLET LABS ============ -->
-      <section x-show="tab === 'labs'" x-cloak x-transition.opacity.duration.150ms>
+      <section x-show="tab === 'labs'" x-cloak x-data="{ labSearch: '' }" x-transition.opacity.duration.150ms>
         <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
           <div><p class="eyebrow">Pratique</p><h2 class="mt-1 text-2xl font-semibold text-white">Labs par niveau</h2><p class="mt-1 text-sm text-zinc-400">Chaque cours peut proposer un lab guidé. Les labs réussis comptent pour tes badges.</p></div>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+            <label class="relative w-full sm:max-w-[260px]"><span class="sr-only">Rechercher un lab</span><input id="lab-catalog-search-v1" type="search" class="field w-full" x-model.debounce.120ms="labSearch" placeholder="Rechercher un lab…" aria-label="Rechercher un laboratoire par nom, module ou identifiant"></label>
             <select class="field w-52" x-model="labFilter.module"><option value="all">Tous les modules</option><template x-for="m in modules" :key="m.id"><option :value="m.id" x-text="m.label"></option></template></select>
             <select class="field w-44" x-model="labFilter.level"><option value="all">Tous les niveaux</option><template x-for="l in levels" :key="l.id"><option :value="l.id" x-text="l.label"></option></template></select>
           </div>
@@ -981,28 +982,42 @@
           <div class="card-sm text-center"><p class="eyebrow">Restants</p><p class="mt-1 font-mono text-3xl font-semibold text-fuchsia-400" x-text="labNodes.filter(n => !isLabDone(n.id)).length"></p></div>
         </div>
         <template x-for="l in [...levels, { id: null, label: 'Non classé', icon: '📁' }]" :key="String(l.id)">
-          <div class="mb-8" x-show="labNodes.filter(n => levelOf(n) === l.id).length">
+          <div class="mb-8" x-show="labNodes.filter(n => levelOf(n) === l.id && (!labSearch || norm([n.title, moduleMeta(moduleOf(n)).label, n.id].join(' ')).includes(norm(labSearch)))).length">
             <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white" x-text="l.icon + ' ' + l.label"></h3>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              <template x-for="n in labNodes.filter(x => levelOf(x) === l.id)" :key="n.id">
+              <template x-for="n in labNodes.filter(x => levelOf(x) === l.id && (!labSearch || norm([x.title, moduleMeta(moduleOf(x)).label, x.id].join(' ')).includes(norm(labSearch)))" :key="n.id">
                 <a data-lab-card="catalog"
                    :data-lab-kind="labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'"
                    :href="labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id) : '/?openLab=' + encodeURIComponent(n.id)"
                    target="_blank" rel="noopener noreferrer"
                    :aria-label="(labIndex[n.id]?.kind === 'workspace-v2' ? 'Ouvrir le Lab Workspace' : 'Ouvrir le lab classique') + ' ' + n.title + ' dans un nouvel onglet'"
-                   class="card-sm block text-left transition hover:border-cyan-400/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70">
-                  <div class="flex items-center justify-between gap-2"><span class="chip" x-text="moduleMeta(moduleOf(n)).short"></span><span class="text-xs" :class="isLabDone(n.id) ? 'text-emerald-400' : 'text-zinc-500'" x-text="isLabDone(n.id) ? '✅ Réussi' : 'À faire'"></span></div>
-                  <p class="mt-2 text-sm font-bold text-white" x-text="n.title"></p>
-                  <p class="mt-1 text-[11px] text-zinc-500" x-text="(labIndex[n.id].duration ? '⏱ ' + labIndex[n.id].duration + ' · ' : '') + (labIndex[n.id].difficulty || '')"></p>
-                  <p class="mt-1 text-[10px] text-zinc-500" x-text="labIndex[n.id]?.kind === 'workspace-v2' ? 'Workspace visuel · ouverture directe' : 'Lab classique · scénario visuel non migré'"></p>
+                   class="lab-catalog-card group flex min-h-[182px] min-w-0 flex-col rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 text-left shadow-sm transition duration-200 hover:border-cyan-400/35 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70">
+                  <div class="flex items-start justify-between gap-2">
+                    <span class="chip" x-text="moduleMeta(moduleOf(n)).short"></span>
+                    <span class="inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-semibold" :class="isLabDone(n.id) ? 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300' : 'border-white/10 bg-white/[0.03] text-zinc-400'" x-text="isLabDone(n.id) ? '✓ Réussi' : 'À faire'"></span>
+                  </div>
+                  <div class="mt-4 flex min-w-0 items-start gap-3">
+                    <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/15 bg-cyan-400/[0.07] text-lg" :class="labIndex[n.id]?.kind === 'workspace-v2' ? 'text-cyan-200' : 'text-zinc-400'" aria-hidden="true" x-text="labIndex[n.id]?.kind === 'workspace-v2' ? '🧩' : '🧪'"></span>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-bold leading-snug text-white group-hover:text-cyan-100" x-text="n.title"></p>
+                      <p class="mt-1.5 text-[10px] leading-relaxed text-zinc-500" x-text="labIndex[n.id]?.kind === 'workspace-v2' ? 'Workspace visuel · topologie interactive' : 'Lab classique · scénario guidé'"></p>
+                    </div>
+                  </div>
+                  <div class="mt-auto border-t border-white/[0.07] pt-3">
+                    <div class="flex flex-wrap items-center gap-2 text-[10px] text-zinc-500">
+                      <span class="rounded-full border border-white/10 bg-white/[0.025] px-2 py-1" x-text="labIndex[n.id]?.duration ? '⏱ ' + labIndex[n.id].duration : '⏱ Durée variable'"></span>
+                      <span x-show="labIndex[n.id]?.difficulty" class="rounded-full border border-white/10 bg-white/[0.025] px-2 py-1" x-text="labIndex[n.id]?.difficulty"></span>
+                    </div>
+                    <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-300">Ouvrir le lab <span aria-hidden="true" class="transition-transform group-hover:translate-x-1">→</span></span>
+                  </div>
                 </a>
               </template>
             </div>
           </div>
         </template>
-        <div x-show="!labIndexBusy && !labNodes.length" class="card text-sm text-zinc-400">
-          <p class="font-semibold text-white">Aucun lab trouvé pour ce filtre.</p>
-          <p class="mt-2">Un cours propose un lab quand sa définition contient un objet <code class="font-mono text-cyan-300">lab</code> (voir BACKEND_SPEC.md : modèles de labs pour les trois niveaux).</p>
+        <div x-show="!labIndexBusy && !labNodes.some(n => !labSearch || norm([n.title, moduleMeta(moduleOf(n)).label, n.id].join(' ')).includes(norm(labSearch)))" class="card text-sm text-zinc-400">
+          <p class="font-semibold text-white">Aucun lab ne correspond à cette recherche.</p>
+          <p class="mt-2">Efface la recherche ou ajuste les filtres de module et de niveau pour afficher d’autres laboratoires.</p>
         </div>
       </section>
 
@@ -1463,7 +1478,7 @@
             <p class="mt-2 text-sm text-zinc-400">File d’attente NOC · incidents, changements et problèmes de production.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-200" role="status" aria-live="polite">🚨 <span x-text="warOpenTicketCount">0</span> tickets actifs</span>
+            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/[0.07] px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-emerald-200" role="status"><span class="h-1.5 w-1.5 rounded-full bg-emerald-300" aria-hidden="true"></span>Supervision active</span>
             <button type="button" @click="launchWarStressTest()" :disabled="warStressBusy" class="rounded-xl border border-orange-400/25 bg-orange-500/10 px-3.5 py-2.5 text-xs font-bold text-orange-100 transition hover:bg-orange-500/20 disabled:opacity-50" x-text="warStressBusy ? 'Stress test…' : '🔥 Lancer un stress test'"></button>
             <button type="button" @click="createRandomWarTicket()" :disabled="warRandomBusy" class="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-50" x-text="warRandomBusy ? 'Création…' : '🎲 Ticket surprise'"></button>
             <button type="button" @click="openScenarioCreator()" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-500/20">🛠 Créer un scénario</button>
@@ -1476,11 +1491,26 @@
             </div>
           </div>
         </header>
+        <section id="war-priority-summary-v1" aria-label="Synthèse de la file NOC" class="grid gap-3 sm:grid-cols-3">
+          <article class="flex min-w-0 items-center gap-3 rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-400/20 bg-cyan-400/[0.07] text-lg" aria-hidden="true">🎫</span>
+            <div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Tickets actifs</p><p class="mt-1 font-mono text-2xl font-bold tabular-nums text-white" x-text="warOpenTicketCount">0</p></div>
+          </article>
+          <article class="flex min-w-0 items-center gap-3 rounded-2xl border border-rose-400/20 bg-[color:var(--s1)] p-4">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-rose-400/20 bg-rose-500/[0.08] text-lg" aria-hidden="true">🚨</span>
+            <div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">Critiques</p><p class="mt-1 font-mono text-2xl font-bold tabular-nums text-rose-200" x-text="warTickets.filter(ticket => ticket.severity === 'critical').length">0</p></div>
+          </article>
+          <article class="flex min-w-0 items-center gap-3 rounded-2xl border border-amber-400/20 bg-[color:var(--s1)] p-4">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/20 bg-amber-500/[0.08] text-lg" aria-hidden="true">⏱</span>
+            <div class="min-w-0"><p class="text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500">SLA sous 5 min</p><p class="mt-1 font-mono text-2xl font-bold tabular-nums text-amber-200" x-text="warTickets.filter(ticket => ticket.status !== 'paused' && ticket.sla_left != null && ticket.sla_left <= 300).length">0</p></div>
+          </article>
+        </section>
         <nav class="flex flex-wrap gap-2 border-b border-white/[0.08] pb-3" role="tablist" aria-label="Vues War Room">
-          <button type="button" role="tab" @click="warTab='inbox'; loadTickets()" :aria-selected="warTab==='inbox'" :class="warTab==='inbox' ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📥 Inbox</button>
-          <button type="button" role="tab" @click="warTab='live'; loadItSMStats(); loadWarWeeklyReport()" :aria-selected="warTab==='live'" :class="warTab==='live' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📊 Live</button>
-          <button type="button" role="tab" @click="warTab='archive'; loadWarArchive()" :aria-selected="warTab==='archive'" :class="warTab==='archive' ? 'border-violet-400/30 bg-violet-400/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📁 Archive</button>
-          <button type="button" role="tab" @click="warTab='badges'; loadWarBadges()" :aria-selected="warTab==='badges'" :class="warTab==='badges' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">🏅 Badges</button>
+          <button type="button" role="tab" @click="warTab='inbox'; loadTickets()" :aria-selected="warTab==='inbox'" :class="warTab==='inbox' ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition"><span class="block">📥 Inbox</span><span class="mt-0.5 block text-[9px] font-normal opacity-70">À traiter</span></button>
+          <button type="button" role="tab" @click="warTab='live'; loadItSMStats(); loadWarWeeklyReport()" :aria-selected="warTab==='live'" :class="warTab==='live' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition"><span class="block">📊 Live / KPI</span><span class="mt-0.5 block text-[9px] font-normal opacity-70">Rapport hebdo</span></button>
+          <button type="button" role="tab" @click="warTab='archive'; loadWarArchive()" :aria-selected="warTab==='archive'" :class="warTab==='archive' ? 'border-violet-400/30 bg-violet-400/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition"><span class="block">📁 Archives</span><span class="mt-0.5 block text-[9px] font-normal opacity-70">Tickets clôturés</span></button>
+          <button type="button" role="tab" @click="warTab='scenarios'; loadWarScenarios()" :aria-selected="warTab==='scenarios'" :class="warTab==='scenarios' ? 'border-violet-400/30 bg-violet-400/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition"><span class="block">🧩 Scénarios</span><span class="mt-0.5 block text-[9px] font-normal opacity-70">Bibliothèque</span></button>
+          <button type="button" role="tab" @click="warTab='badges'; loadWarBadges()" :aria-selected="warTab==='badges'" :class="warTab==='badges' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition"><span class="block">🏅 Badges</span><span class="mt-0.5 block text-[9px] font-normal opacity-70">Réussites</span></button>
         </nav>
         <div x-show="warTab === 'inbox'" x-cloak class="space-y-6">
         <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrer les tickets War Room">
@@ -1497,9 +1527,13 @@
           <div class="text-3xl">✅</div><h2 class="mt-3 text-base font-bold text-white">Aucun ticket dans ce filtre</h2><p class="mt-1 text-sm text-zinc-500">La file NOC ne contient pas de ticket ouvert pour cette catégorie.</p>
         </div>
         <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-          <template x-for="ticket in filteredWarTickets" :key="ticket.id">
-            <article class="flex min-w-0 flex-col rounded-2xl border bg-[color:var(--s1)] p-5 shadow-lg transition hover:-translate-y-0.5 hover:border-white/20"
+          <template x-for="ticket in [...filteredWarTickets].sort((a, b) => (a.severity === 'critical' ? 0 : a.severity === 'high' ? 1 : a.severity === 'medium' || a.severity === 'normal' ? 2 : 3) - (b.severity === 'critical' ? 0 : b.severity === 'high' ? 1 : b.severity === 'medium' || b.severity === 'normal' ? 2 : 3) || ((a.status === 'paused' || a.sla_left == null ? 999999999 : Number(a.sla_left)) - (b.status === 'paused' || b.sla_left == null ? 999999999 : Number(b.sla_left))))" :key="ticket.id">
+            <article class="war-ticket-card flex min-w-0 flex-col rounded-2xl border bg-[color:var(--s1)] p-4 shadow-sm transition-colors duration-200 hover:border-white/20 sm:p-5"
               :class="(ticket.severity==='critical' ? 'border-rose-400/35 war-ticket-severity-critical' : ticket.severity==='high' ? 'border-orange-400/35 war-ticket-severity-high' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/20' : 'border-white/10') + (ticket.status !== 'paused' && ticket.sla_left !== null && ticket.sla_left <= 300 ? ' war-ticket-sla-critical' : '')">
+              <p x-show="ticket.severity === 'critical' || (ticket.status !== 'paused' && ticket.sla_left != null && ticket.sla_left <= 300)" role="status" class="war-priority-banner mb-3 flex items-center gap-2 rounded-lg border px-3 py-2 text-[10px] font-bold uppercase tracking-[0.12em]" :class="ticket.severity === 'critical' ? 'border-rose-400/25 bg-rose-500/10 text-rose-200' : 'border-amber-400/25 bg-amber-500/10 text-amber-200'">
+                <span aria-hidden="true" x-text="ticket.severity === 'critical' ? '🚨' : '⏱'"></span>
+                <span x-text="ticket.severity === 'critical' ? 'Priorité critique' : 'SLA imminent · moins de 5 min'"></span>
+              </p>
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="font-mono text-xs font-bold tracking-wide text-zinc-200" x-text="ticket.id"></span>
                 <span class="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
@@ -1639,16 +1673,45 @@
             <div x-show="!warLiveLoading && !(warStats.recent_resolved || []).length" class="p-8 text-center text-sm text-zinc-500">Aucun ticket résolu pour le moment.</div>
           </div>
         </div>
-        <div x-show="warTab === 'archive'" x-cloak class="space-y-4">
-          <div class="flex items-center justify-between gap-3"><div><h2 class="text-lg font-bold text-white">Archive des tickets</h2><p class="mt-1 text-xs text-zinc-500">Tickets résolus et échoués, du plus récent au plus ancien.</p></div><button type="button" @click="loadWarArchive()" :disabled="warArchiveLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] disabled:opacity-50">↻ Actualiser</button></div>
+        <div x-show="warTab === 'archive'" x-cloak x-data="{ archiveQuery: '' }" class="space-y-4">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div><p class="text-[10px] font-bold uppercase tracking-[0.16em] text-violet-300">Historique</p><h2 class="mt-1 text-lg font-bold text-white">Archive des tickets</h2><p class="mt-1 text-xs text-zinc-500">Tickets résolus et échoués, du plus récent au plus ancien.</p></div>
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="relative w-full sm:max-w-xs"><span class="sr-only">Rechercher un ticket archivé</span><input type="search" x-model.debounce.150ms="archiveQuery" placeholder="ID, titre, statut…" aria-label="Rechercher dans les tickets archivés" class="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-white placeholder:text-zinc-500 focus:border-violet-400/40 focus:outline-none"></label>
+              <button type="button" @click="loadWarArchive()" :disabled="warArchiveLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] disabled:opacity-50">↻ Actualiser</button>
+            </div>
+          </div>
           <div x-show="warArchiveError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warArchiveError"></div>
-          <div class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 sm:p-5">
+                    <div x-show="warArchiveLoading && !warArchive.length" class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">Chargement des archives…</div>
+          <div x-show="!warArchiveLoading && !warArchiveError && !filteredWarArchive().filter(ticket => !archiveQuery || norm([ticket.id, ticket.scenario_id, ticket.title, ticket.scenario_title, ticket.type, ticket.status].filter(Boolean).join(' ')).includes(norm(archiveQuery))).length" class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center"><div class="text-3xl">📁</div><h3 class="mt-3 text-base font-bold text-white">Aucun ticket archivé</h3><p class="mt-1 text-sm text-zinc-500">Les tickets résolus ou échoués apparaîtront ici.</p></div>
+          <div class="space-y-3">
+            <template x-for="ticket in filteredWarArchive().filter(ticket => !archiveQuery || norm([ticket.id, ticket.scenario_id, ticket.title, ticket.scenario_title, ticket.type, ticket.status].filter(Boolean).join(' ')).includes(norm(archiveQuery)))" :key="ticket.id">
+              <article class="flex flex-col gap-4 rounded-2xl border bg-[color:var(--s1)] p-4 shadow-lg transition sm:flex-row sm:items-center sm:justify-between" :class="ticket.status === 'failed' ? 'border-rose-400/25' : 'border-emerald-400/20'">
+                <div class="min-w-0 flex-1">
+                  <div class="flex flex-wrap items-center gap-2"><span class="font-mono text-xs font-bold text-zinc-200" x-text="ticket.id"></span><span class="rounded-full border px-2 py-1 text-[10px] font-bold uppercase" :class="ticket.status === 'failed' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200'" x-text="ticket.status === 'failed' ? '❌ Échoué' : '✅ Résolu'"></span><span class="text-[10px] uppercase tracking-wider text-zinc-500" x-text="ticket.type === 'incident' ? 'Incident' : ticket.type === 'change' ? 'Change' : 'Problem'"></span></div>
+                  <h3 class="mt-2 truncate text-sm font-bold text-white" x-text="ticket.title || ticket.scenario_title || ticket.scenario_id"></h3>
+                  <div class="mt-1 text-xs text-zinc-500">Ouvert : <span x-text="ticket.opened_at ? new Date(ticket.opened_at).toLocaleString('fr-FR') : '—'"></span><span class="mx-2">·</span>Clôture : <span x-text="ticket.resolved_at ? new Date(ticket.resolved_at).toLocaleString('fr-FR') : '—'"></span></div>
+                </div>
+                <div class="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
+                  <div class="text-right"><div class="text-[10px] uppercase tracking-wider text-zinc-500">Temps réel</div><div class="mt-1 font-mono text-sm font-bold" :class="ticket.status === 'failed' ? 'text-rose-300' : 'text-emerald-300'" x-text="formatWarDuration(ticket.duration_seconds)"></div></div>
+                  <button type="button" @click="replayWarTicket(ticket)" :disabled="warReplayBusy === ticket.id" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-200 transition hover:bg-cyan-500/20 disabled:opacity-50" x-text="warReplayBusy === ticket.id ? 'Relance…' : '🔄 Rejouer'"></button>
+                </div>
+              </article>
+            </template>
+          </div>
+        </div>
+                <div x-show="warTab === 'scenarios'" x-cloak class="space-y-4">
+          <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div><p class="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300">Studio de scénarios</p><h2 class="mt-1 text-lg font-bold text-white">Bibliothèque d’incidents</h2><p class="mt-1 text-xs text-zinc-500">Crée, importe, recherche, exporte ou lance des scénarios sans mélanger ces actions aux tickets clôturés.</p></div>
+            <span class="chip" x-text="warScenarios.length + ' scénarios'"></span>
+          </header>
+<div class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-4 sm:p-5">
             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div><h3 class="text-sm font-bold text-white">Bibliothèque des scénarios</h3><p class="mt-1 text-xs text-zinc-500">Les filtres agissent sur la bibliothèque et sur les tickets archivés.</p></div>
               <div class="flex flex-wrap items-center gap-2">
                 <label class="relative min-w-[220px] flex-1">
-                  <span class="sr-only">Rechercher dans l’Archive</span>
-                  <input type="search" x-model.debounce.150ms="warScenarioSearch" placeholder="Rechercher un ID, un titre, un type…" class="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-white placeholder:text-zinc-500 focus:border-violet-400/40 focus:outline-none" aria-label="Rechercher dans la bibliothèque et les tickets archivés">
+                  <span class="sr-only">Rechercher un scénario</span>
+                  <input type="search" x-model.debounce.150ms="warScenarioSearch" placeholder="Rechercher un ID, un titre, un type…" class="w-full rounded-xl border border-white/10 bg-black/20 px-3 py-2 text-xs text-white placeholder:text-zinc-500 focus:border-violet-400/40 focus:outline-none" aria-label="Rechercher un scénario par ID, titre ou type">
                 </label>
                 <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrer les scénarios">
                 <button type="button" @click="warScenarioFilter='all'" :aria-pressed="warScenarioFilter==='all'" :class="warScenarioFilter==='all' ? 'border-violet-400/30 bg-violet-500/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-3 py-2 text-[11px] font-semibold">Tous</button>
@@ -1675,25 +1738,8 @@
               </template>
             </div>
           </div>
-          <div x-show="warArchiveLoading && !warArchive.length" class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">Chargement des archives…</div>
-          <div x-show="!warArchiveLoading && !warArchiveError && !filteredWarArchive().length" class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center"><div class="text-3xl">📁</div><h3 class="mt-3 text-base font-bold text-white">Aucun ticket archivé</h3><p class="mt-1 text-sm text-zinc-500">Les tickets résolus ou échoués apparaîtront ici.</p></div>
-          <div class="space-y-3">
-            <template x-for="ticket in filteredWarArchive()" :key="ticket.id">
-              <article class="flex flex-col gap-4 rounded-2xl border bg-[color:var(--s1)] p-4 shadow-lg transition sm:flex-row sm:items-center sm:justify-between" :class="ticket.status === 'failed' ? 'border-rose-400/25' : 'border-emerald-400/20'">
-                <div class="min-w-0 flex-1">
-                  <div class="flex flex-wrap items-center gap-2"><span class="font-mono text-xs font-bold text-zinc-200" x-text="ticket.id"></span><span class="rounded-full border px-2 py-1 text-[10px] font-bold uppercase" :class="ticket.status === 'failed' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200'" x-text="ticket.status === 'failed' ? '❌ Échoué' : '✅ Résolu'"></span><span class="text-[10px] uppercase tracking-wider text-zinc-500" x-text="ticket.type === 'incident' ? 'Incident' : ticket.type === 'change' ? 'Change' : 'Problem'"></span></div>
-                  <h3 class="mt-2 truncate text-sm font-bold text-white" x-text="ticket.title || ticket.scenario_title || ticket.scenario_id"></h3>
-                  <div class="mt-1 text-xs text-zinc-500">Ouvert : <span x-text="ticket.opened_at ? new Date(ticket.opened_at).toLocaleString('fr-FR') : '—'"></span><span class="mx-2">·</span>Clôture : <span x-text="ticket.resolved_at ? new Date(ticket.resolved_at).toLocaleString('fr-FR') : '—'"></span></div>
-                </div>
-                <div class="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
-                  <div class="text-right"><div class="text-[10px] uppercase tracking-wider text-zinc-500">Temps réel</div><div class="mt-1 font-mono text-sm font-bold" :class="ticket.status === 'failed' ? 'text-rose-300' : 'text-emerald-300'" x-text="formatWarDuration(ticket.duration_seconds)"></div></div>
-                  <button type="button" @click="replayWarTicket(ticket)" :disabled="warReplayBusy === ticket.id" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-200 transition hover:bg-cyan-500/20 disabled:opacity-50" x-text="warReplayBusy === ticket.id ? 'Relance…' : '🔄 Rejouer'"></button>
-                </div>
-              </article>
-            </template>
-          </div>
         </div>
-        <div x-show="warTab === 'badges'" x-cloak class="space-y-5">
+<div x-show="warTab === 'badges'" x-cloak class="space-y-5">
           <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div><h2 class="text-lg font-bold text-white">🏅 Badges War Room</h2><p class="mt-1 text-xs text-zinc-500">Les succès sont calculés depuis les tickets clôturés et les post-mortem enregistrés.</p></div>
             <button type="button" @click="loadWarBadges()" :disabled="warBadgesLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] disabled:opacity-50">↻ Actualiser</button>
@@ -2333,7 +2379,7 @@
   <!-- ================= NOTIFICATION ================= -->
   <div x-show="toast.show" x-cloak x-transition.opacity.duration.300ms role="status" aria-live="polite" class="toast-notification fixed bottom-6 right-6 max-w-sm rounded-2xl px-5 py-3 text-sm font-semibold transition-all duration-300" x-text="toast.text"></div>
 
-  <script src="/assets/skilltree-core.js?v=faf3f6d6e47a"></script>
+  <script src="/assets/skilltree-core.js?v=noc-catalog-v3-20261028"></script>
 
   <script src="/assets/skilltree-catalog.js?v=c4d9677c1276"></script>
 
