@@ -5487,6 +5487,11 @@
         intermediaire: ['Monitoring', 'Sauvegarde', 'Préventive', 'Gestion parc', 'Procédures', 'Escalade', 'ITIL', 'RCA', 'SLA', 'Reporting incident', 'Reporting mensuel', 'Automatisation'],
         expert: ['Prédictive', 'Audits', 'KPI', 'Capitalisation', 'Gestion crise', "Appels d'offres", 'Fournisseurs', 'Management', 'Budget', 'Transformation', 'Stratégie', 'RETEX']
       } },
+      { id: 'supervision', label: 'Supervision & Monitoring', short: 'Supervision', icon: '📈', roadmap: {
+        debutant: ['Fondamentaux monitoring', 'SNMP', 'Syslog', 'Surveillance ICMP', 'Métriques/Logs/Traces', 'Alerting'],
+        intermediaire: ['Zabbix', 'Nagios/Centreon', 'Prometheus', 'Grafana', 'NetFlow/sFlow', 'Stack ELK', 'Loki', 'APM', 'Monitoring synthétique'],
+        expert: ['SRE', 'SLI/SLO/SLA', 'Observabilité', 'Tracing distribué', 'OpenTelemetry', 'IAOps Monitoring', 'On-call & Runbooks', 'FinOps Monitoring', 'HA Monitoring']
+      } },
     ];
 
     /* Niveau par défaut des cours qui n'ont pas "level" ni de mot-clé dans leur titre. À ajuster librement. */
@@ -5818,6 +5823,7 @@
           // Les modules nouvellement ajoutés au catalogue sont canoniques :
           // ne pas laisser d'anciennes affectations locales les masquer.
           const raw = String(n.module || '').trim();
+          if (id.startsWith('sup-') || raw === 'Supervision & Monitoring') return 'supervision';
           if (raw === 'AIOps & Intelligence Artificielle' || raw.toLowerCase().startsWith('aiops')) return 'aiops';
           if (raw.toLowerCase() === 'gestion de projet it' || id.startsWith('proj-')) return 'gestion-projet-it';
 
