@@ -241,6 +241,26 @@
     .lesson-prose .btn-diagram-zoom:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 2px; }
     .lesson-prose .lesson-diagram-zoom-level { min-width: 3.2rem; text-align: center; color: rgb(var(--z-200)); font-size: .72rem; font-variant-numeric: tabular-nums; }
     .lesson-prose .lesson-mermaid .mermaid-error { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .lesson-prose .lesson-mermaid-error-panel {
+      border: 1px solid rgb(var(--rose-400) / .32);
+      border-radius: .8rem;
+      background: rgb(var(--rose-400) / .055);
+      padding: .8rem;
+      min-width: 0;
+    }
+    .lesson-prose .lesson-mermaid-error-message {
+      margin: 0 0 .65rem;
+      color: rgb(var(--z-100));
+      font-size: .85rem;
+      line-height: 1.6;
+    }
+    .lesson-prose .lesson-mermaid-error-panel .lesson-mermaid-source {
+      max-height: 20rem;
+      overflow: auto;
+      border-radius: .55rem;
+      padding: .7rem;
+      background: rgb(var(--w) / .035);
+    }
 
     /* --- Composants UI (v3) --- */
     .card { background: var(--s1); border: 1px solid rgb(var(--w) / 0.06); border-radius: 1.5rem; padding: 1.5rem; box-shadow: 0 20px 40px -24px rgba(0,0,0,0.7); }
@@ -3358,37 +3378,59 @@
           const mermaidBlocks = Array.from(root.querySelectorAll('.lesson-mermaid'));
           if (!mermaidBlocks.length || !window.mermaid) return;
 
-          const nodes = [];
-          mermaidBlocks.forEach(block => {
+          if (!this._mermaidInitialized) {
+            window.mermaid.initialize({
+              startOnLoad: false,
+              securityLevel: 'strict',
+              theme: document.documentElement.classList.contains('light') ? 'default' : 'dark',
+            });
+            this._mermaidInitialized = true;
+          }
+
+          // Rendre chaque diagramme séparément : un diagramme invalide ne doit pas
+          // interrompre le rendu des suivants. Mermaid peut produire un SVG d'erreur
+          // sans rejeter la promesse de run(), donc on valide aussi le résultat.
+          for (const block of mermaidBlocks) {
+            if (block.dataset.renderAttempted === 'true') continue;
             const source = block.querySelector('.lesson-mermaid-source');
-            if (!source) return;
+            if (!source) {
+              if (block.querySelector('.mermaid svg')) block.dataset.renderAttempted = 'true';
+              continue;
+            }
+
+            const sourceText = source.textContent || '';
             const visual = document.createElement('div');
             visual.className = 'mermaid';
-            visual.dataset.originalSource = source.textContent || '';
-            visual.textContent = source.textContent || '';
+            visual.dataset.originalSource = sourceText;
+            visual.textContent = sourceText;
             source.replaceWith(visual);
-            nodes.push(visual);
-          });
-          if (!nodes.length) return;
+            block.dataset.renderAttempted = 'true';
 
-          try {
-            if (!this._mermaidInitialized) {
-              window.mermaid.initialize({
-                startOnLoad: false,
-                securityLevel: 'strict',
-                theme: document.documentElement.classList.contains('light') ? 'default' : 'dark',
-              });
-              this._mermaidInitialized = true;
-            }
-            await window.mermaid.run({ nodes });
-          } catch (error) {
-            nodes.forEach(node => {
-              if (node.querySelector('svg')) return;
+            try {
+              // Parse before rendering so a malformed block is isolated locally.
+              await window.mermaid.parse(sourceText);
+              await window.mermaid.run({ nodes: [visual] });
+              const svg = visual.querySelector('svg');
+              const renderedText = String(svg?.textContent || visual.textContent || '');
+              const hasMermaidError = /syntax error in text|no diagram type detected|error while rendering diagram|mermaid version\s+\d/i.test(renderedText);
+              if (!svg || hasMermaidError) {
+                throw new Error('Mermaid did not produce a valid SVG');
+              }
+            } catch (error) {
+              const panel = document.createElement('div');
+              panel.className = 'lesson-mermaid-error-panel';
+              panel.setAttribute('role', 'status');
+              const message = document.createElement('p');
+              message.className = 'lesson-mermaid-error-message';
+              message.textContent = 'Ce diagramme n’a pas pu être rendu. Le reste du cours reste disponible ; le code source est conservé ci-dessous pour diagnostic.';
               const fallback = document.createElement('pre');
               fallback.className = 'lesson-mermaid-source';
-              fallback.textContent = node.dataset.originalSource || node.textContent || '';
-              node.replaceWith(fallback);
-            });
+              fallback.textContent = sourceText;
+              panel.appendChild(message);
+              panel.appendChild(fallback);
+              visual.replaceWith(panel);
+              block.dataset.diagramRenderError = 'true';
+            }
           }
 
           // Les diagrammes Mermaid peuvent être très grands. Chaque schéma dispose
