@@ -439,6 +439,66 @@ Rechercher dérive, migration, changement de capacité ou de version. Dans le co
 
 **Pourquoi un raccourci échoue.** Un exemple favorable ne prouve pas un gain durable. Une métrique globale masque des cas critiques et une collecte lacunaire peut cacher les erreurs. La version et les conditions doivent rester disponibles pour reproduire le résultat. L'exercice est réussi si une autre personne peut expliquer le choix, ses limites et le mécanisme de retrait.
 
+## Défi final corrigé — produire une hypothèse d'incident défendable
+
+### Énoncé
+
+Un incident touche quatre agences. Le système reçoit des changements récents, des alertes réseau, des extraits de logs et une fiche de service. L'équipe attend une synthèse avec une chronologie, deux causes possibles, les preuves pour et contre chacune, puis la prochaine vérification la plus informative. La génération ne doit pas citer un événement inexistant, transformer une corrélation en causalité ni lancer une commande.
+
+### Architecture de diagnostic bornée par les preuves
+
+```mermaid
+flowchart TD
+  A["Incident et périmètre"] --> B["Collecter des sources autorisées"]
+  B --> C["Normaliser horodatages et identifiants"]
+  C --> D["Construire une chronologie sourcée"]
+  D --> E["Récupérer procédures et topologie pertinentes"]
+  E --> F["LLM : hypothèses candidates uniquement"]
+  F --> G["Valider IDs de preuves et citations"]
+  G --> H["Comparer preuves, contre-indices et inconnues"]
+  H --> I{"Au moins une hypothèse testable ?"}
+  I -- "Non" --> J["Demander les données manquantes"]
+  I -- "Oui" --> K["Proposer le test discriminant"]
+  K --> L["Décision humaine et contrôle de changement"]
+```
+
+### Exemple de format de sortie
+
+```json
+{
+  "incident_id": "INC-2048",
+  "timeline": [
+    {"timestamp": "2026-10-28T08:41:00Z", "event_id": "evt-18"}
+  ],
+  "hypotheses": [
+    {
+      "statement": "Une congestion du lien partagé contribue à la dégradation.",
+      "supporting_evidence": ["evt-18", "metric-77"],
+      "contradicting_evidence": ["metric-81"],
+      "unknowns": ["mesures de pertes sur le chemin de secours"],
+      "next_test": "Comparer pertes et latence du chemin de secours sur la même fenêtre"
+    }
+  ],
+  "decision": "human_review_required"
+}
+```
+
+### Proposition de correction
+
+Le backend prépare un paquet de preuves sélectionnées selon le périmètre de l'incident et les droits du demandeur. Chaque événement reçoit un identifiant stable et un horodatage normalisé ; chaque document récupéré conserve son propriétaire, sa version et son niveau de confiance. Le modèle génère une structure limitée, mais le serveur valide que les identifiants cités existent et correspondent bien au dossier.
+
+Évalue la qualité sur des incidents historiques avec une vérité terrain documentée. Mesure la couverture des faits importants, les citations valides, les affirmations non étayées, le taux d'abstention appropriée et la valeur du test suggéré. Ne demande pas au LLM de s'auto-noter pour déterminer si ses preuves sont bonnes : sa confiance déclarée n'est pas une mesure calibrée. Utilise des règles déterministes pour la validation des références et un opérateur pour apprécier le raisonnement.
+
+Chaque hypothèse doit être falsifiable. « Le réseau est lent » ne suffit pas ; « la saturation du lien X précède la dégradation sur les services qui l'empruntent » permet de choisir une mesure discriminante. Inclure les contre-indices aide à éviter le diagnostic prématuré. Le système ne dispose d'aucun accès d'exécution : il propose une investigation, tandis qu'un workflow séparé assure les droits, l'approbation et la sécurité des actions.
+
+### Barème d'autoévaluation
+
+- La chronologie est liée à des événements réels et horodatés.
+- Les hypothèses citent des éléments favorables et contraires.
+- Les affirmations et les identifiants de preuve sont validés côté serveur.
+- La prochaine vérification distingue réellement les hypothèses.
+- La décision finale et toute action restent sous contrôle opérationnel.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service sont écrits et mesurables.
