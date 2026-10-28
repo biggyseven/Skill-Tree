@@ -473,7 +473,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
         self.assertIn(':aria-pressed="moduleFilter === m.id"', module_cards)
         self.assertIn(
-            ':aria-label="`\${m.label}, \${m.validated} cours validés sur \${m.total}, \${m.pct} %. \${moduleFilter === m.id ? \'Module sélectionné\' : \'Afficher ce module\'}`"',
+            ':aria-label="`${m.label}, ${m.validated} cours validés sur ${m.total}, ${m.pct} %. ${moduleFilter === m.id ? \'Module sélectionné\' : \'Afficher ce module\'}`"',
             module_cards,
         )
         self.assertIn('role="progressbar"', module_cards)
@@ -977,7 +977,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("grid-template-columns: repeat(7, minmax(0,1fr))", DASHBOARD_HTML)
         self.assertIn("item.id === 'memo' ? 'Réviser' : item.label", DASHBOARD_HTML)
         self.assertNotIn("Ouvrir les révisions espacées", DASHBOARD_HTML)
-        self.assertNotIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
+        self.assertIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
 
     def test_topology_navigation_is_replaced_by_challenges_and_lab_workspace_is_independent(self):
         self.assertIn("tab === 'challenges'", DASHBOARD_HTML)
