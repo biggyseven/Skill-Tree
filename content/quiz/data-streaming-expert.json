@@ -4,27 +4,27 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Dans Kafka, où l’ordre des événements est-il garanti par le modèle de base ?",
+      "prompt": "Deux événements de progression d'un même apprenant doivent être traités dans leur ordre métier, mais les événements de tous les apprenants doivent être parallélisés. Quelle clé de partitionnement est le meilleur point de départ ?",
       "choices": [
-        "Entre tous les topics et tous les consommateurs",
-        "À l’intérieur d’une partition, selon l’ordre d’écriture",
-        "Entre toutes les partitions d’un topic sans coordination",
-        "Pour tous les événements de plusieurs clusters"
+        "Une constante afin de préserver un ordre global",
+        "Un timestamp généré séparément par chaque producteur",
+        "learner_id, à condition d'accepter que l'ordre soit garanti par partition et de mesurer les clés très chaudes",
+        "Un identifiant aléatoire différent pour chaque record"
       ],
-      "answer": 1,
-      "explanation": "L’ordre est maintenu au sein d’une partition. Des événements répartis entre plusieurs partitions n’ont pas d’ordre total automatique."
+      "answer": 2,
+      "explanation": "Une clé stable par apprenant conserve l'ordre relatif de ses records dans une partition et permet de paralléliser les apprenants. Cela ne crée pas d'ordre global entre partitions et peut nécessiter une stratégie si certaines clés sont très chaudes."
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert l’offset d’un consommateur Kafka ?",
+      "prompt": "Un consommateur écrit un événement dans la base, puis tombe avant le commit de l'offset Kafka. Au redémarrage, le record est relivré. Quel mécanisme protège le mieux le résultat métier ?",
       "choices": [
-        "À chiffrer le contenu des messages",
-        "À définir le nom d’un schéma SQL",
-        "À repérer une position de lecture dans une partition",
-        "À remplacer la clé de partitionnement"
+        "Une clé event_id stable avec contrainte d'unicité et écriture métier dans une transaction durable",
+        "Un délai arbitraire avant le commit",
+        "La désactivation de la réplication du topic",
+        "L'augmentation du nombre de partitions sans modifier le stockage"
       ],
-      "answer": 2,
-      "explanation": "L’offset indique la position d’un message dans une partition. La stratégie de commit détermine le point de reprise après interruption."
+      "answer": 0,
+      "explanation": "Le record peut être retraité parce que l'écriture SQL et l'offset ne sont pas automatiquement atomiques ensemble. Une identité stable et une contrainte unique neutralisent le doublon au niveau du stockage."
     },
     {
       "type": "qcm",
@@ -52,15 +52,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quel rôle joue la clé d’un message dans le choix de partition Kafka ?",
+      "prompt": "Un topic a 48 partitions, mais une seule partition concentre 75 % du trafic et accumule du lag. Les messages d'un même compte doivent rester ordonnés. Quelle démarche est la plus appropriée ?",
       "choices": [
-        "Elle force l’ordre global sur tout le cluster",
-        "Elle permet généralement de répartir les messages de même clé vers une même partition",
-        "Elle règle la durée de rétention à elle seule",
-        "Elle crée automatiquement une transaction de base de données"
+        "Ajouter des partitions et supposer que la clé actuelle se répartira automatiquement",
+        "Répartir aléatoirement les événements du compte sans vérifier les invariants d'ordre",
+        "Augmenter la rétention pour accélérer le consommateur",
+        "Profiler la distribution des clés puis définir, avec le métier, si une sous-clé ou un traitement en deux phases peut préserver l'ordre nécessaire"
       ],
-      "answer": 1,
-      "explanation": "Avec le partitionneur habituel, une même clé est routée vers la même partition, ce qui aide à préserver l’ordre par entité. Le comportement exact dépend du partitionneur."
+      "answer": 3,
+      "explanation": "Une clé très dominante peut concentrer le trafic sur une partition. Modifier la clé peut casser l'ordre par entité ; il faut donc mesurer le skew et expliciter les invariants avant de choisir une clé alternative."
     },
     {
       "type": "qcm",
@@ -100,27 +100,27 @@
     },
     {
       "type": "qcm",
-      "prompt": "Que représente principalement un offset Kafka ?",
+      "prompt": "Après un crash, le lag diminue mais le nombre de factures traitées augmente deux fois pour certains event_id. Quel contrôle doit être examiné en premier ?",
       "choices": [
-        "Un identifiant global de l'événement valable pour tous les topics",
-        "Le nombre total de messages jamais produits dans le cluster",
-        "La position d'un record dans le journal d'une partition donnée",
-        "Une clé métier choisie par l'application"
+        "La couleur du tableau de bord Kafka",
+        "La frontière entre transaction de sortie et commit d'offset, ainsi que la contrainte d'idempotence sur event_id",
+        "La date d'expiration du certificat du navigateur",
+        "Le nombre de topics internes du cluster uniquement"
       ],
-      "answer": 2,
-      "explanation": "L'offset indique une position dans le journal d'une partition. Ce n'est pas un compteur global au topic ni un identifiant métier."
+      "answer": 1,
+      "explanation": "Un lag décroissant ne prouve pas l'absence d'effets en double. Il faut contrôler l'ordre d'écriture/commit et la déduplication durable à la destination."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle principal des réplicas synchronisés (ISR) pour une partition Kafka ?",
+      "prompt": "Un producteur utilise acks=all et min.insync.replicas=2. Après une panne, il ne reste qu'un replica dans l'ISR et les publications échouent. Quelle décision est la plus prudente ?",
       "choices": [
-        "Identifier les réplicas considérés comme suffisamment à jour selon la configuration et participer aux garanties d'acquittement",
-        "Garantir un ordre total entre toutes les partitions du cluster",
-        "Remplacer la nécessité de dimensionner le stockage",
-        "Dédupliquer toutes les opérations métier produites par les applications"
+        "Désactiver toutes les confirmations pour faire disparaître les erreurs",
+        "Réduire immédiatement le nombre de réplicas à un sans analyse",
+        "Restaurer la réplication et diagnostiquer l'état du cluster ; ne modifier les garanties qu'après une décision explicite de risque",
+        "Ignorer les erreurs puisqu'elles ne concernent que les métadonnées"
       ],
-      "answer": 0,
-      "explanation": "L'ISR correspond à l'ensemble de réplicas considérés comme synchronisés selon les règles du cluster. Les garanties dépendent aussi des paramètres d'acquittement et de réplication."
+      "answer": 2,
+      "explanation": "La configuration refuse de confirmer une écriture quand le niveau de réplication requis n'est pas disponible. La réponse doit restaurer la résilience ou accepter explicitement un risque, pas simplement masquer l'erreur."
     },
     {
       "type": "qcm",
@@ -172,15 +172,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quelle affirmation différencie correctement la compaction de la rétention temporelle Kafka ?",
+      "prompt": "Un consommateur peut rester indisponible pendant 36 heures, mais le topic conserve les records seulement 24 heures. Quel risque faut-il traiter dans la conception de reprise ?",
       "choices": [
-        "La compaction conserve obligatoirement chaque version historique de chaque clé",
-        "La compaction peut retirer les anciennes valeurs d'une clé et garder son état le plus récent, tandis que la rétention temporelle supprime des segments selon des critères de durée ou de taille",
-        "La rétention temporelle ne peut jamais supprimer de données",
-        "Les deux politiques garantissent que tous les consommateurs peuvent relire l'historique sans limite"
+        "Le consommateur peut dépasser la rétention et ne plus pouvoir relire tous les événements manquants ; il faut dimensionner la rétention ou prévoir un archivage/rejeu indépendant",
+        "Kafka réécrit automatiquement tous les événements expirés depuis la base cible",
+        "La compaction garantit la conservation de chaque transition historique",
+        "L'offset du groupe recrée les données supprimées du journal"
       ],
-      "answer": 1,
-      "explanation": "La compaction vise plutôt l'état final par clé, alors que la rétention limite la durée ou la taille du journal. L'historique exhaustif nécessite une politique adéquate et éventuellement un archivage."
+      "answer": 0,
+      "explanation": "Un offset ne restaure pas des records supprimés par la rétention. La fenêtre de reprise doit être couverte par la rétention, ou un archive/replay contrôlé doit fournir la source historique."
     },
     {
       "type": "qcm",
