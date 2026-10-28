@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "Les métadonnées techniques et métier permettent de comprendre l’origine, l’actualité, la qualité et les limites d’utilisation d’un jeu de données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il utiliser le catalogue et le protocole du format de table plutôt que lister tous les fichiers Parquet d'un dossier Lakehouse ?",
+      "choices": [
+        "Parce que les fichiers Parquet ne peuvent pas être lus par Spark",
+        "Parce que le listing désactive la compression",
+        "Parce que seules les métadonnées de table identifient le snapshot cohérent et les fichiers actifs",
+        "Parce qu'un catalogue stocke nécessairement chaque octet des données"
+      ],
+      "answer": 2,
+      "explanation": "Le format de table et son catalogue décrivent l'état logique publié. Un dossier peut aussi contenir des fichiers orphelins ou des fichiers écrits avant un commit qui a échoué."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle situation correspond le mieux au principe de schema-on-read ?",
+      "choices": [
+        "La structure est interprétée et validée principalement au moment où le moteur lit les données",
+        "Le schéma ne peut jamais changer après la première écriture",
+        "Le stockage ne conserve aucun champ de données",
+        "Les données sont obligatoirement converties en tables SQL avant d'être reçues"
+      ],
+      "answer": 0,
+      "explanation": "Schema-on-read apporte de la flexibilité en interprétant la structure à la lecture, mais reporte une partie des contrôles aux consommateurs. Il faut encore définir des contrats et des validations."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque important lorsque des millions de petits fichiers sont écrits dans un Lakehouse ?",
+      "choices": [
+        "Les fichiers plus petits interdisent toute compression",
+        "Ils garantissent un partition pruning plus efficace",
+        "Ils effacent automatiquement les snapshots",
+        "Ils augmentent les frais d'ouverture, de listing, de métadonnées et de planification"
+      ],
+      "answer": 3,
+      "explanation": "Un nombre excessif de petits fichiers augmente l'overhead même si le volume total n'est pas immense. La compaction et un parallélisme d'écriture mieux réglé peuvent aider."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé décrit le mieux le time travel d'un format de table Lakehouse ?",
+      "choices": [
+        "Il restaure toute perte du bucket même si les métadonnées ont disparu",
+        "Il permet de lire un snapshot antérieur tant que les métadonnées et les fichiers nécessaires sont conservés",
+        "Il garantit que tous les snapshots restent disponibles indéfiniment",
+        "Il remplace l'archivage et les sauvegardes hors du domaine de panne"
+      ],
+      "answer": 1,
+      "explanation": "Le time travel dépend des snapshots et des fichiers encore conservés. Une perte complète du stockage ou des métadonnées nécessite une sauvegarde indépendante et un plan de restauration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Deux writers tentent de publier des changements concurrents sur une table Lakehouse et l'un reçoit un conflit de commit. Quelle réaction est la plus sûre ?",
+      "choices": [
+        "Ignorer l'erreur car tous les fichiers sont déjà cohérents",
+        "Supprimer manuellement les fichiers du writer concurrent",
+        "Vérifier les changements publiés, puis recalculer ou réessayer si l'opération est sûre et idempotente",
+        "Forcer systématiquement le remplacement du snapshot courant"
+      ],
+      "answer": 2,
+      "explanation": "Un conflit indique que l'état a changé pendant la préparation du commit. Un retry aveugle peut perdre ou doubler des changements ; il faut vérifier si la transformation peut être recalculée proprement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un MERGE ou upsert doit-il utiliser une source dédupliquée selon une règle déterministe ?",
+      "choices": [
+        "Parce que plusieurs lignes source pour une même clé cible peuvent rendre la mise à jour ambiguë ou échouer selon le moteur",
+        "Pour garantir que les timestamps de toutes les lignes sont identiques",
+        "Parce que MERGE ne sait insérer aucune nouvelle ligne",
+        "Pour éviter que le catalogue expose les colonnes"
+      ],
+      "answer": 0,
+      "explanation": "Le pipeline doit décider quelle version prévaut avant le merge. Une source avec plusieurs changements concurrents pour une même clé peut produire un résultat ambigu ou être rejetée par le moteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel critère est le plus pertinent pour choisir entre Iceberg, Delta Lake et Hudi ?",
+      "choices": [
+        "Le nom qui semble le plus moderne",
+        "Le nombre de lettres dans le nom du format",
+        "Le choix du premier format trouvé dans un tutoriel",
+        "Les garanties requises, le workload, les moteurs compatibles, le catalogue, les opérations et les coûts mesurés"
+      ],
+      "answer": 3,
+      "explanation": "Les formats ont des capacités et des intégrations différentes. Le choix doit s'appuyer sur les exigences et sur des tests avec les versions et moteurs réellement déployés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on vérifier avant de partager officiellement une table Lakehouse entre Spark et un autre moteur SQL ?",
+      "choices": [
+        "Que les deux moteurs ont des logos différents",
+        "La compatibilité des versions, du catalogue et des opérations réellement nécessaires, notamment merge, évolution de schéma et snapshots",
+        "Que le chemin physique est identique à un dossier local",
+        "Que les deux moteurs utilisent obligatoirement les mêmes ressources de calcul"
+      ],
+      "answer": 1,
+      "explanation": "Un format ouvert ne garantit pas que chaque moteur et version prend en charge toutes les fonctions de lecture et d'écriture. Une matrice de compatibilité et des tests de bout en bout sont nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un fichier écrit dans le stockage objet n'est-il pas automatiquement une partie de la table publiée ?",
+      "choices": [
+        "Parce qu'un fichier ne peut jamais contenir des lignes valides",
+        "Parce que le stockage objet supprime tous les fichiers nouvellement écrits",
+        "Parce qu'il peut être orphelin ou ne pas être référencé par le snapshot courant tant que le commit de métadonnées n'a pas été publié",
+        "Parce que le format de table stocke les données uniquement en mémoire"
+      ],
+      "answer": 2,
+      "explanation": "Les formats de table utilisent des métadonnées pour identifier les fichiers qui font partie de la version publiée. Des fichiers préparés avant un commit raté peuvent rester non référencés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue correctement time travel et sauvegarde indépendante ?",
+      "choices": [
+        "Le time travel repose sur les snapshots encore conservés ; une sauvegarde indépendante protège aussi contre certaines pertes du stockage ou des métadonnées",
+        "Le time travel est toujours conservé même si tous les fichiers sont supprimés",
+        "Une sauvegarde ne nécessite jamais de test de restauration",
+        "Les deux notions sont équivalentes dans tous les formats Lakehouse"
+      ],
+      "answer": 0,
+      "explanation": "Les snapshots facilitent la récupération logique tant que leurs fichiers et métadonnées existent. Une sauvegarde indépendante et testée reste nécessaire pour les scénarios de perte du domaine de stockage."
     }
   ]
 }
