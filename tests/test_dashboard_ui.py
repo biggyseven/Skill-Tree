@@ -1111,6 +1111,26 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Dernière leçon du module", DASHBOARD_HTML)
 
 
+    def test_startup_prioritizes_interactive_ui_and_avoids_duplicate_tree_scans(self):
+        alpine_script = DASHBOARD_HTML.index('defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"')
+        drawflow_script = DASHBOARD_HTML.index('defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"')
+        self.assertLess(alpine_script, drawflow_script)
+        self.assertIn('defer src="https://cdn.jsdelivr.net/npm/chart.js"', DASHBOARD_HTML)
+        self.assertIn("const refreshTask = this.refreshAll()", DASHBOARD_HTML)
+        self.assertNotIn("await this.refreshAll();", DASHBOARD_HTML)
+
+        tree_start = API_SOURCE.index('@app.get("/api/tree")')
+        tree_end = API_SOURCE.index('@app.get("/api/stats")', tree_start)
+        tree_route = API_SOURCE[tree_start:tree_end]
+        self.assertIn("statuses = {node.id: status_of(node, validated_ids) for node in nodes}", tree_route)
+        self.assertNotIn("statuses = tree.statuses()", tree_route)
+
+        stats_start = API_SOURCE.index('@app.get("/api/stats")')
+        stats_end = API_SOURCE.index('@app.get("/api/daily-plan")', stats_start)
+        stats_route = API_SOURCE[stats_start:stats_end]
+        self.assertIn("validated_count = sum(1 for node in nodes if is_validated(node))", stats_route)
+        self.assertNotIn("statuses = tree.statuses()", stats_route)
+
     def test_mobile_header_keeps_title_and_actions_on_one_row(self):
         self.assertIn('class="mobile-header-menu-trigger', DASHBOARD_HTML)
         self.assertIn('aria-controls="mobile-header-action-items"', DASHBOARD_HTML)

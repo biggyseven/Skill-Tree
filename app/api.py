@@ -49,7 +49,7 @@ from .db import (
 from .domain import Node, ProofKind, Question, Requirement, Status
 from .exam_rules import EXAM_PASS_SCORE, effective_requirement_score
 from .engine import (
-    BADGE_DEFINITIONS, DomainError, SkillTree, get_daily_plan, is_validated, requirement_met,
+    BADGE_DEFINITIONS, DomainError, SkillTree, get_daily_plan, is_validated, requirement_met, status_of,
 )
 from .labs_runner import (
     LabRunnerError, LabSessionError, exec_in_lab, start_interactive_lab, validate_lab,
@@ -1572,7 +1572,10 @@ def submit_answer(node_id: str, payload: dict = Body(...), tree: SkillTree = Dep
 @app.get("/api/tree")
 def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
     nodes = tree.nodes()
-    statuses = tree.statuses()
+    # Réutiliser les nœuds déjà assemblés : tree.statuses() relirait nodes, edges,
+    # requirements et attempts une seconde fois pour cette même réponse.
+    validated_ids = {node.id for node in nodes if is_validated(node)}
+    statuses = {node.id: status_of(node, validated_ids) for node in nodes}
     configured_orders = _configured_node_orders()
     configured_positions = _configured_node_positions()
     validated = sum(1 for status in statuses.values() if status is Status.VALIDATED)
@@ -1596,7 +1599,7 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
 @app.get("/api/stats")
 def read_stats(tree: SkillTree = Depends(get_tree)) -> dict:
     nodes = tree.nodes()
-    statuses = tree.statuses()
+    validated_count = sum(1 for node in nodes if is_validated(node))
     categories: dict[str, dict[str, Any]] = {}
     total_attempts = 0
     total_passed = 0
@@ -1611,7 +1614,7 @@ def read_stats(tree: SkillTree = Depends(get_tree)) -> dict:
     for cat in categories.values():
         cat["success_rate"] = round(100 * cat["passed"] / cat["attempts"]) if cat["attempts"] else 0
     return {
-        "totals": {"nodes": len(nodes), "validated": sum(1 for s in statuses.values() if s is Status.VALIDATED), "attempts": total_attempts, "success_rate": round(100 * total_passed / total_attempts) if total_attempts else 0},
+        "totals": {"nodes": len(nodes), "validated": validated_count, "attempts": total_attempts, "success_rate": round(100 * total_passed / total_attempts) if total_attempts else 0},
         "categories": list(categories.values())
     }
 

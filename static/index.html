@@ -53,14 +53,14 @@
   </script>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/marked@15.0.7/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     [x-cloak] { display: none !important; }
@@ -2755,7 +2755,11 @@
               this.refreshAll();
             }
           });
-          await this.refreshAll();
+          // Lancer les appels de données sans retarder le rendu initial ni la navigation vers la section demandée.
+          const refreshTask = this.refreshAll().catch(error => {
+            console.error('Chargement initial des données', error);
+            return null;
+          });
           this.examCategory = this.examCategories[0]?.name || '';
           this.connectWebSocket();
           const requestedUrl = new URL(window.location.href);
@@ -2768,21 +2772,35 @@
             const cleanUrl = requestedUrl.pathname + requestedUrl.search + requestedUrl.hash;
             try { window.history.replaceState(window.history.state, '', cleanUrl); } catch (_) { }
           }
+
           if (requestedTabId && this.navItems.some(item => item.id === requestedTabId)) {
-            // L’onglet est déjà sélectionné à l’initialisation ; forcer son chargement différé après refreshAll().
-            await this.setTab(requestedTabId, { skipHistory: true, forceLoad: true });
+            // Afficher la section tout de suite ; son contenu peut se charger pendant les autres requêtes.
+            const tabTask = this.setTab(requestedTabId, { skipHistory: true, forceLoad: true });
+            if (requestedTabId === 'labs') {
+              // Le catalogue v2 démarre immédiatement. Une fois l'arbre disponible, compléter les labs historiques.
+              Promise.all([refreshTask, tabTask]).then(async () => {
+                if (this.tab !== requestedTabId) return;
+                if (this.labIndexTask) await this.labIndexTask;
+                return this.loadLabIndex();
+              }).catch(error => console.error('Chargement différé des Labs', error));
+            }
           }
-          if (requestedModuleId && (requestedModuleId === 'all' || this.modules.some(module => module.id === requestedModuleId))) {
-            await this.setTab('tree');
-            await this.setModule(requestedModuleId);
-          }
-          if (requestedCourseId) {
-            await this.setTab('tree');
-            await this.show(requestedCourseId);
+
+          if (requestedModuleId || requestedCourseId) {
+            refreshTask.then(async () => {
+              if (requestedModuleId && (requestedModuleId === 'all' || this.modules.some(module => module.id === requestedModuleId))) {
+                await this.setTab('tree');
+                await this.setModule(requestedModuleId);
+              }
+              if (requestedCourseId) {
+                await this.setTab('tree');
+                await this.show(requestedCourseId);
+              }
+            }).catch(error => console.error('Ouverture du parcours demandé', error));
           }
           if (requestedLabId) {
-            // Conserver l’ouverture directe des laboratoires dans le nouvel onglet.
-            await this.openLab(requestedLabId, false);
+            // L'API du lab est indépendante du chargement des statistiques du tableau de bord.
+            this.openLab(requestedLabId, false);
           }
         },
 
