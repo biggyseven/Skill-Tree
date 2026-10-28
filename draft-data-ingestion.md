@@ -251,3 +251,116 @@ Surveillez le nombre de messages en attente, l’âge du plus ancien message, le
 Le partitionnement distribue les données et parallélise les consommateurs. Une clé stable peut préserver l’ordre relatif d’une entité, mais une mauvaise clé crée une partition chaude. Augmenter le nombre de partitions peut modifier l’ordre et l’affectation des consommateurs ; analysez la distribution des clés, le volume par clé et les invariants métier.
 
 Après une panne prolongée, le système doit traiter la production normale et le backlog. Si sa capacité disponible est égale au débit entrant, le backlog ne diminue pas. Le temps de rattrapage peut être estimé par le volume en attente divisé par la différence entre débit de traitement disponible et débit entrant, à condition que cette différence soit positive. Cette estimation simplifiée doit être vérifiée par des tests de charge et des mesures réelles.
+
+## 12. Sécurité, confidentialité et gouvernance d’un pipeline
+
+L’ingestion peut transporter des données personnelles, financières, d’accès ou d’exploitation. Les transports, files d’erreurs, logs et fichiers temporaires peuvent multiplier les copies. Chaque étape doit avoir une identité, une finalité, des permissions et une durée de conservation. Les connexions doivent être chiffrées et authentifiées selon le risque. Les secrets doivent être gérés hors du code, limités et rotatables.
+
+Les métadonnées de classification doivent suivre le flux. Si un champ contient une donnée personnelle, une transformation ou une table dérivée ne doit pas perdre silencieusement l’information de sensibilité. Une donnée agrégée n’est pas automatiquement anonyme si de petits groupes ou des recoupements permettent une réidentification.
+
+### 12.1 Accès à la DLQ
+
+Une DLQ peut contenir des données plus sensibles que la sortie normale, car elle retient des payloads bruts, champs inattendus ou messages invalides. Limitez les lecteurs, masquez les secrets, définissez une durée maximale, journalisez les consultations et contrôlez le replay. La personne qui inspecte une erreur n’a pas nécessairement besoin de pouvoir relancer l’événement en production.
+
+Le rejeu doit être une opération contrôlée et traçable. Définissez qui peut l’approuver, quelles clés ou périodes peuvent être rejouées, comment l’idempotence est vérifiée, et quelle preuve est conservée. Les messages devenus inutiles doivent être supprimés selon la politique de conservation, sans conserver le contenu complet au-delà du besoin de diagnostic.
+
+### 12.2 Effacement dans les flux
+
+Une suppression doit suivre les systèmes dérivés, caches, tables, index, exports et snapshots concernés. Un événement de suppression doit être idempotent et empêcher qu’un ancien événement recrée la donnée supprimée. Les consommateurs en retard et les redémarrages doivent être pris en compte.
+
+Le processus doit enregistrer le périmètre traité et les exceptions. Les sauvegardes et archives nécessitent des règles explicites pour éviter la réapparition après restauration. Le lignage aide à identifier les dérivés, mais il ne découvre pas nécessairement les copies manuelles ; des règles d’export et de gestion des fichiers sont aussi nécessaires.
+
+## 13. Observabilité et SLO d’ingestion
+
+Un pipeline avancé requiert des métriques qui décrivent la progression et la valeur produite, pas uniquement le statut d’un processus. Surveillez le débit entrant et sortant, l’âge du backlog, les erreurs par catégorie, les retries, le nombre de messages en quarantaine, les conflits d’idempotence, le retard événementiel, le taux de succès des contrôles et la fraîcheur du produit publié.
+
+### 13.1 Mesures minimales
+
+Définissez chaque métrique avec une unité, un périmètre, une période et un propriétaire. Une mesure du retard doit préciser s’il s’agit de l’âge du message le plus ancien ou d’un percentile de bout en bout. Le taux de succès doit se rapporter à une population et une règle définies. Les changements de définition doivent être documentés.
+
+Il est utile de distinguer la santé du service, la progression du flux, la qualité des données, le résultat métier et la gouvernance. La santé du service comprend disponibilité, erreurs et temps de réponse. La progression comprend offsets, checkpoints, lag et backlog. La qualité comprend schéma, validité, doublons et cohérence. Le résultat métier couvre données prêtes et périodes complètes. La gouvernance suit versions de contrat, classification, propriétaires, incidents et preuves.
+
+### 13.2 Seuils, alertes et runbooks
+
+Les seuils doivent être basés sur le contrat et l’usage. Une alerte utile indique le flux, l’ampleur de l’écart, le début du problème, la gravité, les consommateurs affectés, le propriétaire et le lien vers un runbook. Le runbook décrit les vérifications sûres, les décisions de confinement, les conditions de reprise et les points de contact.
+
+Une alerte de backlog doit montrer si le retard augmente ou diminue. Une alerte de DLQ doit montrer l’âge et la catégorie des erreurs, sans exposer les données sensibles. Un échec de validation critique doit déclencher la politique de publication prévue, pas seulement envoyer un message qui sera ignoré.
+
+### 13.3 Réconciliation
+
+Une réconciliation compare source et destination pour détecter omissions, doublons ou divergences. Elle peut comparer les comptes par fenêtre, des sommes de contrôle, des clés ou des montants agrégés. Les contrôles doivent tenir compte des événements tardifs, des suppressions et des transformations intentionnelles.
+
+Une différence de comptage n’est pas automatiquement une erreur. Un système peut filtrer des événements invalides ou exclure des transactions annulées par contrat. La réconciliation doit comparer des populations équivalentes et expliquer les écarts attendus. Les écarts inexpliqués font l’objet d’un incident et d’une recherche de cause racine.
+
+## 14. Atelier pratique : pipeline incrémental idempotent
+
+Nous allons imaginer un pipeline qui reçoit des événements de commande et les écrit dans une table analytique. Il doit tolérer une livraison répétée, préserver un checkpoint, placer en quarantaine les messages invalides et mesurer sa fraîcheur. Les exemples sont conceptuels et doivent être adaptés à la base et au broker choisis.
+
+### Étape A — Définir le contrat
+
+Le message comprend un identifiant, un type d’événement, une version de schéma, un temps métier, un producteur et un payload. Le contrat déclare les types et les champs obligatoires. L’identifiant reste stable en cas de retry. Les statuts admis sont versionnés. La date métier est distincte de l’heure d’ingestion.
+
+Définissez les erreurs : schéma inconnu, identifiant absent, doublon identique, conflit avec contenu différent, valeur métier invalide, dépendance temporairement indisponible et violation de permission. Chaque catégorie reçoit une action et une gravité.
+
+### Étape B — Préparer la destination
+
+Créez une table d’événements traités avec une contrainte unique sur l’identifiant, une table de sortie et une table ou file de quarantaine. En production, la transaction doit garantir que l’identifiant et la mutation métier sont enregistrés de façon cohérente. Une contrainte unique protège contre certains doublons, mais ne définit pas à elle seule comment résoudre les payloads différents partageant la même clé.
+
+### Étape C — Traiter un message
+
+Pseudo-algorithme :
+
+§§§text
+pour chaque message reçu :
+    valider l'enveloppe et la version de schéma
+    si le message est invalide :
+        enregistrer la cause en quarantaine
+        acquitter uniquement lorsque cette mise en quarantaine est durable
+        continuer
+
+    ouvrir une transaction de destination
+    rechercher ou réserver l'identifiant de l'événement
+    si l'identifiant a déjà été traité :
+        comparer le contenu et enregistrer le rejeu
+        ne pas réappliquer l'effet métier
+    sinon :
+        appliquer la transformation et la mutation métier
+        enregistrer l'identifiant et l'état de traitement
+    valider la transaction
+    confirmer l'offset selon la stratégie de cohérence
+§§§
+
+Le pseudo-algorithme doit être complété selon le modèle transactionnel. N’acquittez pas avant que le message soit durablement traité ou placé dans une quarantaine fiable. Si l’écriture de sortie et la confirmation de l’offset ne sont pas atomiques, il faut accepter et gérer le replay par idempotence.
+
+### Étape D — Tester les pannes
+
+Injectez des scénarios contrôlés : crash avant la transaction, crash après l’écriture mais avant la confirmation, message reçu en double, destination indisponible, payload invalide, checkpoint inaccessible et événement tardif. Pour chaque scénario, définissez l’état attendu, la preuve à examiner, le signal d’alerte et le processus de récupération.
+
+Le but n’est pas simplement de vérifier que le service redémarre. Il faut vérifier qu’aucun événement n’est silencieusement perdu, qu’aucun effet métier n’est appliqué en double et que les messages impossibles à traiter restent retrouvables. La sortie doit être réconciliée après les tests.
+
+### Étape E — Tester la DLQ et le rejeu
+
+Injectez un événement avec une version de schéma inconnue. Vérifiez la mise en quarantaine, le compteur, l’alerte et la présence d’un identifiant de corrélation. Corrigez le contrat ou le message de test, puis rejouez l’événement via une procédure contrôlée. Vérifiez qu’il conserve son identité d’origine et que le rejeu ne crée pas de doublon.
+
+### Étape F — Mesurer le SLO
+
+Mesurez le temps depuis l’horodatage métier jusqu’à la disponibilité du produit, le lag du consommateur, le taux de messages en erreur et le volume en quarantaine. Pour simuler une panne, augmentez artificiellement la latence de destination dans un environnement isolé et vérifiez que les alertes se déclenchent avant le dépassement du délai contractuel.
+
+## 15. Tests d’intégration et de non-régression
+
+Les tests d’ingestion couvrent le contenu, la progression et les effets secondaires. Les tests unitaires valident la transformation d’un message isolé. Les tests de contrat valident le schéma et sa compatibilité. Les tests d’intégration incluent broker et destination. Les tests de résilience reproduisent des pannes et reprises. Les tests de charge vérifient le débit, le backlog et le comportement lors d’un rattrapage.
+
+| Scénario | Comportement attendu | Preuve attendue |
+|---|---|---|
+| Message valide | Une sortie cohérente est publiée | Identifiant et résultat présents |
+| Même message livré deux fois | Aucun effet métier supplémentaire | Une seule mutation, replay tracé |
+| Même identifiant, contenu différent | Conflit détecté et isolé | Alerte et trace de conflit |
+| Destination temporairement indisponible | Retry contrôlé puis reprise | Compteur de retries et absence de perte |
+| Schéma invalide | Quarantaine ou rejet prévu | Cause, version et identifiant corrélés |
+| Événement tardif | Application selon la politique de fenêtre | Résultat corrigé ou retard déclaré |
+| Checkpoint indisponible | Pas de progression silencieuse | État d’erreur explicite et reprise sûre |
+| Message en DLQ rejoué | Traitement contrôlé et idempotent | Historique de replay et résultat |
+| Pic de volume | Backlog mesuré, ressources bornées | Lag, débit, durée de rattrapage |
+| Suppression | Dérivés traités selon le contrat | Vérification des destinations concernées |
+
+Au-delà d’exemples individuels, les tests de propriété peuvent générer différents ordres de livraison, doublons et séquences de reprise pour vérifier des invariants : une même clé ne produit pas deux effets métier, un événement plus ancien ne remplace pas une version plus récente sans règle explicite, et un événement invalide ne devient pas publiable à la suite d’une erreur de conversion silencieuse.
