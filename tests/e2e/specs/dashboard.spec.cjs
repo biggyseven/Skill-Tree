@@ -1276,6 +1276,16 @@ test('la barre supérieure reste sans chevauchement pendant le redimensionnement
       }
 
       if (titleBox.right > actionsBox.left + 1) return false;
+
+      const actionItems = header.querySelector('.app-header-action-items');
+      const visibleActionBoxes = Array.from(actionItems?.children || [])
+        .filter(element => visible(element) && box(element).width > 0 && box(element).height > 0)
+        .map(element => box(element))
+        .sort((left, right) => left.left - right.left);
+      for (let index = 1; index < visibleActionBoxes.length; index += 1) {
+        if (visibleActionBoxes[index - 1].right > visibleActionBoxes[index].left + 1) return false;
+      }
+
       if (visible(center)) {
         const centerBox = box(center);
         if (!inHeader(centerBox)) return false;
