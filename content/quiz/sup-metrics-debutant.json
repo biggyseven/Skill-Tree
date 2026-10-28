@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Métriques vs Logs vs Traces ».",
+      "prompt": "Une équipe ajoute le champ request_id, unique pour chaque requête, comme label à une métrique de durée HTTP. Quelques heures après le déploiement, la cardinalité et la mémoire du backend augmentent fortement. Quelle correction est la plus appropriée ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Conserver request_id et augmenter indéfiniment la mémoire, car chaque série unique améliore toujours les agrégations.",
+        "Retirer l'identifiant unique des labels de métriques et le conserver, si nécessaire et autorisé, dans un log ou une trace pour retrouver une requête précise.",
+        "Remplacer la métrique par un log texte non structuré et supprimer tous les horodatages.",
+        "Créer une nouvelle métrique avec un nom différent pour chaque request_id afin de répartir la cardinalité."
       ],
-      "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "answer": 1,
+      "explanation": "Une série Prometheus est identifiée par le nom de métrique et la combinaison de ses labels. Un identifiant différent pour chaque requête peut créer une série presque à chaque échantillon, augmentant mémoire, indexation et coût. Les métriques devraient utiliser des dimensions bornées et utiles à l'agrégation, comme une route normalisée ou un code de résultat. Un identifiant unique reste mieux adapté à la corrélation d'un événement précis dans les logs ou les traces, avec des contrôles de confidentialité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le P95 du temps de réponse double, tandis que la moyenne globale reste presque stable. Quelle démarche explique le mieux ce résultat et aide à poursuivre le diagnostic ?",
+      "choices": [
+        "Déduire que toutes les requêtes sont devenues deux fois plus lentes.",
+        "Ignorer le P95, car seule la moyenne décrit correctement l'expérience utilisateur.",
+        "Examiner la distribution et segmenter par route ou dépendance avec des dimensions maîtrisées, puis étudier des traces lentes représentatives.",
+        "Calculer la moyenne des P95 de chaque instance pour obtenir automatiquement le P95 global."
+      ],
+      "answer": 2,
+      "explanation": "La moyenne peut rester presque stable si une part limitée des requêtes devient beaucoup plus lente. Le P95 attire l'attention sur la queue de distribution, mais ne donne pas directement la cause. Une segmentation par route normalisée et des traces lentes permettent de préciser où le délai apparaît. Les percentiles calculés séparément ne s'agrègent pas en général par une simple moyenne ; il faut choisir un modèle de distribution adapté à l'agrégation globale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un backend conserve prioritairement les traces en erreur. Un analyste compte les traces en erreur et les divise par toutes les traces conservées pour calculer le taux d'erreur réel du service. Quel est le défaut principal de cette méthode ?",
+      "choices": [
+        "Aucun défaut : les traces conservées sont toujours un échantillon parfaitement représentatif.",
+        "La politique d'échantillonnage biaise la population conservée ; il faut calculer le taux global avec des métriques appropriées et utiliser les traces pour analyser les parcours retenus.",
+        "Le taux d'erreur doit être calculé uniquement à partir de la taille des fichiers de logs.",
+        "Il faut inclure l'identifiant de trace comme label afin de rendre le taux mathématiquement exact."
+      ],
+      "answer": 1,
+      "explanation": "La politique de conservation surreprésente volontairement les erreurs, de sorte que la proportion des traces en erreur n'est pas représentative de toutes les requêtes. Les métriques conçues avec des numérateurs et dénominateurs cohérents décrivent plus directement le taux global. Les traces échantillonnées permettent ensuite de comprendre le parcours technique des cas conservés, sans être confondues avec l'ensemble de la population."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une trace montre un span serveur de 1 000 ms qui contient un span SQL de 700 ms. Quelle interprétation est la plus rigoureuse ?",
+      "choices": [
+        "La requête totale a nécessairement duré 1 700 ms, puisque les deux durées doivent toujours être additionnées.",
+        "Le span SQL indique une partie du temps écoulé incluse dans l'intervalle du span serveur ; il ne faut pas additionner les deux durées comme si elles étaient indépendantes.",
+        "Le span SQL prouve que le processeur de la base a été occupé pendant exactement 700 ms.",
+        "Le span parent doit être supprimé car une trace ne peut jamais contenir de spans imbriqués."
+      ],
+      "answer": 1,
+      "explanation": "Les spans parents peuvent englober les opérations enfants. Dans cet exemple, les 700 ms du span SQL sont inclus dans les 1 000 ms du span serveur si les intervalles sont imbriqués. Leur somme compterait deux fois une partie du temps. La durée représente le temps écoulé, qui peut inclure de l'attente réseau, des files ou des verrous ; elle ne mesure pas directement le temps CPU consommé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un log d'erreur contient un trace ID, mais aucune trace correspondante n'apparaît dans le backend. Les métriques confirment que les requêtes continuent. Quelle investigation est la plus appropriée ?",
+      "choices": [
+        "Conclure que l'erreur du log est fausse puisque la trace n'existe pas.",
+        "Remplacer toute métrique manquante par zéro afin de recréer les traces.",
+        "Vérifier la propagation du contexte, la politique d'échantillonnage, les erreurs d'export, le retard d'ingestion et la fenêtre de rétention ; distinguer absence de trace et absence de requête.",
+        "Ajouter le trace ID à tous les labels des métriques pour garantir que le backend produira une trace."
+      ],
+      "answer": 2,
+      "explanation": "La présence du trace ID dans un log ne garantit pas que la trace entière a été échantillonnée, exportée et stockée. Le contexte peut aussi avoir été perdu entre services ; le backend peut être en retard ou les données avoir expiré. Les métriques montrent que les requêtes continuent, mais il faut diagnostiquer séparément le chemin de collecte des traces. Utiliser le trace ID comme label de métrique risque une cardinalité excessive et ne recrée pas une trace absente."
     }
   ]
 }
