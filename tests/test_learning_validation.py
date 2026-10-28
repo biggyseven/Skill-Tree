@@ -87,6 +87,9 @@ class LearningValidationTests(unittest.TestCase):
                     )
                     self.assertEqual(reassessment.status_code, 200, reassessment.text)
                     self.assertTrue(reassessment.json()["validated"])
+                    self.assertTrue(reassessment.json()["reassessment"])
+                    self.assertFalse(reassessment.json()["attempt_recorded"])
+                    self.assertEqual(reassessment.json()["xp_gained"], 0)
 
                     tree = client.get("/api/tree").json()
                     self.assertGreaterEqual(tree["validated"], 1)
