@@ -298,6 +298,16 @@ export class CLIParser {
     return pool;
   }
 
+  saveStartupConfig() {
+    if (!this.device.config || typeof this.device.config !== 'object') this.device.config = {};
+    const snapshot = JSON.parse(JSON.stringify(this.device.config));
+    delete snapshot.startup_config_saved;
+    delete snapshot.startup_config;
+    this.device.startup_config = snapshot;
+    this.device.config.startup_config_saved = true;
+    return snapshot;
+  }
+
   execute(line) {
     const raw = line.trim();
     if (!raw) return { output: '' };
@@ -333,7 +343,15 @@ export class CLIParser {
         return { output: 'Enter configuration commands, one per line.  End with CNTL/Z.' };
       }
       if (cmd === 'show') return this.doShow(tokens.slice(1));
-      if (cmd === 'write' && tokens[1] === 'memory') return { output: 'Building configuration...\n[OK]' };
+      if (cmd === 'write' && tokens[1] === 'memory') {
+        this.saveStartupConfig();
+        return { output: 'Building configuration...\n[OK]' };
+      }
+      if (cmd === 'copy' && ['run', 'running-config'].includes(tokens[1]) &&
+          ['start', 'startup-config'].includes(tokens[2]) && tokens.length === 3) {
+        this.saveStartupConfig();
+        return { output: 'Destination filename [startup-config]?\nBuilding configuration...\n[OK]' };
+      }
       if (cmd === 'reload') return { output: 'System configuration has been modified. Save? [yes/no]: ' };
     }
 
@@ -442,6 +460,7 @@ export class CLIParser {
       }
       if (cmd === 'spanning-tree' && tokens[1] === 'mode' && tokens[2]) {
         const stp = this.ensureProtocolState('stp', { mode: null, roots: [] });
+        stp.enabled = true;
         stp.mode = tokens[2].toLowerCase();
         return { output: '' };
       }
@@ -504,6 +523,19 @@ export class CLIParser {
         this.mode = 'interface';
         // Garder le nom canonique évite une recherche différente après l'entrée en mode interface.
         this.context.interface = port.name || port.id;
+        const subinterfaceMatch = String(port.id || port.name).match(/\.(\d+)$/);
+        this.context.subinterface_vlan = this.device.type === 'router' && subinterfaceMatch
+          ? Number(subinterfaceMatch[1]) : null;
+        if (this.context.subinterface_vlan) {
+          if (!this.device.config || typeof this.device.config !== 'object') this.device.config = {};
+          if (!this.device.config.subinterfaces || typeof this.device.config.subinterfaces !== 'object') this.device.config.subinterfaces = {};
+          const key = `VLAN${this.context.subinterface_vlan}`;
+          if (!this.device.config.subinterfaces[key] || typeof this.device.config.subinterfaces[key] !== 'object') {
+            this.device.config.subinterfaces[key] = { vlan: this.context.subinterface_vlan, interface_name: this.context.interface, encapsulation: null, ip: null, mask: null };
+          } else {
+            this.device.config.subinterfaces[key].interface_name = this.context.interface;
+          }
+        }
         return { output: '' };
       }
       if (cmd === 'ip' && tokens[1] === 'route' && tokens.length >= 5) {
@@ -589,6 +621,21 @@ export class CLIParser {
       const port = this.findPort(this.context.interface);
       if (!port) { this.mode = 'config'; return { output: '% Interface not found.' }; }
       
+      if (cmd === 'duplex') {
+        const mode = String(tokens[1] || '').toLowerCase();
+        if (!['auto', 'half', 'full'].includes(mode) || tokens.length !== 2) return { output: '% Invalid duplex mode. Use duplex <auto|half|full>.' };
+        port.duplex = mode;
+        return { output: '' };
+      }
+      if (cmd === 'encapsulation' && String(tokens[1] || '').toLowerCase() === 'dot1q' && tokens[2]) {
+        if (!this.context.subinterface_vlan) return { output: '% Encapsulation dot1q is valid only on a router subinterface.' };
+        const vlan = Number(tokens[2]);
+        if (!Number.isInteger(vlan) || vlan !== this.context.subinterface_vlan || vlan < 1 || vlan > 4094) return { output: '% VLAN ID must match the subinterface number.' };
+        port.encapsulation = vlan;
+        const subinterface = this.device.config?.subinterfaces?.[`VLAN${vlan}`];
+        if (subinterface) subinterface.encapsulation = vlan;
+        return { output: '' };
+      }
       if (cmd === 'ipv6' && tokens[1] === 'address' && tokens[2]) {
         if (!isIPv6Prefix(tokens[2])) return { output: '% Invalid IPv6 address or prefix. Use ipv6 address <address>/<0-128>.' };
         port.ipv6 = tokens[2];
@@ -625,8 +672,14 @@ export class CLIParser {
         if (tokens[2] === 'maximum' && tokens[3] && /^\d+$/.test(tokens[3]) && Number(tokens[3]) >= 1 && Number(tokens[3]) <= 1024) {
           port.port_security.maximum = Number(tokens[3]); return { output: '' };
         }
+        if (tokens[2] === 'violation' && ['protect', 'restrict', 'shutdown'].includes(String(tokens[3] || '').toLowerCase()) && tokens.length === 4) {
+          port.port_security.violation = String(tokens[3]).toLowerCase(); return { output: '' };
+        }
         if (tokens[2] === 'mac-address' && tokens[3] === 'sticky' && tokens.length === 4) {
           port.port_security.sticky = true; return { output: '' };
+        }
+        if (tokens[2] === 'mac-address' && tokens[3] && /^(?:[0-9a-f]{4}\.){2}[0-9a-f]{4}$/i.test(tokens[3]) && tokens.length === 4) {
+          port.port_security.mac_address = tokens[3].toLowerCase(); return { output: '' };
         }
         return { output: '% Invalid port-security syntax.' };
       }
@@ -674,6 +727,10 @@ export class CLIParser {
           return { output: '% Invalid subnet mask. Use a contiguous IPv4 network mask.' };
         }
         port.ip = tokens[2]; port.mask = tokens[3];
+        if (this.context.subinterface_vlan) {
+          const subinterface = this.device.config?.subinterfaces?.[`VLAN${this.context.subinterface_vlan}`];
+          if (subinterface) { subinterface.ip = tokens[2]; subinterface.mask = tokens[3]; }
+        }
         return { output: '' };
       }
       if (cmd === 'no' && tokens[1] === 'ip' && tokens[2] === 'address') {
@@ -753,6 +810,13 @@ export class CLIParser {
     if (args[0] === 'ip' && args[1] === 'interface' && args[2] === 'brief') return { output: this.formatIpIntBrief() };
     if (args[0] === 'ip' && args[1] === 'route') return { output: this.formatIpRoute() };
     if (args[0] === 'vlan' && args[1] === 'brief') return { output: this.formatVlanBrief() };
+    if (args[0] === 'processes' && args[1] === 'cpu') {
+      const cpu = Number(this.device.config?.cpu_utilization ?? this.device.config?.system?.cpu_percent ?? 5);
+      return { output: `CPU utilization for five seconds: ${cpu}%/0%; one minute: ${cpu}%; five minutes: ${cpu}%` };
+    }
+    if (args[0] === 'startup-config') {
+      return { output: this.device.startup_config ? JSON.stringify(this.device.startup_config, null, 2) : 'Startup configuration not saved.' };
+    }
     if (args[0] === 'version') return { output: 'Cisco IOS Software, C2900 Software (C2900-UNIVERSALK9-M), Version 15.1(4)M4, RELEASE SOFTWARE (fc2)\nSkillTree Edition' };
     if (args[0] === 'interfaces' && args[1]) {
       const p = this.findPort(args[1]);
@@ -785,8 +849,17 @@ export class CLIParser {
     (this.device.ports || []).forEach(p => {
       out += `interface ${p.name || p.id}\n`;
       if (p.description) out += ` description ${p.description}\n`;
+      if (p.encapsulation) out += ` encapsulation dot1q ${p.encapsulation}\n`;
+      if (p.duplex) out += ` duplex ${p.duplex}\n`;
       if (p.mode && p.mode !== 'routed') out += ` switchport mode ${p.mode}\n`;
       if (p.vlan) out += ` switchport access vlan ${p.vlan}\n`;
+      if (p.port_security?.enabled) {
+        out += ' switchport port-security\n';
+        if (p.port_security.maximum) out += ` switchport port-security maximum ${p.port_security.maximum}\n`;
+        if (p.port_security.violation) out += ` switchport port-security violation ${p.port_security.violation}\n`;
+        if (p.port_security.mac_address) out += ` switchport port-security mac-address ${p.port_security.mac_address}\n`;
+        if (p.port_security.sticky) out += ' switchport port-security mac-address sticky\n';
+      }
       if (p.ip && p.mask) out += ` ip address ${p.ip} ${p.mask}\n`;
       if (p.access_group_in !== undefined && p.access_group_in !== null && p.access_group_in !== '') {
         out += ` ip access-group ${p.access_group_in} in\n`;

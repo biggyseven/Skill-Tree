@@ -219,3 +219,53 @@ test('workload CLI enregistre un état structuré typé et l’affiche dans runn
   assert.match(running, /workload database max_connections 200/);
   assert.match(parser.execute('show workloads').output, /\"max_connections\": 200/);
 });
+
+
+test('la CLI War Room gère duplex, sous-interface 802.1Q et Port Security complet', () => {
+  const router = {
+    id: 'R1', type: 'router',
+    config: { hostname: 'R1', subinterfaces: { VLAN30: { vlan: 30, interface_name: 'Fa0/0.30', encapsulation: 20, ip: '192.168.20.1', mask: '255.255.255.0' } } },
+    ports: [
+      { id: 'Fa0/0.30', name: 'Fa0/0.30', state: 'up', ip: '192.168.20.1', mask: '255.255.255.0', encapsulation: 20 },
+      { id: 'Fa0/1', name: 'Fa0/1', state: 'up', duplex: 'half' },
+    ],
+  };
+  const cli = new CLIParser(router);
+  cli.execute('enable'); cli.execute('configure terminal');
+  assert.equal(cli.execute('interface Fa0/0.30').output, '');
+  assert.equal(cli.execute('encapsulation dot1q 30').output, '');
+  assert.equal(cli.execute('ip address 192.168.30.1 255.255.255.0').output, '');
+  assert.equal(router.config.subinterfaces.VLAN30.encapsulation, 30);
+  assert.equal(router.config.subinterfaces.VLAN30.ip, '192.168.30.1');
+  cli.execute('exit');
+  assert.equal(cli.execute('interface Fa0/1').output, '');
+  assert.equal(cli.execute('duplex full').output, '');
+  assert.equal(router.ports[1].duplex, 'full');
+
+  const sw = { id: 'SW1', type: 'switch', config: { hostname: 'SW1', vlans: [1] }, ports: [{ id: 'Fa0/1', name: 'Fa0/1', state: 'up' }] };
+  const sec = new CLIParser(sw);
+  sec.execute('enable'); sec.execute('configure terminal'); sec.execute('interface Fa0/1');
+  assert.equal(sec.execute('switchport port-security').output, '');
+  assert.equal(sec.execute('switchport port-security maximum 1').output, '');
+  assert.equal(sec.execute('switchport port-security mac-address 00aa.bbcc.ddee').output, '');
+  assert.equal(sec.execute('switchport port-security violation shutdown').output, '');
+  assert.deepEqual(sw.ports[0].port_security, { enabled: true, maximum: 1, mac_address: '00aa.bbcc.ddee', violation: 'shutdown' });
+});
+
+test('la CLI expose la charge CPU et persiste write memory/copy run start', () => {
+  const device = {
+    id: 'R1', type: 'router',
+    config: { hostname: 'R1-EDGE', cpu_utilization: 100, routes: [{ network: '203.0.113.0', mask: '255.255.255.0', next_hop: '198.51.100.1' }] },
+    ports: [{ id: 'Fa0/0', name: 'Fa0/0', state: 'up', ip: '10.50.0.1', mask: '255.255.255.0' }],
+  };
+  const cli = new CLIParser(device);
+  cli.execute('enable');
+  assert.match(cli.execute('show processes cpu').output, /100%/);
+  assert.match(cli.execute('write memory').output, /\[OK\]/);
+  assert.equal(device.config.startup_config_saved, true);
+  assert.equal(device.startup_config.hostname, 'R1-EDGE');
+  device.config.startup_config_saved = false;
+  assert.match(cli.execute('copy run start').output, /\[OK\]/);
+  assert.equal(device.config.startup_config_saved, true);
+  assert.match(cli.execute('show startup-config').output, /R1-EDGE/);
+});
