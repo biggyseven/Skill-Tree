@@ -9662,8 +9662,8 @@
     for (const element of items) {
       element.classList.add('transition-all', 'duration-300');
       if (element.matches('a[data-lab-card="catalog"]')) element.classList.add('btn-glow');
-      const label = String(element.innerText || element.getAttribute('aria-label') || element.value || '').replace(/\\s+/g, ' ').trim().toLocaleLowerCase('fr');
-      if (/\\b(vérifier|soumettre)\\b/.test(label) || /ouvrir (le )?lab/.test(label)) element.classList.add('btn-glow');
+      const label = String(element.innerText || element.getAttribute('aria-label') || element.value || '').replace(/\s+/g, ' ').trim().toLocaleLowerCase('fr');
+      if (/\b(vérifier|soumettre|valider)\b/.test(label) || /ouvrir (le )?lab/.test(label)) element.classList.add('btn-glow');
     }
   };
   const boot = () => {
