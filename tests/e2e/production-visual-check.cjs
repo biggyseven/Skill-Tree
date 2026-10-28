@@ -14,6 +14,49 @@ const report = {
   screenshots: [],
 };
 
+async function authenticateProductionSession(context) {
+  const statusResponse = await context.request.get(BASE_URL + '/api/auth/status', { timeout: 15000 });
+  assert.equal(statusResponse.status(), 200, 'Production authentication status must return HTTP 200');
+  const status = await statusResponse.json();
+  report.checks.productionAuthenticationRequired = status.required === true;
+
+  if (status.required !== true) {
+    assert.equal(status.authenticated, true, 'Production authentication is not required, but status reports an unauthenticated session');
+    report.checks.authenticatedSession = true;
+    return;
+  }
+  if (status.authenticated === true) {
+    report.checks.authenticatedSession = true;
+    return;
+  }
+
+  assert.equal(
+    process.env.SKILLTREE_RUN_AUTHENTICATED_SMOKE,
+    'true',
+    'Production requires authentication; enable the existing SKILLTREE_RUN_AUTHENTICATED_SMOKE repository variable for this read-only visual check.'
+  );
+  const password = process.env.SKILLTREE_PRODUCTION_TEST_PASSWORD || '';
+  assert(password, 'Production visual check is missing the SKILLTREE_PRODUCTION_TEST_PASSWORD repository secret.');
+
+  // APIRequestContext attached to BrowserContext shares its cookie jar with the browser.
+  // The password is submitted once, never printed, retried, or included in the report.
+  const loginResponse = await context.request.post(BASE_URL + '/api/auth/login', {
+    data: { password },
+    timeout: 15000,
+  });
+  const loginPayload = await loginResponse.json().catch(() => ({}));
+  assert(
+    loginResponse.ok() && loginPayload.authenticated === true,
+    `Production authentication failed (HTTP ${loginResponse.status()}); credentials were not logged or retried.`
+  );
+
+  const verifiedResponse = await context.request.get(BASE_URL + '/api/auth/status', { timeout: 15000 });
+  assert.equal(verifiedResponse.status(), 200, 'Authenticated session status must return HTTP 200');
+  const verified = await verifiedResponse.json();
+  assert.equal(verified.authenticated, true, 'The production login cookie was not retained by the browser context');
+  report.checks.authenticatedSession = true;
+}
+
 async function main() {
   await fs.mkdir(OUT, { recursive: true });
   const browser = await chromium.launch({ headless: true });
@@ -40,6 +83,8 @@ async function main() {
   });
 
   try {
+    await authenticateProductionSession(context);
+
     // Après une fusion, Render peut déployer quelques instants après GitHub Actions.
     // On attend la version attendue via GET seulement; aucune écriture de production n'est faite.
     const readyDeadline = Date.now() + 8 * 60 * 1000;
