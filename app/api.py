@@ -62,6 +62,7 @@ from .lab_routes import (
     seed_lab_v2_catalog,
 )
 from .lab_schema_v2 import Topology
+from .scenario_loader import load_scenario, list_scenarios
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -166,6 +167,7 @@ async def lifespan(_app: FastAPI):
         if any(catalog_sync.values()):
             print(f"Synchronisation additive du catalogue pédagogique : {catalog_sync}")
         seed_lab_v2_catalog(conn)
+        _seed_war_room_tickets(conn)
     finally:
         conn.close()
     yield
@@ -413,7 +415,316 @@ async def add_security_headers(request: Request, call_next):
 
 
 # Lab Workspace v2 : nouvelles routes séparées des endpoints legacy.
+
 app.include_router(lab_v2_router, prefix="/api")
+
+
+class TicketResolveRequest(BaseModel):
+    topology: dict[str, Any]
+    elapsed_seconds: float = Field(ge=0, le=86400)
+
+
+class TicketPostMortemRequest(BaseModel):
+    root_cause: str = Field(min_length=3, max_length=5000)
+    impact: str = Field(min_length=3, max_length=5000)
+    corrective_action: str = Field(min_length=3, max_length=5000)
+
+
+def _war_room_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _war_room_iso(value: datetime) -> str:
+    return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def _war_room_parse_time(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed.astimezone(timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def _ticket_payload(row: Any) -> dict[str, Any]:
+    ticket = dict(row)
+    try:
+        ticket["resolution_data"] = json.loads(ticket.get("resolution_data") or "{}")
+    except (TypeError, json.JSONDecodeError):
+        ticket["resolution_data"] = {}
+    return ticket
+
+
+def _ticket_action(conn: Any, ticket_id: str, action_type: str, payload: dict[str, Any]) -> None:
+    conn.execute(
+        "INSERT INTO ticket_actions (ticket_id, action_type, payload, at) VALUES (?, ?, ?, ?)",
+        (ticket_id, action_type, json.dumps(payload, ensure_ascii=False), _war_room_iso(_war_room_now())),
+    )
+
+
+def _seed_war_room_tickets(conn: Any) -> None:
+    """Crée une seule fois les trois tickets pilotes pour que la file NOC soit immédiatement exploitable."""
+    for scenario in list_scenarios():
+        scenario_id = str(scenario["id"])
+        exists = conn.execute("SELECT id FROM tickets WHERE id = ?", (scenario_id,)).fetchone()
+        if exists:
+            continue
+        now = _war_room_now()
+        sla_minutes = scenario.get("sla_minutes")
+        deadline = _war_room_iso(now + timedelta(minutes=int(sla_minutes))) if sla_minutes is not None else None
+        conn.execute(
+            "INSERT INTO tickets (id, scenario_id, type, severity, status, opened_at, sla_deadline, resolution_data, xp_earned) "
+            "VALUES (?, ?, ?, ?, 'open', ?, ?, '{}', 0)",
+            (scenario_id, scenario_id, scenario["type"], scenario["severity"], _war_room_iso(now), deadline),
+        )
+        _ticket_action(conn, scenario_id, "opened", {"source": "pilot_seed"})
+    conn.commit()
+
+
+def _scenario_topology_checks(scenario: dict[str, Any], topology: dict[str, Any]) -> list[dict[str, Any]]:
+    nodes = topology.get("nodes") if isinstance(topology, dict) else []
+    if not isinstance(nodes, list):
+        nodes = []
+    checks: list[dict[str, Any]] = []
+    for rule in (scenario.get("resolution_check") or {}).get("rules", []):
+        if rule.get("type") == "post_mortem_contains" or str(rule.get("field", "")).startswith("post_mortem."):
+            # Ces règles sont volontairement évaluées après la saisie du post-mortem.
+            continue
+        target_id = str(rule.get("target") or rule.get("node") or "")
+        node = next((item for item in nodes if str(item.get("id", "")) == target_id or str(item.get("label", "")) == target_id), None)
+        actual: Any = None
+        path = str(rule.get("path") or "")
+        if node is not None and path:
+            parts = path.split(".")
+            current: Any = node
+            index = 0
+            while index < len(parts):
+                part = parts[index]
+                if part == "ports" and index + 1 < len(parts):
+                    port_id = parts[index + 1]
+                    ports = current.get("ports", []) if isinstance(current, dict) else []
+                    current = next((port for port in ports if str(port.get("id", "")) == port_id or str(port.get("name", "")) == port_id), None) if isinstance(ports, list) else None
+                    index += 2
+                    continue
+                if part == "config":
+                    current = current.get("config") if isinstance(current, dict) else None
+                elif isinstance(current, dict):
+                    current = current.get(part)
+                else:
+                    current = None
+                index += 1
+            actual = current
+        operator = str(rule.get("operator") or "equals")
+        expected = rule.get("value")
+        if operator == "equals":
+            passed = str(actual).casefold() == str(expected).casefold() if actual is not None and expected is not None else actual == expected
+        elif operator == "contains":
+            if isinstance(actual, (list, tuple, set)):
+                passed = any(str(expected).casefold() in str(value).casefold() for value in actual)
+            else:
+                passed = str(expected).casefold() in str(actual or "").casefold()
+        elif operator == "exists":
+            passed = actual is not None
+        else:
+            passed = False
+        checks.append({
+            "passed": bool(passed),
+            "target": target_id,
+            "path": path,
+            "operator": operator,
+            "expected": expected,
+            "actual": actual,
+            "description": rule.get("description", ""),
+        })
+    return checks
+
+
+def _open_ticket_conn():
+    conn = connect(DB_PATH, check_same_thread=False)
+    ensure_ready(conn)
+    return conn
+
+
+@app.get("/api/tickets")
+def list_open_tickets() -> list[dict[str, Any]]:
+    conn = _open_ticket_conn()
+    try:
+        rows = conn.execute(
+            "SELECT * FROM tickets WHERE status IN ('open', 'pending_postmortem') ORDER BY opened_at ASC"
+        ).fetchall()
+        now = _war_room_now()
+        result: list[dict[str, Any]] = []
+        for row in rows:
+            ticket = _ticket_payload(row)
+            try:
+                scenario = load_scenario(ticket["scenario_id"])
+            except FileNotFoundError:
+                scenario = {}
+            deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+            ticket["sla_left"] = max(0, int((deadline - now).total_seconds())) if deadline else None
+            ticket["scenario"] = scenario
+            ticket["title"] = scenario.get("title", ticket["scenario_id"])
+            ticket["story"] = scenario.get("story", "")
+            ticket["impact"] = scenario.get("impact", "")
+            ticket["reported_by"] = scenario.get("reported_by", "")
+            ticket["sla_minutes"] = scenario.get("sla_minutes")
+            ticket["reward_xp"] = scenario.get("reward_xp", 0)
+            result.append(ticket)
+        return result
+    finally:
+        conn.close()
+
+
+@app.post("/api/tickets/{scenario_id}/open")
+def open_ticket(scenario_id: str) -> dict[str, Any]:
+    try:
+        scenario = load_scenario(scenario_id)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="Scénario War Room introuvable.")
+    conn = _open_ticket_conn()
+    try:
+        active = conn.execute(
+            "SELECT * FROM tickets WHERE scenario_id = ? AND status IN ('open', 'pending_postmortem') ORDER BY opened_at DESC LIMIT 1",
+            (scenario_id,),
+        ).fetchone()
+        if active:
+            return {"ticket": _ticket_payload(active), "scenario": scenario, "existing": True}
+        base_exists = conn.execute("SELECT id FROM tickets WHERE id = ?", (scenario_id,)).fetchone()
+        ticket_id = f"{scenario_id}-{uuid.uuid4().hex[:6].upper()}" if base_exists else scenario_id
+        now = _war_room_now()
+        sla_minutes = scenario.get("sla_minutes")
+        deadline = _war_room_iso(now + timedelta(minutes=int(sla_minutes))) if sla_minutes is not None else None
+        conn.execute(
+            "INSERT INTO tickets (id, scenario_id, type, severity, status, opened_at, sla_deadline, resolution_data, xp_earned) "
+            "VALUES (?, ?, ?, ?, 'open', ?, ?, '{}', 0)",
+            (ticket_id, scenario_id, scenario["type"], scenario["severity"], _war_room_iso(now), deadline),
+        )
+        _ticket_action(conn, ticket_id, "opened", {"source": "api"})
+        conn.commit()
+        row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+        return {"ticket": _ticket_payload(row), "scenario": scenario, "existing": False}
+    finally:
+        conn.close()
+
+
+@app.get("/api/tickets/{ticket_id}")
+def get_ticket(ticket_id: str) -> dict[str, Any]:
+    conn = _open_ticket_conn()
+    try:
+        row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Ticket introuvable.")
+        ticket = _ticket_payload(row)
+        try:
+            scenario = load_scenario(ticket["scenario_id"])
+        except FileNotFoundError:
+            raise HTTPException(status_code=404, detail="Scénario associé au ticket introuvable.")
+        deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+        now = _war_room_now()
+        ticket["sla_left"] = max(0, int((deadline - now).total_seconds())) if deadline else None
+        return {"ticket": ticket, "scenario": scenario}
+    finally:
+        conn.close()
+
+
+@app.post("/api/tickets/{ticket_id}/resolve")
+def resolve_ticket(ticket_id: str, payload: TicketResolveRequest) -> dict[str, Any]:
+    conn = _open_ticket_conn()
+    try:
+        row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Ticket introuvable.")
+        ticket = _ticket_payload(row)
+        if ticket["status"] == "resolved":
+            raise HTTPException(status_code=409, detail="Ce ticket est déjà clôturé.")
+        if ticket["status"] == "pending_postmortem":
+            raise HTTPException(status_code=409, detail="Le post-mortem de ce ticket reste à valider.")
+        scenario = load_scenario(ticket["scenario_id"])
+        checks = _scenario_topology_checks(scenario, payload.topology)
+        passed = all(check["passed"] for check in checks)
+        now = _war_room_now()
+        opened_at = _war_room_parse_time(ticket.get("opened_at"))
+        server_elapsed = max(0.0, (now - opened_at).total_seconds()) if opened_at else float(payload.elapsed_seconds)
+        deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+        sla_met = deadline is None or now <= deadline
+        resolution_data = {
+            "topology": payload.topology,
+            "checks": checks,
+            "submitted_elapsed_seconds": float(payload.elapsed_seconds),
+            "server_elapsed_seconds": round(server_elapsed, 2),
+            "sla_met": sla_met,
+            "checked_at": _war_room_iso(now),
+        }
+        if passed:
+            conn.execute(
+                "UPDATE tickets SET status = 'pending_postmortem', resolution_data = ? WHERE id = ?",
+                (json.dumps(resolution_data, ensure_ascii=False), ticket_id),
+            )
+            _ticket_action(conn, ticket_id, "configuration_verified", {"checks": checks, "sla_met": sla_met, "server_elapsed_seconds": round(server_elapsed, 2)})
+        else:
+            _ticket_action(conn, ticket_id, "check_failed", {"checks": checks, "sla_met": sla_met})
+        conn.commit()
+        return {
+            "passed": bool(passed),
+            "checks": checks,
+            "message": "Configuration validée. Complétez le post-mortem pour clôturer le ticket." if passed else "La configuration ne satisfait pas toutes les règles de résolution.",
+            "sla_met": sla_met,
+            "elapsed_seconds": round(server_elapsed, 2),
+        }
+    finally:
+        conn.close()
+
+
+@app.post("/api/tickets/{ticket_id}/post-mortem")
+def save_ticket_post_mortem(ticket_id: str, payload: TicketPostMortemRequest) -> dict[str, Any]:
+    conn = _open_ticket_conn()
+    try:
+        row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Ticket introuvable.")
+        ticket = _ticket_payload(row)
+        if ticket["status"] == "resolved":
+            raise HTTPException(status_code=409, detail="Ce ticket est déjà clôturé.")
+        if ticket["status"] != "pending_postmortem":
+            raise HTTPException(status_code=409, detail="Validez d'abord la résolution technique du ticket.")
+        scenario = load_scenario(ticket["scenario_id"])
+        post_mortem = {
+            "root_cause": payload.root_cause.strip(),
+            "impact": payload.impact.strip(),
+            "corrective_action": payload.corrective_action.strip(),
+        }
+        pm_rules = [
+            rule for rule in (scenario.get("resolution_check") or {}).get("rules", [])
+            if rule.get("type") == "post_mortem_contains" or str(rule.get("field", "")).startswith("post_mortem.")
+        ]
+        for rule in pm_rules:
+            field = str(rule.get("field") or "root_cause").removeprefix("post_mortem.")
+            value = str(post_mortem.get(field, "")).casefold()
+            needles = rule.get("any_of") or rule.get("contains_any") or []
+            if needles and not any(str(needle).casefold() in value for needle in needles):
+                raise HTTPException(
+                    status_code=422,
+                    detail=f"La cause racine doit citer au moins un des termes suivants : {', '.join(map(str, needles))}.",
+                )
+        resolution_data = ticket.get("resolution_data") if isinstance(ticket.get("resolution_data"), dict) else {}
+        resolution_data["post_mortem"] = post_mortem
+        resolution_data["closed_at"] = _war_room_iso(_war_room_now())
+        xp = max(0, int(scenario.get("reward_xp") or 0))
+        now_iso = _war_room_iso(_war_room_now())
+        conn.execute(
+            "UPDATE tickets SET status = 'resolved', resolved_at = ?, resolution_data = ?, xp_earned = ? WHERE id = ?",
+            (now_iso, json.dumps(resolution_data, ensure_ascii=False), xp, ticket_id),
+        )
+        stats = add_xp(conn, xp, 0, commit=False)
+        _ticket_action(conn, ticket_id, "post_mortem_submitted", {"post_mortem": post_mortem})
+        _ticket_action(conn, ticket_id, "resolved", {"xp_earned": xp})
+        conn.commit()
+        return {"passed": True, "ticket_id": ticket_id, "status": "resolved", "xp_earned": xp, "stats": stats}
+    finally:
+        conn.close()
+
 
 def get_tree() -> Iterator[SkillTree]:
     conn = connect(DB_PATH, check_same_thread=False)
