@@ -1284,7 +1284,7 @@ test('la barre supérieure reste sans chevauchement pendant le redimensionnement
       return true;
     });
 
-    expect(layoutIsValid, \`chevauchement détecté à \${width}px\`).toBe(true);
+    expect(layoutIsValid, 'chevauchement détecté à ' + width + 'px').toBe(true);
 
     const trigger = page.locator('header.app-main-header .mobile-header-menu-trigger');
     if (width <= 1279) await expect(trigger).toBeVisible();
