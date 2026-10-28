@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Observabilité complète (3 piliers) ».",
+      "prompt": "Dans une investigation d’incident, quelle utilisation complémentaire des trois piliers est la plus pertinente ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Utiliser uniquement les logs, puisqu’ils contiennent toujours la durée complète du parcours et le taux global d’erreur.",
+        "Utiliser les métriques pour détecter et quantifier le symptôme, une trace pour localiser les étapes et des logs corrélés pour examiner les événements détaillés.",
+        "Utiliser les traces uniquement pour calculer la santé globale et ignorer les métriques échantillonnées.",
+        "Stocker chaque mesure dans un log afin de ne plus avoir besoin d’instruments métriques ou de spans."
+      ],
+      "answer": 1,
+      "explanation": "Les métriques agrégées montrent l’ampleur et l’évolution d’un symptôme, par exemple un p95 qui augmente ou un taux d’erreur en hausse. Les traces permettent d’examiner un parcours et de localiser les opérations coûteuses. Les logs corrélés apportent le détail des événements et erreurs, tandis que les métriques de dépendance aident à confirmer l’hypothèse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d’un exemplar lorsqu’un système d’observabilité le prend en charge ?",
+      "choices": [
+        "Garantir qu’une trace complète est conservée pour chaque mesure de l’histogramme.",
+        "Remplacer le SLO par un identifiant de requête unique.",
+        "Associer une observation métrique à un contexte de trace pour faciliter la navigation vers un exemple individuel.",
+        "Augmenter automatiquement la cardinalité de toutes les métriques afin de conserver chaque utilisateur."
+      ],
+      "answer": 2,
+      "explanation": "Un exemplar peut associer une observation à un contexte de traçage, notamment un trace ID ou un span ID. Il fournit un chemin de navigation entre une distribution métrique et une trace représentative, par exemple pour inspecter une latence élevée. Il ne garantit pas que chaque observation possède une trace conservée ; les capacités du SDK, du stockage et du backend restent déterminantes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi est-il généralement déconseillé d’utiliser un identifiant unique d’utilisateur comme dimension d’une métrique ?",
+      "choices": [
+        "Parce que la forte cardinalité peut multiplier les séries temporelles, le volume et les coûts, sans garantir un avantage opérationnel proportionné.",
+        "Parce que les métriques ne peuvent jamais contenir d’attributs.",
+        "Parce qu’un identifiant utilisateur fait automatiquement perdre les trace IDs des services.",
+        "Parce que toutes les métriques doivent nécessairement posséder exactement une dimension."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Une dimension qui prend une valeur différente pour chaque utilisateur peut créer un très grand nombre de séries distinctes et compliquer l’agrégation. Les dimensions métriques doivent être choisies selon des questions qui nécessitent une comparaison collective. Un identifiant individuel, même pseudonymisé, peut être sensible et doit être évalué séparément selon la finalité, la confidentialité et le modèle de stockage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une métrique de p95 augmente, mais les logs ne sont pas associés aux traces. Quelle vérification est prioritaire ?",
+      "choices": [
+        "Augmenter uniquement la taille du stockage de logs avant de vérifier l’instrumentation.",
+        "Conclure que la trace est nécessairement complète et que les logs n’existent pas.",
+        "Supprimer le trace ID des spans, car il gêne la corrélation.",
+        "Contrôler la propagation du contexte, l’intégration du logger, les tâches asynchrones et la structure des champs de corrélation."
+      ],
+      "answer": 3,
+      "explanation": "L’absence de logs corrélés peut venir d’un contexte non propagé, d’un logger qui ne lit pas le span courant, d’un changement de thread ou de tâche, ou d’un format de champ différent de celui attendu par le backend. Il faut vérifier la chaîne avec une requête connue avant de conclure que les événements n’ont pas été produits."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit le mieux une stratégie saine de rétention et de confidentialité ?",
+      "choices": [
+        "Conserver indéfiniment tous les signaux et tous les corps de requête pour être certain de ne rien manquer.",
+        "Définir la collecte et les durées de rétention selon l’utilité opérationnelle, la sensibilité des données, les obligations et les coûts, puis tester les filtres.",
+        "Supprimer les métriques après une heure, mais stocker tous les logs et traces sans limite.",
+        "La redaction dans l’interface principale suffit, même si les données sensibles sont déjà exportées vers d’autres destinations."
+      ],
+      "answer": 1,
+      "explanation": "La gouvernance doit prendre en compte la valeur diagnostique des signaux, leur volume, leur sensibilité, la rétention nécessaire et les destinations secondaires. Les métriques agrégées peuvent avoir un intérêt historique différent des traces ou logs détaillés. La minimisation à la source et des filtres testés sont préférables à la collecte exhaustive suivie d’un nettoyage incertain."
     }
   ]
 }
