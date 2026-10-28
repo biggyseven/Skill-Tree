@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "Le TTL est utile pour sessions, cache et données temporaires. Il faut toutefois éviter de l’utiliser pour des données qui exigent une conservation durable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand l'embarquement d'un sous-document MongoDB est-il généralement le plus pertinent ?",
+      "choices": [
+        "Lorsque l'objet enfant est sans limite et partagé entre énormément de parents",
+        "Lorsque l'objet doit toujours être consulté séparément et évolue indépendamment",
+        "Lorsque le sous-objet est petit, lié au parent, borné et souvent lu avec lui",
+        "Lorsque l'on souhaite éviter toute validation des données"
+      ],
+      "answer": 2,
+      "explanation": "L'embarquement convient aux données liées et bornées qui sont souvent lues avec le parent. Une relation partagée ou non bornée mérite souvent des documents séparés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal de la validation JSON Schema dans une collection MongoDB ?",
+      "choices": [
+        "Garantir la cohérence de tous les services externes sans contrôle complémentaire",
+        "Rejeter les documents qui ne respectent pas les règles de types et de champs définies",
+        "Remplacer toute transaction multi-documents",
+        "Créer automatiquement un index sur chaque champ obligatoire"
+      ],
+      "answer": 1,
+      "explanation": "La validation protège la forme et les types des documents selon les règles déclarées. Elle ne remplace pas tous les contrôles métier inter-collections ou applicatifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une agrégation utilise $unwind sur un tableau contenant quatre éléments puis compte les lignes. Quel piège faut-il vérifier ?",
+      "choices": [
+        "$unwind produit une seule ligne quelle que soit la taille du tableau",
+        "$unwind désactive les index de toutes les collections",
+        "$unwind remplace le tableau par une relation SQL native",
+        "Un document source peut produire quatre lignes de pipeline et être compté plusieurs fois"
+      ],
+      "answer": 3,
+      "explanation": "$unwind produit normalement une ligne par élément du tableau. Pour compter les documents source uniques, il peut être nécessaire de regrouper par leur identifiant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type Redis est le plus directement adapté à une collection de membres uniques, par exemple les apprenants ayant aimé un cours ?",
+      "choices": [
+        "SET, avec notamment SADD et SISMEMBER",
+        "LIST, parce qu'elle supprime automatiquement tous les doublons",
+        "STRING, qui fournit un index de recherche sur chaque membre",
+        "HASH, qui trie automatiquement les clés par score"
+      ],
+      "answer": 0,
+      "explanation": "Un SET conserve des membres uniques et permet de vérifier leur présence. Il faut néanmoins décider si ces données doivent être durables ou reconstructibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type Redis est conçu pour ordonner des membres selon un score, comme un classement d'apprenants ?",
+      "choices": [
+        "STRING",
+        "HASH sans convention applicative",
+        "SORTED SET",
+        "Une liste de chaînes qui garantit automatiquement un tri par score"
+      ],
+      "answer": 2,
+      "explanation": "Un ensemble trié associe un score à chaque membre unique et fournit des commandes pour interroger les rangs et plages ordonnées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur l'atomicité MongoDB est correcte ?",
+      "choices": [
+        "Toutes les écritures sur plusieurs collections sont atomiques par défaut",
+        "Une opération sur un document est atomique ; une opération couvrant plusieurs documents peut nécessiter une transaction",
+        "Une transaction MongoDB peut annuler les appels réseau vers tous les services externes",
+        "La réplication rend inutile l'analyse des garanties de lecture et d'écriture"
+      ],
+      "answer": 1,
+      "explanation": "L'atomicité au niveau d'un document est garantie. Pour plusieurs documents, il faut examiner les invariants et le besoin d'une transaction dans un déploiement compatible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence essentielle existe entre le pipelining et une transaction Redis ?",
+      "choices": [
+        "Le pipeline synchronise forcément chaque écriture sur disque",
+        "Le pipeline rend toujours atomique un lot de commandes",
+        "Les deux mécanismes sont synonymes",
+        "Le pipeline réduit les allers-retours réseau mais ne garantit pas, à lui seul, l'atomicité de toute la séquence"
+      ],
+      "answer": 3,
+      "explanation": "Le pipeline accélère le dialogue client-serveur en regroupant des commandes. Une transaction ou un script adapté est requis lorsque l'atomicité d'une séquence est nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel compromis caractérise les snapshots RDB de Redis ?",
+      "choices": [
+        "Ils représentent un instantané à un moment donné et peuvent ne pas inclure les écritures plus récentes",
+        "Ils fournissent toujours une récupération sans aucune perte d'écriture",
+        "Ils remplacent les ACL et le chiffrement réseau",
+        "Ils copient automatiquement les données sur un site distant"
+      ],
+      "answer": 0,
+      "explanation": "RDB produit un instantané ; une panne entre deux snapshots peut faire perdre les écritures intervenues depuis le dernier snapshot. Il faut choisir la stratégie selon la perte admissible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la réplication Redis ne remplace-t-elle pas une sauvegarde indépendante ?",
+      "choices": [
+        "Parce que Redis ne prend jamais en charge la réplication",
+        "Parce que les répliques n'acceptent aucune donnée",
+        "Parce qu'une suppression ou corruption logique peut également se propager aux répliques",
+        "Parce qu'une sauvegarde ne peut contenir que des chaînes"
+      ],
+      "answer": 2,
+      "explanation": "La réplication peut améliorer la disponibilité, mais elle peut aussi répliquer une erreur logique. Des sauvegardes isolées, conservées et restaurées lors d'exercices restent indispensables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Redis tombe en panne alors que l'API l'utilise comme cache et MongoDB comme source de référence. Quelle stratégie est la plus prudente ?",
+      "choices": [
+        "Basculer instantanément et sans limite toutes les requêtes sur MongoDB",
+        "Accepter chaque session sans vérifier son identité car Redis est absent",
+        "Confirmer les écritures même si aucune source durable ne les a enregistrées",
+        "Prévoir un mode dégradé contrôlé, limiter la concurrence et protéger la source contre la surcharge"
+      ],
+      "answer": 3,
+      "explanation": "Un repli sans limite risque de surcharger MongoDB et de provoquer une panne en cascade. Il faut gérer la capacité, les fonctions dégradées et les contrôles d'autorisation."
     }
   ]
 }
