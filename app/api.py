@@ -1201,7 +1201,7 @@ def get_itsm_weekly_report() -> dict[str, Any]:
         _expire_war_room_tickets(conn, now)
         start_day = now.date() - timedelta(days=6)
         start = datetime.combine(start_day, datetime.min.time(), tzinfo=timezone.utc)
-        start_iso = _war_room_iso(start)
+        start_iso = _war_room_iso_precise(start)
         rows_raw = conn.execute(
             "SELECT * FROM tickets WHERE opened_at >= ? OR resolved_at >= ? ORDER BY opened_at ASC",
             (start_iso, start_iso),
