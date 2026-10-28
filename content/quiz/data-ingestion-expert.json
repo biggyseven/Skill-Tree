@@ -28,27 +28,27 @@
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert une dead-letter queue dans un système d’ingestion ?",
+      "prompt": "Un message échoue à chaque tentative parce que son schéma est invalide. Le retry augmente le backlog et ne peut pas réparer le payload. Quelle politique est la plus adaptée ?",
       "choices": [
-        "Isoler les messages qui échouent durablement pour analyse et reprise contrôlée",
-        "À stocker les mots de passe des producteurs",
-        "À remplacer toutes les validations",
-        "À supprimer les erreurs sans conserver de diagnostic"
+        "Retenter indéfiniment sans conserver de contexte",
+        "Classer l'erreur comme permanente, enregistrer le contexte en DLQ sécurisée, alerter le propriétaire et prévoir correction puis rejeu contrôlé",
+        "Confirmer l'offset avant toute journalisation",
+        "Modifier silencieusement le payload pour qu'il passe le schéma"
       ],
-      "answer": 0,
-      "explanation": "Une DLQ évite qu’un message poison bloque indéfiniment le flux. Elle doit conserver le contexte nécessaire, protéger les données sensibles et disposer d’un processus de replay."
+      "answer": 1,
+      "explanation": "Les erreurs permanentes ne sont pas réparées par des tentatives répétées. Une DLQ doit garder le payload nécessaire, le motif et la corrélation, avec contrôle d'accès, rétention et procédure de reprise."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi un pipeline CDC doit-il enregistrer son watermark ou offset de progression ?",
+      "prompt": "Un connecteur CDC démarre un snapshot alors que les transactions continuent. L'équipe ne sait pas à quel offset le snapshot correspond. Quel risque est prioritaire ?",
       "choices": [
-        "Pour éviter d’avoir besoin d’une source durable",
-        "Pour définir automatiquement la politique de confidentialité",
-        "Pour compresser les événements",
-        "Pour reprendre depuis une position connue et limiter les pertes ou relectures après incident"
+        "Une consommation CPU trop faible dans le navigateur",
+        "Une meilleure compression que prévu",
+        "Des événements potentiellement omis ou rejoués entre le snapshot et le journal si la frontière de cohérence n'est pas définie",
+        "La disparition automatique des contraintes uniques dans la destination"
       ],
-      "answer": 3,
-      "explanation": "Le checkpoint d’avancement aide à reprendre après interruption. La cohérence entre l’offset et l’écriture de sortie doit être définie pour gérer les reprises correctement."
+      "answer": 2,
+      "explanation": "Le snapshot initial et la lecture du journal doivent partager une frontière de cohérence documentée selon le connecteur. Sans elle, des changements peuvent être perdus ou appliqués plusieurs fois."
     },
     {
       "type": "qcm",
@@ -64,15 +64,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quand choisir un chargement par lot plutôt qu’un flux continu ?",
+      "prompt": "Un produit métier peut tolérer une actualisation toutes les 30 minutes. Une équipe propose du streaming continu avec gestion d'état, watermarks et astreinte supplémentaire. Quelle décision est la plus raisonnable ?",
       "choices": [
-        "Toujours, quel que soit le besoin de fraîcheur",
-        "Jamais, car les lots sont techniquement obsolètes",
-        "Quand la latence de quelques minutes ou heures est acceptable et qu’un traitement périodique est plus simple ou économique",
-        "Uniquement lorsque les données ne sont pas validées"
+        "Choisir le streaming parce qu'il est toujours plus fiable",
+        "Refuser tout automatisme et lancer les traitements manuellement",
+        "Choisir le batch ou le micro-batch si ses garanties satisfont le SLO, puis comparer coûts, capacité de reprise et complexité opérationnelle",
+        "Utiliser un flux continu sans mesure de fraîcheur"
       ],
       "answer": 2,
-      "explanation": "Le mode d’ingestion doit suivre le besoin de fraîcheur, le volume et le coût opérationnel. Le streaming apporte aussi des contraintes de reprise et de supervision."
+      "explanation": "L'architecture doit répondre aux exigences mesurables. Si le batch satisfait le délai métier, il peut réduire la complexité et les coûts tout en conservant les mécanismes de reprise nécessaires."
     },
     {
       "type": "qcm",
@@ -100,15 +100,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quel contrôle est le plus utile pour détecter une ingestion silencieusement en retard ?",
+      "prompt": "Le job d'ingestion finit en succès, mais le champ latest_event_time n'a pas avancé depuis 90 minutes alors que la source est censée émettre toutes les cinq minutes. Quelle alerte est la plus utile ?",
       "choices": [
-        "La couleur du tableau de bord",
-        "La fraîcheur de la dernière donnée par rapport au SLO",
-        "Le nombre de développeurs du projet",
-        "La longueur du nom de la table"
+        "Une alerte de fraîcheur fondée sur la dernière donnée métier attendue, complétée par le débit, le lag et un propriétaire d'incident",
+        "Aucune alerte tant que le code retour est zéro",
+        "Une alerte CPU uniquement",
+        "Une notification si le fichier de configuration est modifié"
       ],
-      "answer": 1,
-      "explanation": "Mesurer la fraîcheur du produit détecte un retard même si le job se termine en succès."
+      "answer": 0,
+      "explanation": "Un job techniquement réussi peut traiter zéro événement ou laisser une source bloquée. La fraîcheur du produit et la progression réelle doivent être mesurées indépendamment du statut d'exécution."
     },
     {
       "type": "qcm",
@@ -136,27 +136,27 @@
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi un timestamp seul est-il souvent un curseur incrémental fragile ?",
+      "prompt": "Un chargement incrémental utilise WHERE updated_at > last_timestamp. Plusieurs lignes partagent la même valeur et une ligne retardée arrive ensuite avec un timestamp antérieur. Quelle amélioration réduit le risque d'omission ?",
       "choices": [
-        "Il ne peut jamais être stocké en UTC",
-        "Plusieurs lignes peuvent avoir le même timestamp et des mises à jour tardives peuvent être antérieures au watermark",
-        "Il chiffre automatiquement les lignes",
-        "Les systèmes CDC ne possèdent aucun horodatage"
+        "Augmenter la précision d'affichage du timestamp sans changer le curseur",
+        "Utiliser une fenêtre de recouvrement, une clé de départage stable et une déduplication, puis réconcilier les résultats",
+        "Supprimer toutes les lignes dont le timestamp est identique",
+        "Avancer le curseur avant de valider les écritures en destination"
       ],
       "answer": 1,
-      "explanation": "Un timestamp n’impose pas toujours un ordre total et certaines sources livrent des écritures tardives. Une clé de départage, une fenêtre de recouvrement et une réconciliation peuvent limiter les omissions."
+      "explanation": "Un timestamp seul ne définit pas toujours un ordre total et peut ignorer des écritures tardives. Un recouvrement, un identifiant stable, une destination idempotente et une réconciliation réduisent les trous."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est le but principal d’une dead-letter queue (DLQ) ?",
+      "prompt": "Une DLQ contient 60 000 messages, mais personne ne sait qui les possède ni combien de temps ils doivent être conservés. Quelle mesure doit être prise avant de les rejouer ?",
       "choices": [
-        "Accélérer automatiquement toutes les requêtes SQL",
-        "Remplacer la validation des schémas",
-        "Stocker indéfiniment les messages sans restriction",
-        "Isoler les messages qui échouent durablement pour permettre diagnostic et reprise contrôlée"
+        "Rejouer tous les messages immédiatement sur le flux principal",
+        "Supprimer la DLQ pour réduire le coût de stockage",
+        "Augmenter la vitesse du consommateur sans analyser les erreurs",
+        "Classer les causes, identifier propriétaires et données sensibles, fixer la rétention et valider une campagne de replay bornée"
       ],
       "answer": 3,
-      "explanation": "La DLQ sépare les messages problématiques du flux normal. Elle exige une politique de sécurité, de rétention, de responsabilité, de diagnostic et de rejeu."
+      "explanation": "Une DLQ sans propriétaire ou politique peut devenir un risque de sécurité et une dette opérationnelle. Le replay doit être sélectionné, traçable, idempotent et précédé d'une correction appropriée."
     },
     {
       "type": "qcm",
