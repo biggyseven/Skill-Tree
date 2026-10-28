@@ -18,6 +18,116 @@
 <body>
   <div id="lab-root"></div>
   <script type="module" src="/lab/main.js"></script>
-  <script defer src="/lab/war-room-controls.js"></script>
+  <script>
+  (() => {
+    'use strict';
+    const ticketId = new URLSearchParams(window.location.search).get('ticket');
+    if (!ticketId) return;
+    let ticket = null, openCount = 0, busy = false, observer = null;
+    const api = async (path, options = {}) => {
+      const response = await fetch(path, {
+        credentials: 'same-origin', cache: 'no-store',
+        headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+        ...options
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.detail || ('HTTP ' + response.status));
+      return payload;
+    };
+    function findSlaSection() {
+      return Array.from(document.querySelectorAll('section')).find(section => {
+        const label = (section.innerText || section.textContent || '').replace(/\\s+/g, ' ');
+        return /\\bSLA\\b/.test(label) && (label.includes('Objectif :') || label.includes('Analyse de problème'));
+      }) || null;
+    }
+    function paintStatus() {
+      const toolbar = document.querySelector('[data-war-room-controls]');
+      if (!toolbar) return;
+      const banner = toolbar.querySelector('[data-war-noc-alert]');
+      const button = toolbar.querySelector('[data-war-action]');
+      const message = toolbar.querySelector('[data-war-message]');
+      if (banner) banner.hidden = openCount <= 2;
+      if (!button) return;
+      const status = ticket && ticket.status;
+      if (status === 'pending_postmortem') {
+        button.hidden = true;
+        if (message && !message.textContent) message.textContent = 'Configuration validée : finalisez le post-mortem pour clôturer le ticket.';
+      } else if (status === 'resolved' || status === 'failed') {
+        button.hidden = true;
+      } else {
+        button.hidden = false;
+        button.textContent = status === 'paused' ? '▶ Reprendre' : '⏸ Mettre en pause';
+        button.style.borderColor = status === 'paused' ? 'var(--emerald-400)' : 'var(--rose-400)';
+        button.style.background = 'var(--s4)';
+        button.style.color = 'var(--text-primary)';
+        button.disabled = busy;
+        button.dataset.action = status === 'paused' ? 'resume' : 'pause';
+      }
+    }
+    function addControls() {
+      if (!ticket) return;
+      const section = findSlaSection();
+      if (!section || section.querySelector('[data-war-room-controls]')) return;
+      const toolbar = document.createElement('div');
+      toolbar.dataset.warRoomControls = 'true';
+      toolbar.className = 'mt-3 space-y-2';
+      toolbar.innerHTML = [
+        '<div data-war-noc-alert hidden role="status" class="rounded-lg px-3 py-2 text-[11px] font-bold" style="border:1px solid var(--amber-400, var(--s2));background:var(--s4);color:var(--amber-300, var(--text-primary))">🔥 Situation NOC : plusieurs incidents en cours</div>',
+        '<div class="flex flex-wrap items-center gap-2">',
+        '<button type="button" data-war-action class="rounded-lg px-3 py-2 text-xs font-bold transition disabled:opacity-50" style="border:1px solid var(--rose-400);background:var(--s4);color:var(--text-primary)"></button>',
+        '<span data-war-message role="status" class="text-[11px]" style="color:var(--text-secondary)"></span>',
+        '</div>'
+      ].join('');
+      toolbar.style.borderTop = '1px solid var(--s2)';
+      toolbar.style.paddingTop = '.75rem';
+      toolbar.querySelector('[data-war-action]').addEventListener('click', async () => {
+        const button = toolbar.querySelector('[data-war-action]');
+        const action = button.dataset.action;
+        if (busy || !action) return;
+        busy = true; button.disabled = true;
+        const message = toolbar.querySelector('[data-war-message]');
+        if (message) message.textContent = '';
+        try {
+          await api('/api/tickets/' + encodeURIComponent(ticketId) + '/' + action, { method: 'POST', body: '{}' });
+          if (action === 'pause') { window.location.assign('/?openTab=war'); return; }
+          const detail = await api('/api/tickets/' + encodeURIComponent(ticketId));
+          ticket = detail.ticket || ticket;
+          paintStatus();
+          if (message) message.textContent = 'SLA repris. Le temps restant est restauré.';
+        } catch (error) {
+          if (message) message.textContent = 'Action impossible : ' + error.message;
+        } finally { busy = false; paintStatus(); }
+      });
+      section.appendChild(toolbar);
+      paintStatus();
+    }
+    async function loadTicket() {
+      try {
+        const payload = await api('/api/tickets/' + encodeURIComponent(ticketId));
+        ticket = payload.ticket || null;
+        addControls(); paintStatus();
+      } catch (error) {
+        const message = document.querySelector('[data-war-message]');
+        if (message) message.textContent = 'Ticket indisponible : ' + error.message;
+      }
+    }
+    async function updateCount() {
+      try {
+        const payload = await api('/api/tickets/open-count');
+        openCount = Math.max(0, Number(payload.count) || 0);
+        paintStatus();
+      } catch (_) { /* Retenter au prochain cycle sans bloquer le Lab. */ }
+    }
+    function boot() {
+      loadTicket(); updateCount();
+      window.setInterval(updateCount, 5000);
+      observer = new MutationObserver(() => { addControls(); paintStatus(); });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      window.addEventListener('beforeunload', () => observer && observer.disconnect(), { once: true });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+    else boot();
+  })();
+  </script>
 </body>
 </html>
