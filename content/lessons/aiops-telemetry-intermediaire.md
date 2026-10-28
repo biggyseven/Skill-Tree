@@ -434,6 +434,68 @@ Rechercher dérive, migration, changement de capacité ou de version. Dans le co
 
 **Pourquoi un raccourci échoue.** Un exemple favorable ne prouve pas un gain durable. Une métrique globale masque des cas critiques et une collecte lacunaire peut cacher les erreurs. La version et les conditions doivent rester disponibles pour reproduire le résultat. L'exercice est réussi si une autre personne peut expliquer le choix, ses limites et le mécanisme de retrait.
 
+## Défi final corrigé — construire un collecteur de télémétrie exploitable
+
+### Énoncé
+
+Un polling périodique ne voit pas des microcongestions de quelques secondes. Mets en place une collecte continue des compteurs d'interface, avec gNMI Subscribe, contrôle de qualité, stockage horodaté et alerte sur variation persistante. Le collecteur doit détecter les ruptures de flux, les timestamps invalides et les réinitialisations de compteurs.
+
+### Parcours des données
+
+```mermaid
+sequenceDiagram
+  participant D as Équipement gNMI
+  participant C as Collecteur
+  participant Q as Contrôle qualité
+  participant TS as Stockage temporel
+  participant A as Détection
+  D-->>C: Subscribe et updates
+  C->>Q: Valeur, chemin, timestamp, qualité
+  Q-->>C: Accepter, marquer ou rejeter
+  C->>TS: Écrire donnée normalisée
+  TS->>A: Fenêtre de données récentes
+  A->>A: Comparer baseline, débit et pertes
+  A-->>C: Événement avec preuves
+```
+
+### Exemple de modèle d'événement normalisé
+
+```python
+from datetime import datetime, timezone
+
+def normalize_update(device, path, value, source_timestamp):
+    ts = datetime.fromtimestamp(
+        source_timestamp / 1_000_000_000,
+        tz=timezone.utc,
+    )
+    return {
+        "device": device,
+        "path": path,
+        "value": value,
+        "timestamp": ts.isoformat(),
+        "received_at": datetime.now(timezone.utc).isoformat(),
+        "quality": "valid" if value is not None else "missing",
+    }
+```
+
+Le convertisseur doit respecter l'unité de temps documentée par le client et le format exact des notifications gNMI utilisées. Les champs timestamp et received_at sont distincts : le premier décrit l'heure de mesure, le second l'heure d'arrivée au collecteur. Cette différence aide à repérer la latence de transport et les données tardives.
+
+### Proposition de correction
+
+Déclare les chemins d'abonnement, le mode de souscription, la fréquence ou la politique d'échantillonnage, les limites de buffer et la stratégie de reconnexion. Les modes gNMI ONCE, POLL et STREAM ne répondent pas au même besoin. Une souscription continue réduit le délai de détection, mais elle exige de contrôler le débit de messages, les files, les reconnexions et la perte d'événements.
+
+Normalise les unités, associe chaque valeur à l'équipement et au chemin YANG, conserve l'horodatage source et identifie les redémarrages qui remettent un compteur à zéro. Ne calcule pas un débit en divisant une différence de compteur par une durée si le compteur a décru ou si les horodatages ne sont pas valides. Dans ce cas, marque l'intervalle comme incomplet et ne crée pas une valeur plausible artificielle.
+
+La détection s'appuie sur des fenêtres et des règles adaptées aux métriques. Toute alerte contient la série concernée, la période, la qualité, la baseline et le seuil déclenché. Simule une coupure de session gNMI, une valeur manquante, un timestamp en retard et un reboot d'équipement. Le système doit reprendre la collecte et signaler les trous sans les présenter comme des périodes saines.
+
+### Barème d'autoévaluation
+
+- Le choix entre STREAM, POLL et ONCE est justifié.
+- Les horodatages mesure/réception restent distincts.
+- Les réinitialisations de compteurs et trous de collecte sont détectés.
+- Le collecteur reconnait les données tardives et reprend après coupure.
+- Les alertes sont traçables jusqu'aux chemins et valeurs sources.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service sont écrits et mesurables.
