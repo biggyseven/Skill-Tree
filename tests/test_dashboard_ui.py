@@ -1094,7 +1094,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
 
     def test_startup_prioritizes_interactive_ui_and_avoids_duplicate_tree_scans(self):
-        alpine_script = DASHBOARD_HTML.index('defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"')
+        alpine_prefix = 'defer src="/assets/alpine-3.17.5.min.js?v='
+        alpine_script = DASHBOARD_HTML.index(alpine_prefix)
+        alpine_tag = DASHBOARD_HTML[alpine_script:DASHBOARD_HTML.index(">", alpine_script)]
+        self.assertRegex(alpine_tag, r'v=[0-9a-f]{12}')
         lazy_loader = DASHBOARD_HTML.index("window.skillTreeLoadScript = function (src, globalName)")
         self.assertLess(lazy_loader, alpine_script)
         # Les bibliothèques spécialisées ne doivent pas bloquer le chargement initial.
