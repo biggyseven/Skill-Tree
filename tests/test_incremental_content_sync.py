@@ -117,7 +117,7 @@ class IncrementalContentSyncTests(unittest.TestCase):
                 json.dumps(payload, ensure_ascii=False), encoding="utf-8"
             )
 
-    def test_adds_new_course_and_replaces_only_temporary_quiz_without_losing_progress(self) -> None:
+    def test_refreshes_changed_real_quiz_and_preserves_progress_without_downgrading_placeholders(self) -> None:
         with TemporaryDirectory() as temporary:
             content_root = Path(temporary) / "content"
             content_root.mkdir()
@@ -142,11 +142,19 @@ class IncrementalContentSyncTests(unittest.TestCase):
                     (
                         "existing-course",
                         "quiz",
-                        "Question placeholder pour un cours à rédiger.",
-                        json.dumps(["Option A (placeholder)", "Option B", "Option C", "Option D"]),
+                        "Quelle mesure limite les droits d'un compte applicatif ?",
+                        json.dumps(
+                            [
+                                "Le moindre privilège",
+                                "Désactiver les journaux",
+                                "Partager le compte DBA",
+                                "Accorder tous les privilèges",
+                            ],
+                            ensure_ascii=False,
+                        ),
                         0,
                         "qcm",
-                        "Question temporaire à remplacer.",
+                        "Le moindre privilège limite un compte aux opérations nécessaires.",
                         0,
                     ),
                 )
