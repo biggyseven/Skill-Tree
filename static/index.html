@@ -7,7 +7,7 @@
   <meta name="color-scheme" content="dark light">
 
   <script>
-    window.THEMES = [{"id": "aurore", "label": "Aurore", "kind": "dark", "sw": ["#0c0a1a", "#34d399", "#2dd4bf", "#f472b6"]}, {"id": "ocean", "label": "Océan", "kind": "dark", "sw": ["#0a131a", "#22d3ee", "#38bdf8", "#a78bfa"]}, {"id": "foret", "label": "Forêt", "kind": "dark", "sw": ["#0a1a12", "#34d399", "#a3e635", "#fbbf24"]}, {"id": "crepuscule", "label": "Crépuscule", "kind": "dark", "sw": ["#1a0a11", "#fbbf24", "#fb923c", "#f472b6"]}, {"id": "graphite", "label": "Graphite", "kind": "dark", "sw": ["#0a0e1a", "#2dd4bf", "#38bdf8", "#a78bfa"]}, {"id": "lumiere", "label": "Lumière", "kind": "light", "sw": ["#f0eefc", "#34d399", "#38bdf8", "#e879f9"]}, {"id": "sakura", "label": "Sakura", "kind": "light", "sw": ["#fceef4", "#f472b6", "#fb7185", "#c084fc"]}];
+    window.THEMES = [{"id": "aurore", "label": "Aurore", "kind": "dark", "sw": ["#0c0a1a", "#34d399", "#2dd4bf", "#f472b6"]}, {"id": "ocean", "label": "Océan", "kind": "dark", "sw": ["#0a131a", "#22d3ee", "#38bdf8", "#a78bfa"]}, {"id": "foret", "label": "Forêt", "kind": "dark", "sw": ["#0a1a12", "#34d399", "#a3e635", "#fbbf24"]}, {"id": "crepuscule", "label": "Crépuscule", "kind": "dark", "sw": ["#1a0a11", "#fbbf24", "#fb923c", "#f472b6"]}, {"id": "graphite", "label": "Graphite", "kind": "dark", "sw": ["#0d1117", "#2dd4bf", "#38bdf8", "#a78bfa"]}, {"id": "lumiere", "label": "Lumière", "kind": "light", "sw": ["#f0eefc", "#34d399", "#38bdf8", "#e879f9"]}, {"id": "sakura", "label": "Sakura", "kind": "light", "sw": ["#fceef4", "#f472b6", "#fb7185", "#c084fc"]}];
     (function () { try {
       var t = localStorage.getItem('skilltree-theme2') || (localStorage.getItem('skilltree-theme') === 'light' ? 'lumiere' : 'graphite');
       var m = THEMES.find(function (x) { return x.id === t; }) || THEMES[0], r = document.documentElement;
@@ -22,11 +22,12 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 
   <link rel="stylesheet" href="/app.css">
-  <link rel="preload" href="/assets/skilltree-ui.css?v=0348e6bc9336" as="style">
-  <link rel="preload" href="/assets/skilltree-core.js?v=09943c46fe23" as="script">
-  <link rel="preload" href="/assets/skilltree-catalog.js?v=bb3e2563317e" as="script">
-  <link rel="preload" href="/assets/skilltree-study.js?v=b28b3330745a" as="script">
-  <link rel="preload" href="/assets/skilltree-ux.js?v=ae5ac43745be" as="script">
+  <link rel="preload" href="/assets/skilltree-ui.css?v=000000000000" as="style">
+  <link rel="preload" href="/assets/skilltree-core.js?v=000000000000" as="script">
+  <link rel="preload" href="/assets/skilltree-catalog.js?v=000000000000" as="script">
+  <link rel="preload" href="/assets/skilltree-study.js?v=000000000000" as="script">
+  <link rel="preload" href="/assets/skilltree-ux.js?v=000000000000" as="script">
+  <link rel="preload" href="/assets/skilltree-polish.js?v=000000000000" as="script">
 
   
 
@@ -93,7 +94,7 @@
 
 
 
-  <link rel="stylesheet" href="/assets/skilltree-ui.css?v=0348e6bc9336">
+  <link rel="stylesheet" href="/assets/skilltree-ui.css?v=000000000000">
 </head>
 
 <body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode, 'compact-ui': compactUi }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event); closeSidebarContextMenuOnOutside($event)" @keydown.escape.window="closeSidebarContextMenu()">
@@ -883,7 +884,7 @@
                 </div>
               </section>
               <div class="mt-4 flex flex-wrap gap-2">
-                <button type="button" class="btn btn-primary" :disabled="challengeSubmissionBusy" @click="checkChallenge(false)">✔ Vérifier mon schéma</button>
+                <button type="button" class="btn btn-primary btn-glow transition-all duration-300" :disabled="challengeSubmissionBusy" @click="checkChallenge(false)">✔ Vérifier mon schéma</button>
                 <button type="button" class="btn" :disabled="challengeSubmissionBusy" @click="endChallenge()">Abandonner</button>
               </div>
               <template x-if="challengeResult">
@@ -2251,15 +2252,15 @@
   </div>
 
   <!-- ================= NOTIFICATION ================= -->
-  <div x-show="toast.show" x-cloak x-transition.opacity style="z-index: 9998;" class="fixed bottom-6 right-6 max-w-sm rounded-2xl border border-white/10 bg-[color:var(--s1)] px-5 py-3 text-sm font-semibold text-white shadow-2xl" x-text="toast.text"></div>
+  <div x-show="toast.show" x-cloak x-transition.opacity.duration.300ms role="status" aria-live="polite" class="toast-notification fixed bottom-6 right-6 max-w-sm rounded-2xl px-5 py-3 text-sm font-semibold transition-all duration-300" x-text="toast.text"></div>
 
-  <script src="/assets/skilltree-core.js?v=09943c46fe23"></script>
+  <script src="/assets/skilltree-core.js?v=000000000000"></script>
 
-  <script src="/assets/skilltree-catalog.js?v=bb3e2563317e"></script>
+  <script src="/assets/skilltree-catalog.js?v=000000000000"></script>
 
-  <script src="/assets/skilltree-study.js?v=b28b3330745a"></script>
+  <script src="/assets/skilltree-study.js?v=000000000000"></script>
 
-  <script src="/assets/skilltree-ux.js?v=ae5ac43745be"></script>
+  <script src="/assets/skilltree-ux.js?v=000000000000"></script>
   <!-- Barre de navigation mobile : accès aux actions essentielles sans la sidebar desktop -->
   <nav class="mobile-bottom-nav md:hidden" aria-label="Navigation mobile">
     <template x-for="item in navItems.filter(i => ['tree','labs','exam','challenges','memo','diagnostic','stats'].includes(i.id))" :key="item.id">
@@ -2341,5 +2342,6 @@
 </script>
 
 <!-- Le bouton global ouvre le Lab Workspace autonome ; les cartes de labs peuvent ouvrir un scénario lié à un cours. -->
+<script src="/assets/skilltree-polish.js?v=000000000000"></script>
 </body>
 </html>

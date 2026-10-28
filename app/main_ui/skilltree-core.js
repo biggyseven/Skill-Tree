@@ -89,6 +89,12 @@
               // Le workspace peut valider un cours dans un autre onglet :
               // synchroniser l'arbre et les recommandations dès le retour du résultat.
               this.refreshAll();
+            } else if (message && message.type === 'war-room:ticket-validated') {
+              this.notify(message.detail?.message || '✅ Ticket validé. Termine le post-mortem pour le clôturer.');
+            } else if (message && message.type === 'war-room:ticket-resolved') {
+              const xp = Number(message.detail?.xp_earned) || 0;
+              this.notify('🏁 Ticket clôturé.' + (xp > 0 ? ' +' + xp + ' XP gagnés.' : ''));
+              this.refreshAll();
             }
           });
           // Lancer les appels de données sans retarder le rendu initial ni la navigation vers la section demandée.

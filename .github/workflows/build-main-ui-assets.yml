@@ -39,7 +39,7 @@ jobs:
           set -euo pipefail
           mkdir -p static/assets
           ESBUILD="./app/lab-workspace/node_modules/.bin/esbuild"
-          for name in skilltree-core skilltree-catalog skilltree-study skilltree-ux; do
+          for name in skilltree-core skilltree-catalog skilltree-study skilltree-ux skilltree-polish; do
             "$ESBUILD" "app/main_ui/$name.js" --target=es2020 --minify-whitespace --minify-syntax --outfile="static/assets/$name.js"
           done
           "$ESBUILD" app/main_ui/skilltree-ui.css --minify --outfile=static/assets/skilltree-ui.css
@@ -58,6 +58,7 @@ jobs:
               "skilltree-catalog.js",
               "skilltree-study.js",
               "skilltree-ux.js",
+              "skilltree-polish.js",
               "skilltree-ui.css",
           ]
           for asset in assets:

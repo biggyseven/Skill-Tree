@@ -1118,6 +1118,8 @@
           if (!nodeId || this.labsDone.includes(nodeId)) return;
           this.labsDone = [...this.labsDone, nodeId];
           LS.set('labs-done', this.labsDone);
+          const xp = Number(data.xp_gained ?? data.xpGained ?? data.xp_earned ?? data.xp_reward) || 0;
+          this.notify('✅ Lab validé : ' + (data.title || nodeId) + (xp > 0 ? ' · +' + xp + ' XP' : ''));
           this.celebrate();
           this.checkRewards();
         },
