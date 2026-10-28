@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Supervision avec Zabbix ».",
+      "prompt": "Une agence perd la liaison WAN vers le serveur Zabbix central pendant 12 minutes. Le proxy local fonctionne et collecte toujours les valeurs. Quelle affirmation décrit le mieux le comportement attendu ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Le proxy calcule tous les triggers centraux et envoie lui-même les notifications aux astreintes même si le serveur central est inaccessible.",
+        "Le proxy peut tamponner les valeurs localement selon sa configuration, puis les transférer à la reprise ; le traitement et les notifications centralisés peuvent être retardés.",
+        "Tous les historiques de la base centrale restent instantanément à jour, même sans connexion entre le proxy et le serveur.",
+        "La présence d'un proxy garantit qu'aucune donnée ne peut jamais être perdue, quelle que soit la durée de la panne."
       ],
-      "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "answer": 1,
+      "explanation": "Le proxy Zabbix collecte des données au nom du serveur et peut les conserver localement pendant une interruption selon sa configuration et la capacité du stockage. Lorsque le lien revient, il transfère les données en attente. Le proxy ne remplace pas le serveur central pour l'évaluation globale des triggers et les notifications. Une coupure trop longue ou un buffer insuffisant peut néanmoins provoquer des trous ou des retards ; ce comportement doit être testé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un hôte est joignable par ping, mais un item agent affiche un timeout. Quelle démarche de diagnostic est la plus correcte avant de modifier le trigger ?",
+      "choices": [
+        "Conclure que l'agent fonctionne, puisque le ping répond, puis baisser le seuil du trigger.",
+        "Vérifier le type d'item et s'il est actif ou passif, puis contrôler adresse, port, direction réseau, accès autorisé, état de l'agent et journaux correspondants.",
+        "Désactiver toutes les règles de pare-feu pour que n'importe quel collecteur puisse accéder à l'hôte.",
+        "Remplacer automatiquement l'item agent par un item SNMP, même si l'hôte ne prend pas en charge SNMP."
+      ],
+      "answer": 1,
+      "explanation": "ICMP et les contrôles agent utilisent des chemins différents. Une réponse ping ne prouve ni que le port agent est accessible, ni que le nom d'hôte actif correspond, ni que les autorisations ou paramètres de chiffrement sont corrects. Il faut connaître le type de check et vérifier sa direction, son interface et ses logs. Le trigger ne doit être ajusté que lorsque la collecte fournit des valeurs valides."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après activation d'une règle de découverte de bas niveau (LLD), le nombre d'items augmente fortement sur plusieurs hôtes. Quelle action est la plus sûre ?",
+      "choices": [
+        "Augmenter immédiatement la fréquence de tous les items pour que la découverte termine plus vite.",
+        "Supprimer toutes les données historiques et conserver la règle en l'état.",
+        "Examiner les résultats de découverte et les prototypes, filtrer les ressources temporaires ou non pertinentes et mesurer le volume produit avant de généraliser.",
+        "Désactiver la base de données pour réduire la charge, sans modifier la règle de découverte."
+      ],
+      "answer": 2,
+      "explanation": "Une règle LLD peut créer des items, triggers et autres objets pour chaque ressource détectée. Une découverte trop large ou instable peut provoquer une croissance de configuration et de collecte importante. Il faut examiner les données brutes, identifier les ressources non pertinentes, ajuster les filtres puis tester le nombre d'objets produits. L'augmentation des ressources matérielles sans comprendre la cause ne corrige pas la conception du modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un trigger apparaît comme problème dans l'interface Zabbix, mais l'équipe ne reçoit aucune notification. Quel diagnostic doit être prioritaire ?",
+      "choices": [
+        "Modifier systématiquement le seuil du trigger, puisque la notification est absente.",
+        "Vérifier les conditions d'action, les tags utilisés pour le routage, les médias et plages horaires du destinataire, les étapes d'escalade et les erreurs d'envoi.",
+        "Supprimer le trigger et le recréer avec un nom différent pour contourner le problème.",
+        "Installer un proxy supplémentaire, même si la collecte et le problème existent déjà au serveur central."
+      ],
+      "answer": 1,
+      "explanation": "L'existence du problème indique que la collecte et l'évaluation ont au moins permis de créer un événement. L'étape suivante est la chaîne de notification : action correspondante, conditions, tags, média et configuration de l'utilisateur, plages horaires, escalades et logs de livraison. Le seuil n'est pas nécessairement en cause. Un test contrôlé de bout en bout permet de confirmer que le bon destinataire reçoit l'alerte et la résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe prévoit de lier un template partagé à 800 hôtes après avoir modifié un item et un trigger. Quelle pratique réduit le mieux le risque opérationnel ?",
+      "choices": [
+        "Appliquer immédiatement la modification partout, puisque le template est réutilisable.",
+        "Désactiver temporairement tous les triggers pendant la mise à jour et ne pas tester les valeurs.",
+        "Tester dans un groupe pilote représentatif, vérifier les prérequis, items, métriques, triggers et notifications, puis déployer progressivement avec une version précédente et un retour arrière documentés.",
+        "Copier manuellement tous les items sur chaque hôte afin de ne plus utiliser de templates."
+      ],
+      "answer": 2,
+      "explanation": "Un template partagé peut modifier le comportement de nombreux hôtes. Le déploiement pilote révèle les incompatibilités de version, les macros manquantes, les erreurs d'item ou les triggers trop bruyants avant la généralisation. La validation doit couvrir la collecte et la notification, pas seulement l'import. Versionner la configuration, conserver la version précédente et planifier un retour arrière réduit le rayon d'impact."
     }
   ]
 }
