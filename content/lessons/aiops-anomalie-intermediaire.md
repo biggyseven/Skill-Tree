@@ -456,6 +456,68 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — détecter des anomalies sans confondre atypique et panne
+
+### Énoncé
+
+Trois interfaces produisent les séries suivantes : une liaison utilise normalement 85 % de capacité à l'heure de pointe ; un lien de secours reste sous 5 % ; une interface de stockage présente de petits écarts autour de 50 %. Un seuil unique est appliqué à tous les liens et génère trop d'alertes. Propose un système qui combine seuils métier, scores statistiques et contexte, puis explique comment éviter qu'un point isolé déclenche automatiquement un changement.
+
+### Chaîne de détection
+
+```mermaid
+flowchart TD
+  A["Métriques et contexte"] --> B["Qualité, unités et saisonnalité"]
+  B --> C["Baseline par famille de lien"]
+  C --> D["Seuils métier et score robuste"]
+  D --> E["Persistance et contexte topologique"]
+  E --> F["Événement d'anomalie enrichi"]
+  F --> G{"Impact confirmé ?"}
+  G -- "Non" --> H["Surveiller et réduire le bruit"]
+  G -- "Oui" --> I["Créer une investigation"]
+  I --> J["Confirmer avec preuves indépendantes"]
+```
+
+### Exemple de score robuste
+
+```python
+import numpy as np
+
+def robust_z_score(values, current):
+    values = np.asarray(values, dtype=float)
+    median = np.median(values)
+    mad = np.median(np.abs(values - median))
+    if mad == 0:
+        return None  # La baseline ne permet pas ce score robuste.
+    return 0.6745 * (current - median) / mad
+
+baseline = [48, 50, 49, 51, 50, 49, 52, 50]
+score = robust_z_score(baseline, current=68)
+if score is None:
+    print("Baseline à revoir : dispersion nulle")
+elif abs(score) >= 3.5:
+    print("Point atypique à examiner :", round(score, 2))
+else:
+    print("Pas d'écart robuste élevé :", round(score, 2))
+```
+
+Le seuil de 3,5 est un exemple courant de départ, pas un réglage universel. Il faut mesurer le comportement du détecteur sur l'historique de chaque population de liens et examiner les cas limites.
+
+### Proposition de correction
+
+Ne déploie pas le même seuil partout. Les baselines doivent être séparées par contexte pertinent : famille de lien, plage horaire, capacité, rôle et éventuellement jour ouvré ou non. Une anomalie statistique est un écart, pas la preuve d'un incident. Ajoute une règle métier, une durée minimale, une comparaison avec des signaux indépendants et la topologie pour estimer l'impact.
+
+Le score robuste utilisant médiane et écart absolu médian résiste mieux à certains points extrêmes que le z-score classique basé sur moyenne et écart-type. Il échoue toutefois si la baseline est trop petite, constante, contaminée par des incidents ou non représentative de la saison en cours. Dans ces cas, le détecteur doit signaler la qualité insuffisante de sa référence et utiliser une solution de repli.
+
+Mesure les faux positifs par équipement et par semaine, la part des événements confirmés, les incidents manqués et le délai de détection. Avant toute réponse automatique, exécute le détecteur en mode observation, fais relire un échantillon d'alertes à l'équipe et ajuste la politique selon le coût métier.
+
+### Barème d'autoévaluation
+
+- Les baselines sont adaptées aux populations et à la saisonnalité.
+- Les limites statistiques sont documentées.
+- L'anomalie n'est pas assimilée automatiquement à une panne.
+- Les alertes sont enrichies et dédupliquées.
+- Le comportement est mesuré avant toute automatisation.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
