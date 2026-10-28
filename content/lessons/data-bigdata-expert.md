@@ -675,7 +675,134 @@ SkillMarket reçoit chaque jour des centaines de gigaoctets de journaux d'activi
 
 **Tests.** Avant le déploiement, testez panne d'exécuteur, saturation mémoire, fichier manquant, doublons source, événement tardif, changement de schéma, destination indisponible et relance après succès partiel. Comparez les résultats avec un échantillon calculé indépendamment. Mesurez les temps de reprise, les volumes et la cohérence finale pour prouver que le système fonctionne sous panne.
 
-## 16. Checklist de révision
+## 16. Atelier avancé : profiler un job Spark et isoler les données incorrectes
+
+Cet atelier complète les notions d'architecture par un traitement que l'on peut adapter à un petit jeu de données JSON Lines. Il ne cherche pas à démontrer qu'un réglage donné sera optimal partout : il fournit une méthode reproductible pour mesurer, contrôler, expliquer puis publier un résultat.
+
+### Architecture de référence
+
+```mermaid
+flowchart LR
+    A["Fichiers source"] --> B["Validation du schéma"]
+    B --> C["Quarantaine des lignes invalides"]
+    B --> D["Détection des identifiants contradictoires"]
+    D --> E["Déduplication déterministe"]
+    E --> F["Agrégation Spark"]
+    F --> G["Contrôles de qualité"]
+    G --> H["Publication versionnée"]
+```
+
+Le schéma doit être imposé à l'entrée plutôt que déduit silencieusement d'un échantillon. Dans ce scénario, chaque événement contient un identifiant stable, un apprenant, un cours, une date, et un pourcentage de progression. Les données rejetées doivent être conservées dans une zone protégée avec une raison explicite.
+
+### Exemple PySpark : valider, dédupliquer et agréger
+
+Prérequis : environnement PySpark disponible, droits de lecture sur `data/events/` et répertoire de sortie accessible. Les chemins ci-dessous sont ceux d'un laboratoire. En production, utilisez un identifiant d'exécution et une stratégie de publication atomique plutôt que de remplacer directement un produit consommé.
+
+```python
+from pyspark.sql import SparkSession, functions as F, types as T
+
+spark = (
+    SparkSession.builder
+    .appName("skillmarket-data-quality-lab")
+    .getOrCreate()
+)
+
+schema = T.StructType([
+    T.StructField("event_id", T.StringType(), True),
+    T.StructField("learner_id", T.StringType(), True),
+    T.StructField("course_id", T.StringType(), True),
+    T.StructField("event_time", T.StringType(), True),
+    T.StructField("progress_pct", T.DoubleType(), True),
+])
+
+raw = spark.read.schema(schema).json("data/events/*.jsonl")
+parsed = raw.withColumn("event_ts", F.to_timestamp("event_time"))
+
+valid_condition = (
+    F.col("event_id").isNotNull()
+    & (F.length(F.trim("event_id")) > 0)
+    & F.col("learner_id").isNotNull()
+    & F.col("course_id").isNotNull()
+    & F.col("event_ts").isNotNull()
+    & F.col("progress_pct").between(0.0, 100.0)
+)
+
+valid = parsed.filter(F.coalesce(valid_condition, F.lit(False)))
+invalid = parsed.filter(~F.coalesce(valid_condition, F.lit(False)))
+invalid.withColumn(
+    "rejection_reason", F.lit("missing_or_invalid_required_field")
+).write.mode("overwrite").json("out/lab_quarantine_invalid")
+
+# Un même ID avec deux contenus métier différents est un conflit,
+# et non un doublon que l'on peut supprimer arbitrairement.
+business_payload = F.to_json(F.struct(
+    "learner_id", "course_id", "event_ts", "progress_pct"
+))
+variants = (
+    valid.groupBy("event_id")
+    .agg(F.countDistinct(business_payload).alias("variant_count"))
+)
+conflict_ids = variants.filter(F.col("variant_count") > 1).select("event_id")
+conflicts = valid.join(conflict_ids, "event_id", "inner").withColumn(
+    "rejection_reason", F.lit("event_id_reused_with_different_payload")
+)
+conflicts.write.mode("overwrite").json("out/lab_quarantine_conflicts")
+
+# Seuls les IDs non contradictoires arrivent ici. Les répétitions restantes
+# représentent la même charge métier et peuvent être dédupliquées.
+deduplicated = (
+    valid.join(conflict_ids, "event_id", "left_anti")
+    .dropDuplicates(["event_id"])
+)
+
+daily = (
+    deduplicated
+    .withColumn("event_day", F.to_date("event_ts"))
+    .groupBy("event_day", "course_id")
+    .agg(
+        F.countDistinct("learner_id").alias("unique_learners"),
+        F.avg("progress_pct").alias("average_progress_pct"),
+        F.count("*").alias("accepted_events"),
+    )
+)
+
+daily.explain(mode="formatted")
+daily.write.mode("overwrite").partitionBy("event_day").parquet(
+    "out/lab_daily_metrics"
+)
+spark.stop()
+```
+
+Point de vigilance : le schéma et les règles de validité sont propres au contrat métier. Si plusieurs versions d'un même événement sont légitimes, un simple `dropDuplicates` ne suffit pas : choisissez explicitement la version gagnante à partir d'une séquence source ou d'une règle de priorité stable. Les écritures `overwrite` ci-dessus conviennent à un laboratoire isolé, pas à une table de production utilisée simultanément par d'autres services.
+
+### Lire le plan physique au lieu de deviner
+
+Exécutez le traitement sur un volume de test représentatif, puis conservez la sortie de `explain(mode="formatted")` avec le temps d'exécution, le volume lu et écrit, le nombre de partitions, les octets de shuffle et les tâches les plus lentes. Recherchez les scans qui lisent trop de colonnes, les filtres appliqués trop tard, les shuffles répétés, les jointures qui diffusent un objet trop volumineux et les tâches qui dépassent nettement la médiane.
+
+Un temps total élevé n'identifie pas la cause. Si une seule tâche est très lente, comparez les volumes par clé et le temps de shuffle avant d'augmenter les exécuteurs. Si toutes les tâches sont lentes et que le stockage est saturé, davantage de parallélisme peut amplifier la contention. Si la mémoire déborde après une jointure, examinez la cardinalité et la stratégie de jointure avant d'augmenter la mémoire.
+
+### Mesures à consigner
+
+| Mesure | Pourquoi la garder | Décision possible |
+|---|---|---|
+| Nombre de lignes source, rejetées et acceptées | Détecter les pertes ou dérives de schéma | Bloquer la publication si la part rejetée dépasse le seuil métier |
+| Nombre d'identifiants contradictoires | Détecter une identité source non fiable | Mettre en quarantaine et ouvrir un incident producteur |
+| Durée totale et p95 des tâches | Distinguer lenteur générale et tâches aberrantes | Ajuster partitionnement ou stratégie de jointure après mesure |
+| Volume de shuffle et spill disque | Repérer le coût des échanges et le manque de mémoire | Réduire les échanges inutiles ou corriger le skew |
+| Fraîcheur de sortie et écart de réconciliation | Vérifier le résultat métier, pas seulement le statut du job | Ne publier qu'après validation des contrôles |
+
+### Critères d'acceptation de l'atelier
+
+- Les lignes invalides sont isolées avec une raison, sans disparaître silencieusement.
+- Un identifiant réutilisé avec une charge utile contradictoire n'est jamais résolu par un choix arbitraire.
+- Un rejeu du même lot produit le même résultat métier.
+- Le plan physique, les volumes et les temps sont conservés pour comparer deux variantes.
+- La publication est bloquée si les seuils de qualité ou de réconciliation ne sont pas respectés.
+- La durée, le nombre de lignes acceptées et l'écart de qualité sont mesurés avant toute optimisation.
+
+La compétence experte est de pouvoir montrer, avec le plan et les métriques, pourquoi une modification améliore le traitement et quelles garanties elle préserve.
+
+## 17. Checklist de révision
 
 - [ ] Je peux expliquer les rôles de HDFS, YARN, MapReduce et Spark.
 - [ ] Je sais distinguer bloc HDFS, fichier, partition Spark, tâche, stage, exécuteur et conteneur.
@@ -690,7 +817,7 @@ SkillMarket reçoit chaque jour des centaines de gigaoctets de journaux d'activi
 - [ ] Je rends les lots relançables sans doublons et publie seulement après contrôle.
 - [ ] Je teste les pannes, le scénario de reprise et le résultat métier final.
 
-## 17. Documentation officielle
+## 18. Documentation officielle
 
 Les versions et distributions peuvent différer ; consultez la documentation correspondant à l'environnement réellement déployé avant d'utiliser un réglage en production.
 
