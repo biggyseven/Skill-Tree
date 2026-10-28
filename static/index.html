@@ -4785,11 +4785,16 @@
           }
         },
 
-        async renderSpiderChart() {
-          const canvas = document.getElementById('spiderChart'); if (!canvas || !this.stats || !this.stats.categories) return;
+        renderSpiderChart() {
+          const canvas = document.getElementById('spiderChart');
+          if (!canvas || !this.stats || !this.stats.categories) return;
           if (!window.Chart) {
-            try { await window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/chart.js', 'Chart'); }
-            catch (error) { console.warn('Chart.js indisponible.', error); return; }
+            window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/chart.js', 'Chart')
+              .then(() => {
+                if (canvas.isConnected && window.Chart) this.renderSpiderChart();
+              })
+              .catch(error => console.warn('Chart.js indisponible.', error));
+            return;
           }
           if (!canvas.isConnected || !window.Chart) return;
           if (window.spider) window.spider.destroy();
