@@ -90,6 +90,12 @@
             "name": "Fa0/3",
             "state": "up",
             "vlan": 20
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "vlan": 20
           }
         ],
         "config": {
@@ -111,6 +117,10 @@
               "vlan": 20
             },
             "Fa0/3": {
+              "mode": "access",
+              "vlan": 20
+            },
+            "Fa0/4": {
               "mode": "access",
               "vlan": 20
             }
