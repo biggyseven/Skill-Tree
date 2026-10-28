@@ -7,6 +7,7 @@ on:
       - perf/compiled-tailwind-main-20261028
       - perf/main-assets-cache-20261028
       - perf/local-alpine-js-20261028
+      - perf/local-alpine-final-20261028
     paths:
       - "static/index.html"
       - "static/tailwind.config.cjs"
