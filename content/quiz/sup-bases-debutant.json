@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Les fondamentaux du monitoring ».",
+      "prompt": "Un serveur répond au ping, mais les utilisateurs ne peuvent plus enregistrer de commandes dans l'application web. Quelle conclusion est la plus rigoureuse et quelle amélioration de supervision faut-il privilégier ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Le service est disponible puisque l'hôte répond ; il suffit de relever le seuil ICMP.",
+        "Le test ICMP ne prouve que la réponse réseau attendue ; il faut ajouter ou vérifier un contrôle applicatif représentatif du parcours critique, puis corréler ses résultats aux métriques et journaux.",
+        "Le serveur est nécessairement en panne matérielle ; il faut le redémarrer immédiatement.",
+        "Le monitoring est inutile dans ce cas ; seul un rapport mensuel peut identifier le problème."
+      ],
+      "answer": 1,
+      "explanation": "Une réponse ICMP indique seulement que la cible répond au test depuis le point de mesure. Elle ne valide ni l'application web, ni la base de données, ni l'enregistrement d'une commande. Un contrôle de synthèse doit vérifier une fonction représentative, idéalement sans produire d'effet métier réel. Les métriques aident à cerner le moment et l'ampleur du problème ; les logs peuvent expliquer des erreurs et les traces, si elles sont disponibles, peuvent localiser l'étape qui échoue. Redémarrer sans diagnostic peut masquer les indices et ne garantit pas la correction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un dashboard montre que 95 % des requêtes répondent en 150 ms, mais une partie des utilisateurs signale des lenteurs importantes. Quelle approche d'analyse est la plus pertinente ?",
+      "choices": [
+        "Ne regarder que la moyenne, car elle représente toujours l'expérience de chaque utilisateur.",
+        "Augmenter le seuil CPU sans examiner d'autres signaux, même si aucun problème de CPU n'est démontré.",
+        "Examiner la distribution des latences, notamment les percentiles élevés, le taux d'erreur et les traces de requêtes lentes, puis relier ces données à la période et au service concernés.",
+        "Supprimer les requêtes lentes des mesures pour que les graphiques représentent la performance habituelle."
+      ],
+      "answer": 2,
+      "explanation": "Une moyenne ou une valeur centrale peut masquer une minorité de requêtes très lentes. Les percentiles comme P95 ou P99 aident à étudier la partie haute de la distribution, à condition de disposer d'assez d'observations. Le taux d'erreur apporte un autre point de vue, et les traces peuvent montrer si le temps est consommé dans l'application, la base de données ou une dépendance distante. Il faut garder les observations valides au lieu de retirer les valeurs gênantes. Un seuil CPU n'est utile que si les données soutiennent cette hypothèse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une équipe reçoit 300 notifications par jour, dont la plupart correspondent à de brèves pointes sans impact. Les incidents critiques sont parfois ignorés. Quelle mesure durable est la meilleure ?",
+      "choices": [
+        "Envoyer toutes les notifications sur un second canal pour doubler les chances qu'elles soient lues.",
+        "Désactiver toutes les alertes et demander aux utilisateurs de signaler les pannes.",
+        "Augmenter tous les seuils au maximum pour supprimer presque tous les messages.",
+        "Classer les alertes par impact et action attendue, confirmer les conditions persistantes, dédupliquer et corréler les événements, puis tester la chaîne de notification."
+      ],
+      "answer": 3,
+      "explanation": "Le problème est un rapport signal/bruit insuffisant. La solution n'est pas d'amplifier chaque message ni de désactiver la détection. Les règles doivent distinguer les variations bénignes des incidents qui exigent une action, avec une durée de confirmation adaptée au service. La déduplication réduit les répétitions et la corrélation peut regrouper des alarmes causées par une même dépendance. Les seuils doivent rester justifiés par le risque, et la notification doit être testée pour vérifier que le bon destinataire reçoit un contexte exploitable. L'équipe doit réviser les règles à partir des observations réelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur une période de 30 jours de 720 heures, un service cumule 3 heures d'indisponibilité selon une définition documentée. Quelle disponibilité mesurée obtient-on approximativement, et quelle réserve faut-il garder à l'esprit ?",
+      "choices": [
+        "99,58 % environ, en calculant 717 heures fonctionnelles sur 720 ; le chiffre dépend cependant de la fenêtre et de la façon dont l'indisponibilité a été définie et mesurée.",
+        "95,00 %, car toute interruption rend le pourcentage de disponibilité inférieur à 100 % de cinq points.",
+        "99,99 %, parce que trois heures sont négligeables sur un mois, quelle que soit la durée totale.",
+        "100 %, si l'hôte répond au ping pendant l'indisponibilité applicative."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Le temps fonctionnel mesuré vaut 720 − 3 = 717 heures. La disponibilité est 717 / 720 × 100, soit environ 99,583 %, arrondie ici à 99,58 %. Ce résultat ne signifie quelque chose que si le service, la fenêtre et la méthode de détection sont clairement définis. Une mesure ICMP seule peut manquer une panne applicative ; la prise en compte de la maintenance planifiée ou d'une dégradation partielle doit aussi être explicitée. Un pourcentage n'est pas comparable à un autre si les méthodes de mesure diffèrent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une mise à jour, le dashboard affiche une valeur CPU stable mais l'heure de dernière collecte date de 25 minutes. Quelle interprétation et quelle action sont les plus appropriées ?",
+      "choices": [
+        "La stabilité confirme que la mise à jour a réussi ; aucune action n'est nécessaire.",
+        "La valeur est probablement périmée et ne prouve pas l'état actuel ; il faut investiguer la fraîcheur de la collecte, l'agent ou le chemin réseau, et superviser explicitement l'absence de données.",
+        "Il faut remplacer la valeur CPU par zéro afin que les dashboards restent simples.",
+        "Il faut déclencher immédiatement une alerte de saturation CPU, puisque toute valeur ancienne indique une surcharge."
+      ],
+      "answer": 1,
+      "explanation": "Une valeur ancienne ne doit pas être interprétée comme une mesure actuelle. L'arrêt de la collecte, l'échec d'un agent, un problème réseau, des identifiants expirés ou un retard d'ingestion peuvent tous expliquer cette situation. La plateforme doit distinguer une valeur réellement égale à zéro d'une donnée inconnue ou périmée, et contrôler la fraîcheur des sources importantes. Il faut vérifier la chaîne de collecte avant de tirer une conclusion sur la santé du serveur. Le monitoring doit aussi être capable de signaler ses propres angles morts."
     }
   ]
 }
