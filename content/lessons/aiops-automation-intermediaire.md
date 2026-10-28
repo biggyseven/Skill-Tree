@@ -461,6 +461,71 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — pipeline de changement réseau avec arrêt sûr
+
+### Énoncé
+
+Une modification d'ACL doit corriger un flux applicatif sans couper les autres applications. Construis un pipeline qui valide la syntaxe, teste la politique sur un jeu de cas, produit un diff, demande une approbation et déploie progressivement. Le pipeline ne doit pas considérer une réponse HTTP réussie ou une commande terminée comme une preuve suffisante de santé.
+
+### Pipeline de référence
+
+```mermaid
+flowchart TD
+  A["Pull request et version de configuration"] --> B["Lint, schéma et secrets"]
+  B --> C["Tests de politique et simulation"]
+  C --> D{"Tests verts ?"}
+  D -- "Non" --> E["Bloquer le merge et publier les diagnostics"]
+  D -- "Oui" --> F["Diff et estimation du risque"]
+  F --> G["Approbation du propriétaire"]
+  G --> H["Déploiement canari"]
+  H --> I["Mesurer disponibilité, erreurs et flux"]
+  I --> J{"Garde-fous respectés ?"}
+  J -- "Non" --> K["Arrêt et rollback contrôlé"]
+  J -- "Oui" --> L["Étendre par lots et vérifier"]
+```
+
+### Exemple de pipeline déclaratif
+
+```yaml
+name: network-change-checks
+on:
+  pull_request:
+    paths:
+      - "network/**"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Valider la syntaxe et le schéma
+        run: python tools/validate_config.py network/
+      - name: Tester la politique
+        run: python -m pytest tests/network_policy/
+      - name: Générer le diff de changement
+        run: python tools/render_plan.py network/
+```
+
+Cet exemple n'effectue aucun changement sur les équipements. Dans un vrai dépôt, épingle les actions tierces selon la politique de sécurité de l'organisation, protège l'environnement de production et place la promotion de production dans un job séparé soumis à approbation.
+
+### Proposition de correction
+
+Le pipeline doit échouer rapidement si une configuration est invalide, si un secret apparaît dans un fichier ou si un cas de test interdit devient autorisé. Le test modélise la politique attendue et comporte des cas positifs et négatifs. Le plan expose les équipements ciblés, les lignes modifiées, les dépendances et les étapes de retour arrière avant l'approbation.
+
+Après le canari, mesure des critères de service : taux d'échec des sessions concernées, disponibilité, latence, pertes et état des équipements. Définis les limites et la durée d'observation avant le déploiement. Une mesure absente ou trop tardive n'est pas assimilée à une mesure saine. Le rollback doit être préparé et testé ; s'il échoue, le pipeline arrête l'extension et appelle une procédure de reprise.
+
+### Cas de test minimum
+
+- L'ACL permet le flux attendu.
+- L'ACL interdit toujours un flux explicitement interdit.
+- Une cible hors inventaire bloque le plan.
+- Un changement sans approbation ne peut pas atteindre la production.
+- Un canari qui dégrade le service déclenche l'arrêt et conserve les preuves.
+
+### Barème d'autoévaluation
+
+La solution sépare validation, approbation, exécution et vérification. Elle limite le rayon d'impact, consigne la version déployée et sait interrompre le rollout lorsque les données de santé sont absentes.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
