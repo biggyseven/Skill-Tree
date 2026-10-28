@@ -169,6 +169,54 @@
       ],
       "answer": 2,
       "explanation": "Un identifiant réutilisé avec un contenu différent peut signaler une erreur du producteur ou une collision métier. Le conflit doit rester visible plutôt que d’être ignoré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche aide à limiter les omissions lorsque la source livre parfois des changements avec retard ?",
+      "choices": [
+        "Relire une fenêtre de recouvrement puis dédupliquer avec une clé stable",
+        "Avancer définitivement le curseur sans examiner les retards",
+        "Ignorer les modifications dont le timestamp est ancien",
+        "Générer un nouvel identifiant à chaque reprise"
+      ],
+      "answer": 0,
+      "explanation": "La fenêtre de recouvrement relit une partie de l'historique récent. Associée à une déduplication idempotente et à une réconciliation, elle réduit le risque de manquer des écritures tardives."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle de sécurité convient aux messages conservés dans une DLQ ?",
+      "choices": [
+        "Donner à tous les analystes un accès administrateur",
+        "Désactiver les journaux de consultation",
+        "Limiter les accès, minimiser les données sensibles et définir une rétention",
+        "Conserver chaque payload sans limite de durée"
+      ],
+      "answer": 2,
+      "explanation": "Une DLQ peut contenir des données brutes ou sensibles. Le contrôle d'accès, la minimisation, l'audit et une durée de conservation doivent être définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel symptôme signale souvent une partition chaude dans un flux distribué ?",
+      "choices": [
+        "Toutes les partitions avancent exactement au même rythme",
+        "Une seule partition accumule du retard à cause d'une distribution de clés déséquilibrée",
+        "Tous les messages sont automatiquement dédupliqués",
+        "La source ne produit plus d'événements"
+      ],
+      "answer": 1,
+      "explanation": "Une clé très fréquente peut concentrer les événements sur une partition et limiter le parallélisme. Il faut analyser la distribution des clés tout en préservant l'ordre exigé par le métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle vérification permet de confirmer qu'un backfill a réellement couvert les données attendues ?",
+      "choices": [
+        "Regarder seulement le statut final du job",
+        "Masquer les messages d'erreur",
+        "Vérifier uniquement la durée d'exécution",
+        "Contrôler les positions, la période couverte, la qualité et la réconciliation avec la source"
+      ],
+      "answer": 3,
+      "explanation": "Le succès technique ne garantit pas que toutes les données aient été chargées. La progression, les volumes, les tests de qualité et la réconciliation sont nécessaires."
     }
   ]
 }
