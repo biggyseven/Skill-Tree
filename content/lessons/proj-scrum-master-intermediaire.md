@@ -22,6 +22,19 @@ Le cas « Rétablir le fonctionnement d’une équipe Scrum » sert de fil rouge
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser l’outil ou le processus sans résoudre le problème métier.
 
+```mermaid
+flowchart TD
+    A["Scrum Team et contexte"] --> B["Rendre le cadre transparent"]
+    B --> C["Faciliter l'inspection"]
+    C --> D["Aider à l'adaptation"]
+    D --> E["Développer l'autonomie"]
+    E --> F["Observer l'effet sur la livraison de valeur"]
+    F --> G["Adapter le soutien nécessaire"]
+    G --> B
+```
+
+Le Scrum Master est redevable de l’établissement de Scrum tel qu’il est défini dans le Guide Scrum et de l’efficacité de la Scrum Team. Il ne possède pas les décisions du Product Owner ni la responsabilité de créer l’incrément qui revient aux Developers. Son influence consiste à améliorer le système de travail, à enseigner le cadre et à aider les acteurs à résoudre les blocages sans devenir un intermédiaire obligatoire pour toute décision.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -60,6 +73,18 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », servant leadership constitue une pratique qui doit répondre à une intention précise. Le Scrum Master exerce un leadership au service de l’efficacité : il crée les conditions du travail et aide l’équipe à résoudre ses obstacles sans lui retirer son autonomie. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Observer le besoin réel de l'équipe"] --> B["Écouter et clarifier"]
+    B --> C["Aider les acteurs à décider"]
+    C --> D["Retirer les obstacles organisationnels"]
+    D --> E["Renforcer l'autonomie"]
+    E --> F["Examiner le résultat"]
+    F --> A
+```
+
+Le servant leadership n’est ni une absence de leadership ni le fait de satisfaire chaque demande. Le Scrum Master aide l’équipe à devenir plus efficace, pose des questions qui rendent les problèmes visibles et intervient auprès de l’organisation lorsque l’équipe ne peut pas résoudre seule un blocage. L’objectif est que la capacité de résoudre les problèmes augmente dans la durée, pas que toutes les décisions dépendent de lui.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Il aide les Developers à traiter un conflit de capacité, puis laisse l’équipe définir son plan réaliste. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -75,6 +100,18 @@ H --> A
 ### 2. Compréhension de Scrum
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », compréhension de scrum constitue une pratique qui doit répondre à une intention précise. Le Scrum Master enseigne le cadre, ses responsabilités et ses règles essentielles ; il signale les pratiques qui ressemblent à Scrum mais en neutralisent l’empirisme. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Apprendre le Guide Scrum"] --> B["Clarifier responsabilités et engagements"]
+    B --> C["Comparer la pratique réelle au cadre"]
+    C --> D["Repérer une confusion ou une adaptation locale"]
+    D --> E["Expliquer les effets et les options"]
+    E --> F["L'équipe choisit et inspecte une amélioration"]
+    F --> C
+```
+
+Le Scrum Master doit distinguer les éléments définis par Scrum des pratiques supplémentaires adoptées par l’équipe. Une organisation peut utiliser des outils, des revues de préparation ou des mesures de flux, mais elle doit éviter de présenter ces choix comme des événements ou des responsabilités prescrits par le Guide. Clarifier cette différence protège le cadre tout en laissant de la place à l’amélioration locale.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -92,6 +129,19 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », daily scrum constitue une pratique qui doit répondre à une intention précise. Le Daily Scrum inspecte l’avancement vers le Sprint Goal et conduit à un plan pour les prochaines 24 heures ; sa forme appartient aux Developers. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Départ : Sprint Goal et plan actuel"] --> B["Developers inspectent la progression"]
+    B --> C["Identifier blocages et changements de contexte"]
+    C --> D["Adapter le plan pour les prochaines 24 heures"]
+    D --> E{"Une discussion approfondie est-elle nécessaire ?"}
+    E -->|"Non"| F["Continuer le travail"]
+    E -->|"Oui"| G["Organiser une discussion ciblée après l'événement"]
+    G --> F
+```
+
+Le Daily Scrum est un événement de 15 minutes pour les Developers afin d’inspecter la progression vers le Sprint Goal et d’adapter le Sprint Backlog si nécessaire. Il n’est pas conçu comme un tour de table destiné à faire rapport au Scrum Master. Celui-ci aide à rendre le but compréhensible et à améliorer la pratique, sans imposer une formule unique de questions si les Developers choisissent une approche plus adaptée.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** L’équipe discute d’un test bloqué et ajuste la coordination plutôt que de réciter l’historique au manager. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -107,6 +157,18 @@ H --> A
 ### 4. Sprint Planning
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », sprint planning constitue une pratique qui doit répondre à une intention précise. Le Sprint Planning aligne pourquoi le Sprint est utile, ce qui peut être livré et comment le travail sera réalisé. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Pourquoi ce Sprint est-il utile ?"] --> B["Établir un Sprint Goal"]
+    B --> C["Quels éléments peuvent être réalisés ?"]
+    C --> D["Vérifier capacité, dépendances et Definition of Done"]
+    D --> E["Comment le travail sera-t-il accompli ?"]
+    E --> F["Developers construisent le Sprint Backlog"]
+    F --> G["Rendre hypothèses et risques visibles"]
+```
+
+Sprint Planning couvre trois sujets : pourquoi le Sprint est utile, ce qui peut être accompli et comment le travail choisi sera réalisé. Le Scrum Master facilite la compréhension et veille à ce que l’événement serve son objectif, mais ne choisit pas à la place des Developers l’ensemble des tâches ni ne dicte une promesse que l’équipe ne juge pas réaliste. Le Product Owner aide à clarifier la valeur et les éléments du Product Backlog.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -124,6 +186,17 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », sprint review constitue une pratique qui doit répondre à une intention précise. La Review inspecte l’incrément et l’évolution de l’environnement avec les parties prenantes ; les décisions alimentent le Product Backlog. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Incrément réel et état du produit"] --> B["Inspecter résultats et écarts"]
+    B --> C["Inviter les retours utiles des parties prenantes"]
+    C --> D["Examiner le contexte, les risques et les opportunités"]
+    D --> E["Adapter le Product Backlog"]
+    E --> F["Choisir les sujets qui méritent une prochaine étape"]
+```
+
+La Sprint Review est un événement de travail où la Scrum Team et les parties prenantes examinent le résultat du Sprint et discutent des adaptations futures. Le Scrum Master peut aider à éviter que la séance se transforme en présentation sans conversation ou en liste d’approbation formelle. Les participants doivent pouvoir examiner des éléments réels, discuter des évolutions du contexte et influencer les prochaines priorités.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Les utilisateurs commentent un parcours en direct et le Product Owner ajuste les priorités selon valeur et retours. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -139,6 +212,19 @@ H --> A
 ### 6. Sprint Retrospective
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », sprint retrospective constitue une pratique qui doit répondre à une intention précise. La Retrospective identifie des améliorations de qualité et d’efficacité ; les actions doivent être concrètes, mesurables et réalisables. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Créer un espace de dialogue sûr"] --> B["Examiner interactions, outils et qualité"]
+    B --> C["Identifier les causes systémiques"]
+    C --> D["Choisir une amélioration prioritaire"]
+    D --> E["Définir un essai et un indicateur"]
+    E --> F["Appliquer pendant le prochain Sprint"]
+    F --> G["Vérifier l'effet à la rétrospective suivante"]
+    G --> A
+```
+
+La Retrospective ne devrait pas se contenter de collecter ce qui a bien ou mal fonctionné. Une équipe peut choisir une seule amélioration afin de la tester sérieusement : par exemple, ajouter les tests plus tôt, réduire les tâches ouvertes en parallèle ou obtenir les décisions de sécurité plus rapidement. L’amélioration doit être suffisamment précise pour qu’on puisse examiner son effet au Sprint suivant.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -156,6 +242,17 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », facilitation constitue une pratique qui doit répondre à une intention précise. La facilitation rend une conversation productive sans imposer une réponse ; elle clarifie le but, les règles de parole et la décision attendue. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Définir le résultat attendu de la conversation"] --> B["Donner un espace de parole équilibré"]
+    B --> C["Rendre les désaccords et hypothèses visibles"]
+    C --> D["Explorer les options et les critères"]
+    D --> E["Faire émerger une décision ou un prochain pas"]
+    E --> F["Nommer responsable, échéance et preuve"]
+```
+
+La facilitation ne consiste pas à fournir immédiatement la solution. Le facilitateur aide le groupe à comprendre la question, met en évidence les informations manquantes, invite les points de vue peu entendus et rend la décision explicite. Si une décision appartient à un rôle particulier, la facilitation ne remplace pas cette autorité : elle améliore la qualité du processus de décision.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Pendant un désaccord sur la Definition of Done, le Scrum Master fait expliciter les risques, options et contraintes obligatoires. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -171,6 +268,21 @@ H --> A
 ### 8. Suppression des obstacles
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », suppression des obstacles constitue une pratique qui doit répondre à une intention précise. Un obstacle entrave le progrès ; le Scrum Master aide à sa résolution en respectant l’autonomie et les rôles de décision. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Obstacle signalé"] --> B["Qualifier l'impact sur le Sprint Goal"]
+    B --> C{"L'équipe peut-elle le résoudre directement ?"}
+    C -->|"Oui"| D["L'équipe choisit une action"]
+    C -->|"Non"| E["Identifier le décideur ou l'organisation concernée"]
+    E --> F["Préparer faits, impact et demande précise"]
+    F --> G["Escalader et suivre l'engagement"]
+    D --> H["Vérifier si le blocage est levé"]
+    G --> H
+    H --> I["Apprendre et prévenir la récurrence"]
+```
+
+Un obstacle doit être suivi jusqu’à son effet réel, pas seulement transféré à une autre équipe. Le Scrum Master clarifie la nature du blocage, l’urgence, les acteurs concernés et la prochaine étape. Il cherche aussi la cause systémique : par exemple, une approbation lente peut révéler un processus d’accès mal conçu et non un cas isolé à relancer chaque Sprint.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -188,6 +300,18 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », coaching et autonomie constitue une pratique qui doit répondre à une intention précise. Le coaching aide l’équipe à apprendre à résoudre ses problèmes au lieu de créer une dépendance envers le Scrum Master. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Équipe demande une solution"] --> B["Clarifier le problème et ce qui a déjà été essayé"]
+    B --> C["Poser des questions qui ouvrent des options"]
+    C --> D["L'équipe compare et décide"]
+    D --> E["Tester l'action choisie"]
+    E --> F["Examiner les résultats"]
+    F --> G["Renforcer l'apprentissage et ajuster"]
+```
+
+Le coaching vise à développer la capacité de réflexion et d’action des personnes, plutôt qu’à se substituer à elles. L’enseignement est approprié lorsqu’un concept ou une règle manque ; le mentorat peut partager une expérience ; la facilitation sert une décision collective ; le coaching aide à formuler ses propres réponses. Choisir le bon mode évite que le Scrum Master crée une dépendance involontaire.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Il pose des questions sur les causes d’un dépassement récurrent au lieu de réassigner lui-même les tâches. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -203,6 +327,18 @@ H --> A
 ### 10. Servir le Product Owner
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », servir le product owner constitue une pratique qui doit répondre à une intention précise. Le Scrum Master soutient la gestion du Product Backlog, l’ordonnancement, la clarté du Product Goal et la collaboration avec les parties prenantes. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Objectif produit et parties prenantes"] --> B["Clarifier valeur et contraintes"]
+    B --> C["Rendre le Product Backlog compréhensible"]
+    C --> D["Faciliter les conversations de priorisation"]
+    D --> E["Établir une boucle de feedback"]
+    E --> F["Product Owner adapte l'ordre du backlog"]
+    F --> A
+```
+
+Le Scrum Master soutient le Product Owner en facilitant la collaboration, en aidant à clarifier l’objectif produit, en rendant le backlog compréhensible et en améliorant les échanges avec les parties prenantes. Il ne devient pas propriétaire des priorités. L’autorité du Product Owner doit rester claire pour éviter les instructions contradictoires et les décisions de priorité prises par plusieurs personnes.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -220,6 +356,20 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », servir l’organisation constitue une pratique qui doit répondre à une intention précise. L’adoption de Scrum exige parfois de faire évoluer les attentes managériales, les silos et les dépendances externes. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Observer les frictions entre équipes et fonctions"] --> B["Décrire le coût et les conséquences"]
+    B --> C["Rassembler les personnes capables de décider"]
+    C --> D["Expérimenter un changement de processus"]
+    D --> E["Mesurer délai, qualité et autonomie"]
+    E --> F{"L'obstacle organisationnel a-t-il diminué ?"}
+    F -->|"Oui"| G["Étendre et documenter la pratique"]
+    F -->|"Non"| H["Réviser l'hypothèse"]
+    H --> C
+```
+
+Les difficultés d’une équipe peuvent venir des structures de l’organisation : objectifs contradictoires, décisions centralisées, responsabilités floues ou compétences indisponibles au moment nécessaire. Le Scrum Master aide à rendre ces systèmes visibles et soutient des changements mesurables. Il ne peut pas imposer seul une restructuration, mais peut préparer le cas, faciliter l’expérimentation et suivre son effet.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le manager cesse d’imposer des estimations individuelles et facilite la stabilité de l’équipe. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -235,6 +385,18 @@ H --> A
 ### 12. Santé d’équipe et sécurité psychologique
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », santé d’équipe et sécurité psychologique constitue une pratique qui doit répondre à une intention précise. Une équipe doit pouvoir signaler les erreurs, demander de l’aide et contester une hypothèse sans crainte de représailles. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Règles de collaboration explicites"] --> B["Pouvoir signaler erreurs et risques sans humiliation"]
+    B --> C["Examiner les faits et le système de travail"]
+    C --> D["Traiter conflits et déséquilibres de parole"]
+    D --> E["Appliquer des améliorations suivies"]
+    E --> F["Confiance, apprentissage et responsabilité"]
+    F --> A
+```
+
+La sécurité psychologique ne signifie ni absence de désaccord ni suppression de la responsabilité. Elle permet de signaler rapidement une erreur, une incertitude ou une préoccupation sans crainte de représailles humiliantes. Le Scrum Master contribue à des règles de dialogue respectueuses, à des discussions fondées sur les faits et à un climat où chacun peut participer sans que les problèmes restent cachés.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -252,6 +414,18 @@ H --> A
 
 **Comprendre le concept.** Dans « Rôle du Scrum Master et cérémonies », mesures d’efficacité constitue une pratique qui doit répondre à une intention précise. Les mesures doivent soutenir l’amélioration et le flux, pas classer les personnes selon le nombre de tickets fermés. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Question à laquelle il faut répondre"] --> B["Choisir une mesure appropriée"]
+    B --> C["Vérifier la qualité et le contexte des données"]
+    C --> D["Observer une tendance, pas une valeur isolée"]
+    D --> E["Discuter des causes avec l'équipe"]
+    E --> F["Choisir une expérimentation"]
+    F --> G["Réexaminer la mesure et les effets secondaires"]
+```
+
+Une mesure sert à apprendre, non à classer les individus. Le Scrum Master peut aider à examiner le temps de cycle, la stabilité des objectifs, les défauts échappés ou la proportion de travail imprévu selon la question posée. La vélocité, lorsqu’elle est utilisée, constitue une aide interne à la prévision d’une équipe et ne doit pas devenir un quota de productivité comparant des équipes différentes.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le Scrum Master suit les blocages, la stabilité des objectifs et l’amélioration du délai sans transformer la vélocité en quota individuel. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -268,6 +442,22 @@ H --> A
 
 Une équipe de huit personnes travaille sur un produit IT. Le Daily Scrum dure 45 minutes, la rétrospective ne produit aucune action et le Product Owner est absent des échanges de priorisation. Le manager réclame un engagement ferme sur chaque tâche.
 
+```mermaid
+flowchart TD
+    A["Symptômes : Daily trop long, actions sans suite, PO peu disponible"] --> B["Observer sans blâmer"]
+    B --> C["Identifier les causes et effets sur le Sprint Goal"]
+    C --> D["Clarifier le but de chaque événement"]
+    D --> E["Négocier disponibilité et règles de collaboration"]
+    E --> F["Choisir une expérimentation de Sprint"]
+    F --> G["Mesurer durée utile, blocages et actions terminées"]
+    G --> H{"Amélioration visible ?"}
+    H -->|"Oui"| I["Conserver et approfondir"]
+    H -->|"Non"| J["Adapter l'hypothèse et tester à nouveau"]
+    J --> F
+```
+
+Le cas exige de résister aux solutions de surface comme limiter mécaniquement la réunion ou ajouter un nouveau rapport. Le Scrum Master commence par observer le fonctionnement réel, interroger les participants et relier les symptômes aux obstacles. Il propose ensuite des expériences ciblées avec des critères d’observation, sans prétendre qu’une seule technique fonctionne pour toutes les équipes.
+
 ### Cadrage et données de départ
 
 Les acteurs commencent par décrire le problème avec des faits vérifiables, puis identifient les bénéficiaires, les exigences et les contraintes. Ils séparent les obligations impératives des préférences, écrivent les hypothèses et demandent une confirmation lorsque celles-ci conditionnent fortement le coût ou la date. Le responsable du projet désigne un propriétaire pour chaque décision majeure, fixe un mécanisme d’escalade et conserve une trace des validations. La première sortie attendue est une compréhension commune du travail, et non une liste exhaustive de tâches écrite avant d’avoir compris le besoin.
@@ -280,9 +470,37 @@ L’équipe compare au moins deux options réalistes, dont une option limitée o
 
 Le plan est découpé en livrables que l’on peut vérifier. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier la définition de l’indicateur. La communication est adaptée à chaque public et les décisions qui dépassent les délégations remontent à la gouvernance.
 
+```mermaid
+flowchart TD
+    A["Choisir l'amélioration et son propriétaire"] --> B["Définir un résultat observable"]
+    B --> C["Tester pendant le Sprint"]
+    C --> D["Collecter le retour et les faits"]
+    D --> E["Inspecter lors de la Retrospective"]
+    E --> F{"L'expérience produit-elle l'effet attendu ?"}
+    F -->|"Oui"| G["Ancrer la nouvelle pratique"]
+    F -->|"Non"| H["Reformuler ou abandonner"]
+    G --> I["Choisir le prochain obstacle utile"]
+    H --> I
+    I --> A
+```
+
+Un changement de pratique reste une hypothèse tant que l’équipe n’a pas observé son effet. Le Scrum Master aide à formuler une action modeste, attribuée, bornée dans le temps et associée à un signal d’apprentissage. Il évite d’empiler des actions de rétrospective sans vérifier leur réalisation, ce qui donnerait l’impression que les discussions n’influencent jamais le travail.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités d’exploitation sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, la cause des écarts, les adaptations utiles et les pratiques à conserver. Elle ne doit pas désigner des coupables : elle cherche à rendre le système de travail plus fiable et l’organisation plus apte à apprendre.
+
+```mermaid
+flowchart TD
+    A["Inspecter les résultats de l'expérience"] --> B["Vérifier l'effet sur le travail et le produit"]
+    B --> C["Recueillir le point de vue de chaque rôle"]
+    C --> D["Documenter ce qui a été appris"]
+    D --> E["Continuer, adapter ou arrêter"]
+    E --> F["Mettre à jour les accords de travail"]
+    F --> G["Réexaminer au prochain Sprint"]
+```
+
+La réussite d’une facilitation ne se mesure pas au silence dans la salle ou au nombre de réunions tenues. Elle se voit dans une meilleure compréhension partagée, des décisions prises au bon niveau, des obstacles résolus et des améliorations vérifiables. L’équipe reste responsable de sa manière de travailler et doit pouvoir expliquer pourquoi elle maintient ou abandonne une pratique.
 
 ## Atelier pratique
 
@@ -344,6 +562,17 @@ Un dispositif de gestion de projet n’est pas un rituel administratif : il cons
 ## Les événements Scrum comme inspections utiles
 
 Un événement Scrum a un but défini et des limites de temps. Le Sprint Planning répond à la raison d’être du Sprint, au travail possible et à la manière de réaliser ce travail. Le Daily Scrum est une inspection quotidienne des progrès vers le Sprint Goal. La Sprint Review examine les résultats et l’évolution du contexte pour déterminer les adaptations futures. La Sprint Retrospective planifie des changements destinés à améliorer la qualité et l’efficacité.
+
+```mermaid
+flowchart TD
+    A["Sprint Planning : décider pourquoi, quoi et comment"] --> B["Daily Scrum : inspecter la progression et adapter le plan"]
+    B --> C["Sprint Review : inspecter le produit et le contexte"]
+    C --> D["Sprint Retrospective : inspecter la façon de travailler"]
+    D --> E["Améliorations applicables au Sprint suivant"]
+    E --> A
+```
+
+Chaque événement a un objectif différent et contribue à la transparence, à l’inspection et à l’adaptation. Le Sprint Planning prépare le travail ; le Daily Scrum permet aux Developers d’adapter leur plan ; la Sprint Review inspecte le produit avec les parties prenantes ; la Retrospective améliore la qualité et l’efficacité de l’équipe. Les transformer en simples rapports d’avancement réduit leur utilité.
 
 Le Scrum Master aide l’équipe et l’organisation à comprendre Scrum, à améliorer son efficacité et à supprimer les obstacles qui dépassent l’équipe. Il facilite lorsque c’est utile, mais ne devient pas le propriétaire de toutes les tâches, ni un secrétaire chargé de rapporter l’activité au management. L’équipe reste responsable de son travail ; le Scrum Master travaille aussi avec les parties prenantes et les managers pour faire évoluer les conditions d’organisation qui empêchent l’empirisme.
 
