@@ -168,7 +168,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("initial.lab.id === 'demo'", bridge)
 
     def test_workspace_submission_result_refreshes_dashboard_progress(self):
-        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        dashboard = load_dashboard_source(ROOT)
         on_validated_start = dashboard.index("        onLabValidated(data) {")
         on_validated_end = dashboard.index("        checkRewards()", on_validated_start)
         on_validated_method = dashboard[on_validated_start:on_validated_end]
@@ -176,7 +177,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("data.sandbox === true", on_validated_method)
 
         bridge = (ROOT / "app" / "lab-workspace" / "src" / "bridge" / "alpineBridge.js").read_text(encoding="utf-8-sig")
-        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        dashboard = load_dashboard_source(ROOT)
 
         self.assertIn("window.opener.postMessage({ type, detail }, window.location.origin)", bridge)
         self.assertIn("emit('lab:submit-result', finalResult)", bridge)
@@ -235,7 +237,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn('xl:hidden', app)
 
     def test_dashboard_uses_the_v2_route_before_legacy_fallback(self):
-        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        dashboard = load_dashboard_source(ROOT)
         start = dashboard.rindex("async openLab(id, openInNewTab = false) {")
         end = dashboard.index("        isLabDone(id)", start)
         open_lab_method = dashboard[start:end]
@@ -267,7 +270,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
 
 
     def test_course_lab_button_checks_v2_before_opening_and_prevents_legacy_redirect_loops(self):
-        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        dashboard = load_dashboard_source(ROOT)
         self.assertIn(":href=\"labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id)", dashboard)
         self.assertIn(":data-lab-kind=\"labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'\"", dashboard)
         self.assertIn('@click="openVisualLab()"', dashboard)

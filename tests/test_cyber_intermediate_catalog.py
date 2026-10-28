@@ -279,7 +279,8 @@ class CyberCatalogScaffoldTests(unittest.TestCase):
         self.assertTrue((ROOT / "labs_v2" / "secu-acl-intermediaire.json").is_file())
 
     def test_roadmap_contains_both_completed_levels(self) -> None:
-        html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        html = load_dashboard_source(ROOT)
         cyber = html[html.index("{ id: 'cybersecurite'"):]
         for title in ("ACL Avancées", "NAT & Périmètre", "VPN & IPsec", "Sécurité Web"):
             self.assertIn(title, cyber)

@@ -331,15 +331,19 @@ async def enforce_site_authentication(request: Request, call_next):
 
 @app.middleware("http")
 async def cache_static_assets(request: Request, call_next):
-    """Réutilise brièvement les ressources statiques, sans figer les pages HTML."""
+    """Cache longtemps les ressources versionnées, sans figer les pages HTML."""
     response = await call_next(request)
     if response.status_code == 200:
         path = request.url.path
-        if path.startswith(("/lab/assets/", "/lab/chunks/")):
+        version = request.query_params.get("v", "")
+        if path.startswith("/assets/") and re.fullmatch(r"[0-9a-f]{12}", version):
+            # Le paramètre v est calculé à partir du contenu minifié ; une nouvelle version a une nouvelle URL.
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif path.startswith(("/lab/assets/", "/lab/chunks/")):
             # Ces noms contiennent un hash : leur contenu ne change pas à URL identique.
             response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
         elif path.endswith((".js", ".css", ".svg", ".woff", ".woff2", ".png", ".jpg", ".jpeg", ".webp", ".ico")):
-            # main.js et main.css ont des noms stables, donc TTL court pour éviter les versions périmées.
+            # Ressources sans version : TTL court pour éviter les versions périmées.
             response.headers["Cache-Control"] = "public, max-age=60, must-revalidate"
         elif path == "/" or path.endswith(".html"):
             # Revalidation à chaque navigation pour conserver les déploiements à jour.

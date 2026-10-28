@@ -1,14 +1,16 @@
-"""Source-level regression checks for the inline Alpine dashboard.
+"""Source-level regression checks for the Alpine dashboard and split assets.
 
-These checks guard important wiring in static/index.html. They are not a
-substitute for browser-level end-to-end tests.
+These checks guard wiring across the static HTML and extracted source assets.
+They are not a substitute for browser-level end-to-end tests.
 """
 from pathlib import Path
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DASHBOARD_HTML = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+from scripts.dashboard_source import load_dashboard_source
+
+DASHBOARD_HTML = load_dashboard_source(ROOT)
 API_SOURCE = (ROOT / "app" / "api.py").read_text(encoding="utf-8")
 
 

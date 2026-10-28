@@ -1,0 +1,83 @@
+name: Build cacheable main UI assets
+
+on:
+  push:
+    branches:
+      - feature/lab-workspace
+      - perf/main-assets-cache-20261028
+    paths:
+      - "app/main_ui/**"
+      - ".github/workflows/build-main-ui-assets.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-main-ui-assets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/lab-workspace/package-lock.json
+
+      - name: Install locked build dependencies
+        run: npm ci --prefix app/lab-workspace --no-audit --no-fund
+
+      - name: Minify external main UI assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p static/assets
+          ESBUILD="./app/lab-workspace/node_modules/.bin/esbuild"
+          for name in skilltree-core skilltree-catalog skilltree-study skilltree-ux skilltree-polish; do
+            "$ESBUILD" "app/main_ui/$name.js" --target=es2020 --minify-whitespace --minify-syntax --outfile="static/assets/$name.js"
+          done
+          "$ESBUILD" app/main_ui/skilltree-ui.css --minify --outfile=static/assets/skilltree-ui.css
+
+      - name: Refresh cache keys from built asset contents
+        shell: python
+        run: |
+          import hashlib
+          import re
+          from pathlib import Path
+
+          html_path = Path("static/index.html")
+          html = html_path.read_text(encoding="utf-8")
+          assets = [
+              "skilltree-core.js",
+              "skilltree-catalog.js",
+              "skilltree-study.js",
+              "skilltree-ux.js",
+              "skilltree-polish.js",
+              "skilltree-ui.css",
+          ]
+          for asset in assets:
+              digest = hashlib.sha256(Path("static/assets", asset).read_bytes()).hexdigest()[:12]
+              pattern = re.compile(r"(/assets/" + re.escape(asset) + r"\?v=)[0-9a-f]{12}")
+              html, count = pattern.subn(lambda match: match.group(1) + digest, html)
+              if count < 2:
+                  raise SystemExit(f"Expected preload plus use for {asset}; found {count} versioned URL(s)")
+          html_path.write_text(html, encoding="utf-8", newline="")
+
+      - name: Commit generated assets and updated URLs when changed
+        shell: bash
+        run: |
+          git add -A static/assets static/index.html
+          if git diff --cached --quiet -- static/assets static/index.html; then
+            echo "MAIN_UI_ASSETS=unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build(frontend): minify and version main UI assets"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
