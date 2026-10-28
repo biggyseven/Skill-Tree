@@ -210,6 +210,34 @@ INSERT OR IGNORE INTO shop_items (id, nom, description, prix, type)
 VALUES
     ('hint', 'Indice', 'Débloque un indice pour t''aider à résoudre un exercice.', 50, 'hint'),
     ('streak_freeze', 'Gel de streak', 'Protège ta série pendant une journée manquée.', 100, 'streak_freeze');
+
+CREATE TABLE IF NOT EXISTS tickets (
+    id TEXT PRIMARY KEY,
+    scenario_id TEXT NOT NULL,
+    type TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'open',
+    opened_at TEXT NOT NULL,
+    sla_deadline TEXT,
+    resolved_at TEXT,
+    resolution_data TEXT NOT NULL DEFAULT '{}',
+    xp_earned INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE INDEX IF NOT EXISTS idx_tickets_status_opened
+    ON tickets(status, opened_at);
+
+CREATE TABLE IF NOT EXISTS ticket_actions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ticket_id TEXT NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+    action_type TEXT NOT NULL,
+    payload TEXT NOT NULL DEFAULT '{}',
+    at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ticket_actions_ticket_at
+    ON ticket_actions(ticket_id, at);
+
 """
 
 
