@@ -381,8 +381,62 @@ class WarRoomApiTests(unittest.TestCase):
             self.assertIn("multi_vlan", faults["trunk_missing"]["topologies"])
             self.assertIn(
                 {"id": "Fa0/7", "label": "Fa0/7"},
-                options["targets"]["lan_simple"]["port_shutdown"][0]["ports"],
+                next(target for target in options["targets"]["lan_simple"]["port_shutdown"] if target["id"] == "SW1")["ports"],
             )
+
+
+    def test_all_eight_faults_start_broken_and_have_a_repairable_rule(self) -> None:
+        from app.scenario_faults import SCENARIO_FAULTS
+        from app.scenario_loader import BASE_TOPOLOGIES, build_scenario, get_scenario_options
+
+        options = get_scenario_options()
+        self.assertEqual(len(SCENARIO_FAULTS), 8)
+        for fault_id in SCENARIO_FAULTS:
+            compatible_topology = next(
+                topology_id for topology_id, faults in options["targets"].items()
+                if faults.get(fault_id)
+            )
+            target = options["targets"][compatible_topology][fault_id][0]
+            target_port = target["ports"][0]["id"]
+            scenario = build_scenario(
+                scenario_id="RND-UNIT-TEST",
+                title=f"Test {fault_id}",
+                scenario_type="incident",
+                severity="normal",
+                topology_id=compatible_topology,
+                fault_id=fault_id,
+                target_device=target["id"],
+                target_port=target_port,
+                sla_minutes=30,
+            )
+            device = next(node for node in scenario["initial_topology"]["nodes"] if node["id"] == target["id"])
+            port = next(port for port in device["ports"] if port["id"] == target_port)
+            self.assertFalse(
+                SCENARIO_FAULTS[fault_id]["fix_validator"](device, port),
+                f"{fault_id} doit être réellement injectée",
+            )
+            rule = scenario["resolution_check"]["rules"][0]
+            if fault_id == "vlan_mismatch":
+                port["vlan"] = rule["value"]
+            elif fault_id == "port_shutdown":
+                port["state"] = "up"
+            elif fault_id == "ip_wrong":
+                port["ip"] = rule["value"]
+            elif fault_id == "acl_missing":
+                device["config"].setdefault("acls", []).append(f"101 {rule['value']}")
+            elif fault_id == "trunk_missing":
+                device["config"]["interfaces"][target_port]["mode"] = "trunk"
+                port["mode"] = "trunk"
+            elif fault_id == "ospf_down":
+                device["config"]["interfaces"][target_port]["ospf_enabled"] = True
+            elif fault_id == "default_gateway_missing":
+                device["config"]["gateway"] = rule["value"]
+            elif fault_id == "dhcp_off":
+                device["config"]["dhcp_enabled"] = True
+
+            checks = api._scenario_topology_checks(scenario, scenario["initial_topology"])
+            self.assertTrue(all(item["passed"] for item in checks), f"{fault_id}: {checks}")
+            self.assertIn(compatible_topology, BASE_TOPOLOGIES)
 
 if __name__ == "__main__":
     unittest.main()
