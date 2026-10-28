@@ -17,3 +17,13 @@
   border-color: rgb(var(--emerald-400) / .35) !important;
   box-shadow: 0 0 0 3px rgb(var(--emerald-400) / .05) !important;
 }
+
+
+/* Graphite : aucune plaque de fond derrière les actions de la barre supérieure sur ordinateur. */
+@media (min-width: 1280px) {
+  html[data-theme="graphite"] .app-header-action-items {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+}
