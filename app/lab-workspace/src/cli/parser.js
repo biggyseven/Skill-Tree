@@ -263,7 +263,13 @@ export class CLIParser {
   }
 
   findPort(name) {
-    return (this.device.ports || []).find(p => p.id === name || p.name === name);
+    // IOS accepte les noms d'interfaces sans distinction de majuscules/minuscules.
+    // On conserve toutefois l'identifiant d'origine sur l'objet de port.
+    const requestedName = String(name || '').trim().toLowerCase();
+    return (this.device.ports || []).find(p =>
+      String(p.id || '').trim().toLowerCase() === requestedName ||
+      String(p.name || '').trim().toLowerCase() === requestedName
+    );
   }
 
   ensureProtocols() {
@@ -320,7 +326,9 @@ export class CLIParser {
 
     // --- MODE PRIVILEGED ---
     if (this.mode === 'privileged') {
-      if (cmd === 'configure' && tokens[1] === 'terminal') {
+      // Accepte la forme complète et l'abréviation Cisco habituelle « conf t ».
+      if (['conf', 'config', 'configure'].includes(cmd) &&
+          ['t', 'term', 'terminal'].includes(String(tokens[1] || '').toLowerCase())) {
         this.mode = 'config';
         return { output: 'Enter configuration commands, one per line.  End with CNTL/Z.' };
       }
@@ -475,9 +483,10 @@ export class CLIParser {
       }
       if (cmd === 'interface' && tokens[1]) {
         const port = this.findPort(tokens[1]);
-        if (!port) return { output: '% Interface not found.' };
+        if (!port) return { output: `% Interface ${tokens[1]} not found. Available interfaces: ${(this.device.ports || []).map(p => p.name || p.id).join(', ') || 'none'}.` };
         this.mode = 'interface';
-        this.context.interface = tokens[1];
+        // Garder le nom canonique évite une recherche différente après l'entrée en mode interface.
+        this.context.interface = port.name || port.id;
         return { output: '' };
       }
       if (cmd === 'ip' && tokens[1] === 'route' && tokens.length >= 5) {
