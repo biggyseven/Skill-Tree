@@ -22,6 +22,20 @@ Le cas « Préparer la recette d’une application métier » sert de fil rouge.
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser l’outil ou le processus sans résoudre le problème métier.
 
+```mermaid
+flowchart TD
+    A["Besoins et risques métier"] --> B["Exigences de qualité mesurables"]
+    B --> C["Stratégie et plan de test"]
+    C --> D["Vérifications pendant la réalisation"]
+    D --> E["Tests système et non-régression"]
+    E --> F["Recette et décision autorisée"]
+    F --> G["Transfert en exploitation"]
+    G --> H["Surveillance et amélioration"]
+    H --> B
+```
+
+L’assurance qualité vise à rendre les conditions de qualité explicites et à améliorer les processus qui permettent de les atteindre ; le contrôle qualité vérifie les produits et les résultats. Les tests sont une source de preuves parmi d’autres, avec les revues, analyses statiques, audits, mesures d’exploitation et retours utilisateurs. Une décision d’acceptation doit s’appuyer sur des critères connus à l’avance, un statut fiable des anomalies et une autorité habilitée.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -60,6 +74,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », qualité et critères constitue une pratique qui doit répondre à une intention précise. La qualité représente l’aptitude à satisfaire des exigences explicites et l’usage attendu ; les critères doivent être vérifiables et convenus en amont. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Besoin utilisateur et contraintes"] --> B["Formuler une exigence qualité"]
+    B --> C["Définir une mesure et un seuil"]
+    C --> D["Choisir le moyen de vérification"]
+    D --> E["Collecter les preuves"]
+    E --> F{"Le critère est-il satisfait ?"}
+    F -->|"Oui"| G["Conserver la preuve et valider"]
+    F -->|"Non"| H["Analyser l'écart et corriger"]
+    H --> E
+```
+
+Une exigence de qualité doit être vérifiable. « L’application doit être rapide » est trop vague ; « le 95e percentile du temps de réponse doit rester inférieur à deux secondes pour le scénario X sous une charge définie » peut être mesuré, à condition de préciser l’environnement, le jeu de données et l’outil de mesure. Les exigences de qualité portent aussi sur la sécurité, l’accessibilité, la fiabilité, la maintenabilité et l’interopérabilité.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Un processus de validation précise les règles d’accès, la cohérence des données, le délai acceptable et le comportement en erreur. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -75,6 +103,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 ### 2. Assurance qualité et contrôle
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », assurance qualité et contrôle constitue une pratique qui doit répondre à une intention précise. L’assurance qualité améliore le processus qui produit le résultat ; le contrôle qualité vérifie des livrables et des résultats particuliers. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    A["Assurance qualité"] --> B["Standards, processus et prévention"]
+    A --> C["Audits et amélioration du système"]
+    D["Contrôle qualité"] --> E["Inspection et tests des produits"]
+    D --> F["Détection et traitement des défauts"]
+    B --> G["Confiance dans le processus"]
+    E --> H["Preuves de conformité du produit"]
+    G --> I["Décision qualité étayée"]
+    H --> I
+```
+
+L’assurance qualité agit principalement sur la capacité du processus à produire des résultats conformes ; le contrôle qualité examine les produits pour détecter des écarts. Ces activités se complètent : un test qui trouve un défaut est utile, mais l’analyse doit aussi demander pourquoi le processus l’a permis et quelle prévention rendra sa répétition moins probable. Une revue indépendante peut compléter les contrôles effectués par l’équipe de réalisation.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -92,6 +134,18 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », pyramide et niveaux de test constitue une pratique qui doit répondre à une intention précise. Les niveaux de tests visent des risques différents : composant, intégration, système, sécurité, performance, acceptation et exploitation. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Tests unitaires et composants"] --> B["Tests d'intégration"]
+    B --> C["Tests système de bout en bout"]
+    C --> D["Tests d'acceptation"]
+    E["Contrôles non fonctionnels ciblés"] --> F["Performance, sécurité, accessibilité et résilience"]
+    F --> G["Preuves de qualité globale"]
+    D --> G
+```
+
+La représentation en niveaux indique des objectifs différents, pas l’obligation d’avoir exactement quatre couches ni de placer tous les tests dans un ordre rigide. Les tests unitaires sont généralement rapides et ciblés ; l’intégration révèle les défauts d’interface ; les tests système examinent le comportement du produit intégré ; l’acceptation vérifie l’adéquation aux besoins et critères convenus. Les tests de performance, de sécurité et d’accessibilité traversent plusieurs niveaux selon le risque.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une règle métier peut être vérifiée tôt par des tests unitaires, puis confirmée sur un parcours de bout en bout. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -107,6 +161,18 @@ G -- Non --> I[Correction ou dérogation autorisée]
 ### 4. Critères et traçabilité
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », critères et traçabilité constitue une pratique qui doit répondre à une intention précise. La traçabilité relie exigence, cas de test, exécution, anomalie et décision d’acceptation. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    A["Besoin / exigence"] --> B["Critère d'acceptation"]
+    B --> C["Cas de test"]
+    C --> D["Données et environnement"]
+    D --> E["Résultat observé et preuve"]
+    E --> F["Anomalie ou conformité"]
+    F --> G["Décision de recette"]
+```
+
+Une matrice de traçabilité relie chaque exigence aux tests qui la vérifient et aux preuves collectées. Elle permet de repérer les exigences sans test, les cas de test sans besoin associé et les changements dont les conséquences n’ont pas été analysées. La traçabilité ne doit pas se limiter à une colonne de liens : les résultats, la version testée et l’état réel des anomalies doivent rester consultables.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -124,6 +190,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », préparation de la recette constitue une pratique qui doit répondre à une intention précise. La recette nécessite des rôles, jeux de données, environnements, préconditions, critères d’entrée et critères de sortie. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Périmètre et critères convenus"] --> B["Nommer décideur, testeurs et support"]
+    B --> C["Préparer scénarios, données et environnement"]
+    C --> D["Vérifier prérequis et version candidate"]
+    D --> E{"Conditions de démarrage réunies ?"}
+    E -->|"Oui"| F["Exécuter les tests de recette"]
+    E -->|"Non"| G["Corriger le prérequis et replanifier"]
+    G --> D
+    F --> H["Consolider résultats et anomalies"]
+```
+
+Une recette efficace se prépare avant la livraison candidate. Les rôles doivent être identifiés : qui exécute les scénarios, qui aide à diagnostiquer, qui qualifie les anomalies et qui est autorisé à accepter. Il faut également valider les comptes, données de test non sensibles, jeux de données représentatifs, accès, sauvegardes et critères de démarrage et d’arrêt. Sans prérequis vérifiés, un échec peut provenir de l’environnement plutôt que du produit.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Les utilisateurs valident un jeu représentatif avant le lancement de la campagne afin d’éviter les retards dus à des accès absents. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -139,6 +219,22 @@ G -- Non --> I[Correction ou dérogation autorisée]
 ### 6. Tests positifs et négatifs
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », tests positifs et négatifs constitue une pratique qui doit répondre à une intention précise. Les cas normaux, limites, erreurs, droits insuffisants et données invalides doivent être examinés selon le risque. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Décrire le comportement attendu"] --> B["Cas nominal"]
+    A --> C["Entrées invalides et erreurs"]
+    A --> D["Limites et valeurs frontières"]
+    A --> E["Droits insuffisants et accès interdit"]
+    A --> F["Pannes, délais et reprise"]
+    B --> G["Comparer résultat observé aux critères"]
+    C --> G
+    D --> G
+    E --> G
+    F --> G
+```
+
+Les tests positifs vérifient que le produit fonctionne dans les conditions prévues ; les tests négatifs examinent les réponses aux entrées invalides, permissions insuffisantes, dépendances indisponibles et situations inattendues. Les valeurs frontières sont particulièrement utiles lorsqu’une règle comporte des seuils. Pour une limite de 100 éléments, teste par exemple 99, 100 et 101, puis vérifie aussi les messages, journaux et effets secondaires.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -156,6 +252,21 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », gestion des anomalies constitue une pratique qui doit répondre à une intention précise. Une anomalie comprend un résultat observé, un attendu, les étapes de reproduction, l’environnement, la gravité et une preuve utile. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Anomalie observée"] --> B["Enregistrer étapes, attendu et réel"]
+    B --> C["Attacher preuve sûre et environnement"]
+    C --> D["Trier, reproduire et attribuer"]
+    D --> E["Corriger le défaut"]
+    E --> F["Vérifier le correctif"]
+    F --> G["Exécuter la non-régression concernée"]
+    G --> H{"Critères satisfaits ?"}
+    H -->|"Oui"| I["Clôturer avec preuve"]
+    H -->|"Non"| D
+```
+
+Un rapport d’anomalie doit contenir assez d’informations pour être reproduit : version, environnement, préconditions, étapes, résultat attendu, résultat observé et preuve pertinente, en évitant d’y exposer des données confidentielles. L’anomalie est suivie jusqu’à vérification de la correction et tests de non-régression. Un statut « corrigé » signifie que le code a été modifié ; il ne signifie pas encore que le défaut est résolu.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Un ticket contient la version exacte, les étapes, la capture pertinente et les données nécessaires sans exposer d’informations réelles sensibles. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -171,6 +282,19 @@ G -- Non --> I[Correction ou dérogation autorisée]
 ### 8. Sévérité et priorité
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », sévérité et priorité constitue une pratique qui doit répondre à une intention précise. La sévérité mesure l’effet du défaut ; la priorité détermine l’ordre du traitement selon urgence, contexte et risques. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Défaut décrit et reproduit"] --> B["Évaluer la sévérité : impact technique ou métier"]
+    A --> C["Évaluer la priorité : urgence de traitement"]
+    B --> D["Décider avec contexte, risques et contournements"]
+    C --> D
+    D --> E{"Bloquant pour la recette ou la mise en production ?"}
+    E -->|"Oui"| F["Corriger ou décider une exception autorisée"]
+    E -->|"Non"| G["Planifier et documenter le traitement"]
+```
+
+La sévérité décrit la gravité de l’effet du défaut ; la priorité décrit l’urgence de son traitement. Un problème visuel sur une page très visible peut avoir une priorité élevée sans être techniquement critique. À l’inverse, une faille de sécurité peu visible peut avoir une sévérité élevée même si elle touche un parcours rarement utilisé. La décision tient aussi compte de la fréquence, de l’exposition, des contournements et des obligations applicables.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -188,6 +312,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », automatisation et tests de non-régression constitue une pratique qui doit répondre à une intention précise. L’automatisation accélère les contrôles répétables mais ne remplace ni l’exploration humaine ni le jugement sur l’acceptation. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Sélectionner les scénarios répétitifs et critiques"] --> B["Automatiser avec des assertions vérifiables"]
+    B --> C["Intégrer à la CI ou au pipeline de livraison"]
+    C --> D["Collecter résultat et diagnostic"]
+    D --> E{"Test stable et pertinent ?"}
+    E -->|"Oui"| F["Exécuter régulièrement"]
+    E -->|"Non"| G["Réparer le test, les données ou le contrat"]
+    G --> B
+    F --> H["Analyser échecs et tendances"]
+```
+
+L’automatisation est particulièrement intéressante pour les contrôles fréquents, déterministes et coûteux à répéter manuellement. Elle n’est pas gratuite : il faut maintenir les scripts, les données, les environnements et les diagnostics. Un test instable peut ralentir les équipes et réduire la confiance dans le pipeline ; il doit être étudié, pas désactivé silencieusement. Les tests exploratoires humains restent utiles pour découvrir des comportements inattendus.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Un test de contrat est exécuté dans la CI à chaque changement tandis que l’acceptation d’usage demeure conduite par les représentants métier. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -203,6 +341,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 ### 10. Performance et résilience
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », performance et résilience constitue une pratique qui doit répondre à une intention précise. La qualité inclut le comportement sous charge, la gestion des erreurs, la reprise, la sauvegarde et la surveillance. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Définir les objectifs de service"] --> B["Modéliser charge et profils d'utilisation"]
+    B --> C["Mesurer latence, débit et erreurs"]
+    C --> D["Tester saturation, panne et reprise"]
+    D --> E["Comparer aux seuils et au comportement attendu"]
+    E --> F{"Résilience et performance acceptables ?"}
+    F -->|"Oui"| G["Documenter preuves et limites"]
+    F -->|"Non"| H["Analyser goulot et corriger"]
+    H --> B
+```
+
+La qualité de performance exige un scénario représentatif : volume, concurrence, durée, données, ressources et dépendances. La moyenne seule peut masquer les ralentissements subis par une partie des utilisateurs ; on peut examiner des percentiles, les taux d’erreur et l’évolution sous charge. La résilience implique aussi de vérifier les délais d’expiration, les reprises, la restauration et le comportement dégradé, avec des seuils définis à l’avance.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -220,6 +372,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », sécurité et conformité constitue une pratique qui doit répondre à une intention précise. Les contrôles de sécurité doivent être intégrés au cycle et produire des preuves cohérentes avec la criticité et les obligations applicables. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Identifier données et actifs sensibles"] --> B["Définir exigences et scénarios de menace"]
+    B --> C["Préparer tests et contrôles autorisés"]
+    C --> D["Vérifier authentification, autorisation et journalisation"]
+    D --> E["Examiner vulnérabilités et confidentialité"]
+    E --> F["Documenter preuves, limites et écarts"]
+    F --> G{"Risques résiduels acceptables par l'autorité ?"}
+    G -->|"Oui"| H["Consigner décision et surveillance"]
+    G -->|"Non"| I["Corriger ou escalader avant la mise en production"]
+```
+
+La validation de sécurité doit respecter un périmètre de test autorisé et éviter d’exposer des secrets ou des données personnelles dans les rapports. Vérifie notamment l’authentification, les permissions, la gestion de session, les secrets, les journaux, les dépendances et la confidentialité des sauvegardes. Une absence de défaut détecté ne prouve pas qu’un produit est parfaitement sûr ; elle doit être interprétée à la lumière de la couverture, des méthodes et des limites des tests.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** L’équipe vérifie les rôles, la durée de session, les journaux et la gestion des secrets avant la décision de production. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -235,6 +401,20 @@ G -- Non --> I[Correction ou dérogation autorisée]
 ### 12. Décision d’acceptation
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », décision d’acceptation constitue une pratique qui doit répondre à une intention précise. La recette est une décision gouvernée fondée sur critères, preuves, anomalies ouvertes et risque résiduel. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Résultats de test et traçabilité"] --> B["État des anomalies et risques résiduels"]
+    B --> C["Vérifier critères obligatoires et seuils d'acceptation"]
+    C --> D{"Les critères autorisent-ils l'acceptation ?"}
+    D -->|"Oui"| E["Décideur habilité accepte avec preuves"]
+    D -->|"Non"| F["Refuser, corriger ou demander une dérogation"]
+    F --> G["Documenter la décision et les impacts"]
+    G --> C
+    E --> H["Préparer transfert et autorisation opérationnelle"]
+```
+
+La recette est une décision de gouvernance étayée par des tests par rapport aux besoins et aux critères d’acceptation ; elle ne se résume ni au nombre de tests passés ni à l’avis d’une seule personne. L’ISTQB définit l’acceptance testing comme un niveau de test qui vise à déterminer s’il faut accepter le système. Une dérogation doit être explicitement autorisée, documenter les risques et ne jamais contourner les obligations légales ou les seuils de sécurité non négociables. Référence : [Glossaire officiel ISTQB](https://glossary.istqb.org/en_US/term/acceptance-testing).
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -252,6 +432,21 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 **Comprendre le concept.** Dans « Assurance qualité et tests de recette », transfert aux opérations constitue une pratique qui doit répondre à une intention précise. La qualité de service demande des runbooks, une supervision, une procédure de restauration, une équipe support et une formation. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Produit accepté et prêt pour transfert"] --> B["Documentation et configuration vérifiées"]
+    B --> C["Supervision, alertes et procédures de reprise"]
+    C --> D["Formation du support et escalade"]
+    D --> E["Transfert des accès et responsabilités"]
+    E --> F["Vérification de préparation opérationnelle"]
+    F --> G{"Critères opérationnels réunis ?"}
+    G -->|"Oui"| H["Autoriser la mise en service"]
+    G -->|"Non"| I["Lever les écarts avant décision"]
+    I --> F
+```
+
+Un produit peut réussir sa recette fonctionnelle et rester imprêt à être exploité. Le transfert vérifie les procédures de support, la supervision, les alertes, les sauvegardes, la restauration, les accès, les contacts fournisseur, la documentation et les responsabilités. Le passage en production doit être préparé par les équipes d’exploitation et de sécurité, avec une décision explicite et un plan de retour arrière adapté.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le transfert n’est accepté que lorsque l’astreinte connaît les alarmes, les procédures et les conditions d’escalade. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -268,6 +463,21 @@ G -- Non --> I[Correction ou dérogation autorisée]
 
 Une application de gestion contient des parcours critiques, des données personnelles et plusieurs interfaces. Les délais sont serrés et le sponsor veut une décision claire de mise en production fondée sur des preuves.
 
+```mermaid
+flowchart TD
+    A["Décrire parcours critiques et obligations"] --> B["Écrire critères d'acceptation"]
+    B --> C["Relier exigences et scénarios de test"]
+    C --> D["Préparer données et environnement représentatifs"]
+    D --> E["Exécuter tests fonctionnels et non fonctionnels"]
+    E --> F["Trier défauts et risques résiduels"]
+    F --> G{"Critères et seuils satisfaits ?"}
+    G -->|"Oui"| H["Décision de recette documentée"]
+    G -->|"Non"| I["Corriger ou arbitrer les réserves autorisées"]
+    I --> E
+```
+
+Pour l’application métier, commence par identifier les parcours critiques, les données personnelles, les interfaces, les règles métier et les contraintes de disponibilité. Les cas de test sont conçus à partir de critères acceptables et reliés aux exigences. Le rapport de recette distingue la couverture effectuée, les résultats, les anomalies ouvertes, les risques et la recommandation ; le décideur peut ainsi accepter ou refuser en connaissance de cause.
+
 ### Cadrage et données de départ
 
 Les acteurs commencent par décrire le problème avec des faits vérifiables, puis identifient les bénéficiaires, les exigences et les contraintes. Ils séparent les obligations impératives des préférences, écrivent les hypothèses et demandent une confirmation lorsque celles-ci conditionnent fortement le coût ou la date. Le responsable du projet désigne un propriétaire pour chaque décision majeure, fixe un mécanisme d’escalade et conserve une trace des validations. La première sortie attendue est une compréhension commune du travail, et non une liste exhaustive de tâches écrite avant d’avoir compris le besoin.
@@ -276,13 +486,51 @@ Les acteurs commencent par décrire le problème avec des faits vérifiables, pu
 
 L’équipe compare au moins deux options réalistes, dont une option limitée ou progressive. Chaque option est évaluée selon la valeur, le coût complet, le délai, les risques, la réversibilité, les dépendances et les conséquences en exploitation. Les avantages non mesurés sont explicitement identifiés comme hypothèses. Une décision est recommandée lorsque le raisonnement est clair, les compromis sont compris et la personne habilitée a accès aux éléments nécessaires. En cas d’incertitude importante, un prototype ou une estimation complémentaire peut être plus utile qu’un engagement prématuré.
 
+```mermaid
+flowchart TD
+    A["Recette complète en une fois"] --> D["Comparer couverture, délai et risque"]
+    B["Recette par lots"] --> D
+    C["Pilote utilisateurs puis extension"] --> D
+    D --> E["Examiner criticité et dépendances"]
+    E --> F["Définir seuils d'arrêt, reprise et acceptation"]
+    F --> G["Choisir et documenter l'approche"]
+```
+
+La stratégie de recette doit équilibrer couverture, coût, temps disponible et risque métier. Une recette complète en une fois peut être adaptée à un périmètre stable mais tardive pour découvrir les problèmes ; une recette par lots expose plus tôt les défauts ; un pilote fournit des retours ciblés avant l’extension. Le choix ne doit pas supprimer les tests obligatoires pour la sécurité, la conformité ou les scénarios critiques.
+
 ### Mise en œuvre et suivi
 
 Le plan est découpé en livrables que l’on peut vérifier. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier la définition de l’indicateur. La communication est adaptée à chaque public et les décisions qui dépassent les délégations remontent à la gouvernance.
 
+```mermaid
+flowchart TD
+    A["Campagne de test planifiée"] --> B["Exécuter et consigner les preuves"]
+    B --> C["Trier les anomalies avec sévérité et priorité"]
+    C --> D["Corriger et vérifier"]
+    D --> E["Lancer la non-régression ciblée"]
+    E --> F["Actualiser couverture et risques"]
+    F --> G{"Critères de sortie atteints ?"}
+    G -->|"Oui"| H["Préparer le dossier de décision"]
+    G -->|"Non"| B
+```
+
+Le suivi doit fournir une image honnête de la qualité du candidat : tests prévus et exécutés, réussite ou échec, couverture des exigences, anomalies par gravité, défauts réouverts et risques non couverts. Le pourcentage d’exécution ne suffit pas si les scénarios les plus critiques n’ont pas été testés. Toute modification de version doit être reliée aux tests qui doivent être rejoués.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités d’exploitation sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, la cause des écarts, les adaptations utiles et les pratiques à conserver. Elle ne doit pas désigner des coupables : elle cherche à rendre le système de travail plus fiable et l’organisation plus apte à apprendre.
+
+```mermaid
+flowchart TD
+    A["Décision formelle de recette"] --> B["Consigner acceptation, réserves ou refus"]
+    B --> C["Confirmer risques et actions restantes"]
+    C --> D["Transférer vers exploitation et support"]
+    D --> E["Observer incidents et retours après mise en service"]
+    E --> F["Comparer résultats aux critères initiaux"]
+    F --> G["Améliorer stratégie et cas de test"]
+```
+
+Après la mise en service, les incidents réels et les retours utilisateurs permettent de vérifier si les critères initiaux reflétaient correctement les besoins. Les défauts échappés doivent être analysés pour identifier une lacune d’exigence, de couverture, d’environnement ou de processus. Les apprentissages sont transformés en amélioration des critères, des tests et de la préparation de recette, plutôt qu’en simple comptage d’erreurs.
 
 ## Atelier pratique
 
