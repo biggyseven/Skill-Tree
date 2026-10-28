@@ -230,14 +230,12 @@ Les fenêtres regroupent les événements en intervalles fixes, glissants ou par
 Le moteur doit définir ce qu’il fait après la fermeture d’une fenêtre : ignorer les événements tardifs, les envoyer vers un flux de correction, réviser l’agrégat ou conserver un état qui permet une mise à jour. Une métrique temps réel peut privilégier la faible latence, tandis qu’un rapport financier peut nécessiter des rapprochements plus complets.
 
 ```mermaid
-timeline
-    title Exemple conceptuel de gestion du temps
-    09:00 : Événement A se produit
-    09:01 : Événement B se produit
-    09:04 : A et B sont traités
-    09:06 : Watermark avance
-    09:08 : Événement C arrive en retard
-    09:09 : Correction ou quarantaine selon le contrat
+flowchart LR
+    A["09 h 00 — Événement A se produit"] --> B["09 h 01 — Événement B se produit"]
+    B --> C["09 h 04 — A et B sont traités"]
+    C --> D["09 h 06 — Le watermark avance"]
+    D --> E["09 h 08 — Événement C arrive en retard"]
+    E --> F["09 h 09 — Correction ou quarantaine selon le contrat"]
 ```
 
 Utilisez un horodatage sans ambiguïté, généralement stocké en UTC avec un fuseau indiqué lors de la présentation métier. Gardez l’heure source et l’heure d’ingestion lorsqu’elles servent au diagnostic. Les fenêtres de fermeture, changements d’heure et jours fériés doivent être traités explicitement, car une journée métier n’est pas toujours une journée UTC.
