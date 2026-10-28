@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « SNMP v1/v2c/v3 et MIB ».",
+      "prompt": "Un manager reçoit « noSuchObject » après une requête à un OID issu d'une MIB constructeur installée localement. Quelle démarche est la plus rigoureuse ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Augmenter immédiatement la fréquence de polling jusqu'à ce que la valeur apparaisse.",
+        "Vérifier le modèle et le firmware, l'OID exact et son instance, puis les vues d'accès et les objets réellement implémentés par l'agent.",
+        "Considérer que l'installation de la MIB prouve que l'objet existe sur tous les appareils du constructeur.",
+        "Activer les droits SET sur l'agent pour rendre l'OID disponible."
+      ],
+      "answer": 1,
+      "explanation": "Le fichier MIB définit la structure et la sémantique d'un objet, mais ne force pas l'agent à implémenter cet objet. Une extension peut dépendre du modèle ou du firmware, et une vue de contrôle d'accès peut masquer des branches. Il faut vérifier la documentation du matériel, l'instance demandée et les droits du compte. Une erreur explicite de type noSuchObject n'est pas la même chose qu'un délai d'attente réseau ; augmenter la fréquence ne corrige donc pas la cause."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un compteur d'octets de 32 bits semble repartir près de zéro sur une interface haut débit, alors que le trafic utilisateur continue. Quelle explication et quelle mesure sont les plus adaptées ?",
+      "choices": [
+        "Le trafic a forcément cessé puis repris ; déclencher une panne critique de l'interface.",
+        "Le compteur mesure une jauge instantanée, donc la valeur doit être utilisée directement comme débit.",
+        "Un débordement ou une discontinuité a pu se produire ; vérifier le redémarrage et l'intervalle, puis préférer un compteur 64 bits si l'agent le fournit et traiter les discontinuités.",
+        "Additionner les deux valeurs brutes sans vérifier l'intervalle entre les lectures."
+      ],
+      "answer": 2,
+      "explanation": "Un compteur cumulatif augmente au fil du temps ; il ne représente pas directement un débit instantané. Les compteurs de 32 bits peuvent revenir à zéro à leur limite, et une réinitialisation peut aussi interrompre la continuité. Le collecteur doit calculer la différence sur un intervalle connu, vérifier les éventuelles discontinuités et convertir les octets en bits par seconde. Les compteurs 64 bits sont généralement préférables sur les interfaces rapides lorsqu'ils sont disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une entreprise doit conserver temporairement un équipement qui ne prend en charge que SNMPv2c. Quelle mesure réduit le risque sans surestimer les propriétés de sécurité de la version ?",
+      "choices": [
+        "Restreindre le chemin de gestion aux managers connus, utiliser une communauté dédiée, limiter les objets et privilèges, désactiver l'écriture inutile et documenter une migration.",
+        "Exposer UDP/161 à tous les réseaux, car v2c chiffre déjà les requêtes.",
+        "Réutiliser la communauté par défaut si le polling est limité à une fois par heure.",
+        "Activer une communauté en lecture-écriture afin que le manager puisse corriger la configuration sans autorisation."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "SNMPv2c repose sur le modèle communautaire et ne fournit pas la confidentialité cryptographique de SNMPv3 authPriv. Un secret plus complexe ne transforme pas ce modèle en chiffrement. Si la compatibilité impose temporairement v2c, l'exposition peut être réduite en isolant le réseau de gestion, en limitant les sources autorisées, en utilisant une communauté dédiée avec des droits minimaux et en désactivant l'écriture inutile. L'exception doit être documentée et assortie d'un plan d'évolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un trap « interface down » arrive, mais lorsque le technicien consulte l'équipement, l'interface est déjà revenue à l'état up. Quelle conception permet de traiter ce cas proprement ?",
+      "choices": [
+        "Considérer que le trap décrit toujours l'état courant et redémarrer le commutateur.",
+        "Supprimer le polling, car les notifications rendent les mesures historiques inutiles.",
+        "Ignorer tous les traps et ne faire qu'un relevé quotidien des interfaces.",
+        "Conserver la notification comme événement, relire l'état courant via polling, examiner l'historique et corréler les transitions avant de conclure."
+      ],
+      "answer": 3,
+      "explanation": "Un trap informe d'un événement au moment où l'agent l'a détecté ; il peut arriver après un rétablissement et ne garantit pas, à lui seul, l'état actuel. Le polling construit un historique et permet de relire la valeur courante. Un inform peut demander une confirmation de réception, mais cette confirmation n'implique pas que l'équipe a traité l'incident. La meilleure conception combine notifications, historique, déduplication et vérification de l'état actuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un manager SNMPv3 configuré en authPriv ne reçoit aucune réponse. Quelle séquence de dépannage évite le mieux d'affaiblir la sécurité par tâtonnements ?",
+      "choices": [
+        "Passer définitivement en noAuthNoPriv et autoriser toutes les sources avant d'examiner les logs.",
+        "Vérifier d'abord l'adresse, le routage, les ACL et les ports, puis confirmer la version, l'utilisateur, le niveau de sécurité, les paramètres d'authentification/confidentialité, le contexte et l'état de l'agent.",
+        "Essayer des opérations SET sur plusieurs OID jusqu'à provoquer une réponse.",
+        "Conclure à une panne matérielle sans examiner le chemin de gestion."
+      ],
+      "answer": 1,
+      "explanation": "Une absence de réponse peut provenir du réseau, d'un filtrage, d'un agent saturé ou d'une incohérence de configuration SNMPv3. Le dépannage doit séparer le transport des paramètres de sécurité : adresse et chemin, ACL et ports, puis utilisateur, niveau authPriv, secrets et algorithmes pris en charge, contexte et indications de l'agent. Il ne faut pas désactiver la sécurité à l'aveugle ni donner des droits d'écriture pour tester la connectivité. Une fois la cause isolée, corrigez une hypothèse à la fois et retestez depuis le manager autorisé."
     }
   ]
 }
