@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « On-call, runbooks et post-mortems ».",
+      "prompt": "Quel critère est le plus important pour décider qu’une alerte doit déclencher une page immédiate ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Elle correspond à un symptôme ayant un impact important ou qui s’aggravera avant la prochaine période ouvrée, et une action humaine peut changer la situation.",
+        "La métrique observée est supérieure à un seuil technique, quel que soit l’impact sur le service.",
+        "L’alerte a été créée par l’équipe infrastructure plutôt que par l’équipe applicative.",
+        "Le tableau de bord comporte au moins cinq métriques rouges."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Une page doit demander une action immédiate et être liée à un impact significatif ou à un risque d’aggravation. Un seuil technique seul ne suffit pas : il faut considérer l’urgence, l’impact, la possibilité d’intervention et la capacité du destinataire à agir. Les anomalies moins urgentes peuvent être converties en tickets ou notifications."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir un runbook de production de qualité avant une remédiation risquée ?",
+      "choices": [
+        "Uniquement la commande de redémarrage recommandée par l’expert qui connaît le service.",
+        "Des observations initiales sûres, des préconditions, les risques, les critères de décision, l’autorisation et un retour arrière ou une condition d’escalade.",
+        "Une consigne de supprimer les journaux volumineux pour réduire rapidement la charge.",
+        "Une liste de tous les événements historiques sans instructions ordonnées."
+      ],
+      "answer": 1,
+      "explanation": "Le runbook doit confirmer le symptôme avant toute mutation, préciser les accès et préconditions, expliquer les résultats attendus et encadrer les actions à risque. Il faut aussi définir les critères d’arrêt, les étapes de validation et le chemin d’escalade. Une commande sans contexte peut aggraver l’incident ou détruire des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pendant un incident critique et complexe, pourquoi séparer l’Incident Commander du responsable technique ?",
+      "choices": [
+        "Pour empêcher le responsable technique de communiquer avec les autres équipes.",
+        "Pour rendre toutes les décisions exclusivement administratives.",
+        "Pour permettre à une personne de coordonner les priorités, les rôles et la communication pendant que les experts se concentrent sur le diagnostic et les remédiations.",
+        "Parce que le responsable technique ne doit jamais participer à une décision de remédiation."
+      ],
+      "answer": 2,
+      "explanation": "La séparation réduit la charge cognitive quand l’incident devient complexe. L’Incident Commander garde une vue d’ensemble, attribue les tâches et maintient le rythme des décisions ; le responsable technique conduit l’analyse. Les rôles peuvent se regrouper pour un incident simple, mais la coordination explicite devient précieuse quand plusieurs équipes interviennent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche décrit correctement un post-mortem sans blâme ?",
+      "choices": [
+        "Éviter de documenter les erreurs afin de ne pas mettre l’équipe mal à l’aise.",
+        "Choisir un responsable individuel et lui demander de promettre de ne plus recommencer.",
+        "Ne conserver que la cause immédiate, par exemple le dernier déploiement, sans examiner les contrôles.",
+        "Reconstituer les faits et le contexte, identifier les barrières absentes ou inefficaces, puis suivre des actions attribuées et vérifiables."
+      ],
+      "answer": 3,
+      "explanation": "Une revue sans blâme cherche à comprendre les conditions et les mécanismes qui ont permis l’incident plutôt qu’à faire porter toute l’explication sur une personne. Elle conserve une chronologie factuelle, repère les barrières qui ont échoué et produit des actions concrètes avec propriétaire, échéance et preuve d’efficacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert principalement une relève d’astreinte structurée lorsque des problèmes restent ouverts ?",
+      "choices": [
+        "À transmettre l’état, l’impact, les actions déjà menées, les silences temporaires, les risques résiduels et les prochaines étapes que le remplaçant confirme avoir comprises.",
+        "À fermer les incidents avant le changement de garde afin que la nouvelle personne démarre avec une liste vide.",
+        "À remplacer les runbooks par une conversation orale non consignée.",
+        "À transférer uniquement le nom de la personne de garde, puisque les alertes contiennent toujours tout le contexte."
+      ],
+      "answer": 0,
+      "explanation": "Une relève structurée maintient la continuité et évite que le nouvel intervenant découvre tardivement un risque connu ou répète une investigation. Elle énumère incidents, prochaines actions, changements, silences et échéances, puis confirme que le transfert a été compris. Elle ne clôture pas artificiellement les problèmes et complète les runbooks."
     }
   ]
 }
