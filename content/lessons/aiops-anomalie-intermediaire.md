@@ -456,6 +456,524 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Atelier approfondi — concevoir, calibrer et exploiter un détecteur d'anomalies
+
+Cet atelier complète le parcours principal par une démarche de conception de bout en bout. Le but n'est pas d'empiler des algorithmes, mais de produire un détecteur dont les résultats sont compréhensibles, mesurables et utiles à une équipe d'exploitation. Le fil rouge est un réseau d'entreprise qui collecte des taux d'utilisation, de la latence, des pertes, des erreurs d'interface et des changements de configuration. Les mêmes raisonnements s'appliquent à des services applicatifs, des files de messages, des bases de données ou des plateformes cloud, en adaptant les variables et les conséquences métier.
+
+Les valeurs ci-dessous illustrent une méthode et ne constituent pas une recommandation universelle. Les exemples synthétiques doivent être remplacés et validés sur les données pertinentes avant toute exploitation réelle.
+
+### 1. Commencer par formuler le problème opérationnel
+
+Une anomalie n'est pas une panne. Elle désigne une observation, un groupe d'observations ou une relation entre signaux qui s'écarte d'un comportement de référence. Une panne est un état opérationnel qui doit être confirmé selon des critères métiers ou techniques. Une variation statistiquement rare peut être légitime : sauvegarde nocturne, campagne de déploiement, exercice de reprise, changement de routage ou pic saisonnier. À l'inverse, un incident peut être progressif et rester dans les limites d'un seuil fixe : une perte qui augmente lentement, une capacité qui se réduit ou une latence qui dérive sans dépasser immédiatement une valeur absolue.
+
+Formulez une question précise avant de choisir la technique : « Détecter une hausse persistante de la latence sur les liens WAN, dans les quinze minutes suivant son apparition, sans générer plus de cinq alertes non pertinentes par équipe et par jour. » Cette phrase propose déjà une population, une fenêtre, un objectif de délai et une contrainte de bruit. Elle doit ensuite être négociée avec les utilisateurs. « Détecter les anomalies du réseau » n'est pas suffisamment opérationnel, car elle ne précise ni le comportement à repérer ni la qualité attendue.
+
+```mermaid
+flowchart TD
+    A["Besoin opérationnel"] --> B["Définir actif et signal"]
+    B --> C["Préciser horizon et délai"]
+    C --> D["Définir impact et tolérance au bruit"]
+    D --> E["Établir les données disponibles"]
+    E --> F["Choisir une baseline simple"]
+    F --> G["Comparer des méthodes"]
+    G --> H["Valider avec les équipes"]
+    H --> I["Déployer sous contrôle"]
+```
+
+Définissez au minimum les éléments suivants. La population décrit quels actifs sont comparables. La mesure indique ce qui est collecté, son unité et son sens. L'horizon détermine la période d'observation et le temps dans lequel une alerte conserve de la valeur. La décision attendue dit ce que l'équipe fera après réception de l'alerte. Le coût d'une alerte inutile doit être comparé au coût d'un incident manqué. Enfin, la condition d'arrêt précise quand le détecteur doit s'abstenir, par exemple lorsque trop de données sont manquantes ou que la référence n'est plus représentative.
+
+Un objectif utile est vérifiable avant la mise en production. Il peut s'agir d'un rappel minimal sur des incidents annotés, d'une limite de volume d'alertes, d'un délai médian de détection et d'une proportion d'alertes disposant d'éléments explicatifs. Les objectifs doivent être évalués ensemble. Améliorer le rappel tout en multipliant les alertes par vingt peut déplacer le problème de la détection vers le triage. De même, un faible volume d'alertes n'est pas une réussite si les incidents importants ne sont plus détectés.
+
+### 2. Distinguer les formes d'anomalies
+
+Une anomalie ponctuelle est une observation isolée qui surprend par rapport à son contexte. Un lien dont le taux d'erreurs passe brièvement de presque zéro à une valeur élevée peut en être un exemple. Une anomalie contextuelle dépend d'une condition telle que l'heure, le jour de la semaine, le rôle de l'équipement ou la charge habituelle. Un trafic de 70 % peut être normal sur un cœur de réseau à l'heure de pointe, mais inhabituel sur un lien de secours pendant la nuit. Une anomalie collective apparaît lorsque plusieurs observations prises ensemble sont inhabituelles, même si chacune reste plausible individuellement : latence qui augmente, débit qui chute et erreurs qui montent pendant une fenêtre commune.
+
+```mermaid
+flowchart LR
+    A["Observation"] --> B{"Quel type d'écart ?"}
+    B --> C["Ponctuel : un point extrême"]
+    B --> D["Contextuel : écart au contexte"]
+    B --> E["Collectif : motif ou séquence"]
+    C --> F["Score local"]
+    D --> G["Baseline conditionnelle"]
+    E --> H["Fenêtre et relations"]
+```
+
+Cette distinction influence l'algorithme et l'explication. Un seuil ponctuel répond à « cette valeur est-elle rare ? ». Une baseline contextuelle répond à « cette valeur est-elle inhabituelle pour cet actif à cette heure et dans ce mode de fonctionnement ? ». Une analyse collective répond à « ces signaux forment-ils une séquence ou une combinaison incompatible avec les situations normales ? ». Un modèle conçu pour des points indépendants ne détectera pas automatiquement des séquences temporelles ou des dépendances entre variables.
+
+Le contexte ne doit pas devenir une excuse pour masquer une dégradation. Si une anomalie apparaît après un changement planifié, enregistrez le lien avec ce changement et vérifiez l'effet réel au lieu de retirer aveuglément la fenêtre des évaluations. Une suppression permanente des périodes atypiques apprendrait au système que les effets des déploiements n'ont aucune importance. On peut filtrer une fenêtre pour une analyse donnée, mais la raison, le propriétaire, la date d'expiration et la méthode de validation doivent rester traçables.
+
+### 3. Auditer la qualité avant de calculer le score
+
+Un modèle sophistiqué ne compense pas une collecte défectueuse. Les problèmes courants sont les horodatages en fuseaux différents, les retards d'ingestion, les valeurs dupliquées, les compteurs remis à zéro, les changements d'unité, les équipements renommés, les périodes de collecte interrompues et les valeurs qui représentent en réalité « inconnu ». Une série vide ne signifie pas zéro perte de paquets. Une valeur manquante n'est pas interchangeable avec une valeur nulle.
+
+Pour chaque observation, conservez au minimum l'identifiant stable de l'actif, l'horodatage de l'événement, l'horodatage de collecte, la mesure, l'unité, la source et un indicateur de qualité. Lorsque la télémétrie vient de plusieurs systèmes, documentez la précision des horloges et la politique d'alignement des fenêtres. Les jointures sur le seul nom d'un appareil sont fragiles si les noms peuvent être réutilisés ou modifiés. Une clé stable et une chronologie des changements simplifient le diagnostic.
+
+```mermaid
+flowchart TD
+    A["Télémétrie brute"] --> B["Valider schéma et unité"]
+    B --> C{"Horodatage plausible ?"}
+    C -- "Non" --> X["Mettre en quarantaine"]
+    C -- "Oui" --> D["Dédupliquer"]
+    D --> E["Évaluer couverture et fraîcheur"]
+    E --> F{"Qualité suffisante ?"}
+    F -- "Non" --> Y["S'abstenir et signaler la qualité"]
+    F -- "Oui" --> G["Aligner les fenêtres"]
+    G --> H["Calculer les variables"]
+    H --> I["Scorer et expliquer"]
+```
+
+L'indicateur de couverture est essentiel. Une moyenne calculée sur 10 % des échantillons attendus peut sembler stable alors que les données ont disparu pendant la période la plus chargée. Calculez le ratio entre échantillons présents et attendus, la plus longue interruption, le retard d'arrivée et la part de valeurs invalides. Les seuils de qualité dépendent du système, mais ils doivent être explicites et testés. Quand la qualité est insuffisante, le résultat devrait être « indéterminé » plutôt qu'« aucune anomalie ».
+
+Sur les compteurs cumulatifs, soustrayez des relevés successifs avec prudence. Un delta négatif peut signaler une remise à zéro, un redémarrage ou une correction de collecte, et non un trafic négatif. Un delta très grand peut résulter d'une longue interruption entre deux collectes. Dans ces situations, marquez la fenêtre comme non comparable ou reconstruisez-la à l'aide d'une règle documentée. Évitez d'inventer des mesures pour remplir des trous sans enregistrer les imputations et sans tester leur effet sur le détecteur.
+
+Les contrôles de données doivent être observés comme un système à part entière. Si l'exporteur arrête de publier, le détecteur peut sembler silencieux précisément au moment où l'équipe a besoin de lui. Une alerte de fraîcheur ou de couverture doit donc avoir une voie de traitement différente d'une anomalie de performance. Cette séparation évite d'accuser le réseau alors que le problème réside dans la chaîne d'observabilité.
+
+### 4. Construire une baseline qui ressemble au fonctionnement normal
+
+La baseline est une référence, pas une vérité définitive. Une moyenne globale est un point de départ utile mais rarement un modèle suffisant pour une infrastructure hétérogène. Un équipement de cœur, un lien d'accès et un lien de secours n'ont ni la même capacité ni les mêmes rythmes. Segmenter par actif peut être pertinent lorsque l'historique est abondant ; segmenter par rôle, capacité, plage temporelle ou famille de service peut être plus robuste quand les actifs sont nouveaux ou ont peu de données.
+
+La segmentation comporte toutefois un risque : trop de sous-groupes produisent des baselines fragiles. Un groupe de trois observations ne donne pas une estimation fiable de la variabilité. Utilisez un niveau hiérarchique : baseline par famille, ajustement par actif si l'historique le permet, puis règle de repli explicitement définie. L'interface doit présenter la source de la référence et son niveau de confiance. Ne rendez pas l'incertitude invisible en affichant un score avec beaucoup de décimales.
+
+```mermaid
+flowchart TD
+    A["Nouvelle série"] --> B{"Historique suffisant ?"}
+    B -- "Non" --> C["Baseline de la famille"]
+    B -- "Oui" --> D["Baseline par actif"]
+    C --> E["Vérifier compatibilité du contexte"]
+    D --> E
+    E --> F{"Saison ou mode distinct ?"}
+    F -- "Oui" --> G["Sélectionner référence conditionnelle"]
+    F -- "Non" --> H["Utiliser référence générale"]
+    G --> I["Score avec incertitude"]
+    H --> I
+```
+
+La saisonnalité peut être quotidienne, hebdomadaire, mensuelle ou liée à des cycles métiers. Une décomposition temporelle peut isoler une tendance et une saisonnalité, mais il faut disposer d'un historique couvrant plusieurs cycles représentatifs. Si le système a changé récemment, les cycles anciens peuvent ne plus être comparables. Une baseline glissante s'adapte plus vite, mais peut absorber lentement une dégradation persistante et finir par la considérer comme normale. Une baseline fixe préserve le point de comparaison, mais devient obsolète après une évolution légitime de capacité ou de trafic. Une politique hybride permet de comparer le comportement courant à une référence stable et à une référence adaptative.
+
+La mise à jour d'une baseline doit être contrôlée. Évitez d'entraîner automatiquement sur des fenêtres récemment signalées comme anomalies ou sur des fenêtres d'incident connu sans analyse. La contamination peut déplacer la référence et réduire progressivement la capacité de détection. Le pipeline peut mettre les observations en attente, appliquer un filtrage documenté et publier une nouvelle version après revue. L'ancienne version doit rester récupérable pour expliquer les alertes passées et reproduire les décisions.
+
+### 5. Choisir les statistiques robustes et comprendre leurs limites
+
+Le z-score classique calcule l'écart à la moyenne en nombre d'écarts-types. Il est facile à expliquer et à utiliser lorsque la distribution est approximativement adaptée à cette hypothèse. Mais la moyenne et l'écart-type sont sensibles aux valeurs extrêmes. Un incident massif peut augmenter fortement la moyenne et l'écart-type ; les observations suivantes paraîtront alors moins surprenantes, alors qu'elles peuvent encore être problématiques.
+
+Le score robuste basé sur la médiane et l'écart absolu médian (MAD) résiste mieux à certaines valeurs extrêmes. La médiane décrit une position centrale robuste ; le MAD mesure la dispersion des distances à la médiane. On peut utiliser un facteur de normalisation pour rapprocher l'échelle du score de celle d'une distribution normale, mais son interprétation n'est fiable que si les hypothèses sont raisonnables. Si le MAD vaut zéro, il ne faut pas diviser par zéro, ni remplacer silencieusement le résultat par zéro. Ce cas doit déclencher une règle de repli, une fenêtre plus grande ou un signal de référence insuffisante.
+
+```mermaid
+flowchart LR
+    A["Fenêtre historique"] --> B["Calculer médiane"]
+    A --> C["Calculer moyenne et écart-type"]
+    B --> D["MAD des écarts absolus"]
+    C --> E["Z-score classique"]
+    D --> F{"MAD positif et stable ?"}
+    F -- "Oui" --> G["Score robuste"]
+    F -- "Non" --> H["Repli documenté"]
+    E --> I["Comparer stabilité et sensibilité"]
+    G --> I
+    H --> I
+```
+
+Une autre option consiste à définir des quantiles conditionnels. Par exemple, l'équipe peut examiner si une latence dépasse le quantile 99 de la référence correspondant à la même classe de service et à la même période. Un quantile ne garantit pas qu'un incident se produit au-delà de la limite, et un quantile extrême exige assez de données. La valeur obtenue dépend aussi de la méthode d'estimation. Les percentiles doivent être évalués sur une période séparée, et les seuils suivis lorsque la distribution évolue.
+
+L'IQR, différence entre le troisième et le premier quartile, fournit un autre résumé robuste. Une règle telle qu'une valeur sous le premier quartile moins 1,5 IQR ou au-dessus du troisième quartile plus 1,5 IQR est couramment utilisée pour visualiser des points atypiques. Elle ne doit pas devenir une loi opérationnelle universelle. Les distributions de latence, de charge et d'erreurs peuvent être asymétriques, multimodales ou limitées par des valeurs physiques. Une règle bilatérale peut être inadaptée : une baisse soudaine de débit peut être problématique alors qu'un débit élevé est attendu.
+
+EWMA (moyenne mobile exponentiellement pondérée) donne davantage de poids aux valeurs récentes et peut aider à repérer une dérive graduelle. CUSUM accumule les écarts par rapport à une référence et peut révéler un changement persistant de faible amplitude. Ces méthodes dépendent du réglage de leurs paramètres et de la stabilité de la référence. Elles ne doivent pas être évaluées uniquement sur un pic artificiel ; testez des scénarios lents, temporaires, cycliques et interrompus. Une courte pointe et une dérive progressive appellent des règles différentes.
+
+```mermaid
+flowchart TD
+    A["Choisir la forme du changement"] --> B{"Pic isolé ?"}
+    B -- "Oui" --> C["Score ponctuel ou quantile"]
+    B -- "Non" --> D{"Dérive graduelle ?"}
+    D -- "Oui" --> E["EWMA ou CUSUM"]
+    D -- "Non" --> F{"Combinaison de signaux ?"}
+    F -- "Oui" --> G["Détection multivariée ou règles croisées"]
+    F -- "Non" --> H["Revoir la définition et les données"]
+    C --> I["Tester faux positifs et délai"]
+    E --> I
+    G --> I
+    H --> I
+```
+
+Aucun score ne doit cacher les unités. Affichez la valeur observée, la valeur de référence, l'écart, la fenêtre, la qualité des données et les limites de l'algorithme. Le score permet un classement, mais l'opérateur doit pouvoir revenir à la mesure source. Une explication utile indique par exemple que la latence a dépassé son percentile habituel pendant quatre fenêtres consécutives, que la couverture est de 98 %, qu'une hausse des pertes est concomitante et qu'un changement de configuration a été détecté huit minutes auparavant. Seuls les éléments réellement calculés doivent être affichés ; ne fabriquez pas de cause probable si le système ne dispose pas de preuves suffisantes.
+
+### 6. Passer à plusieurs variables sans perdre l'interprétabilité
+
+La détection multivariée prend en compte les relations entre variables. Un débit élevé peut être normal si la capacité et la demande augmentent ensemble. Une charge CPU élevée peut être normale pendant une opération intensive, alors que la même charge accompagnée d'une file qui croît, d'un taux d'erreur en hausse et d'une latence croissante est plus préoccupante. L'objectif consiste à détecter des combinaisons atypiques, pas seulement à additionner des seuils indépendants.
+
+Avant de calculer une distance, standardisez les caractéristiques quand leurs échelles sont différentes. Sans cela, une variable exprimée en milliers peut dominer une variable comprise entre zéro et un. La standardisation doit être ajustée seulement sur l'ensemble d'entraînement, puis appliquée aux données ultérieures avec les paramètres enregistrés. Sinon, des informations du futur contaminent la référence et donnent une évaluation trop optimiste. La standardisation ne rend pas toutes les distributions normales et ne corrige pas les dépendances temporelles.
+
+```mermaid
+flowchart TD
+    A["Télémétrie alignée"] --> B["Sélectionner variables utiles"]
+    B --> C["Ajuster prétraitement sur train"]
+    C --> D["Standardiser selon paramètres figés"]
+    D --> E["Construire score multivarié"]
+    E --> F["Conserver contributions et contexte"]
+    F --> G["Comparer aux événements annotés"]
+    G --> H["Vérifier alertes et incertitude"]
+```
+
+Le clustering, par exemple K-means, DBSCAN ou HDBSCAN selon la bibliothèque retenue, peut aider à identifier des groupes de comportement et des observations éloignées des groupes. Cependant, un algorithme de clustering n'est pas automatiquement un détecteur d'incidents. K-means cherche des groupes compacts autour de centres et doit connaître le nombre de groupes ; il peut mal représenter des formes ou densités très différentes. DBSCAN identifie des régions denses et marque certains points comme bruit, mais les paramètres et les densités hétérogènes influencent fortement ses résultats. Un code de statut correspondant à un point non affecté à un groupe signifie que l'algorithme ne le rattache pas à un cluster selon ses paramètres, pas qu'une panne est confirmée.
+
+Isolation Forest utilise le principe d'isoler plus vite les observations inhabituelles au moyen de partitions aléatoires. Elle peut être efficace avec plusieurs variables, mais sa performance dépend des caractéristiques, du taux supposé d'anomalies, de la contamination des données et de la représentativité des échantillons. Les scores ne sont pas des probabilités de panne. Il faut comparer les méthodes à une baseline simple, regarder leurs alertes concrètes et garder une version de prétraitement cohérente au moment du scoring.
+
+PCA et d'autres méthodes de réduction de dimension peuvent exposer des combinaisons qui s'écartent d'un espace de référence, mais une variance globale ne garantit pas que l'anomalie la plus risquée sera détectée. Les autoencodeurs peuvent repérer des observations dont la reconstruction est mauvaise, mais une reconstruction difficile peut refléter une donnée nouvelle légitime, une erreur de mesure ou un comportement mal représenté pendant l'apprentissage. Les modèles plus complexes augmentent aussi la charge d'explication et de maintenance. Ils ne sont justifiés que si l'amélioration est démontrée et si l'équipe sait investiguer leurs erreurs.
+
+### 7. Traiter le temps comme une contrainte du modèle
+
+Une série temporelle n'est pas une liste aléatoire de lignes indépendantes. Les points voisins se ressemblent souvent et les événements ont une durée. Le jeu d'évaluation doit respecter l'ordre chronologique : entraîner sur le passé et tester sur une période ultérieure, éventuellement avec plusieurs fenêtres successives. Un découpage aléatoire peut placer presque les mêmes événements dans l'entraînement et le test, ou permettre au modèle de voir des motifs issus d'un incident avant de les « prédire ». Cette fuite temporelle donne des résultats artificiellement favorables.
+
+Définissez exactement ce qui est connu au moment du score. Une caractéristique calculée à partir des quinze prochaines minutes ne peut pas être utilisée pour une alerte prétendument émise maintenant. Les agrégats doivent être fermés au bon instant, les délais d'ingestion pris en compte et les labels associés à la période correcte. Si les incidents sont annotés après enquête, les délais et les incertitudes de ces annotations doivent être documentés.
+
+```mermaid
+flowchart LR
+    A["Historique ancien"] --> B["Entraînement"]
+    B --> C["Gel du modèle et des paramètres"]
+    C --> D["Période de validation future"]
+    D --> E["Évaluation des alertes"]
+    E --> F["Décision et version publiée"]
+    F --> G["Fenêtre future de test"]
+    G --> H["Mesures en conditions réalistes"]
+    H --> I["Analyse des écarts"]
+```
+
+Utilisez une validation temporelle glissante lorsqu'il existe assez d'historique. Dans chaque itération, le modèle est entraîné uniquement sur des observations antérieures, puis évalué sur le segment qui suit. Cela montre si un bon résultat dépend d'un mois particulier, d'une classe d'actifs ou d'une seule panne majeure. Les hyperparamètres ne doivent pas être ajustés à répétition sur le jeu de test final ; celui-ci doit rester une estimation du comportement sur des périodes non utilisées pour les choix.
+
+Une évaluation sur un jeu historique annoté reste imparfaite. Les incidents rares peuvent ne pas apparaître, les équipes peuvent avoir corrigé certains défauts avant qu'ils deviennent visibles et les labels peuvent refléter des habitudes d'investigation plutôt que la vérité absolue. Combinez l'évaluation hors ligne et une phase en mode observation, dans laquelle le détecteur produit des événements sans déclencher d'action opérationnelle. Un échantillon des alertes et des périodes silencieuses doit être relu, afin de rechercher à la fois les faux positifs et les anomalies manquées.
+
+### 8. Évaluer les résultats dans le langage de l'exploitation
+
+La précision indique quelle proportion des alertes considérées positives est réellement pertinente selon les labels disponibles. Le rappel indique quelle proportion des événements positifs identifiés a été détectée. Ils ne répondent pas au même besoin. Une équipe de garde submergée peut demander une meilleure précision ; une détection de défaillance critique peut privilégier un rappel élevé, quitte à organiser une investigation secondaire. La décision doit reconnaître explicitement le coût d'un faux positif et d'un faux négatif.
+
+```mermaid
+flowchart TD
+    A["Alertes et événements de référence"] --> B["Associer selon fenêtre et actif"]
+    B --> C["Vrai positif"]
+    B --> D["Faux positif"]
+    B --> E["Faux négatif"]
+    C --> F["Précision et rappel"]
+    D --> G["Charge de triage"]
+    E --> H["Risque d'incident manqué"]
+    F --> I["Choisir seuil selon coûts"]
+    G --> I
+    H --> I
+```
+
+La précision seule peut être trompeuse lorsque les incidents sont rares. Supposons qu'un service n'ait connu que cinq incidents sur cent mille fenêtres. Un système qui affirme presque toujours « normal » peut obtenir une exactitude apparente élevée tout en ne détectant aucun incident. L'exactitude globale doit donc être accompagnée de mesures adaptées au déséquilibre : précision, rappel, courbe précision-rappel, matrice de confusion et mesures par type d'actif. La ROC peut offrir un aperçu complémentaire, mais lorsque la classe positive est très rare, la courbe précision-rappel expose plus directement le compromis sur les alertes positives.
+
+La fenêtre d'association entre une alerte et un incident doit être définie à l'avance. Une alerte trois heures après la résolution ne compte pas nécessairement comme une détection utile, même si elle correspond au même actif. Définissez une tolérance temporelle, une règle de déduplication et la manière de traiter plusieurs alertes sur le même incident. Mesurez le délai de première détection, le délai d'escalade, les alertes répétées par incident, la proportion d'événements enrichis et le temps de triage. Ces mesures relient le modèle au flux réel de travail.
+
+Le seuil ne doit pas être sélectionné uniquement pour maximiser un score statistique. Construisez plusieurs scénarios de seuils et calculez, lorsque les données le permettent, le nombre d'alertes, les événements confirmés, les événements manqués et le coût estimé. Le coût est une approximation, pas une donnée objective universelle. Les hypothèses et les pondérations doivent être approuvées par les responsables opérationnels. Une fonction de coût facilite la comparaison, mais ne remplace pas le jugement lorsqu'une classe d'incident est critique.
+
+### 9. Transformer un score en événement exploitable
+
+Envoyer une notification à chaque échantillon au-dessus d'un seuil est généralement une mauvaise stratégie. Si une anomalie persiste pendant cinquante minutes avec un relevé chaque minute, l'équipe risque de recevoir cinquante messages qui décrivent le même phénomène. Une politique d'événement regroupe les signaux voisins, exige éventuellement une durée ou un nombre minimal de dépassements, ajoute une période de refroidissement et permet une nouvelle alerte lorsque la sévérité change. Ces règles doivent être assez prudentes pour ne pas retarder une situation réellement critique.
+
+```mermaid
+flowchart TD
+    A["Score supérieur au seuil"] --> B["Vérifier qualité"]
+    B --> C{"Dépassement persistant ?"}
+    C -- "Non" --> D["Conserver pour analyse sans notifier"]
+    C -- "Oui" --> E["Créer ou enrichir un événement"]
+    E --> F["Dédupliquer par actif et phénomène"]
+    F --> G["Ajouter contexte et preuves"]
+    G --> H{"Sévérité et impact ?"}
+    H -- "Faible" --> I["Tableau de bord ou file de triage"]
+    H -- "Élevé" --> J["Escalade selon politique"]
+    I --> K["Revue et retour d'expérience"]
+    J --> K
+```
+
+L'événement doit exposer les informations qui permettent de vérifier son origine : actif et service, début et durée, variable et unité, valeur courante, référence, score, version du détecteur, qualité des données, signaux associés, changement récent et identifiant de l'observation source. L'équipe doit pouvoir comprendre quelle règle ou quel modèle a déclenché l'événement. Lorsque le modèle ne permet pas d'expliquer la cause, indiquez explicitement que la cause est inconnue. Les corrélations et coïncidences doivent être présentées comme des indices à examiner, pas comme une causalité démontrée.
+
+La déduplication ne doit pas supprimer les informations nouvelles. Une alerte existante peut être enrichie avec le retour d'un autre capteur, un changement de sévérité ou la confirmation d'un incident. Il peut alors être préférable de mettre à jour le même événement plutôt que de créer un nouveau ticket. À l'inverse, deux phénomènes qui touchent le même actif peuvent avoir des causes distinctes et nécessiter des événements séparés. Utilisez une clé de regroupement documentée, une fenêtre adaptée et un mécanisme pour détecter les changements qui imposent de rouvrir l'investigation.
+
+Le refroidissement limite les répétitions mais peut aussi masquer une aggravation. Autorisez la réémission quand la sévérité augmente, quand une nouvelle preuve indépendante apparaît ou quand l'événement a été fermé puis réapparaît après une période définie. Ne considérez pas une absence de nouvelle notification comme une preuve de retour à la normale : surveillez explicitement l'état de récupération, avec les mêmes contrôles de fraîcheur et de qualité que pour l'état d'alerte.
+
+### 10. Gérer les labels et les retours humains
+
+Les retours de l'équipe peuvent améliorer le détecteur à condition d'être structurés. Une étiquette « faux positif » sans motif ne permet guère de différencier une bascule légitime, une mesure défectueuse, une référence trop étroite ou un seuil trop sensible. Proposez un ensemble contrôlé de décisions : incident confirmé, variation attendue, problème de collecte, doublon, changement planifié, cas indéterminé ou données insuffisantes. Une zone de commentaire libre reste utile pour le contexte, mais ne remplace pas la catégorie.
+
+Le label doit conserver le rôle ayant procédé à la revue, la date, l'événement concerné, la version de la règle et les éléments consultés. Les opinions peuvent diverger ; un statut « contesté » ou « à revoir » est préférable à une vérité imposée. Il faut aussi séparer les labels créés avant l'investigation de ceux construits après connaissance du résultat. Sinon, on pourrait entraîner un modèle qui exploite indirectement une information disponible seulement après l'incident.
+
+```mermaid
+flowchart TD
+    A["Alerte revue par opérateur"] --> B{"Décision"}
+    B --> C["Incident confirmé"]
+    B --> D["Variation attendue"]
+    B --> E["Qualité insuffisante"]
+    B --> F["Indéterminé ou contesté"]
+    C --> G["Enrichir référence d'incidents"]
+    D --> H["Documenter le contexte"]
+    E --> I["Corriger la collecte"]
+    F --> J["Organiser une seconde revue"]
+    G --> K["Évaluer avant changement du modèle"]
+    H --> K
+    I --> K
+    J --> K
+```
+
+Ne réentraînez pas automatiquement le modèle à chaque clic sur une interface. Une décision humaine peut être incorrecte, incohérente ou affectée par la fatigue opérationnelle. Un pipeline de préparation des labels doit détecter les doublons, les contradictions et les catégories sous-représentées, puis produire un rapport de qualité. Avant de réutiliser ces données, révisez un échantillon et comparez les labels au contexte de l'incident. Le but est de créer une boucle d'apprentissage gouvernée, pas de convertir chaque réaction en vérité machine.
+
+La rétroaction doit aussi inclure les périodes sans alertes. Si l'équipe ne révise que ce que le détecteur remonte, les incidents manqués peuvent rester invisibles. Des revues par échantillonnage de fenêtres normales, des rapprochements avec les incidents et des analyses après incident permettent de repérer les angles morts. La fréquence de cette revue dépend de la criticité, de la quantité de données et du changement du système, mais le mécanisme doit être défini avant la mise en service.
+
+### 11. Détecter une dérive et garder une référence reproductible
+
+La dérive peut toucher les données d'entrée, la distribution des comportements, les relations entre variables ou la qualité des labels. Un nouvel équipement peut avoir une échelle différente ; un changement d'application peut modifier le profil de trafic ; une nouvelle politique de routage peut rendre une ancienne référence obsolète. Il faut distinguer la dérive légitime d'une dégradation indésirable. Un changement de distribution ne suffit donc pas à justifier une mise à jour automatique de référence.
+
+Surveillez la fraîcheur, la couverture, la distribution des variables, la proportion de scores élevés, le volume d'événements et, si des labels arrivent, la qualité mesurée après coup. Une montée soudaine des anomalies sur tous les équipements peut être un changement global, une erreur d'unité ou une panne du système de collecte. Un changement limité à une catégorie peut indiquer une évolution spécifique ou une segmentation défectueuse. Les tableaux de bord doivent comparer ces tendances entre groupes et versions de détecteur.
+
+```mermaid
+flowchart LR
+    A["Flux entrant"] --> B["Contrôles de qualité"]
+    B --> C["Distribution et scores"]
+    C --> D["Comparer à la référence versionnée"]
+    D --> E{"Variation significative ?"}
+    E -- "Non" --> F["Poursuivre la surveillance"]
+    E -- "Oui" --> G["Qualifier la dérive"]
+    G --> H["Incident, changement ou données ?"]
+    H --> I["Décision documentée"]
+    I --> J["Recalibrage en environnement de test"]
+    J --> K["Validation et publication versionnée"]
+```
+
+Chaque version devrait inclure la période d'apprentissage, les sources, les transformations, les variables, les hyperparamètres, le seuil, les métriques, les limites connues, l'approbation et le moyen de revenir à la version précédente. Dans une approche purement statistique, versionnez aussi la formule de calcul, la longueur des fenêtres, les règles de déduplication et la référence elle-même. Le résultat dépend autant de ces éléments que du nom de l'algorithme.
+
+Un déploiement progressif peut commencer par le mode observation, puis par un groupe pilote, puis par une plus grande proportion d'actifs. Comparez l'ancienne version et la nouvelle sur la même période quand c'est possible, mais ne laissez pas deux versions déclencher sans coordination des actions concurrentes. Définissez les critères d'arrêt avant le test : hausse excessive du bruit, retard, calcul instable, incident manqué connu ou absence d'explication. Le retour à la version précédente doit être testé, documenté et réalisable sans supprimer les traces de décision.
+
+### 12. Un pipeline de référence et des tests reproductibles
+
+Une implémentation robuste sépare les opérations : collecte, validation, construction des caractéristiques, ajustement de référence, calcul du score, agrégation en événements, revue puis action éventuelle. Cette séparation évite qu'une seule fonction mélange des transformations de données, une décision métier et un appel qui modifie le réseau. Elle facilite les tests unitaires et permet de comparer des méthodes en gardant la collecte identique.
+
+```mermaid
+flowchart TD
+    A["Collecter"] --> B["Valider et horodater"]
+    B --> C["Construire les caractéristiques"]
+    C --> D["Ajuster ou charger la référence"]
+    D --> E["Calculer les scores"]
+    E --> F["Regrouper en événements"]
+    F --> G["Enrichir et prioriser"]
+    G --> H["Revue humaine"]
+    H --> I["Décision opérationnelle"]
+    I --> J["Vérifier le résultat et journaliser"]
+```
+
+Le code suivant illustre un score robuste simple. Il ne charge aucun réseau, ne contacte aucun service externe et n'effectue aucune action. Avant de l'utiliser, adaptez les contrôles de longueur, de fraîcheur, d'unité et de contexte à vos données. En particulier, les valeurs historiques doivent provenir uniquement de fenêtres réputées comparables, et cette fonction ne remplace pas une politique de référence versionnée.
+
+```python
+from dataclasses import dataclass
+from statistics import median
+from typing import Optional, Sequence
+import math
+
+
+@dataclass(frozen=True)
+class AnomalyResult:
+    status: str
+    score: Optional[float]
+    baseline_median: Optional[float]
+    baseline_mad: Optional[float]
+    explanation: str
+
+
+def robust_score(
+    history: Sequence[float],
+    current: float,
+    minimum_samples: int = 12,
+    threshold: float = 3.5,
+) -> AnomalyResult:
+    """Calcule un score robuste sur une fenêtre déjà validée."""
+    if not math.isfinite(current):
+        return AnomalyResult(
+            "indeterminate", None, None, None,
+            "Observation non finie ou invalide."
+        )
+
+    values = [float(value) for value in history]
+    if any(not math.isfinite(value) for value in values):
+        return AnomalyResult(
+            "indeterminate", None, None, None,
+            "La référence contient une valeur invalide."
+        )
+    if len(values) < minimum_samples:
+        return AnomalyResult(
+            "insufficient_history", None, None, None,
+            "Historique insuffisant pour calculer le score."
+        )
+
+    center = median(values)
+    deviations = [abs(value - center) for value in values]
+    mad = median(deviations)
+
+    if mad <= 0:
+        return AnomalyResult(
+            "degenerate_baseline", None, center, mad,
+            "Dispersion nulle : appliquer une politique de repli."
+        )
+
+    score = 0.6745 * (current - center) / mad
+    status = "review" if abs(score) >= threshold else "within_baseline"
+    explanation = (
+        f"Écart robuste {score:.2f}; seuil configuré {threshold:.2f}. "
+        "Ce résultat signale un écart, pas une panne confirmée."
+    )
+    return AnomalyResult(status, score, center, mad, explanation)
+
+
+history = [48, 50, 49, 51, 50, 49, 52, 50, 51, 48, 50, 49, 51, 50]
+print(robust_score(history, current=68))
+```
+
+Plusieurs garde-fous manquent volontairement à cette petite fonction : elle ne sait pas si les valeurs correspondent au même actif, si l'historique est saisonnier, si les données sont récentes, ni si une maintenance était planifiée. Ces responsabilités doivent être prises en charge en amont, et testées séparément. Une fonction courte et testable vaut mieux qu'une fonction très longue dont les résultats changent en fonction de données implicites. Le seuil devrait provenir d'une configuration traçable, pas d'une constante enfouie dans le code de production.
+
+Les tests doivent couvrir au minimum une valeur typique, une valeur extrême, une historique trop courte, une référence constante, une observation non finie, une référence contenant une valeur invalide et un cas où le score est exactement proche du seuil. Ajoutez des tests de propriétés : un décalage constant appliqué à toutes les observations et à la valeur courante ne devrait pas modifier le score, dans les limites des règles et des précisions numériques. Les tests devraient vérifier la sortie et le message d'explication, pas seulement l'absence d'exception.
+
+```mermaid
+flowchart TD
+    A["Concevoir test"] --> B["Données normales"]
+    A --> C["Valeur extrême"]
+    A --> D["Historique trop court"]
+    A --> E["Référence constante"]
+    A --> F["Valeurs manquantes ou invalides"]
+    B --> G["Vérifier statut et score"]
+    C --> G
+    D --> H["Vérifier abstention explicite"]
+    E --> H
+    F --> H
+    G --> I["Intégration et test temporel"]
+    H --> I
+```
+
+Pour comparer deux détecteurs, alimentez-les avec le même jeu d'entrée figé et le même protocole de labellisation. Conservez les scores bruts, les événements agrégés et la version de l'ensemble des règles. Une comparaison qui change à la fois l'algorithme, le seuil, la période et la règle de regroupement ne permet pas de savoir ce qui a amélioré le résultat. Les expériences doivent garder une trace de la configuration et éviter de modifier silencieusement les données après le calcul des métriques.
+
+### 13. Atelier pratique : construire un jeu de test synthétique
+
+Créez une série régulière qui contient quatre situations : comportement stable, pic ponctuel, dérive graduelle et problème de collecte. Les anomalies sont injectées dans des fenêtres choisies et documentées pour disposer d'une référence de test. Gardez les étiquettes séparées des caractéristiques que le détecteur reçoit. Les labels servent à mesurer le résultat, mais ne doivent pas être injectés par inadvertance dans les entrées du modèle.
+
+```mermaid
+timeline
+    title Scénarios synthétiques de télémétrie
+    00:00 : Charge habituelle
+    00:20 : Pic ponctuel de latence
+    00:40 : Retour à la normale
+    01:00 : Dérive lente des pertes
+    01:30 : Échantillons manquants
+    01:45 : Collecte rétablie
+```
+
+Procédez ensuite de manière contrôlée. Premièrement, établissez une référence avec une plage normale suffisante. Deuxièmement, calculez les alertes d'un seuil absolu simple. Troisièmement, ajoutez le score robuste. Quatrièmement, comparez une règle persistante ou un score multivarié. Cinquièmement, évaluez sur une autre portion temporelle. Enfin, lisez chaque alerte à la lumière des données source, des labels et du contexte. N'ajoutez pas de complexité avant d'avoir compris quels cas la méthode simple rate.
+
+Le jeu synthétique doit inclure des cas difficiles. Un pic prévu dans une fenêtre de maintenance doit être marqué comme changement planifié, mais reste intéressant pour vérifier que le détecteur sait expliquer pourquoi il signale un écart. Une perte qui augmente de manière progressive peut rester sous un seuil absolu longtemps ; elle met à l'épreuve les méthodes de dérive. Une baisse de débit pendant une forte demande peut être pertinente si les erreurs et la latence augmentent ensemble. Une série interrompue teste la capacité de l'outil à distinguer absence de signal et signal normal.
+
+```mermaid
+flowchart LR
+    A["Générer séries et labels"] --> B["Séparer périodes chronologiquement"]
+    B --> C["Détecteur de référence simple"]
+    B --> D["Détecteur robuste"]
+    B --> E["Détecteur multivarié"]
+    C --> F["Agrégation des alertes"]
+    D --> F
+    E --> F
+    F --> G["Évaluation avec labels"]
+    G --> H["Analyse qualitative des erreurs"]
+    H --> I["Décision de garder ou retirer une méthode"]
+```
+
+Un journal d'expérience peut contenir l'identifiant du jeu, la plage temporelle, le nom et la version de la méthode, les paramètres, le seuil, les métriques, le volume d'alertes, les erreurs principales et une décision. Ce journal facilite la reproduction et empêche de retenir un modèle seulement parce que les alertes d'une démonstration semblent convaincantes. La méthode retenue doit produire des résultats meilleurs sur le besoin convenu, et non simplement un score plus complexe.
+
+### 14. Triage et explication des erreurs
+
+Lorsqu'une alerte est fausse, cherchez l'origine plutôt que d'augmenter immédiatement le seuil. La cause peut être une unité incorrecte, un groupe d'actifs non comparable, une saisonnalité ignorée, une référence contaminée, une courte interruption, un changement planifié ou un regroupement insuffisant. Chaque cause appelle une correction différente. Augmenter le seuil réduit parfois les faux positifs, mais peut simultanément faire manquer un incident. Un diagnostic efficace associe le type d'erreur au test qui aurait permis de la repérer.
+
+Pour un faux négatif, examinez si le phénomène était représenté dans la définition cible, si la qualité était suffisante, si la fenêtre était bien alignée, si la bonne population de référence a été sélectionnée et si le score était calculé avant ou après le début de l'incident. Une mauvaise définition d'incident ne se corrige pas par la technique. Si la perte réseau n'a été observée que parce que la télémétrie a disparu, le problème initial peut être un mécanisme de collecte qui a été confondu avec l'absence de panne.
+
+```mermaid
+flowchart TD
+    A["Erreur identifiée"] --> B{"Faux positif ou négatif ?"}
+    B --> C["Faux positif"]
+    B --> D["Faux négatif"]
+    C --> E["Qualité, contexte, seuil, doublon"]
+    D --> F["Couverture, cible, délai, variable"]
+    E --> G["Formuler une hypothèse testable"]
+    F --> G
+    G --> H["Modifier un seul facteur"]
+    H --> I["Rejouer l'évaluation temporelle"]
+    I --> J{"Bénéfice validé ?"}
+    J -- "Oui" --> K["Versionner la correction"]
+    J -- "Non" --> L["Annuler et documenter"]
+```
+
+Ne considérez pas toutes les alertes comme équivalentes. Une anomalie à faible impact peut rester dans un tableau de bord, tandis qu'un événement qui touche plusieurs services critiques mérite une escalade. La priorité doit combiner des critères explicites tels que l'importance du service, la durée, le nombre d'actifs touchés, la présence de signaux indépendants et l'existence d'un changement récent. Évitez de laisser une valeur statistique unique déterminer seule la gravité métier.
+
+Les règles de triage doivent aussi s'accommoder de l'incertitude. Le statut peut être « signal faible », « à investiguer », « incident probable » ou « qualité insuffisante », tant que chaque libellé a une définition et une action associée. Évitez d'afficher « panne confirmée » pour un score non supervisé. Une gradation explicite aide les opérateurs à interpréter le résultat sans lui attribuer plus de certitude qu'il n'en possède.
+
+### 15. Sécurité, gouvernance et limite de l'automatisation
+
+Le détecteur doit utiliser une identité technique aux permissions nécessaires uniquement. La collecte ne devrait pas disposer d'un droit d'administration réseau si elle se contente de lire des métriques. Les journaux doivent conserver les informations utiles sans exposer les jetons, mots de passe ou données personnelles inutiles. Si le modèle est exécuté dans un service partagé, les données et les événements doivent rester isolés par périmètre et les accès administratifs doivent être audités.
+
+La détection d'anomalies peut être utilisée dans une chaîne d'automatisation, mais le score ne doit pas déclencher seul une action destructive. Une réinitialisation d'équipement, une modification de routage ou un blocage de trafic exige une politique distincte, une validation des préconditions, une protection du périmètre et un contrôle du résultat. Préférez commencer par la collecte et la création d'un dossier d'investigation. Des actions à faible risque peuvent être automatisées après validation, mais les changements susceptibles d'interrompre le service doivent conserver une approbation adaptée à leur criticité.
+
+```mermaid
+flowchart TD
+    A["Anomalie signalée"] --> B["Évaluer qualité et impact"]
+    B --> C["Créer dossier de preuve"]
+    C --> D{"Action proposée ?"}
+    D -- "Observation" --> E["Continuer la collecte"]
+    D -- "Faible risque" --> F["Contrôler préconditions et approbation"]
+    D -- "Risque élevé" --> G["Validation humaine obligatoire"]
+    F --> H["Exécuter dans un périmètre limité"]
+    G --> H
+    H --> I["Vérifier l'état après action"]
+    I --> J{"Résultat conforme ?"}
+    J -- "Oui" --> K["Clore avec preuves"]
+    J -- "Non" --> L["Rollback ou escalade"]
+```
+
+Les journaux de décision doivent enregistrer la règle ou le modèle, la version de référence, les mesures sources, l'heure, la qualité, le score, la politique de seuil, l'identité du service, la revue humaine et la décision finale. Il doit être possible de reconstruire pourquoi un événement a été créé et pourquoi une action a été autorisée. Cette traçabilité est essentielle lorsqu'un incident survient après une alerte mal interprétée ou lorsqu'un changement de modèle modifie les comportements.
+
+Définissez également des critères de suspension. Le détecteur peut être désactivé ou placé en mode observation si la fraîcheur des données tombe sous un seuil, si la quantité d'alertes devient incontrôlable, si la distribution change brutalement, si les explications disparaissent ou si un incident grave expose une faiblesse importante. Suspendez l'action automatique sans forcément supprimer la collecte : conserver une observation non interventionniste peut aider à comprendre le défaut tout en réduisant le risque opérationnel.
+
+### 16. Mini-projet d'évaluation de bout en bout
+
+Le livrable final de l'atelier est un dossier lisible par un ingénieur réseau et par son responsable. Il présente le problème visé, les actifs inclus, les sources, les contrôles de qualité, les références comparées, les paramètres, le protocole de séparation temporelle, les métriques, les cas d'erreurs, les limites et la décision de déploiement. Il doit séparer les résultats observés des hypothèses et décrire ce qui reste inconnu.
+
+Organisez le dossier autour de questions concrètes : quels signaux sont utilisés et pourquoi ? Quels événements le système doit-il repérer ? Quelle est la période minimale d'historique ? Comment le détecteur répond-il quand une donnée manque ? Qui révise une alerte ? Quel volume la garde peut-elle traiter ? Comment une nouvelle référence sera-t-elle approuvée ? Comment revient-on à la version antérieure ? Quelle donnée démontre que le système a amélioré le service plutôt que simplement généré plus de messages ?
+
+```mermaid
+flowchart TD
+    A["Définir besoin et populations"] --> B["Auditer la qualité"]
+    B --> C["Créer données et labels"]
+    C --> D["Construire référence simple"]
+    D --> E["Comparer les méthodes"]
+    E --> F["Évaluer temporellement"]
+    F --> G["Revue des faux positifs et négatifs"]
+    G --> H["Mode observation"]
+    H --> I{"Objectifs opérationnels atteints ?"}
+    I -- "Non" --> J["Revoir données ou définition"]
+    J --> B
+    I -- "Oui" --> K["Pilote limité et surveillé"]
+    K --> L["Décision de généralisation"]
+```
+
+Pour conclure, la qualité d'un détecteur vient de l'ensemble du dispositif. Les statistiques apportent des signaux, mais le contexte établit leur sens ; les tests mesurent la performance, mais la revue opérationnelle révèle des erreurs cachées ; le déploiement apporte une utilité, mais la surveillance et le retrait protègent contre la dérive. La maturité consiste à savoir quand émettre une alerte, quand demander une vérification et quand ne pas conclure faute d'informations.
+
+### Grille d'autoévaluation de l'atelier
+
+- [ ] Le besoin définit les actifs, le phénomène, le délai et le coût des erreurs.
+- [ ] Les anomalies ponctuelles, contextuelles et collectives sont distinguées.
+- [ ] Les unités, horodatages, doublons, trous et remises à zéro sont contrôlés.
+- [ ] La référence est représentative, versionnée et adaptée au contexte.
+- [ ] Le z-score classique est comparé à des méthodes robustes.
+- [ ] Les approches multivariées sont standardisées sur l'entraînement seulement.
+- [ ] Les tests respectent l'ordre temporel et évitent la fuite de données.
+- [ ] Précision, rappel, délai et volume d'alertes sont mesurés.
+- [ ] Les alertes sont enrichies, regroupées et dédupliquées.
+- [ ] Les retours humains sont structurés et révisés.
+- [ ] La dérive et la qualité des données font l'objet d'une surveillance.
+- [ ] Le déploiement est progressif et le retour arrière a été testé.
+- [ ] Aucune action à risque ne dépend d'un score brut sans garde-fou.
+- [ ] Les limites et les cas indéterminés sont documentés.
+
 ## Défi final corrigé — détecter des anomalies sans confondre atypique et panne
 
 ### Énoncé
