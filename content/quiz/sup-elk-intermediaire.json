@@ -12,7 +12,7 @@
         "Générer automatiquement les logs de toutes les applications sans agent ni source"
       ],
       "answer": 1,
-      "explanation": "Logstash est un moteur d'ingestion et de transformation. Ses pipelines comprennent des entrées qui reçoivent des événements, des filtres qui les pars ent ou les enrichissent, puis des sorties qui les acheminent vers Elasticsearch ou d'autres destinations. Il est utile lorsque les formats sont hétérogènes ou que le traitement nécessite des règles conditionnelles. Il n'est cependant pas obligatoire dans tous les déploiements : certains agents peuvent envoyer directement des événements structurés à Elasticsearch."
+      "explanation": "Logstash est un moteur d'ingestion et de transformation. Ses pipelines comprennent des entrées qui reçoivent des événements, des filtres qui les analysent ou les enrichissent, puis des sorties qui les acheminent vers Elasticsearch ou d'autres destinations. Il est utile lorsque les formats sont hétérogènes ou que le traitement nécessite des règles conditionnelles. Il n'est cependant pas obligatoire dans tous les déploiements : certains agents peuvent envoyer directement des événements structurés à Elasticsearch."
     },
     {
       "type": "qcm",
