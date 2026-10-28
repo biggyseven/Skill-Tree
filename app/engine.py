@@ -107,7 +107,7 @@ def status_of(node: Node, validated_ids: set[str]) -> Status:
         return Status.VALIDATED
     if any(prereq not in validated_ids for prereq in node.prereqs):
         return Status.LOCKED
-    if node.attempts:
+    if node.attempts or node.lesson_started:
         return Status.IN_PROGRESS
     return Status.AVAILABLE
 
@@ -156,6 +156,12 @@ class SkillTree:
                 )
             )
 
+        lesson_progress: dict[str, dict[str, object]] = {}
+        for row in self.conn.execute(
+            "SELECT node_id, progress_percent, active_seconds, read_completed FROM lesson_progress"
+        ):
+            lesson_progress[row["node_id"]] = dict(row)
+
         nodes = []
         for row in rows:
             node_id = row["id"]
@@ -172,6 +178,10 @@ class SkillTree:
                         sorted(requirements.get(node_id, ()), key=lambda r: KIND_ORDER[r.kind])
                     ),
                     attempts=tuple(attempts.get(node_id, ())),
+                    lesson_started=node_id in lesson_progress,
+                    lesson_progress_percent=int(lesson_progress.get(node_id, {}).get("progress_percent", 0) or 0),
+                    lesson_active_seconds=int(lesson_progress.get(node_id, {}).get("active_seconds", 0) or 0),
+                    lesson_read_completed=bool(lesson_progress.get(node_id, {}).get("read_completed", 0)),
                 )
             )
         return nodes

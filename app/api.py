@@ -117,6 +117,10 @@ class DiagnosticCompleteRequest(BaseModel):
     time_limit_seconds: int = Field(default=DIAGNOSTIC_TIME_LIMIT_SECONDS, ge=1, le=3600)
 
 
+class LessonProgressUpdate(BaseModel):
+    progress_percent: int = Field(default=0, ge=0, le=100)
+
+
 # --- GESTIONNAIRE WEBSOCKET ---
 class ConnectionManager:
     def __init__(self):
@@ -1557,6 +1561,123 @@ def read_lesson(node_id: str, tree: SkillTree = Depends(get_tree)):
 
     return PlainTextResponse(content, media_type="text/markdown; charset=utf-8")
 
+
+@lru_cache(maxsize=512)
+def _lesson_reading_target_seconds(source_id: str) -> int:
+    """Estime un temps minimal de lecture depuis le Markdown canonique, côté serveur."""
+    path = CONTENT_DIR / "lessons" / f"{source_id}.md"
+    try:
+        content = path.read_text(encoding="utf-8-sig")
+    except (OSError, UnicodeError):
+        return 0
+    if not content.strip():
+        return 0
+
+    # Les exemples de code et dessins SVG ne doivent pas gonfler artificiellement
+    # l'estimation de lecture.
+    content = re.sub(r"```[\\s\\S]*?```", " ", content)
+    content = re.sub(r"<svg\\b[\\s\\S]*?</svg>", " ", content, flags=re.IGNORECASE)
+    content = re.sub(r"<[^>]+>", " ", content)
+    content = re.sub(r"!\\[[^\\]]*\\]\\([^)]*\\)", " ", content)
+    words = re.findall(r"[\\wÀ-ÿ]+(?:[’'-][\\wÀ-ÿ]+)*", content, flags=re.UNICODE)
+    if len(words) < 80:
+        return 0
+    # Au moins 35 % du temps de lecture estimé, avec un plancher de 30 s
+    # et un plafond de 10 min. C'est un signal de lecture, pas une preuve de maîtrise.
+    return min(600, max(30, round(len(words) / 220 * 60 * 0.35)))
+
+
+def _lesson_progress_payload(node: Node, tree: SkillTree, row=None) -> dict[str, Any]:
+    source_id = _configured_lesson_sources().get(node.id, node.id)
+    target_seconds = _lesson_reading_target_seconds(source_id)
+    progress_percent = int(row["progress_percent"] or 0) if row else 0
+    active_seconds = int(row["active_seconds"] or 0) if row else 0
+    started = row is not None
+    # Recalcule le statut depuis les valeurs sauvegardées plutôt que de faire
+    # confiance au seul marqueur read_completed d'une ancienne version.
+    read_completed = target_seconds == 0 or (
+        progress_percent >= 90 and active_seconds >= target_seconds
+    )
+    requires_reading = node.requirement(ProofKind.QUIZ) is not None and target_seconds > 0
+    return {
+        "node_id": node.id,
+        "started": started,
+        "progress_percent": progress_percent,
+        "active_seconds": active_seconds,
+        "target_seconds": target_seconds,
+        "read_completed": read_completed,
+        "requires_reading": requires_reading,
+        "ready_for_assessment": not requires_reading or read_completed,
+        "status": tree.status(node.id).value,
+    }
+
+
+@app.get("/api/node/{node_id}/learning-progress")
+def read_learning_progress(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
+    node = _get_node(tree, node_id)
+    row = tree.conn.execute(
+        "SELECT progress_percent, active_seconds, read_completed FROM lesson_progress WHERE node_id = ?",
+        (node.id,),
+    ).fetchone()
+    return _lesson_progress_payload(node, tree, row)
+
+
+@app.post("/api/node/{node_id}/learning-progress")
+def update_learning_progress(
+    node_id: str,
+    payload: LessonProgressUpdate,
+    tree: SkillTree = Depends(get_tree),
+) -> dict:
+    node = _get_node(tree, node_id)
+    now = datetime.now(timezone.utc).replace(microsecond=0)
+    now_text = now.isoformat()
+    row = tree.conn.execute(
+        "SELECT progress_percent, active_seconds, read_completed, last_ping_at "
+        "FROM lesson_progress WHERE node_id = ?",
+        (node.id,),
+    ).fetchone()
+
+    previous_progress = int(row["progress_percent"] or 0) if row else 0
+    previous_seconds = int(row["active_seconds"] or 0) if row else 0
+    progress_percent = max(previous_progress, payload.progress_percent)
+
+    elapsed = 0
+    if row and row["last_ping_at"]:
+        try:
+            previous_ping = datetime.fromisoformat(str(row["last_ping_at"]))
+            if previous_ping.tzinfo is None:
+                previous_ping = previous_ping.replace(tzinfo=timezone.utc)
+            elapsed = max(0, min(20, int((now - previous_ping).total_seconds())))
+        except (TypeError, ValueError, OverflowError):
+            elapsed = 0
+    active_seconds = min(86400, previous_seconds + elapsed)
+
+    source_id = _configured_lesson_sources().get(node.id, node.id)
+    target_seconds = _lesson_reading_target_seconds(source_id)
+    read_completed = target_seconds == 0 or (
+        progress_percent >= 90 and active_seconds >= target_seconds
+    )
+
+    tree.conn.execute(
+        "INSERT INTO lesson_progress "
+        "(node_id, progress_percent, active_seconds, read_completed, last_ping_at, updated_at) "
+        "VALUES (?, ?, ?, ?, ?, ?) "
+        "ON CONFLICT(node_id) DO UPDATE SET "
+        "progress_percent = excluded.progress_percent, "
+        "active_seconds = excluded.active_seconds, "
+        "read_completed = excluded.read_completed, "
+        "last_ping_at = excluded.last_ping_at, "
+        "updated_at = excluded.updated_at",
+        (node.id, progress_percent, active_seconds, int(read_completed), now_text, now_text),
+    )
+    tree.conn.commit()
+    saved = tree.conn.execute(
+        "SELECT progress_percent, active_seconds, read_completed FROM lesson_progress WHERE node_id = ?",
+        (node.id,),
+    ).fetchone()
+    return _lesson_progress_payload(node, tree, saved)
+
+
 @lru_cache(maxsize=1)
 def _configured_node_orders() -> dict[str, int]:
     """Retourne l'ordre pédagogique faisant autorité dans content/nodes.json.
@@ -2060,14 +2181,49 @@ def read_quiz(node_id: str, tree: SkillTree = Depends(get_tree)) -> dict:
 def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
     node = tree.playable(node_id)
     requirement = node.requirement(ProofKind.QUIZ)
+    if requirement is None:
+        raise HTTPException(404, "Aucun quiz n'est configuré pour ce cours.")
     questions = tree.questions(node_id, ProofKind.QUIZ)
+    if not questions:
+        raise HTTPException(404, "Aucune question n'est disponible pour ce quiz.")
+
+    # Le quiz mesure la compréhension ; le lecteur doit aussi avoir parcouru
+    # le cours et y avoir consacré un temps actif minimal estimé côté serveur.
+    progress_row = tree.conn.execute(
+        "SELECT progress_percent, active_seconds FROM lesson_progress WHERE node_id = ?",
+        (node.id,),
+    ).fetchone()
+    source_id = _configured_lesson_sources().get(node.id, node.id)
+    target_seconds = _lesson_reading_target_seconds(source_id)
+    if target_seconds > 0 and not (
+        progress_row
+        and int(progress_row["progress_percent"] or 0) >= 90
+        and int(progress_row["active_seconds"] or 0) >= target_seconds
+    ):
+        raise HTTPException(
+            409,
+            "Avant de valider ce cours, parcours au moins 90 % de la leçon et atteins le temps de lecture conseillé. Ta progression est conservée.",
+        )
+
     answers = payload.get("answers")
-    
+    if not isinstance(answers, list) or len(answers) != len(questions):
+        raise HTTPException(
+            422,
+            f"Réponds aux {len(questions)} questions avant de soumettre le quiz.",
+        )
+    for question, answer in zip(questions, answers):
+        if answer is None or (
+            question.question_type in {"input", "terminal"} and not str(answer).strip()
+        ):
+            raise HTTPException(422, "Toutes les questions doivent recevoir une réponse.")
+
     results = []
     correct = 0
-    for index, (question, answer) in enumerate(zip(questions, answers), 1):
+    for question, answer in zip(questions, answers):
         if question.question_type in {"input", "terminal"}:
-            matches = _answer_matches(question.answer_regex or "", answer, terminal=question.question_type == "terminal")
+            matches = _answer_matches(
+                question.answer_regex or "", answer, terminal=question.question_type == "terminal"
+            )
         else:
             matches = answer == question.answer
         correct += int(matches)
@@ -2075,8 +2231,11 @@ def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTr
 
     score = round(100 * correct / len(questions))
     passed = score >= requirement.min_score
-    attempt, validated = tree.record(node_id, ProofKind.QUIZ, score, passed, detail=f"{correct}/{len(questions)} bonnes réponses")
-    
+    attempt, validated = tree.record(
+        node_id, ProofKind.QUIZ, score, passed,
+        detail=f"{correct}/{len(questions)} bonnes réponses"
+    )
+
     return {
         "success": True, "score": score, "passed": passed, "correct": correct, "total": len(questions),
         "validated": validated, "status": tree.status(node_id).value, "results": results,
@@ -2118,6 +2277,9 @@ def read_tree(tree: SkillTree = Depends(get_tree)) -> dict:
             "catalog_index": configured_positions.get(n.id, fallback_index),
             "sort_order": n.sort_order,
             "status": statuses[n.id].value,
+            "reading_progress_percent": n.lesson_progress_percent,
+            "reading_active_seconds": n.lesson_active_seconds,
+            "reading_completed": n.lesson_read_completed,
             "prereqs": list(n.prereqs),
             "requirements_detail": [{"kind": r.kind.value, "min_score": effective_requirement_score(r.kind, r.min_score)} for r in n.requirements],
         } for fallback_index, n in enumerate(nodes)]

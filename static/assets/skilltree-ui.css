@@ -68,3 +68,28 @@ select:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
     transition: border-color .16s ease, background-color .16s ease, box-shadow .16s ease, color .16s ease;
   }
 }
+
+
+/* Validation pédagogique : lecture persistée avant le contrôle de compréhension. */
+.lesson-validation-card {
+  padding: 1.25rem;
+  border: 1px solid rgb(var(--cyan-400) / .22);
+  border-radius: 1.1rem;
+  background: linear-gradient(135deg, rgb(var(--cyan-400) / .055), rgb(var(--purple-400) / .045));
+}
+.lesson-validation-meter {
+  width: 100%;
+  height: .45rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(var(--w) / .08);
+}
+.lesson-validation-meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgb(var(--emerald-400)), rgb(var(--cyan-400)));
+  transition: width .2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-validation-meter-fill { transition: none; }
+}

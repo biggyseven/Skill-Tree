@@ -43,6 +43,17 @@ CREATE TABLE IF NOT EXISTS attempts (
 
 CREATE INDEX IF NOT EXISTS idx_attempts_node ON attempts(node_id, created_at);
 
+CREATE TABLE IF NOT EXISTS lesson_progress (
+    node_id           TEXT PRIMARY KEY REFERENCES nodes(id) ON DELETE CASCADE,
+    progress_percent  INTEGER NOT NULL DEFAULT 0 CHECK (progress_percent BETWEEN 0 AND 100),
+    active_seconds    INTEGER NOT NULL DEFAULT 0 CHECK (active_seconds >= 0),
+    read_completed    INTEGER NOT NULL DEFAULT 0 CHECK (read_completed IN (0, 1)),
+    last_ping_at      TEXT,
+    updated_at        TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_lesson_progress_updated
+    ON lesson_progress(updated_at);
+
 CREATE TABLE IF NOT EXISTS lab_specs (
     node_id TEXT PRIMARY KEY REFERENCES nodes(id) ON DELETE CASCADE,
     kind    TEXT NOT NULL DEFAULT 'text' CHECK (kind IN ('text', 'docker')),

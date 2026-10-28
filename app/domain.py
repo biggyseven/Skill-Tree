@@ -87,6 +87,10 @@ class Node:
     prereqs: tuple[str, ...] = ()
     requirements: tuple[Requirement, ...] = ()
     attempts: tuple[Attempt, ...] = ()
+    lesson_started: bool = False
+    lesson_progress_percent: int = 0
+    lesson_active_seconds: int = 0
+    lesson_read_completed: bool = False
 
     def requirement(self, kind: ProofKind) -> Requirement | None:
         for requirement in self.requirements:
