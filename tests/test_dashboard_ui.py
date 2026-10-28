@@ -461,7 +461,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_compact_module_grid_remains_readable_on_narrow_screens(self):
         self.assertIn('grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4', DASHBOARD_HTML)
-        self.assertIn('min-w-0 truncate text-xs font-bold text-white sm:text-sm', DASHBOARD_HTML)
+        self.assertIn('min-w-0 flex-1 truncate text-xs font-bold text-white sm:text-sm', DASHBOARD_HTML)
         self.assertIn('role="progressbar"', DASHBOARD_HTML)
         self.assertIn('aria-valuemin="0" aria-valuemax="100"', DASHBOARD_HTML)
         self.assertIn("moduleCards.filter(module => module.id !== 'all')", DASHBOARD_HTML)
