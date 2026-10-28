@@ -9591,5 +9591,360 @@
         "min_score": 80
       }
     ]
+  },
+  {
+    "id": "blockchain-bases-debutant",
+    "module": "Blockchain & Web3",
+    "title": "Qu'est-ce que la blockchain ?",
+    "category": "Fondamentaux blockchain",
+    "order": 4418,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-historique-debutant",
+    "module": "Blockchain & Web3",
+    "title": "Histoire (Bitcoin, Ethereum)",
+    "category": "Fondamentaux blockchain",
+    "order": 4419,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-crypto-bases-debutant",
+    "module": "Blockchain & Web3",
+    "title": "Cryptographie (hash, clés)",
+    "category": "Fondamentaux blockchain",
+    "order": 4420,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-historique-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-blocs-debutant",
+    "module": "Blockchain & Web3",
+    "title": "Structure d'un bloc",
+    "category": "Fondamentaux blockchain",
+    "order": 4421,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-crypto-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-consensus-debutant",
+    "module": "Blockchain & Web3",
+    "title": "Consensus (PoW vs PoS)",
+    "category": "Fondamentaux blockchain",
+    "order": 4422,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-blocs-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-p2p-debutant",
+    "module": "Blockchain & Web3",
+    "title": "Réseau P2P et nœuds",
+    "category": "Fondamentaux blockchain",
+    "order": 4423,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-consensus-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-smart-contracts-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Smart contracts",
+    "category": "Développement Web3",
+    "order": 4424,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-p2p-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-solidity-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Solidity (langage)",
+    "category": "Développement Web3",
+    "order": 4425,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-smart-contracts-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-evm-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "EVM et gas",
+    "category": "Développement Web3",
+    "order": 4426,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-solidity-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-dapps-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Architecture DApp",
+    "category": "Développement Web3",
+    "order": 4427,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-evm-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-tokens-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Standards ERC-20, ERC-721",
+    "category": "Développement Web3",
+    "order": 4428,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-dapps-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-oracles-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Oracles (Chainlink)",
+    "category": "Développement Web3",
+    "order": 4429,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-tokens-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-layer2-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Layer 2 (Rollups, sidechains)",
+    "category": "Développement Web3",
+    "order": 4430,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-oracles-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-ipfs-intermediaire",
+    "module": "Blockchain & Web3",
+    "title": "Stockage décentralisé",
+    "category": "Développement Web3",
+    "order": 4431,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-layer2-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "blockchain-security-expert",
+    "module": "Blockchain & Web3",
+    "title": "Audit et sécurité smart contracts",
+    "category": "Architecture avancée",
+    "order": 4432,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-ipfs-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "blockchain-interop-expert",
+    "module": "Blockchain & Web3",
+    "title": "Interopérabilité (bridges, Cosmos)",
+    "category": "Architecture avancée",
+    "order": 4433,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-security-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "blockchain-sharding-expert",
+    "module": "Blockchain & Web3",
+    "title": "Sharding et scalabilité",
+    "category": "Architecture avancée",
+    "order": 4434,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-interop-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "blockchain-privacy-expert",
+    "module": "Blockchain & Web3",
+    "title": "ZK-proofs et confidentialité",
+    "category": "Architecture avancée",
+    "order": 4435,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-sharding-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "blockchain-enterprise-expert",
+    "module": "Blockchain & Web3",
+    "title": "Blockchain d'entreprise (Hyperledger)",
+    "category": "Architecture avancée",
+    "order": 4436,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-privacy-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "blockchain-dao-expert",
+    "module": "Blockchain & Web3",
+    "title": "DAO et gouvernance on-chain",
+    "category": "Architecture avancée",
+    "order": 4437,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-enterprise-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "blockchain-regulations-expert",
+    "module": "Blockchain & Web3",
+    "title": "Réglementation (MiCA, SEC)",
+    "category": "Architecture avancée",
+    "order": 4438,
+    "description": "Ossature temporaire du module Blockchain & Web3. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "blockchain-dao-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   }
 ]

@@ -1,0 +1,19 @@
+{
+  "node_id": "blockchain-evm-intermediaire",
+  "scope": "quiz",
+  "placeholder": true,
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire — contenu à rédiger pour « EVM et gas ».",
+      "choices": [
+        "Option temporaire A",
+        "Option temporaire B",
+        "Option temporaire C",
+        "Option temporaire D"
+      ],
+      "answer": 0,
+      "explanation": "Question de remplacement temporaire, à remplacer lors de la rédaction du cours."
+    }
+  ]
+}
