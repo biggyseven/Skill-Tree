@@ -35,9 +35,9 @@
       return payload;
     };
     function findSlaSection() {
-      return Array.from(document.querySelectorAll('section')).find(section => {
-        const label = (section.innerText || section.textContent || '').replace(/\\s+/g, ' ');
-        return /\\bSLA\\b/.test(label) && (label.includes('Objectif :') || label.includes('Analyse de problème'));
+      return Array.from(document.querySelectorAll('section'))document.querySelector('section[aria-label="SLA"]') || Array.from(document.querySelectorAll('section')).find(section => {
+        const label = (section.innerText || section.textContent || '').replace(/\s+/g, ' ');
+        return /\bSLA\b/.test(label) && (label.includes('Objectif :') || label.includes('Analyse de problème'));
       }) || null;
     }
     function paintStatus() {
