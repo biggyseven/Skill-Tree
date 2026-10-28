@@ -4,99 +4,219 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est l’objectif principal d’un index B-tree sur une colonne souvent filtrée ?",
+      "prompt": "Quel est l'objectif principal d'un index de base de données ?",
       "choices": [
-        "Garantir que chaque requête ne lit qu’une seule page",
-        "Réduire le coût de recherche pour certains prédicats et ordres, si l’index est adapté",
-        "Supprimer le coût de toutes les écritures",
-        "Remplacer toutes les contraintes métier"
+        "Garantir que toutes les requêtes lisent une seule page",
+        "Fournir une structure d'accès qui peut accélérer certains filtres, recherches et tris",
+        "Supprimer le coût des écritures",
+        "Remplacer les contraintes métier"
       ],
       "answer": 1,
-      "explanation": "Un index bien choisi permet d’éviter certains balayages complets, mais son intérêt dépend de la sélectivité, de la taille des tables et du coût associé."
+      "explanation": "Un index peut réduire le travail de recherche selon la requête et les données, mais il consomme du stockage et doit être maintenu lors des modifications."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi l’ordre des colonnes est-il important dans un index composite `(client_id, created_at)` ?",
+      "prompt": "Un plan EXPLAIN affiche un parcours séquentiel de table. Est-ce forcément une mauvaise stratégie ?",
       "choices": [
-        "Parce que l’ordre n’a aucun effet",
-        "Parce qu’il rend toutes les colonnes automatiquement uniques",
-        "Parce qu’il favorise certains filtres et tris utilisant le préfixe gauche de l’index",
-        "Parce qu’il remplace une clé étrangère"
-      ],
-      "answer": 2,
-      "explanation": "Un index composite est ordonné selon les colonnes définies. Les prédicats portant sur le préfixe gauche sont généralement les mieux servis, selon le SGBD."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que faut-il lire en priorité dans `EXPLAIN ANALYZE` ?",
-      "choices": [
-        "Les opérations choisies, les lignes estimées et réelles ainsi que les durées observées",
-        "Uniquement le nom de la table",
-        "Le nombre de commentaires SQL",
-        "Uniquement le coût estimé, sans données réelles"
-      ],
-      "answer": 0,
-      "explanation": "La comparaison des estimations et des lignes réellement traitées révèle des erreurs de cardinalité et les opérations coûteuses. L’exécution peut avoir des effets selon la requête et le SGBD."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une fonction est appliquée à la colonne filtrée dans `WHERE`. Pourquoi cela peut-il gêner un index classique ?",
-      "choices": [
-        "Les fonctions sont interdites dans SQL",
-        "Toute fonction rend les résultats aléatoires",
-        "Une fonction supprime les permissions du compte",
-        "L’expression calculée peut empêcher l’utilisation directe de l’index, sauf index d’expression ou transformation adaptée"
-      ],
-      "answer": 3,
-      "explanation": "L’optimiseur peut perdre l’accès direct à l’ordre de l’index. Un index d’expression ou un prédicat sargable peut être approprié selon le moteur."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel compromis apporte l’ajout de plusieurs index sur une table fortement modifiée ?",
-      "choices": [
-        "Plus d’index accélèrent toujours les INSERT sans contrepartie",
-        "Les écritures doivent maintenir davantage d’index, ce qui consomme temps et espace",
-        "Les sauvegardes deviennent inutiles",
-        "Les index garantissent l’absence de verrouillage"
+        "Oui, un index doit être utilisé pour chaque requête",
+        "Non, un parcours séquentiel peut être moins coûteux pour une petite table ou un filtre peu sélectif",
+        "Oui, car les parcours séquentiels ignorent les clés primaires",
+        "Non, car EXPLAIN ne montre jamais les opérations de lecture"
       ],
       "answer": 1,
-      "explanation": "Chaque insertion, suppression ou mise à jour pertinente peut devoir maintenir plusieurs structures d’index. Il faut mesurer le gain de lecture par rapport à ce coût."
+      "explanation": "Le choix dépend du volume et de la proportion de lignes retenues. Lire une grande part d'une table via un index peut coûter davantage qu'un parcours large."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi mettre à jour les statistiques du SGBD peut-il améliorer certaines requêtes ?",
+      "prompt": "Que signifie généralement la sélectivité d'un prédicat ?",
       "choices": [
-        "Cela change nécessairement la logique des résultats",
-        "Cela garantit que chaque index sera utilisé",
-        "Cela donne à l’optimiseur des estimations plus réalistes de distribution et de cardinalité",
-        "Cela convertit une requête en procédure stockée"
+        "La version exacte du moteur SQL",
+        "La mesure dans laquelle un prédicat réduit l'ensemble des lignes candidates",
+        "Le nombre total de tables du schéma",
+        "Le coût d'une sauvegarde"
       ],
-      "answer": 2,
-      "explanation": "Les statistiques permettent de choisir les jointures, accès et ordres de traitement sur la base d’estimations de données. Des statistiques obsolètes peuvent dégrader ces choix."
+      "answer": 1,
+      "explanation": "Un prédicat très sélectif conserve peu de lignes ; un prédicat peu sélectif conserve une grande partie de l'ensemble, ce qui influence le choix du plan."
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert un index couvrant pour une requête donnée ?",
+      "prompt": "Pourquoi faut-il distinguer le coût estimé du temps réel dans un plan ?",
       "choices": [
-        "À fournir depuis l’index les colonnes requises, ce qui peut éviter certaines lectures de la table",
-        "À chiffrer la sauvegarde",
-        "À garantir l’ordre métier sans clause ORDER BY",
-        "À normaliser les tables"
+        "Le coût estimé est une estimation interne qui n'est pas une durée en millisecondes universelle",
+        "Le coût estimé est toujours plus précis que le temps mesuré",
+        "Le temps réel n'a jamais d'intérêt",
+        "Les deux sont toujours égaux"
       ],
       "answer": 0,
-      "explanation": "Si toutes les colonnes nécessaires se trouvent dans l’index, certains moteurs peuvent répondre sans accès supplémentaire à la table, selon leur organisation."
+      "explanation": "Les coûts sont calculés selon le modèle et les paramètres du moteur. Les mesures réelles fournissent d'autres éléments, mais dépendent du contexte et de la charge."
     },
     {
       "type": "qcm",
-      "prompt": "Une API exécute une requête pour chaque ligne d’une liste de 500 éléments. Quel problème faut-il examiner ?",
+      "prompt": "Que peut révéler un fort écart entre les lignes estimées et les lignes observées ?",
       "choices": [
-        "Un index rend toujours ces 500 appels optimaux",
-        "Le cache navigateur remplace les requêtes SQL",
-        "La présence de clés étrangères",
-        "Le schéma N+1 ; envisager jointure, chargement par lot ou requête groupée"
+        "Que la requête est nécessairement incorrecte",
+        "Des statistiques peu représentatives, une distribution particulière ou des dépendances entre colonnes mal estimées",
+        "Que la base n'utilise aucun index",
+        "Que les transactions sont désactivées"
       ],
-      "answer": 3,
-      "explanation": "Le coût des allers-retours répétés peut dominer. Le chargement par lot réduit les appels, mais il faut conserver les limites de taille et le comportement fonctionnel."
+      "answer": 1,
+      "explanation": "Les estimations de cardinalité influencent les choix de plan. Un écart important mérite d'examiner les statistiques, les données et les prédicats."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type d'index est couramment adapté aux égalités et aux plages ordonnées ?",
+      "choices": [
+        "B-tree",
+        "Index conçu uniquement pour une sauvegarde",
+        "Index de hachage utilisé comme ordre général garanti",
+        "Aucun index ne convient à ces requêtes"
+      ],
+      "answer": 0,
+      "explanation": "Les index B-tree sont courants pour les recherches d'égalité, les plages et certains ordres. L'usage exact et les coûts varient selon le moteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une table possède un index composite (apprenant_id, date_inscription). Quel prédicat correspond le plus directement à son préfixe ?",
+      "choices": [
+        "Filtrer par date_inscription uniquement, dans tous les cas",
+        "Filtrer par apprenant_id, éventuellement puis par date_inscription",
+        "Filtrer par une troisième colonne absente de l'index",
+        "Toute requête sans filtre"
+      ],
+      "answer": 1,
+      "explanation": "L'ordre des colonnes d'un index composite est important. Les B-tree exploitent couramment le préfixe gauche ; un index commençant par apprenant_id correspond au filtre de cette colonne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un index composite sur (apprenant_id, date_inscription) n'est-il pas équivalent à (date_inscription, apprenant_id) ?",
+      "choices": [
+        "L'ordre des colonnes influe sur les préfixes et les formes de requêtes auxquelles l'index répond efficacement",
+        "Les deux ordres sont interdits dans SQL",
+        "Un index composite ne peut jamais contenir des dates",
+        "Le moteur ignore systématiquement la première colonne"
+      ],
+      "answer": 0,
+      "explanation": "Les prédicats et tris courants déterminent l'ordre à tester. Un index est construit dans un ordre précis et ne remplace pas nécessairement la structure inverse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il inspecter les index existants avant d'en créer un nouveau ?",
+      "choices": [
+        "Parce que toutes les tables ont déjà tous les index possibles",
+        "Pour éviter des index redondants et comprendre si une clé primaire ou UNIQUE fournit déjà un chemin d'accès",
+        "Parce qu'une table ne peut contenir qu'un seul index",
+        "Parce qu'EXPLAIN fonctionne uniquement sans index"
+      ],
+      "answer": 1,
+      "explanation": "Les contraintes primaires et d'unicité sont souvent soutenues par des index. Une structure redondante ajoute du stockage et du coût de maintenance sans bénéfice garanti."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que cherche à fournir un index couvrant pour une requête ?",
+      "choices": [
+        "Une sauvegarde complète de la base",
+        "Les données nécessaires à la requête à partir de l'index, quand le moteur et les conditions le permettent",
+        "Une garantie de zéro coût d'écriture",
+        "Un remplacement de toutes les clés étrangères"
+      ],
+      "answer": 1,
+      "explanation": "Un index couvrant peut éviter certains accès à la table, mais sa définition, son coût et la possibilité de l'utiliser dépendent du moteur et de la requête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation sur les index partiels est correcte ?",
+      "choices": [
+        "Tous les moteurs prennent en charge exactement la même syntaxe",
+        "PostgreSQL prend en charge les index partiels ; les possibilités de MySQL diffèrent et doivent être évaluées selon la version",
+        "Ils remplacent les contraintes CHECK",
+        "Ils indexent obligatoirement toutes les lignes"
+      ],
+      "answer": 1,
+      "explanation": "Les capacités d'index partiel et les stratégies équivalentes diffèrent entre moteurs. La condition de l'index doit correspondre au besoin de requête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une condition telle que EXTRACT(YEAR FROM date_inscription) = 2026 peut limiter l'utilisation d'un index ordinaire sur la date ?",
+      "choices": [
+        "Elle applique une transformation à la colonne au lieu de filtrer directement sur une plage de valeurs",
+        "SQL interdit toutes les fonctions dans WHERE",
+        "Elle transforme la date en clé étrangère",
+        "Elle force toujours l'utilisation d'un index hash"
+      ],
+      "answer": 0,
+      "explanation": "Un prédicat sur expression peut empêcher un accès direct simple. Une plage de dates équivalente est souvent plus compatible avec un B-tree sur la colonne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert EXPLAIN ANALYZE lorsque le moteur le prend en charge ?",
+      "choices": [
+        "À montrer uniquement la syntaxe sans exécuter la requête",
+        "À exécuter réellement l'instruction analysée et fournir des mesures d'exécution observées",
+        "À ajouter automatiquement un index",
+        "À restaurer une sauvegarde"
+      ],
+      "answer": 1,
+      "explanation": "EXPLAIN ANALYZE fournit des observations réelles et peut consommer des ressources. Sur une instruction modifiant des données, son exécution peut avoir des effets réels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas interpréter directement les coûts EXPLAIN de PostgreSQL et de MySQL comme des millisecondes comparables ?",
+      "choices": [
+        "Parce qu'ils sont des estimations propres à chaque moteur et à son modèle de coûts",
+        "Parce que les deux moteurs n'ont pas de plan d'exécution",
+        "Parce que le coût représente toujours le nombre d'index",
+        "Parce qu'ils sont toujours égaux aux octets stockés"
+      ],
+      "answer": 0,
+      "explanation": "Les formats et modèles de coûts diffèrent. Pour comparer des alternatives, utilisez les outils appropriés du même moteur et des mesures contextualisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un coût opérationnel courant des index supplémentaires ?",
+      "choices": [
+        "Ils suppriment le besoin de sauvegardes",
+        "Ils occupent de l'espace et doivent être maintenus lors des insertions, mises à jour et suppressions",
+        "Ils rendent toutes les jointures inutiles",
+        "Ils réduisent toujours la latence de toutes les requêtes"
+      ],
+      "answer": 1,
+      "explanation": "Les index peuvent accélérer certaines lectures mais ajoutent du stockage et de la maintenance. Il faut mesurer leur effet sur la charge globale."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une requête reste lente alors que son plan semble correct. Quel diagnostic complémentaire est pertinent ?",
+      "choices": [
+        "Examiner les attentes sur les verrous, le pool de connexions, le réseau et les ressources du serveur",
+        "Créer un index sur chaque colonne",
+        "Désactiver les contraintes de clé étrangère",
+        "Supprimer EXPLAIN du moteur"
+      ],
+      "answer": 0,
+      "explanation": "La latence de bout en bout peut venir d'attentes, d'un pool saturé, du réseau, du transfert de gros résultats ou de ressources autres que l'accès aux lignes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche est la plus fiable pour évaluer un index candidat ?",
+      "choices": [
+        "Le créer sur la production sans mesure et regarder si la page semble plus rapide",
+        "Comparer plan, résultat et temps avant/après sur un jeu représentatif, et évaluer aussi le coût des écritures",
+        "Le conserver même si aucune requête ne l'utilise",
+        "L'ajouter systématiquement à chaque colonne filtrée une fois"
+      ],
+      "answer": 1,
+      "explanation": "L'optimisation doit être mesurée et conserver la sémantique. Les tests doivent considérer les effets de cache, la charge représentative, le stockage et les écritures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un index a peu été utilisé selon une métrique sur les dernières 24 heures. Peut-on le supprimer immédiatement ?",
+      "choices": [
+        "Oui, une faible utilisation sur 24 heures prouve qu'il est inutile",
+        "Non, il faut examiner la période observée, les traitements rares, les contraintes et les dépendances avant de décider",
+        "Oui, tout index doit être utilisé chaque heure",
+        "Non, les index sont impossibles à supprimer"
+      ],
+      "answer": 1,
+      "explanation": "La fenêtre observée peut exclure des tâches périodiques ou des usages rares mais critiques. Il faut confirmer l'historique et le rôle de l'index avant sa suppression."
     }
   ]
 }
