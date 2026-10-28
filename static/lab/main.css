@@ -30,3 +30,32 @@
  *   has been extended to include xterm CSI codes, among
  *   other features.
  */.xterm{cursor:text;position:relative;-moz-user-select:none;user-select:none;-ms-user-select:none;-webkit-user-select:none}.xterm.focus,.xterm:focus{outline:none}.xterm .xterm-helpers{position:absolute;top:0;z-index:5}.xterm .xterm-helper-textarea{padding:0;border:0;margin:0;position:absolute;opacity:0;left:-9999em;top:0;width:0;height:0;z-index:-5;white-space:nowrap;overflow:hidden;resize:none}.xterm .composition-view{background:#000;color:#fff;display:none;position:absolute;white-space:nowrap;z-index:1}.xterm .composition-view.active{display:block}.xterm .xterm-viewport{background-color:#000;overflow-y:scroll;cursor:default;position:absolute;right:0;left:0;top:0;bottom:0}.xterm .xterm-screen{position:relative}.xterm .xterm-screen canvas{position:absolute;left:0;top:0}.xterm .xterm-scroll-area{visibility:hidden}.xterm-char-measure-element{display:inline-block;visibility:hidden;position:absolute;top:0;left:-9999em;line-height:normal}.xterm.enable-mouse-events{cursor:default}.xterm.xterm-cursor-pointer,.xterm .xterm-cursor-pointer{cursor:pointer}.xterm.column-select.focus{cursor:crosshair}.xterm .xterm-accessibility,.xterm .xterm-message{position:absolute;left:0;top:0;bottom:0;right:0;z-index:10;color:transparent;pointer-events:none}.xterm .live-region{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}.xterm-dim{opacity:1!important}.xterm-underline-1{text-decoration:underline}.xterm-underline-2{-webkit-text-decoration:double underline;text-decoration:double underline}.xterm-underline-3{-webkit-text-decoration:wavy underline;text-decoration:wavy underline}.xterm-underline-4{-webkit-text-decoration:dotted underline;text-decoration:dotted underline}.xterm-underline-5{-webkit-text-decoration:dashed underline;text-decoration:dashed underline}.xterm-overline{text-decoration:overline}.xterm-overline.xterm-underline-1{text-decoration:overline underline}.xterm-overline.xterm-underline-2{-webkit-text-decoration:overline double underline;text-decoration:overline double underline}.xterm-overline.xterm-underline-3{-webkit-text-decoration:overline wavy underline;text-decoration:overline wavy underline}.xterm-overline.xterm-underline-4{-webkit-text-decoration:overline dotted underline;text-decoration:overline dotted underline}.xterm-overline.xterm-underline-5{-webkit-text-decoration:overline dashed underline;text-decoration:overline dashed underline}.xterm-strikethrough{text-decoration:line-through}.xterm-screen .xterm-decoration-container .xterm-decoration{z-index:6;position:absolute}.xterm-screen .xterm-decoration-container .xterm-decoration.xterm-decoration-top-layer{z-index:7}.xterm-decoration-overview-ruler{z-index:8;position:absolute;top:0;right:0;pointer-events:none}.xterm-decoration-top{z-index:2;position:relative}
+
+/* Skill Tree — finition UI/UX Graphite */
+:root{--amber-300:#e3b341;--amber-400:#d29922}
+[data-theme=graphite]{
+  --s0:#0d1117;--s1:#161b22;--s2:#30363d;--s3:#484f58;--s4:#21262d;
+  --amber-300:#e3b341;--amber-400:#d29922;
+}
+html,body{background-color:var(--s0)}
+button,a,[role=button],input,select,textarea,summary,.react-flow__controls button{
+  transition:all 300ms cubic-bezier(.4,0,.2,1);
+}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1)}
+.duration-300{transition-duration:300ms}
+.btn-glow{transition:all 300ms cubic-bezier(.4,0,.2,1)}
+.btn-glow:hover:not(:disabled):not([aria-disabled=true]){
+  box-shadow:0 0 0 1px rgb(56 189 248 / .4),0 0 22px -5px rgb(56 189 248 / .48),0 8px 24px -14px rgb(16 185 129 / .65);
+  transform:translateY(-1px);
+}
+.btn-glow:focus-visible{outline:2px solid var(--cyan-400);outline-offset:3px}
+.st-polish-toast{
+  position:fixed;right:1.25rem;bottom:1.25rem;z-index:10000;max-width:min(26rem,calc(100vw - 2rem));
+  border:1px solid rgb(56 189 248 / .35);border-radius:1rem;padding:.8rem 1rem;
+  color:var(--text-primary);background:var(--s1);
+  box-shadow:0 14px 38px -18px rgba(0,0,0,.9),0 0 22px -16px rgb(56 189 248 / .8);
+  font-size:.85rem;font-weight:650;opacity:0;transform:translateY(.35rem);pointer-events:none;
+  transition:opacity 300ms ease,transform 300ms ease;
+}
+.st-polish-toast.is-visible{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){button,a,[role=button],input,select,textarea,summary,.react-flow__controls button,.btn-glow,.transition-all,.st-polish-toast{transition-duration:.01ms!important}}
