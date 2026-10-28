@@ -31,7 +31,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Lecture avec la voix de secours du navigateur", DASHBOARD_HTML)
         self.assertIn("Expliquer le schéma", DASHBOARD_HTML)
         self.assertIn("Expliquer ma sélection", DASHBOARD_HTML)
-        self.assertIn('x-show="open && tutorOpen && modalTab === \'lesson\'"', DASHBOARD_HTML)
+        self.assertIn('x-show="open && tutorOpen && modalTab === \'lesson\' && !readerFocusMode"', DASHBOARD_HTML)
         self.assertIn("speakTutorMessage(message.text)", DASHBOARD_HTML)
         self.assertIn("selected_text: selectedText, history", DASHBOARD_HTML)
         self.assertIn("course-tutor-panel", DASHBOARD_HTML)
