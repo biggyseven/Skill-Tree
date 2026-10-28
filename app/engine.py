@@ -157,10 +157,14 @@ class SkillTree:
             )
 
         lesson_progress: dict[str, dict[str, object]] = {}
-        for row in self.conn.execute(
-            "SELECT node_id, progress_percent, active_seconds, read_completed FROM lesson_progress"
-        ):
-            lesson_progress[row["node_id"]] = dict(row)
+        try:
+            progress_rows = self.conn.execute(
+                "SELECT node_id, progress_percent, active_seconds, read_completed FROM lesson_progress"
+            )
+            for row in progress_rows:
+                lesson_progress[row["node_id"]] = dict(row)
+        except sqlite3.OPERATIONAL_ERROR_CLASSES:
+            lesson_progress = {}
 
         nodes = []
         for row in rows:
