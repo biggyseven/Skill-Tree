@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Monitoring synthétique (Selenium, Playwright) ».",
+      "prompt": "Quelle différence principale existe entre le monitoring synthétique et le RUM ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Le monitoring synthétique observe uniquement le CPU du serveur, tandis que le RUM teste les ports réseau.",
+        "Le RUM exécute toujours des parcours automatisés depuis des régions choisies par l’équipe.",
+        "Le monitoring synthétique rejoue des tests contrôlés, tandis que le RUM observe les performances des sessions réelles instrumentées.",
+        "Le RUM remplace nécessairement les tests fonctionnels de CI et garantit que chaque utilisateur est observé."
+      ],
+      "answer": 2,
+      "explanation": "Le monitoring synthétique exécute des requêtes ou parcours répétables dans un contexte choisi, utile même lorsqu’il y a peu de visiteurs. Le RUM recueille des mesures depuis les sessions réelles instrumentées, ce qui révèle les variations de navigateur, d’appareil, de réseau et de parcours. Les deux approches sont complémentaires et chacune possède des limites de couverture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi vaut-il mieux utiliser une attente conditionnelle plutôt qu’une pause fixe dans un scénario Selenium ou Playwright ?",
+      "choices": [
+        "Parce que les attentes conditionnelles ne peuvent jamais expirer et garantissent que l’application n’a pas de bug.",
+        "Parce qu’elles attendent un état observable utile, réduisent les attentes inutiles et produisent un échec plus interprétable lorsqu’un délai est dépassé.",
+        "Parce qu’elles éliminent le besoin d’assertions de résultat métier.",
+        "Parce qu’elles garantissent un rendu identique dans tous les navigateurs et toutes les régions."
+      ],
+      "answer": 1,
+      "explanation": "Une pause fixe attend le même temps même si l’élément est prêt rapidement, et peut malgré tout être trop courte dans une situation lente. Une attente conditionnelle se rapporte à un état précis, comme la visibilité d’un titre ou la disponibilité d’un bouton, et donne un diagnostic plus pertinent si cet état n’apparaît pas dans le délai prévu."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test navigateur reçoit une page, mais le bouton « Enregistrer » ne sauvegarde aucune donnée. Quelle amélioration rend le test plus utile ?",
+      "choices": [
+        "Vérifier une conséquence observable de la sauvegarde, telle qu’une confirmation liée à la donnée créée, plutôt que de vérifier uniquement que le clic a été envoyé.",
+        "Supprimer toutes les assertions afin que le test ne produise plus de faux négatifs.",
+        "Vérifier uniquement que le statut de la page initiale est HTTP 200.",
+        "Augmenter systématiquement le délai d’attente sans inspecter le résultat métier."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "L’envoi d’un clic confirme seulement que l’action a été déclenchée. Le test doit vérifier le résultat attendu par l’utilisateur, par exemple la confirmation et la présence de la donnée de test, en évitant de se contenter d’un message générique qui pourrait apparaître même si la persistance échoue. Un statut HTTP 200 ne prouve pas que la fonction est complète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un test synthétique échoue uniquement depuis une région, avant même que la page soit chargée. Quel diagnostic faut-il privilégier au début ?",
+      "choices": [
+        "Réécrire tout le frontend, car un problème de région est forcément lié à JavaScript.",
+        "Désactiver le contrôle régional, puisqu’un seul échec ne peut jamais avoir d’impact utilisateur.",
+        "Augmenter le nombre de workers du backend sans vérifier la connectivité.",
+        "Examiner depuis cette région la résolution DNS, la négociation TLS, le routage et le CDN, puis comparer avec d’autres emplacements."
+      ],
+      "answer": 3,
+      "explanation": "Si le navigateur ne reçoit pas encore la page, les erreurs de JavaScript ou de rendu sont peu susceptibles d’être la première cause. Une panne régionale peut provenir du DNS, du certificat présenté, du CDN, du routage ou d’une règle réseau. Comparer les étapes et les résultats d’autres régions aide à localiser la frontière où l’accès diverge."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus sûre pour gérer un scénario synthétique qui doit se connecter et créer une commande de test ?",
+      "choices": [
+        "Utiliser le compte administrateur personnel et écrire le mot de passe dans les logs pour faciliter le diagnostic.",
+        "Utiliser un compte dédié à privilèges limités, injecter les secrets depuis un gestionnaire adapté et employer des données isolées ainsi qu’un environnement de paiement de test.",
+        "Créer des transactions réelles puis supprimer seulement la ligne locale après l’exécution.",
+        "Partager un seul panier et une seule session entre toutes les exécutions pour économiser des ressources."
+      ],
+      "answer": 1,
+      "explanation": "Un test authentifié peut laisser des captures, fichiers de session ou traces contenant des informations sensibles. Un compte synthétique limité, des secrets gérés en dehors du code, des données isolées et un sandbox réduisent les risques de fuite, de collision et d’effets métier réels. Supprimer un enregistrement local n’annule pas nécessairement les conséquences d’une transaction externe."
     }
   ]
 }
