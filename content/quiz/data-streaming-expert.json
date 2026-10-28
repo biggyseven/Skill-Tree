@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "Les watermarks expriment une estimation de l’avancement du temps événementiel. Ils aident à arbitrer entre latence et prise en compte des événements tardifs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que représente principalement un offset Kafka ?",
+      "choices": [
+        "Un identifiant global de l'événement valable pour tous les topics",
+        "Le nombre total de messages jamais produits dans le cluster",
+        "La position d'un record dans le journal d'une partition donnée",
+        "Une clé métier choisie par l'application"
+      ],
+      "answer": 2,
+      "explanation": "L'offset indique une position dans le journal d'une partition. Ce n'est pas un compteur global au topic ni un identifiant métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal des réplicas synchronisés (ISR) pour une partition Kafka ?",
+      "choices": [
+        "Identifier les réplicas considérés comme suffisamment à jour selon la configuration et participer aux garanties d'acquittement",
+        "Garantir un ordre total entre toutes les partitions du cluster",
+        "Remplacer la nécessité de dimensionner le stockage",
+        "Dédupliquer toutes les opérations métier produites par les applications"
+      ],
+      "answer": 0,
+      "explanation": "L'ISR correspond à l'ensemble de réplicas considérés comme synchronisés selon les règles du cluster. Les garanties dépendent aussi des paramètres d'acquittement et de réplication."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un changement du nombre de partitions peut-il affecter l'ordre lié à une clé métier ?",
+      "choices": [
+        "Parce que Kafka efface automatiquement tous les offsets historiques",
+        "Parce que l'ajout de partitions peut modifier le mapping de clés vers partitions et répartir les nouveaux records différemment",
+        "Parce qu'une partition ne peut jamais contenir une clé répétée",
+        "Parce que le nombre de partitions modifie les timestamps des anciens messages"
+      ],
+      "answer": 1,
+      "explanation": "Avec un partitionneur par défaut, l'augmentation du nombre de partitions peut modifier la destination d'une clé. La migration doit considérer l'ordre métier et peut nécessiter un nouveau topic."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue une outbox transactionnelle dans un service producteur ?",
+      "choices": [
+        "Elle rend tous les appels externes et toutes les transactions distribuées atomiques par magie",
+        "Elle supprime le besoin de gérer les doublons consommateurs",
+        "Elle remplace Kafka par une base relationnelle",
+        "Elle lie l'écriture métier et l'enregistrement de l'événement dans une même transaction locale avant publication par un relay"
+      ],
+      "answer": 3,
+      "explanation": "L'outbox réduit le risque d'une mise à jour en base sans événement correspondant. Le relay peut publier à nouveau après une panne, donc les consommateurs doivent encore traiter les doublons."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque si un consommateur commit son offset avant la fin du traitement métier ?",
+      "choices": [
+        "Une perte logique : Kafka peut reprendre après l'offset alors que l'effet métier n'a pas été terminé",
+        "Une réplication automatique de la base de données",
+        "Un ordre global garanti entre toutes les partitions",
+        "Une compaction immédiate du topic"
+      ],
+      "answer": 0,
+      "explanation": "Un commit prématuré indique au groupe que la progression est acquise. Si le traitement échoue ensuite, le message peut ne pas être redélivré."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une destination SQL, quel mécanisme aide à neutraliser la redélivrance d'un record après un crash ?",
+      "choices": [
+        "Choisir un topic avec un nom plus court",
+        "Désactiver les journaux SQL",
+        "Une clé event_id stable et une contrainte d'unicité dans la même transaction que la modification métier",
+        "Augmenter automatiquement la rétention du topic"
+      ],
+      "answer": 2,
+      "explanation": "Une clé de déduplication stable et une transaction locale empêchent un même événement de produire deux fois le même effet métier, même si l'offset Kafka n'a pas encore été commité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation différencie correctement la compaction de la rétention temporelle Kafka ?",
+      "choices": [
+        "La compaction conserve obligatoirement chaque version historique de chaque clé",
+        "La compaction peut retirer les anciennes valeurs d'une clé et garder son état le plus récent, tandis que la rétention temporelle supprime des segments selon des critères de durée ou de taille",
+        "La rétention temporelle ne peut jamais supprimer de données",
+        "Les deux politiques garantissent que tous les consommateurs peuvent relire l'historique sans limite"
+      ],
+      "answer": 1,
+      "explanation": "La compaction vise plutôt l'état final par clé, alors que la rétention limite la durée ou la taille du journal. L'historique exhaustif nécessite une politique adéquate et éventuellement un archivage."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une DLQ (dead-letter queue) exploitable ?",
+      "choices": [
+        "Uniquement le payload brut sans motif ni métadonnées",
+        "Un message silencieux qui ne doit jamais être consulté",
+        "Tous les secrets du producteur pour accélérer le diagnostic",
+        "Le contexte d'origine, un identifiant de corrélation et le motif de rejet, avec des règles de sécurité, rétention et reprise"
+      ],
+      "answer": 3,
+      "explanation": "Une DLQ permet d'isoler les records non traitables, mais elle doit être surveillée, protégée, documentée et assortie d'un processus de correction et de relecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une transaction Kafka ne garantit-elle pas l'envoi unique d'un e-mail externe ?",
+      "choices": [
+        "Parce que les transactions Kafka ne coordonnent pas automatiquement un effet externe arbitraire comme l'e-mail",
+        "Parce que Kafka interdit l'existence de consommateurs",
+        "Parce que les offsets ne peuvent pas être commités",
+        "Parce que tous les e-mails sont envoyés par le broker"
+      ],
+      "answer": 0,
+      "explanation": "Les transactions Kafka peuvent coordonner records et offsets dans une portée supportée, mais elles n'annulent pas l'effet d'une API externe. Il faut une outbox ou une déduplication côté service externe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure permet de savoir si un consommateur rattrape réellement le débit de production ?",
+      "choices": [
+        "Le nombre de topics dans le cluster uniquement",
+        "La taille des noms de groupe",
+        "L'évolution du consumer lag, du débit produit et consommé et du temps de traitement",
+        "Le nombre d'utilisateurs qui connaissent Kafka"
+      ],
+      "answer": 2,
+      "explanation": "Le lag doit être interprété avec les débits, la progression, les erreurs et la latence. Un groupe actif peut rester en retard s'il traite moins vite que le flux n'arrive."
     }
   ]
 }
