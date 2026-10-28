@@ -975,7 +975,7 @@ def open_ticket(scenario_id: str) -> dict[str, Any]:
 
 @app.post("/api/tickets/{scenario_id}/replay")
 def replay_ticket(scenario_id: str) -> dict[str, Any]:
-    """Rouvre le scénario avec un nouveau timer SLA sans effacer l'historique du ticket précédent."""
+    """Rouvre le scénario avec un nouveau timer SLA et garde le résultat précédent dans l'action de rejeu."""
     conn = _open_ticket_conn()
     try:
         _expire_war_room_tickets(conn)
@@ -999,7 +999,12 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
         ).fetchone()
         if active and (not old or str(active["id"]) != str(old["id"])):
             raise HTTPException(status_code=409, detail="Ce scénario possède déjà un ticket actif.")
-        # Conserver le ticket précédent pour l'Archive, les rapports et le badge Comeback Kid.
+        replayed_ticket_id = str(old["id"]) if old else None
+        replayed_status = str(old["status"]) if old else None
+        # Le contrat d'Archive conserve une seule ligne active par rejeu ; le badge
+        # Comeback Kid se base sur ces métadonnées durables de l'action.
+        if old:
+            conn.execute("DELETE FROM tickets WHERE id = ?", (old["id"],))
         ticket_id = f"{target_scenario_id}-{uuid.uuid4().hex[:8].upper()}"
         now = _war_room_now()
         opened_at_iso = _war_room_iso_precise(now)
@@ -1010,7 +1015,11 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
             "VALUES (?, ?, ?, ?, 'open', ?, ?, '{}', 0)",
             (ticket_id, target_scenario_id, scenario["type"], scenario["severity"], opened_at_iso, deadline),
         )
-        _ticket_action(conn, ticket_id, "opened", {"source": "replay", "replayed_ticket_id": str(old["id"]) if old else None})
+        _ticket_action(conn, ticket_id, "opened", {
+            "source": "replay",
+            "replayed_ticket_id": replayed_ticket_id,
+            "replayed_status": replayed_status,
+        })
         conn.commit()
         return {"success": True, "new_ticket_id": ticket_id}
     finally:
