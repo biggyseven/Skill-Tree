@@ -4,15 +4,15 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Pourquoi un Data Lake organise-t-il souvent les données en zones brutes et préparées ?",
+      "prompt": "Un lot brut contient des dates invalides et une nouvelle colonne inattendue. Les analystes doivent conserver la source d'origine mais ne pas consommer le lot tel quel. Quelle organisation convient le mieux ?",
       "choices": [
-        "Pour empêcher toute évolution de schéma",
-        "Pour séparer les données reçues des données validées, nettoyées ou prêtes à l’analyse",
-        "Pour garantir que toutes les données sont déjà fiables à l’ingestion",
-        "Pour supprimer le besoin de métadonnées"
+        "Écraser les fichiers bruts avec une conversion implicite",
+        "Conserver la zone brute immuable, enregistrer les erreurs de validation puis publier uniquement une version préparée conforme",
+        "Faire lire directement les fichiers par tous les tableaux de bord",
+        "Supprimer les métadonnées afin de réduire le coût"
       ],
       "answer": 1,
-      "explanation": "La séparation des zones conserve la provenance tout en permettant des règles de validation, de nettoyage et de publication progressives."
+      "explanation": "La zone brute préserve la provenance et la possibilité de retraitement. La validation et la quarantaine isolent les défauts avant qu'un produit préparé soit mis à disposition."
     },
     {
       "type": "qcm",
@@ -28,15 +28,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Que signifie le principe de schema-on-read ?",
+      "prompt": "Deux producteurs écrivent le champ date avec des formats différents dans les mêmes fichiers bruts. Certaines requêtes interprètent une partie des valeurs autrement. Quel contrôle apporte le plus de fiabilité ?",
       "choices": [
-        "La structure est interprétée ou appliquée lors de la lecture, plutôt qu’imposée entièrement à l’écriture initiale",
-        "Aucune structure ne peut jamais être définie",
-        "Tous les fichiers doivent être XML",
-        "Le stockage refuse les données semi-structurées"
+        "Demander à chaque analyste d'ajouter sa propre conversion",
+        "Remplacer toutes les dates par des chaînes sans validation",
+        "Définir un contrat de format, normaliser dans une transformation versionnée et mettre en quarantaine les valeurs ambiguës",
+        "Désactiver l'évolution de schéma sur tous les systèmes"
       ],
-      "answer": 0,
-      "explanation": "Schema-on-read offre de la flexibilité, mais les lecteurs doivent gérer les évolutions, les types incohérents et les données invalides."
+      "answer": 2,
+      "explanation": "Schema-on-read ne signifie pas absence de contrat. Une validation centralisée et une normalisation reproductible évitent que chaque lecteur interprète différemment la même valeur."
     },
     {
       "type": "qcm",
@@ -52,15 +52,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi Parquet est-il souvent utilisé pour l’analytique ?",
+      "prompt": "Une requête sur Parquet sélectionne uniquement learner_id et progress_pct mais scanne de nombreux fichiers et colonnes inutiles. Quelle optimisation faut-il vérifier avant de changer de format ?",
       "choices": [
-        "C’est un format exclusivement textuel sans métadonnées",
-        "Son stockage colonnaire et ses métadonnées facilitent la lecture sélective de colonnes et certaines compressions",
-        "Il garantit à lui seul les transactions ACID",
-        "Il ne permet pas d’utiliser des types numériques"
+        "Examiner le plan pour le column pruning, les prédicats et le partition pruning, puis mesurer les octets effectivement lus",
+        "Copier les données dans une seule grosse chaîne JSON",
+        "Augmenter les permissions de tous les analystes",
+        "Créer une partition par learner_id sans tenir compte de la cardinalité"
       ],
-      "answer": 1,
-      "explanation": "Parquet est un format colonnaire conçu pour l’analytique. Les garanties transactionnelles et la gestion de table relèvent d’autres couches."
+      "answer": 0,
+      "explanation": "Parquet permet la lecture sélective, mais l'optimisation dépend du plan, des filtres et de la disposition des données. Une partition à forte cardinalité peut créer beaucoup de petits fichiers."
     },
     {
       "type": "qcm",
@@ -76,15 +76,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Comment gérer des données sensibles stockées dans un lac partagé ?",
+      "prompt": "Un analyste doit explorer un dataset partagé contenant des identifiants personnels. Les rapports ne nécessitent que des agrégats par jour et par cours. Quelle conception réduit le mieux l'exposition ?",
       "choices": [
-        "Appliquer classification, contrôle d’accès par identité, journalisation et règles de rétention adaptées",
-        "Rendre les zones brutes publiques pour faciliter le catalogage",
-        "Supprimer les métadonnées de provenance",
-        "Partager une seule clé et un seul compte d’accès pour tous"
+        "Donner un accès complet au bucket brut à tous les analystes",
+        "Chiffrer les fichiers puis autoriser n'importe quel compte à les lire",
+        "Copier les identifiants personnels dans les noms de fichiers",
+        "Publier une vue ou table agrégée minimisée et appliquer des droits d'accès distincts aux données brutes"
       ],
-      "answer": 0,
-      "explanation": "Un lac centralisé nécessite une gouvernance forte, avec accès minimum nécessaire, traces d’audit et traitement adapté à la sensibilité de chaque donnée."
+      "answer": 3,
+      "explanation": "Le chiffrement n'empêche pas l'accès d'un utilisateur autorisé à voir les valeurs déchiffrées. Les permissions par couche et la minimisation des colonnes/résultats limitent l'exposition."
     },
     {
       "type": "qcm",
@@ -112,27 +112,27 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quelle situation correspond le mieux au principe de schema-on-read ?",
+      "prompt": "Une nouvelle source introduit des champs optionnels et modifie le type d'un champ existant. Les producteurs et lecteurs ne sont pas tous déployés en même temps. Quelle stratégie est la plus sûre ?",
       "choices": [
-        "La structure est interprétée et validée principalement au moment où le moteur lit les données",
-        "Le schéma ne peut jamais changer après la première écriture",
-        "Le stockage ne conserve aucun champ de données",
-        "Les données sont obligatoirement converties en tables SQL avant d'être reçues"
+        "Modifier le type en place et supposer que tous les lecteurs s'adaptent",
+        "Évaluer la compatibilité, versionner le contrat, tester les lecteurs et déployer une migration progressive avec période de coexistence si nécessaire",
+        "Supprimer immédiatement les snapshots précédents",
+        "Ignorer le schéma parce que les données résident dans un stockage objet"
       ],
-      "answer": 0,
-      "explanation": "Schema-on-read apporte de la flexibilité en interprétant la structure à la lecture, mais reporte une partie des contrôles aux consommateurs. Il faut encore définir des contrats et des validations."
+      "answer": 1,
+      "explanation": "L'évolution du schéma est un contrat entre producteurs et consommateurs. La compatibilité doit être testée avec les moteurs et formats réellement utilisés avant une migration."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est un risque important lorsque des millions de petits fichiers sont écrits dans un Lakehouse ?",
+      "prompt": "Un flux horaire crée des dizaines de milliers de fichiers minuscule dans une table Lakehouse. Les requêtes sont lentes malgré un volume total modéré. Quel plan est le plus approprié ?",
       "choices": [
-        "Les fichiers plus petits interdisent toute compression",
-        "Ils garantissent un partition pruning plus efficace",
-        "Ils effacent automatiquement les snapshots",
-        "Ils augmentent les frais d'ouverture, de listing, de métadonnées et de planification"
+        "Créer davantage de fichiers encore plus petits",
+        "Supprimer les métadonnées de table et lister les objets directement",
+        "Mesurer la distribution des tailles, compacter selon les recommandations du format et vérifier les snapshots/lecteurs pendant la maintenance",
+        "Réécrire la table en texte sans test de compatibilité"
       ],
-      "answer": 3,
-      "explanation": "Un nombre excessif de petits fichiers augmente l'overhead même si le volume total n'est pas immense. La compaction et un parallélisme d'écriture mieux réglé peuvent aider."
+      "answer": 2,
+      "explanation": "Les petits fichiers accroissent les coûts d'ouverture et de planification. La compaction doit respecter les garanties du format et les lecteurs concurrents ; elle ne consiste pas à modifier les fichiers actifs à l'aveugle."
     },
     {
       "type": "qcm",
