@@ -168,7 +168,8 @@ class LabWorkspaceIntegrationTests(unittest.TestCase):
         self.assertIn("initial.lab.id === 'demo'", bridge)
 
     def test_workspace_submission_result_refreshes_dashboard_progress(self):
-        dashboard = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+        from scripts.dashboard_source import load_dashboard_source
+        dashboard = load_dashboard_source(ROOT)
         on_validated_start = dashboard.index("        onLabValidated(data) {")
         on_validated_end = dashboard.index("        checkRewards()", on_validated_start)
         on_validated_method = dashboard[on_validated_start:on_validated_end]
