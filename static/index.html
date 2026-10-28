@@ -22,7 +22,7 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 
   <link rel="stylesheet" href="/app.css">
-  <link rel="preload" href="/assets/skilltree-ui.css?v=bf34ea3fa344" as="style">
+  <link rel="preload" href="/assets/skilltree-ui.css?v=nav-clean-20261028" as="style">
   <link rel="preload" href="/assets/skilltree-core.js?v=72ded8fc6ef0" as="script">
   <link rel="preload" href="/assets/skilltree-catalog.js?v=c4d9677c1276" as="script">
   <link rel="preload" href="/assets/skilltree-study.js?v=b28b3330745a" as="script">
@@ -94,7 +94,7 @@
 
 
 
-  <link rel="stylesheet" href="/assets/skilltree-ui.css?v=bf34ea3fa344">
+  <link rel="stylesheet" href="/assets/skilltree-ui.css?v=nav-clean-20261028">
 </head>
 
 <body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode, 'compact-ui': compactUi }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event); closeSidebarContextMenuOnOutside($event)" @keydown.escape.window="closeSidebarContextMenu()">
@@ -257,7 +257,7 @@
           <span class="hidden xl:inline text-xs font-semibold">Atelier libre</span><span class="mobile-action-label">Atelier libre</span>
         </a>
         <div class="relative" data-theme-picker>
-          <button type="button" @click.stop="themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+          <button type="button" @click.stop="themeMenuOpen = !themeMenuOpen; notificationsOpen = false; settingsMenuOpen = false; profileMenuOpen = false" title="Choisir un thème" aria-label="Choisir un thème" aria-haspopup="true" :aria-expanded="themeMenuOpen" class="nav-action-btn nav-icon-action flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.9 1.8-1.8 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H17a4 4 0 0 0 4-4c0-4.4-4-8-9-8Z"></path><circle cx="7.5" cy="11" r="1"></circle><circle cx="10.5" cy="7" r="1"></circle><circle cx="15.5" cy="7.5" r="1"></circle></svg>
             <span class="mobile-action-label">Thème</span>
           </button>
@@ -273,7 +273,7 @@
             </div>
           </div>
         </div>
-        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false; themeMenuOpen = false" :title="unreadNotificationCount ? 'Notifications non lues : ' + unreadNotificationCount : 'Notifications'" :aria-label="unreadNotificationCount > 0 ? 'Ouvrir les notifications, ' + unreadNotificationCount + ' non lues' : 'Ouvrir les notifications'" aria-haspopup="true" :aria-expanded="notificationsOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+        <button type="button" @click.stop="notificationsOpen = !notificationsOpen; settingsMenuOpen = false; profileMenuOpen = false; themeMenuOpen = false" :title="unreadNotificationCount ? 'Notifications non lues : ' + unreadNotificationCount : 'Notifications'" :aria-label="unreadNotificationCount > 0 ? 'Ouvrir les notifications, ' + unreadNotificationCount + ' non lues' : 'Ouvrir les notifications'" aria-haspopup="true" :aria-expanded="notificationsOpen" class="nav-action-btn nav-icon-action flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
           <span class="mobile-action-label">Notifications</span>
           <span x-show="unreadNotificationCount > 0" x-cloak x-text="unreadNotificationCount > 9 ? '9+' : unreadNotificationCount" class="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full border border-[color:var(--s1)] bg-rose-500 px-1 text-[9px] font-bold leading-none text-white"></span>
@@ -320,7 +320,7 @@
           </form>
         </div>
 
-        <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Paramètres" aria-label="Ouvrir les paramètres" aria-haspopup="true" :aria-expanded="settingsMenuOpen" class="nav-action-btn flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
+        <button type="button" @click.stop="settingsMenuOpen = !settingsMenuOpen; notificationsOpen = false; profileMenuOpen = false; themeMenuOpen = false" title="Paramètres" aria-label="Ouvrir les paramètres" aria-haspopup="true" :aria-expanded="settingsMenuOpen" class="nav-action-btn nav-icon-action flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--s1)] border border-white/5 text-zinc-400 hover:text-white transition shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
           <span class="mobile-action-label">Paramètres</span>
         </button>
