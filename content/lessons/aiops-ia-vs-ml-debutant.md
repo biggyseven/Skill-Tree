@@ -458,6 +458,57 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — choisir la bonne approche pour trois problèmes
+
+### Énoncé
+
+Une équipe reçoit trois demandes : classer automatiquement les tickets d'assistance, détecter une consommation CPU inhabituelle et extraire les numéros de série depuis des rapports rédigés en langage naturel. Pour chaque demande, choisis entre une règle déterministe, un modèle de Machine Learning et un modèle de langage. Explique quelles données seraient nécessaires, comment mesurer la qualité et pourquoi une bonne précision moyenne ne suffit pas toujours.
+
+### Arbre de décision
+
+```mermaid
+flowchart TD
+  A["Décrire la décision attendue"] --> B{"Règles métier stables et explicites ?"}
+  B -- "Oui" --> C["Règles déterministes testables"]
+  B -- "Non" --> D{"Exemples représentatifs étiquetés ?"}
+  D -- "Oui" --> E["Évaluer un modèle ML adapté"]
+  D -- "Non" --> F{"Tâche de langage ou de génération ?"}
+  F -- "Oui" --> G["LLM avec contexte et validation"]
+  F -- "Non" --> H["Collecter des données et établir une baseline"]
+  C --> I["Comparer au coût d'erreur métier"]
+  E --> I
+  G --> I
+  H --> I
+```
+
+### Proposition de correction
+
+Pour le classement des tickets, une règle peut suffire si les catégories sont peu nombreuses et les formulations contrôlées. Si les tickets sont variés et qu'un historique correctement étiqueté existe, un classifieur supervisé devient pertinent. La détection de consommation CPU inhabituelle peut commencer par une baseline tenant compte de l'heure et du jour, puis utiliser une méthode de détection d'anomalies ; l'absence d'étiquette ne signifie pas que chaque point atypique est une panne. L'extraction de numéros de série est une tâche de langage, mais une sortie générée doit être validée contre un format attendu et, si possible, contre l'inventaire de référence.
+
+Pour évaluer, utilise un jeu de test séparé du jeu d'entraînement. Les données temporelles doivent être séparées chronologiquement afin d'éviter qu'un futur aide à prédire le passé. Pour des classes rares, examine précision, rappel et matrice de confusion, pas seulement l'accuracy. Une fausse alerte qui réveille l'astreinte n'a pas le même coût qu'une anomalie importante manquée.
+
+Exemple de validation temporelle simple :
+
+```python
+# Les lignes sont triées par date : le test représente le futur.
+cut = int(len(rows) * 0.8)
+train_rows = rows[:cut]
+test_rows = rows[cut:]
+
+assert train_rows[-1]["timestamp"] < test_rows[0]["timestamp"]
+print("Entraînement :", len(train_rows), "Test futur :", len(test_rows))
+```
+
+Cette séparation n'est pas une évaluation complète, mais elle évite une fuite temporelle évidente. Le choix final doit comparer le modèle à une baseline simple, inclure les coûts d'erreur et définir un mécanisme humain de contestation ou de correction.
+
+### Barème d'autoévaluation
+
+- Identifier la tâche et sa sortie attendue avant de choisir l'algorithme.
+- Justifier les données et les étiquettes nécessaires.
+- Séparer les données de test sans fuite.
+- Choisir des métriques cohérentes avec les conséquences d'une erreur.
+- Prévoir la validation de toute sortie générée.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
