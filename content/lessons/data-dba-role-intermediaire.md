@@ -1,664 +1,412 @@
 # Rôle du DBA et architecture SGBD — Intermédiaire
 
-> **Mise en contexte.** Une application de formation commence avec quelques dizaines d'utilisateurs et une base simple. Quelques mois plus tard, des milliers de personnes consultent les cours, enregistrent leurs progrès et passent des évaluations. Une requête auparavant rapide se met à ralentir, une sauvegarde existe mais personne n'a vérifié qu'elle peut être restaurée, plusieurs développeurs possèdent des privilèges trop étendus et les équipes ne savent pas à qui signaler une saturation. C'est dans ce contexte que le rôle du DBA — administrateur de bases de données — devient central. Le DBA ne se contente pas de créer des tables ou d'exécuter des commandes : il contribue à garantir que les données restent disponibles, cohérentes, protégées, observables et récupérables pendant tout leur cycle de vie.
+> **Mise en contexte.** Une application de formation connaît une croissance rapide. Les inscriptions augmentent, les résultats de quiz doivent être enregistrés sans doublon, les tableaux de bord deviennent lents et une mise à jour provoque un blocage entre deux transactions. Le code applicatif n’explique pas à lui seul ces incidents : il faut comprendre comment le serveur de base de données organise sa mémoire, ses fichiers, ses transactions, ses connexions et ses mécanismes de reprise. Le rôle du DBA consiste à transformer ce système essentiel en un service prévisible, observable, sécurisé et récupérable. Ce cours suit un cas fil rouge : exploiter la base d’une plateforme Skill-Tree, depuis l’analyse de son architecture jusqu’à la préparation d’un plan de restauration.
 
-## 1. Objectifs et périmètre du cours
+## Objectifs pédagogiques et parcours pratique
 
-Ce cours prolonge les travaux pratiques SQL. Vous avez appris à définir des tables, des contraintes, des requêtes et des transactions ; vous allez maintenant examiner le système qui exécute ces requêtes et les responsabilités nécessaires pour exploiter une base durablement. Le point de vue change : il ne s'agit plus seulement de savoir écrire du SQL, mais de comprendre les composants, les risques et les décisions d'exploitation qui entourent ce SQL.
+À la fin de ce cours, vous devrez savoir décrire les principales couches d’un système de gestion de base de données (SGBD), expliquer le trajet d’une requête, distinguer les responsabilités de l’administration de celles du développement, diagnostiquer une saturation de connexions, interpréter les symptômes d’un verrouillage, choisir des indicateurs de supervision et préparer un changement réversible. Vous devrez aussi pouvoir expliquer pourquoi la disponibilité, la cohérence, la sécurité et la capacité de restauration sont des propriétés complémentaires, et non des sujets indépendants.
 
-À la fin de cette leçon, vous serez capable de :
+Le parcours pratique suppose que vous avez déjà écrit des requêtes SQL, utilisé des clés et des contraintes, et construit un schéma relationnel. Les exemples utilisent PostgreSQL et mentionnent MySQL lorsque le comportement varie. Les commandes de diagnostic sont à exécuter sur une instance de test, avec des droits appropriés. Certaines vues système nécessitent un compte autorisé. Ne copiez jamais de commande destructive sur une production sans identifier l’instance, lire les préconditions et préparer un retour arrière.
 
-- distinguer le rôle du DBA de ceux du développeur, de l'ingénieur plateforme, de l'architecte et de l'équipe sécurité ;
-- expliquer l'architecture logique et physique d'un SGBD relationnel ;
-- décrire le parcours général d'une requête entre client, moteur SQL, optimiseur, exécuteur, mémoire et stockage ;
-- expliquer pourquoi les transactions, le journal de transactions, les verrous et les mécanismes de récupération sont essentiels ;
-- distinguer sauvegarde, réplication, haute disponibilité et reprise après sinistre ;
-- définir des objectifs de reprise et des contrôles de restaurabilité ;
-- organiser les comptes, les privilèges, les secrets et les responsabilités d'accès ;
-- lire les indicateurs de base d'une instance et relier une saturation à des hypothèses vérifiables ;
-- comprendre les principaux facteurs qui influencent la capacité et la performance ;
-- préparer une modification ou une migration avec validation, stratégie de retour et communication ;
-- construire une checklist d'exploitation et un tableau de bord adapté aux risques du service.
+Le DBA n’est pas uniquement une personne qui « répare la base quand elle est lente ». Il conçoit les procédures d’exploitation, prévient les incidents, explique les compromis d’architecture, automatise les tâches répétitives et rend les décisions mesurables. Une bonne administration s’appuie sur des preuves : métriques, journaux, plans d’exécution, historiques de changement et tests de restauration.
 
-Le cours se concentre sur les principes communs aux systèmes relationnels, avec des exemples pouvant être adaptés à PostgreSQL ou MySQL. Les composants internes et les commandes d'administration ne sont pas identiques entre moteurs ni entre versions. Les exemples SQL et les commandes de client sont donc présentés comme des points de départ à vérifier dans la documentation officielle du moteur effectivement exploité.
+## 1. Le métier de DBA dans une équipe produit
 
-## 2. Qu'est-ce qu'un DBA ?
+Le DBA — administrateur de bases de données — est responsable de la fiabilité opérationnelle du stockage structuré. Dans une petite équipe, cette responsabilité peut être partagée avec un ingénieur backend ou un ingénieur plateforme. Dans une organisation plus grande, elle peut être répartie entre DBA de production, administrateur de plateforme de données, ingénieur fiabilité, responsable sécurité et développeurs propriétaires d’un domaine métier.
 
-DBA signifie Database Administrator, ou administrateur de bases de données. Selon l'organisation, le DBA peut être responsable d'une instance, d'un ensemble de bases, d'un service managé ou d'une plateforme distribuée. Dans une petite équipe, une personne peut prendre en charge une grande partie de ces activités. Dans une grande organisation, les responsabilités sont souvent partagées entre administration, ingénierie de fiabilité, sécurité, développement, réseau, stockage et équipes de données.
+Ses missions se répartissent en plusieurs familles. La conception consiste à évaluer le modèle de données, la volumétrie, la croissance, la distribution des accès et les exigences de disponibilité. L’exploitation couvre le provisionnement, les mises à jour, le suivi des connexions, la gestion de l’espace disque et la rotation des journaux. La sécurité inclut les rôles, les privilèges, les secrets, le chiffrement, l’audit et la conformité. La continuité comprend les sauvegardes, la réplication, les tests de restauration et le plan de reprise. La performance concerne les requêtes, les index, les statistiques, la contention et la capacité.
 
-L'objectif opérationnel est de rendre le service de données conforme à des exigences définies : disponibilité, intégrité, sécurité, performance, capacité, coût et possibilité de reprise. Ces exigences sont liées. Par exemple, augmenter la conservation des journaux peut améliorer la capacité de restauration à un instant précis, mais augmenter les besoins en stockage. Accroître la réplication peut accélérer certaines stratégies de reprise, mais ne remplace pas une sauvegarde indépendante. Réduire les privilèges limite les effets d'une erreur, mais nécessite d'organiser les demandes de droits pour éviter de bloquer les opérations légitimes.
+Le DBA ne décide pas seul de tous les arbitrages. Le propriétaire métier exprime la perte de données acceptable. Le responsable de service fixe les objectifs de disponibilité. Le développeur explique les accès attendus et les garanties transactionnelles nécessaires. La sécurité détermine les contraintes de protection. Le DBA traduit ces besoins en mécanismes vérifiables et signale les conflits. Par exemple, réduire la durée de conservation peut répondre à un besoin de confidentialité, mais compliquer l’investigation d’incidents. Accroître les répliques peut améliorer la capacité de lecture, mais créer des retards de propagation ou des coûts supplémentaires.
 
-### 2.1 Responsabilités fréquentes
+Une responsabilité essentielle est de rendre explicites les niveaux de service. Le RPO, ou objectif de point de reprise, représente la quantité maximale de données que l’organisation accepte de perdre, exprimée en durée. Le RTO, ou objectif de temps de reprise, représente la durée maximale acceptable avant de rétablir le service. Un objectif « nous devons pouvoir redémarrer vite » n’est pas suffisamment opérationnel. Un objectif tel que « restaurer le service en moins de 45 minutes avec une perte maximale de cinq minutes de transactions confirmées » permet d’évaluer une solution et d’écrire un test.
 
-Les tâches courantes comprennent la préparation et la configuration des instances, la gestion des comptes et des privilèges, l'application de mises à jour, la surveillance de la santé du service, l'analyse des requêtes lentes, la gestion des index, la planification des sauvegardes, les tests de restauration, la gestion de la capacité et la coordination des changements de schéma.
+Il faut également distinguer responsabilité et autorité. Le DBA doit avoir les droits nécessaires pour intervenir, mais l’accès permanent à tous les environnements augmente le risque. Les comptes personnels, les accès d’urgence et les opérations privilégiées doivent être contrôlables. Les changements risqués suivent un processus d’approbation adapté à leur impact. Une procédure d’urgence n’est pas une absence de procédure : elle décrit qui peut décider, comment limiter le risque et comment documenter l’action après coup.
 
-Le DBA travaille avec les développeurs pour comprendre la charge et le modèle de données. Il collabore avec les équipes de sécurité pour appliquer le moindre privilège, protéger les connexions et assurer la traçabilité. Il collabore avec l'équipe plateforme pour dimensionner les ressources, superviser le réseau et préparer une stratégie de disponibilité. Il participe à la gestion des incidents et à l'analyse des causes après une panne.
+## 2. Architecture logique et architecture physique
 
-Le DBA n'est pas nécessairement le seul responsable de toutes les données. Le propriétaire métier définit le sens des données, les règles de conservation et les usages autorisés. Le développeur connaît le comportement de l'application. L'équipe sécurité établit les politiques organisationnelles et réglementaires. Le DBA transforme ces exigences en configuration de base de données, en procédures et en contrôles qui peuvent être vérifiés.
+L’architecture logique décrit les objets que l’utilisateur SQL manipule : bases, schémas, tables, vues, index, séquences, fonctions, rôles et contraintes. L’architecture physique décrit les fichiers, pages, segments, journaux, caches, volumes, dispositifs de stockage et mécanismes de reprise qui supportent ces objets. La distinction est fondamentale : deux tables logiquement similaires peuvent avoir un coût opérationnel très différent selon leur taille, leurs index, leur répartition et leur activité d’écriture.
 
-### 2.2 DBA traditionnel, DBA de plateforme et service managé
+Un schéma relationnel possède des identifiants stables, des règles d’intégrité et des relations explicites. La base physique a, elle, des contraintes de ressources : mémoire, cycles CPU, latence disque, débit réseau, limites de connexions et espace disponible. Les requêtes SQL sont compilées ou transformées en plans exécutables. Le moteur estime les coûts, choisit des méthodes d’accès et orchestre la lecture, les verrous ou les versions de lignes. La qualité de ce plan dépend notamment des statistiques disponibles et de la forme réelle des données.
 
-Dans un environnement auto-hébergé, le DBA peut devoir gérer le système d'exploitation, le moteur, les disques, les mises à jour, les sauvegardes et la réplication. Dans un service de base de données managé, le fournisseur prend en charge certaines opérations matérielles et logicielles, mais l'équipe cliente reste généralement responsable du modèle, des droits, des requêtes, de la rétention métier, des tests de restauration et de la conception de la haute disponibilité. La répartition dépend du contrat de service.
+Le serveur de base de données peut fonctionner sur une machine virtuelle, un conteneur ou une plateforme managée. Dans un service managé, l’équipe fournisseur prend généralement en charge une partie du système d’exploitation, des mises à jour et de la disponibilité physique. Cela ne supprime pas les responsabilités applicatives : schéma, index, droits, requêtes, sauvegardes selon le service, contrôle des coûts et validation d’une restauration restent des sujets essentiels. « Managé » ne signifie pas « sans administration ».
 
-Un service managé ne supprime donc pas le besoin d'administration ; il déplace certaines responsabilités. L'équipe doit savoir quelles tâches sont prises en charge par le fournisseur, quelles tâches restent à sa charge et comment les preuves sont disponibles. Par exemple, le fait qu'un fournisseur annonce des sauvegardes automatiques ne prouve pas que le bon point de restauration répondra aux besoins métier. Il faut connaître la durée de rétention, les options de restauration, les délais attendus et la procédure testée.
-
-### 2.3 Responsabilités selon le cycle de vie
+Le schéma suivant résume le trajet typique d’une requête relationnelle. Les détails d’implémentation diffèrent selon le moteur, mais l’idée générale est commune.
 
 ~~~mermaid
 flowchart TD
-    A["Conception"] --> B["Provisionnement"]
-    B --> C["Sécurisation"]
-    C --> D["Mise en service"]
-    D --> E["Surveillance et optimisation"]
-    E --> F["Sauvegarde et reprise"]
-    E --> G["Changements et migrations"]
-    F --> H["Exercices de restauration"]
-    G --> E
-    H --> E
-    E --> I["Retrait contrôlé du service"]
+    A[Application] --> B[Connexion ou pool]
+    B --> C[Analyse et validation SQL]
+    C --> D[Réécriture et planification]
+    D --> E[Plan d'exécution]
+    E --> F[Cache et mémoire]
+    E --> G[Gestion des transactions]
+    F --> H[Stockage des pages]
+    G --> I[Journaux de reprise]
+    H --> J[Résultats]
+    I --> K[Reprise après incident]
+    J --> A
 ~~~
 
-L'administration couvre tout le cycle de vie, y compris le retrait. Une base que personne n'utilise encore peut conserver des données sensibles, des comptes valides et des sauvegardes coûteuses. La fermeture doit confirmer les dépendances, la conservation réglementaire, les besoins d'archivage et la suppression sécurisée des données lorsque cela est autorisé.
+Une requête ne se contente donc pas de « lire un fichier ». Le moteur évalue les chemins d’accès possibles, synchronise des opérations concurrentes et applique les garanties de cohérence. Si une requête attend un verrou, ajouter de la mémoire n’est pas nécessairement utile. Si un index réduit les lectures mais augmente fortement le coût de chaque écriture, le bénéfice peut être négatif. Le diagnostic doit séparer le temps de planification, le temps d’attente, le temps d’exécution et le temps passé dans le client ou le réseau.
 
-## 3. Architecture générale d'un SGBD
+## 3. Processus, mémoire, connexions et cache
 
-Un système de gestion de base de données (SGBD) est un logiciel qui permet de définir, stocker, interroger, modifier et protéger des données structurées. Pour raisonner sur son architecture, il est utile de distinguer plusieurs couches, même si leur implémentation varie d'un moteur à l'autre.
+Les serveurs de bases de données utilisent des structures mémoire pour éviter de relire constamment le stockage et pour organiser le travail. PostgreSQL utilise notamment un cache partagé de pages, une zone de travail par opération selon la configuration, ainsi que des processus de fond. MySQL/InnoDB s’appuie notamment sur un buffer pool pour les données et les index. Les noms, les tailles et les modes de fonctionnement varient : ne recopiez pas un paramètre PostgreSQL dans MySQL en supposant une correspondance.
 
-1. **Clients et applications** : ils envoient des requêtes au serveur au travers d'un pilote ou d'un protocole.
-2. **Gestion des connexions et de l'authentification** : le serveur reçoit les connexions, identifie les comptes et contrôle les accès.
-3. **Analyse et préparation SQL** : le moteur analyse la syntaxe et vérifie les objets et les types.
-4. **Optimisation** : le moteur estime les plans d'exécution possibles selon les statistiques, les index et le coût attendu.
-5. **Exécution** : le plan choisi lit, filtre, joint, trie ou modifie les données.
-6. **Mémoire et caches** : des pages de données et des résultats intermédiaires peuvent être conservés en mémoire pour éviter des lectures répétées.
-7. **Stockage et journaux** : les pages de données, métadonnées et journaux sont persistés selon les mécanismes du moteur.
-8. **Contrôle transactionnel et récupération** : le moteur gère la concurrence, la visibilité des versions, les verrous ou autres mécanismes de synchronisation, et la récupération après incident.
+Le cache ne rend pas toute requête gratuite. Il peut réduire les lectures physiques, mais le moteur doit toujours parcourir les index ou les lignes nécessaires, vérifier les prédicats, combiner les résultats et transmettre les données. Une requête qui renvoie plusieurs millions de lignes peut saturer le réseau ou le client, même si les données sont en mémoire. Réduire le volume de données retourné est souvent aussi important que le temps d’accès au disque.
 
-~~~mermaid
-flowchart LR
-    A["Application"] --> B["Pilote / protocole"]
-    B --> C["Connexions et authentification"]
-    C --> D["Analyse et validation SQL"]
-    D --> E["Optimiseur de requêtes"]
-    E --> F["Plan d'exécution"]
-    F --> G["Moteur transactionnel"]
-    G <--> H["Mémoire / caches"]
-    G <--> I["Stockage des données"]
-    G --> J["Journal de récupération"]
-~~~
+Chaque connexion a un coût : mémoire, structures de session, ordonnanceur, transactions, sockets et travail de maintenance. Ouvrir sans limite une connexion par requête applicative conduit à une amplification. Une application avec 12 processus et 20 connexions par processus peut tenter de créer 240 sessions, avant de compter les tâches périodiques et les outils d’administration. La limite du serveur ne doit pas être choisie sans observer le coût de chaque session et la capacité CPU réelle.
 
-Cette représentation est conceptuelle. Dans un moteur réel, les composants peuvent être organisés différemment, interagir en parallèle ou partager plusieurs sous-systèmes. L'objectif est d'identifier les responsabilités et les points d'observation possibles, pas de supposer que chaque moteur possède exactement les mêmes processus internes.
+Un pool de connexions réutilise des sessions afin d’éviter un établissement permanent des connexions. Il apporte une limite de concurrence et amortit le coût de démarrage. Cependant, un pool peut lui-même être mal configuré : trop petit, il crée une file d’attente; trop grand, il transfère la saturation vers le serveur. L’équipe doit observer le temps d’attente du pool, son nombre de connexions actives, le nombre en attente, la durée de transaction et le nombre de connexions abandonnées.
 
-### 3.1 Architecture client-serveur
+Une transaction longue peut conserver des versions de lignes, des verrous ou des ressources plus longtemps que nécessaire. La session reste alors active même si elle n’exécute aucune requête à l’instant de l’observation. Il faut regarder l’état de la connexion et le début de la transaction, pas seulement la dernière requête. Une bonne pratique applicative consiste à ne pas garder une transaction ouverte pendant une interaction utilisateur ou un appel HTTP externe.
 
-Dans l'architecture client-serveur, l'application cliente envoie des commandes à un serveur SQL. Le serveur possède les données et exécute les requêtes autorisées. Cette séparation permet à plusieurs applications de partager une source de données contrôlée, avec des permissions et des transactions coordonnées par le SGBD.
-
-Une connexion réseau ajoute toutefois des sujets d'exploitation : résolution DNS, port, pare-feu, chiffrement, latence, limites de connexions, interruption du réseau et délais d'attente. Une erreur de connexion ne prouve pas que la base est en panne. Le problème peut se situer dans l'application, le DNS, le routage, le pare-feu, l'authentification ou la capacité du service à accepter de nouvelles sessions.
-
-### 3.2 Connexions et pools de connexions
-
-L'ouverture d'une connexion coûte du temps et des ressources. Une application web qui crée une nouvelle connexion pour chaque petite requête peut produire une quantité excessive de connexions simultanées, particulièrement lorsqu'elle fonctionne avec de nombreuses instances. Un pool de connexions réutilise un ensemble de connexions disponibles et limite le nombre de sessions simultanées.
-
-Le pool doit être dimensionné à partir du budget de connexions et du profil de charge. Un pool trop petit peut créer une file d'attente côté application ; un pool trop grand peut épuiser les ressources du serveur ou augmenter la contention. Ajouter des connexions n'accélère pas automatiquement une base saturée. Il faut examiner le temps d'attente, le nombre de connexions actives, les requêtes en cours et les ressources consommées.
-
-~~~mermaid
-flowchart TD
-    A["Requêtes HTTP concurrentes"] --> B["Pool de connexions applicatif"]
-    B --> C{"Connexion disponible ?"}
-    C -- "Oui" --> D["Exécuter la requête"]
-    C -- "Non" --> E["Attendre dans la file ou appliquer un délai"]
-    D --> F["Libérer la connexion"]
-    F --> B
-    E --> B
-~~~
-
-La connexion doit être rendue au pool même lorsqu'une requête échoue, et toute transaction ouverte doit être remise dans un état sûr avant la réutilisation. Une connexion retournée au pool avec un état transactionnel inattendu, un paramètre de session modifié ou une session en erreur peut affecter une requête suivante. Les pilotes et pools de qualité gèrent une partie de ces problèmes, mais la configuration et la discipline applicative restent importantes.
-
-## 4. Du SQL au plan d'exécution
-
-Lorsqu'une application envoie une instruction SQL, le moteur doit en vérifier la syntaxe, les objets, les types et les droits. Ensuite, il choisit une stratégie d'exécution. Pour une requête qui joint plusieurs tables, différents ordres de jointure, méthodes d'accès ou stratégies d'agrégation peuvent être possibles. L'optimiseur estime leur coût à partir des statistiques et des caractéristiques disponibles, puis sélectionne un plan.
-
-Cette explication ne signifie pas que chaque instruction suit toujours une séquence visible identique. Les moteurs peuvent réutiliser des plans préparés, transformer des expressions ou appliquer des optimisations supplémentaires. L'important pour le DBA est de savoir qu'une requête SQL décrit le résultat désiré, tandis que le moteur choisit la manière de calculer ce résultat.
-
-### 4.1 Statistiques et sélectivité
-
-L'optimiseur estime généralement combien de lignes seront touchées par les filtres, la distribution des valeurs et les relations entre tables. Si les statistiques sont périmées ou ne représentent pas la distribution réelle, le plan choisi peut être inadapté. Par exemple, un filtre qui renvoie une ligne sur un grand volume pourrait justifier un accès par index, tandis qu'un filtre qui renvoie une part très importante de la table peut rendre un parcours plus large raisonnable.
-
-Un index ne garantit donc pas que l'optimiseur l'utilisera. La qualité du plan dépend notamment des statistiques, de la sélectivité, du coût des lectures et des opérations nécessaires ensuite. Il faut analyser une requête représentative plutôt que conclure à partir de la seule présence d'un index.
-
-### 4.2 Examiner un plan
-
-EXPLAIN est disponible dans PostgreSQL et MySQL, avec des différences de format et d'options. Il permet d'étudier le plan prévu. Certaines variantes peuvent exécuter réellement la requête et fournir des mesures observées ; elles doivent être utilisées avec prudence sur des données ou systèmes sensibles.
+Exemple de vérification des sessions PostgreSQL :
 
 ~~~sql
-EXPLAIN
-SELECT c.cours_id, c.titre_cours, COUNT(i.apprenant_id) AS inscriptions
-FROM cours AS c
-LEFT JOIN inscriptions AS i
-  ON i.cours_id = c.cours_id
-GROUP BY c.cours_id, c.titre_cours;
+SELECT
+    pid,
+    usename,
+    application_name,
+    client_addr,
+    state,
+    now() - xact_start AS transaction_age,
+    wait_event_type,
+    wait_event,
+    left(query, 120) AS query_excerpt
+FROM pg_stat_activity
+WHERE datname = current_database()
+ORDER BY xact_start NULLS LAST;
 ~~~
 
-Le plan peut indiquer des accès séquentiels ou par index, des jointures, des tris et des agrégations. Les termes précis et les champs de la sortie varient selon le moteur. Pour interpréter un plan, comparez les lignes estimées aux lignes observées si le moteur fournit ces mesures, regardez le coût des étapes et comprenez d'abord ce que la requête calcule.
+Cette requête peut révéler des transactions anciennes et des attentes. Elle ne fournit pas à elle seule le diagnostic complet : une requête affichée peut être tronquée, l’accès aux détails peut être limité et une ligne « active » ne signifie pas forcément qu’elle consomme intensément le processeur. Corrélez avec les métriques système et le journal des requêtes lentes.
 
-### 4.3 Optimiser une requête de manière rigoureuse
+## 4. Transactions et propriétés ACID
 
-Une démarche efficace comprend :
-1. définir une métrique observable — temps, volume lu, nombre de lignes, charge CPU ou attente ;
-2. reproduire la requête et le contexte ;
-3. examiner les statistiques, les index et le plan ;
-4. formuler une hypothèse ;
-5. modifier une chose à la fois dans un environnement représentatif ;
-6. vérifier le résultat fonctionnel et la mesure de performance ;
-7. surveiller le compromis sur l'écriture, le stockage et les autres requêtes.
+Une transaction regroupe des opérations qui doivent être validées ou annulées de façon cohérente. Les quatre propriétés couramment résumées par ACID sont l’atomicité, la cohérence, l’isolation et la durabilité. L’atomicité signifie que les modifications du groupe sont appliquées comme une unité. La cohérence signifie que les contraintes définies par le système restent satisfaites lorsque les transactions respectent ces règles. L’isolation décrit la façon dont les opérations concurrentes s’observent. La durabilité signifie qu’une transaction confirmée résiste aux défaillances couvertes par les garanties du moteur.
 
-Une optimisation qui réduit le temps d'une requête tout en provoquant une dégradation globale importante n'est pas nécessairement une amélioration. L'objectif porte sur le service, pas sur une seule requête isolée.
-
-## 5. Mémoire, cache et stockage
-
-Les systèmes relationnels utilisent des structures en mémoire pour limiter les lectures physiques et coordonner le travail. Le moteur peut conserver des pages lues, des pages modifiées, des informations de session, des structures de verrouillage et des résultats intermédiaires. Les détails varient selon la version et l'architecture.
-
-Il faut distinguer cache froid et cache chaud. Lors d'un premier accès, certaines données peuvent devoir être lues depuis le stockage ; les accès suivants peuvent être plus rapides si les pages sont présentes en mémoire. Un test de performance qui n'indique pas l'état du cache risque donc d'être difficile à comparer. Il ne faut pas vider un cache de production pour « rendre le test réaliste » sans connaître les conséquences.
-
-### 5.1 Pages, blocs et lecture
-
-De nombreux moteurs gèrent le stockage par pages ou blocs, plutôt que de traiter chaque cellule comme une opération disque indépendante. Une requête peut lire plusieurs pages contenant des lignes dont elle ne veut conserver qu'une partie. La taille des pages, leur organisation et les stratégies d'accès sont propres au moteur, mais le principe reste que le volume de données lu peut être très différent du volume renvoyé au client.
-
-Une requête qui renvoie dix lignes peut lire beaucoup de pages si elle ne dispose pas d'un chemin d'accès adapté. À l'inverse, un parcours séquentiel important peut être efficace si le résultat porte sur une part significative de la table. Le DBA doit examiner le volume et la méthode, pas seulement le nombre de lignes finales.
-
-### 5.2 Stockage, latence et espace disponible
-
-La capacité disque ne se limite pas à la taille des tables visibles. Il faut considérer les index, les journaux, les fichiers temporaires, les fichiers de tri, les sauvegardes locales éventuelles, les données système et les marges nécessaires à la maintenance. La croissance doit être suivie dans le temps.
-
-Un disque presque plein peut provoquer des erreurs d'écriture, des échecs de maintenance, une incapacité à produire des fichiers temporaires ou à conserver certains journaux requis. Une alerte de capacité doit donc être anticipée à un seuil qui laisse le temps d'agir ; attendre 100 % est trop tard.
-
-### 5.3 Journaux de transactions et durabilité
-
-Les moteurs utilisent des mécanismes de journalisation pour permettre de préserver la cohérence et récupérer des modifications après un arrêt inattendu. PostgreSQL utilise notamment le Write-Ahead Logging (WAL). MySQL/InnoDB utilise notamment un redo log ainsi que d'autres mécanismes de journalisation et de récupération. Les détails exacts ne sont pas identiques, mais le principe de base est que les informations nécessaires à la récupération doivent être rendues persistantes dans un ordre approprié par rapport à certaines écritures de données.
-
-Le journal de transactions ne doit pas être assimilé à une sauvegarde complète. Il peut servir à la récupération après incident et, selon l'architecture et la configuration, à une restauration à un instant précis lorsqu'il est combiné à une sauvegarde de base et à la chaîne de journaux nécessaire. Perdre ou purger trop tôt des journaux requis peut rendre impossible un point de restauration souhaité.
-
-~~~mermaid
-flowchart TD
-    A["Transaction modifie des lignes"] --> B["Journal de récupération préparé"]
-    B --> C["Garanties de persistance selon moteur et configuration"]
-    C --> D["Pages de données écrites selon le mécanisme du moteur"]
-    D --> E["Après incident : récupération à partir des journaux"]
-    E --> F["État cohérent restauré selon les garanties disponibles"]
-~~~
-
-La durabilité effective dépend aussi de la configuration, du stockage, des confirmations envoyées par le matériel et des réglages du moteur. Le DBA doit comprendre les compromis entre latence et durabilité, ne pas modifier à l'aveugle les paramètres associés et documenter le niveau de garantie réellement offert.
-
-## 6. Transactions, concurrence et verrous
-
-Plusieurs sessions peuvent lire et modifier simultanément les données. Le moteur doit appliquer les règles d'isolation et coordonner les écritures concurrentes. Les conflits peuvent provoquer des attentes, des interblocages (*deadlocks*) ou des échecs transactionnels. Ces phénomènes sont des éléments ordinaires de l'exploitation d'un système multi-utilisateur.
-
-### 6.1 ACID en contexte opérationnel
-
-- **Atomicité** : une transaction est traitée comme une unité logique ; les modifications non validées ne doivent pas être considérées comme un résultat complet.
-- **Cohérence** : les contraintes et règles applicables doivent rester satisfaites lorsque la transaction est acceptée.
-- **Isolation** : les transactions concurrentes sont séparées selon le niveau d'isolation et les garanties du moteur.
-- **Durabilité** : une transaction confirmée doit respecter les garanties de persistance annoncées par le système et la configuration.
-
-ACID ne veut pas dire que l'application ne peut pas comporter de bug, que toutes les règles métier sont automatiquement codées ou qu'une donnée supprimée peut toujours être restaurée facilement. Les contraintes, le code et les procédures de récupération restent nécessaires.
-
-### 6.2 Verrous et attentes
-
-Les verrous protègent certaines opérations contre des modifications incompatibles. Un verrou peut être conservé pendant une partie importante d'une transaction ; si la transaction est trop longue, d'autres sessions peuvent attendre. Un traitement qui lit des données puis attend plusieurs minutes une interaction utilisateur ne devrait généralement pas garder une transaction ouverte sur toute cette durée.
-
-Un DBA qui observe une hausse de la latence doit vérifier si les requêtes attendent le CPU, le stockage, des verrous, une connexion disponible ou une autre ressource. Le temps total d'une requête peut inclure du temps passé à attendre, pas uniquement du calcul. Il faut identifier la catégorie d'attente avant d'augmenter les ressources au hasard.
-
-### 6.3 Interblocages
-
-Un interblocage se produit lorsque des transactions se bloquent mutuellement de façon cyclique : par exemple, la transaction A détient une ressource attendue par B tandis que B détient une ressource attendue par A. Les moteurs savent généralement détecter certaines situations et annuler une transaction pour permettre au système de progresser.
-
-La correction exige souvent de comprendre l'ordre d'accès aux objets et la durée des transactions. Utiliser un ordre de mise à jour cohérent, maintenir les transactions courtes et traiter proprement les erreurs de transaction peut réduire le risque. Réessayer aveuglément chaque erreur en boucle sans limite peut amplifier la charge et masquer une cause structurelle.
-
-## 7. Sauvegarde, restauration et continuité
-
-Une sauvegarde n'est pas uniquement un fichier créé périodiquement. C'est un élément d'une capacité de reprise. L'organisation doit savoir quelles données sont couvertes, quand la sauvegarde a été effectuée, où elle est conservée, combien de temps elle est gardée, qui peut la lire, comment son intégrité est contrôlée et quelle procédure permet de restaurer le service.
-
-### 7.1 Sauvegarde logique et physique
-
-Une sauvegarde logique représente les objets et les données sous une forme exportée, par exemple un dump SQL ou des instructions d'insertion. Elle peut être pratique pour exporter certains objets, migrer entre environnements ou restaurer une partie des données, selon l'outil. Elle peut prendre du temps et nécessiter des traitements lors de la restauration.
-
-Une sauvegarde physique copie ou capture les structures de stockage selon les mécanismes pris en charge par le moteur ou la plateforme. Elle peut permettre des restaurations plus adaptées à de grands volumes et s'inscrire dans une stratégie avec journaux. Les contraintes de version, de plateforme et de cohérence doivent être respectées.
-
-Aucune méthode n'est universellement meilleure. Le choix dépend de la taille, du temps de restauration, du besoin de récupération ponctuelle, de la portabilité, du coût et des capacités de l'équipe.
-
-### 7.2 RPO et RTO
-
-Le **RPO** (Recovery Point Objective) est la perte de données maximale acceptable mesurée en temps. Si le RPO est de quinze minutes, l'architecture et les procédures doivent permettre, dans le scénario envisagé, de reprendre avec un point de données ne dépassant pas cette fenêtre de perte. Le **RTO** (Recovery Time Objective) est la durée cible pour rétablir le service selon la définition convenue.
-
-Ces objectifs sont des exigences métier et opérationnelles, pas des valeurs qu'un outil garantit tout seul. Ils doivent être discutés avec les propriétaires du service, puis testés avec des scénarios réalistes. Un RPO très faible peut exiger une chaîne de journaux robuste, une réplication adaptée et une exploitation disciplinée. Un RTO très faible peut nécessiter automatisation, infrastructure de secours et procédures éprouvées.
-
-~~~mermaid
-flowchart LR
-    A["Incident à l'instant T"] --> B["Dernier point restaurable"]
-    B --> C["Perte potentielle de données = RPO"]
-    A --> D["Détection et décision"]
-    D --> E["Restauration / bascule"]
-    E --> F["Service validé"]
-    D --> G["Durée totale cible = RTO"]
-~~~
-
-### 7.3 Pourquoi tester une restauration ?
-
-Une sauvegarde peut exister tout en étant inutilisable : fichier incomplet, clé de chiffrement indisponible, droits insuffisants, sauvegarde corrompue, documentation périmée, journaux manquants, incompatibilité de version ou durée de restauration trop longue. Le test de restauration vérifie l'ensemble de la chaîne, pas uniquement la présence d'un fichier.
-
-Un exercice de restauration doit préciser le scénario, la sauvegarde choisie, l'environnement de récupération, les dépendances, les contrôles de cohérence et les critères de réussite. Pour des données sensibles, l'environnement restauré doit être protégé avec des droits adaptés, car il peut contenir une copie de données réelles.
-
-### 7.4 Exemple d'export logique
-
-Dans PostgreSQL, pg_dump est un outil courant de sauvegarde logique. Exemple indicatif :
-
-~~~bash
-pg_dump -h localhost -U lab_user -d skilltree_lab -F c -f skilltree_lab.dump
-~~~
-
-Le format choisi et les options de restauration doivent correspondre à la méthode retenue. Le secret ne doit pas être écrit directement dans le script. Utilisez le mécanisme d'authentification sécurisé prévu par l'environnement.
-
-Pour MySQL, un outil courant est mysqldump. Exemple indicatif :
-
-~~~bash
-mysqldump -h 127.0.0.1 -u lab_user -p skilltree_lab > skilltree_lab.sql
-~~~
-
-Ces commandes sont des exemples pédagogiques, pas une procédure de sauvegarde complète pour une application de production. Il faut examiner la cohérence pendant l'export, les objets inclus, les options du moteur, la taille, la compression, le chiffrement, le stockage hors du système principal, le contrôle d'intégrité et la procédure de restauration.
-
-## 8. Réplication, haute disponibilité et reprise après sinistre
-
-La réplication consiste à propager des données ou des modifications d'un système vers un autre. Elle peut servir à la disponibilité, à la lecture, à la distribution géographique ou à la reprise. Elle n'est pas équivalente à une sauvegarde : une suppression ou une corruption logique peut être propagée au réplicat.
-
-La haute disponibilité (HA) vise à réduire l'interruption de service lors de certains incidents. Elle repose souvent sur la redondance, la détection de défaillance, une procédure de bascule et des contrôles après bascule. La reprise après sinistre (DR) couvre des scénarios plus larges, tels que la perte d'un site, une corruption importante ou un incident de sécurité. Les deux domaines se chevauchent mais les objectifs et les plans doivent être explicites.
-
-### 8.1 Réplication synchrone et asynchrone
-
-Dans une architecture à réplication synchrone, l'accusé de réception de certaines opérations peut dépendre de la confirmation du réplicat selon la configuration. Cela peut renforcer certaines garanties de durabilité, mais augmenter la latence et rendre la disponibilité dépendante du comportement du nœud secondaire ou du réseau.
-
-La réplication asynchrone permet souvent de confirmer plus tôt les écritures sur le primaire, tandis que le secondaire peut présenter un retard. Lors d'une panne brutale, certaines modifications récentes peuvent ne pas être présentes sur le réplicat selon le mécanisme et l'état au moment de l'incident. Les garanties exactes dépendent du moteur et de la topologie ; ne déduisez pas un RPO de zéro du seul mot « réplication ».
-
-### 8.2 Rôle de la bascule
-
-Une bascule (failover) désigne le transfert du service vers un nœud de secours. Le mécanisme doit détecter le bon incident, sélectionner une cible suffisamment à jour, empêcher une double écriture non contrôlée et réorienter les clients. Le nom d'un nœud secondaire n'est pas une garantie qu'il pourra automatiquement devenir primaire sans risque.
-
-Une bascule réussie techniquement doit aussi faire l'objet de vérifications fonctionnelles : les connexions se rétablissent, les applications écrivent au bon endroit, les données sont présentes, les tâches différées redémarrent de manière sûre et la supervision reflète la nouvelle topologie. Il faut également savoir comment revenir à l'état nominal, ce qui peut demander une resynchronisation plutôt qu'un simple retour au serveur précédent.
-
-~~~mermaid
-flowchart TD
-    A["Nœud primaire"] --> B["Réplication"]
-    B --> C["Nœud secondaire"]
-    D["Détection d'incident"] --> E["Évaluer état et retard de réplication"]
-    E --> F{"Bascule sûre ?"}
-    F -- "Non" --> G["Mode dégradé et décision opératoire"]
-    F -- "Oui" --> H["Promouvoir le secondaire selon procédure"]
-    H --> I["Réorienter les clients"]
-    I --> J["Valider écriture, lecture et surveillance"]
-~~~
-
-### 8.3 Scénarios à tester
-
-Un plan de reprise doit examiner des scénarios concrets : panne d'un processus, perte d'un disque, interruption réseau, perte du nœud primaire, corruption d'une table, suppression accidentelle, indisponibilité du site ou compromission d'un compte. Tous les scénarios ne doivent pas être testés directement sur la production ; les exercices peuvent utiliser des environnements isolés ou des simulations contrôlées.
-
-Pour chaque scénario, documentez le signal de détection, la personne responsable de la décision, les étapes de reprise, les risques de perte de données, les validations post-reprise et les critères d'arrêt. Un plan qui ne mentionne pas la validation fonctionnelle pourrait déclarer le système rétabli alors que l'application ne peut plus accomplir son parcours métier essentiel.
-
-## 9. Sécurité et gestion des accès
-
-La base de données contient des faits métier parfois sensibles. Le DBA doit appliquer les politiques de l'organisation tout en aidant les applications à obtenir les droits nécessaires, ni plus ni moins. Le principe du moindre privilège limite la portée d'une erreur, d'une compromission ou d'une mauvaise manipulation.
-
-### 9.1 Comptes distincts
-
-Évitez de partager un compte administrateur entre les développeurs, l'application et les tâches d'exploitation. Les comptes distincts permettent d'attribuer les droits à un rôle, de révoquer un accès et d'examiner les journaux. Les comptes humains, les comptes applicatifs et les comptes d'automatisation doivent avoir des fonctions différentes.
-
-Une application qui n'a besoin que de lire certains objets ne devrait pas recevoir les privilèges de création de comptes ou de modification globale du schéma. Les migrations peuvent être exécutées via un compte ou un rôle séparé, déclenché par un processus contrôlé. Les droits élevés doivent être rares, approuvés et traçables.
-
-### 9.2 Rôles, privilèges et séparation des tâches
-
-Un rôle regroupe des privilèges ou des appartenances. Selon le moteur, les mécanismes de rôle varient, mais la stratégie générale reste de créer des rôles correspondant aux fonctions : lecture analytique, opération applicative, migration, sauvegarde, administration restreinte. Évitez les droits accordés individuellement sans documenter pourquoi ils existent.
-
-La séparation des tâches est particulièrement importante pour les opérations risquées. La personne qui rédige une migration n'est pas toujours la seule à l'approuver et à la déployer. Une revue indépendante peut repérer les suppressions involontaires, les changements de type dangereux, les verrous de longue durée ou les opérations qui nécessitent une fenêtre de maintenance.
-
-### 9.3 Protection des secrets et connexions chiffrées
-
-Les mots de passe ne doivent pas être codés en dur dans le dépôt, les scripts de migration, les images de conteneur ou les journaux. Les secrets doivent être stockés dans un mécanisme adapté, avec permissions et rotation. Les chaînes de connexion doivent être protégées en transit et au repos selon le risque. Lorsque les données traversent un réseau non fiable, configurez et vérifiez le chiffrement de la connexion selon le moteur et l'environnement.
-
-Changer régulièrement les mots de passe sans traiter leur distribution peut provoquer des incidents. Préparez la rotation avec les équipes clientes, les pools de connexions, les tâches planifiées et les scripts de secours. La rotation doit inclure la vérification que l'ancien secret n'est plus utilisé, et pas seulement la modification d'une valeur dans un écran d'administration.
-
-### 9.4 Audit et confidentialité
-
-Les journaux peuvent contenir des noms de comptes, des requêtes, des valeurs sensibles ou des fragments de données selon la configuration. Ils doivent être protégés, conservés selon une durée définie et accessibles uniquement aux personnes habilitées. Le détail nécessaire à un diagnostic doit être équilibré avec le risque d'exposer des informations personnelles ou des secrets.
-
-La conformité ne se résume pas à activer une option d'audit. Il faut comprendre les exigences applicables, les catégories de données, la durée de conservation, le droit d'accès, la suppression autorisée et les responsabilités des équipes. Le DBA contribue à l'application technique, mais les décisions réglementaires doivent être prises avec les personnes responsables de la conformité et du métier.
-
-## 10. Surveillance et observabilité
-
-La supervision vise à détecter les anomalies avant qu'elles ne deviennent des incidents majeurs, ou à réduire le délai de diagnostic lorsqu'un incident se produit. Un tableau de bord doit montrer les signaux qui permettent de répondre à des questions opérationnelles précises. Accumuler des graphiques sans seuil, propriétaire ni procédure d'action n'apporte pas une observabilité suffisante.
-
-### 10.1 Indicateurs essentiels
-
-Les mesures courantes comprennent :
-- disponibilité de la connexion et réussite d'une requête de santé ;
-- latence des requêtes représentatives, avec médiane et percentiles élevés ;
-- taux d'erreur et délais d'attente côté application ;
-- connexions actives, en attente et maximum de connexions ;
-- utilisation CPU et mémoire sur le serveur ou le service managé ;
-- lectures et écritures, latence du stockage, espace libre ;
-- volume et croissance des tables et index ;
-- requêtes lentes, plans inhabituels et attentes sur les verrous ;
-- retard de réplication, état du nœud secondaire et résultats des sauvegardes ;
-- durée et résultat des tests de restauration.
-
-Chaque indicateur doit être interprété dans son contexte. Une forte utilisation CPU peut être normale pendant une opération d'analyse planifiée ; un CPU bas ne signifie pas que le service va bien si les requêtes attendent un verrou ou un disque lent. Un nombre de connexions élevé peut indiquer une charge réelle, un pool mal dimensionné ou des sessions dormantes qui conservent des ressources.
-
-### 10.2 Latence et percentiles
-
-Une moyenne peut masquer une mauvaise expérience utilisateur. Si la plupart des requêtes prennent très peu de temps mais qu'une minorité attend longtemps, la moyenne seule ne décrit pas cette queue de distribution. Les percentiles, comme le 95e ou le 99e percentile, aident à caractériser les requêtes les plus lentes. Leur interprétation exige une fenêtre d'observation et un volume suffisant.
-
-Ne fixez pas les seuils uniquement parce qu'une valeur est courante dans un exemple. Établissez une référence à partir de la charge réelle et des objectifs de service, puis définissez un seuil et une durée qui déclenchent une action. Des alertes trop sensibles génèrent du bruit ; des alertes trop tardives réduisent le temps de réaction.
-
-### 10.3 Alertes exploitables
-
-Une alerte utile répond à quatre questions : quel problème est observé, quel service est touché, quelle est l'urgence, et quelle action ou documentation doit être consultée ? Par exemple, « la capacité du volume de données risque d'être épuisée avant la fenêtre normale de maintenance » est plus exploitable qu'une simple valeur CPU sans contexte.
-
-~~~mermaid
-flowchart LR
-    A["Métriques, journaux et événements"] --> B["Seuils et détection"]
-    B --> C["Alerte contextualisée"]
-    C --> D["Runbook de diagnostic"]
-    D --> E["Action ou escalade"]
-    E --> F["Validation du rétablissement"]
-    F --> G["Retour d'expérience"]
-~~~
-
-Les alertes doivent être testées. Il faut confirmer qu'elles se déclenchent lorsqu'une condition est reproduite dans un environnement approprié, qu'elles arrivent aux bons destinataires et que la procédure associée est à jour. Un système de monitoring lui-même peut être indisponible ou mal configuré ; les activités critiques nécessitent donc des vérifications de bout en bout.
-
-## 11. Capacité, croissance et coûts
-
-Le dimensionnement consiste à rapprocher le profil de charge, les besoins de disponibilité et les contraintes de coût des ressources nécessaires. Il doit inclure la croissance des données, les index, les journaux, les fichiers temporaires, les sauvegardes et la marge requise pour les opérations de maintenance. Une base qui fonctionne aujourd'hui peut devenir difficile à exploiter si aucune mesure de croissance n'est suivie.
-
-### 11.1 Projeter le stockage
-
-Une projection simple peut commencer par le volume actuellement occupé, sa croissance nette et la période à couvrir. Mais la taille des tables seules ne donne pas toujours le coût futur : les index peuvent croître, les journaux peuvent augmenter lors d'une charge élevée, une migration peut temporairement nécessiter un espace supplémentaire et une stratégie de sauvegarde peut doubler ou tripler le volume conservé.
-
-L'estimation est une hypothèse qu'il faut réviser à partir des mesures. Notez la période observée et les événements particuliers, comme un import massif ou une migration. Une croissance ponctuelle ne doit pas être extrapolée aveuglément comme une tendance stable.
-
-### 11.2 Limites de connexions et ressources
-
-Le budget de connexions doit considérer le nombre d'instances applicatives multiplié par les connexions potentielles de chaque pool, mais aussi les comptes d'administration, les tâches planifiées, la supervision et les autres consommateurs. La capacité de traitement n'est pas égale au maximum autorisé de connexions. Chaque session peut consommer de la mémoire, et une forte concurrence peut augmenter la contention.
-
-Avant d'augmenter une limite, cherchez la cause : fuite de connexions, pool sans limite, transactions longues, temps de réponse qui augmente et retient les sessions, ou croissance réelle du trafic. La correction peut demander un changement applicatif plutôt qu'un réglage du moteur.
-
-### 11.3 Fenêtres de maintenance
-
-Les opérations de maintenance, les mises à jour, les changements de schéma et les reconstructions d'index peuvent consommer des ressources et parfois bloquer certaines opérations. Une planification réaliste tient compte des périodes de charge, des dépendances applicatives, de la capacité disponible et de la stratégie de retour. La durée doit être mesurée en répétant l'opération sur un environnement représentatif.
-
-## 12. Changements, migrations et gestion d'incident
-
-Un changement de base peut être plus difficile à annuler qu'un changement applicatif, en particulier lorsque de grandes quantités de données sont transformées ou supprimées. Un processus de changement doit préciser l'objectif, le périmètre, les dépendances, les risques, la validation, la surveillance et la stratégie de retour.
-
-### 12.1 Préparer une migration
-
-Une migration devrait répondre aux questions suivantes :
-- quelle règle ou fonctionnalité impose ce changement ?
-- quelles tables, colonnes, index, contraintes et applications sont affectées ?
-- quelles données existantes doivent être transformées ?
-- quelles sont les conditions de réussite et les contrôles de cohérence ?
-- quels sont les risques de verrouillage, de croissance temporaire ou d'interruption ?
-- l'application actuelle reste-t-elle compatible pendant le déploiement ?
-- comment revenir à un état sûr si une étape échoue ?
-- qui décide de poursuivre, d'arrêter ou de revenir en arrière ?
-
-Les migrations par expansion puis contraction peuvent aider lorsqu'une migration doit rester compatible avec plusieurs versions de l'application : on introduit d'abord une structure compatible, on déploie l'application qui l'utilise, puis on retire l'ancien élément après vérification. Cette méthode ne convient pas automatiquement à chaque changement, mais rappelle qu'une migration doit être coordonnée avec le cycle de vie de l'application.
-
-### 12.2 Runbook et journal d'exploitation
-
-Un runbook est une procédure organisée pour un problème ou une opération. Il doit indiquer les préconditions, les commandes sûres, les signes attendus, les actions interdites ou risquées, les conditions d'escalade et les critères de clôture. Les commandes doivent être adaptées à la version et à la configuration réellement utilisées.
-
-Une procédure d'incident peut commencer par confirmer l'étendue de l'impact, vérifier l'état du service, préserver les informations utiles, identifier les changements récents et consulter les métriques. Les actions correctives sont choisies ensuite selon les indices. Redémarrer le service peut masquer des preuves et interrompre davantage les utilisateurs ; ce n'est pas une réponse universelle à une lenteur.
-
-### 12.3 Retour d'expérience
-
-Après un incident significatif, l'équipe doit comprendre les facteurs techniques et organisationnels qui l'ont permis, sans chercher uniquement une personne à blâmer. Le rapport peut distinguer la cause directe, les facteurs contributifs, les signaux non détectés et les mesures de prévention. Une action préventive doit être assignée à un responsable et posséder un critère de validation.
-
-## 13. Atelier pratique : préparer une fiche d'exploitation pour Skill-Tree
-
-### Mission
-
-Vous êtes chargé de proposer la fiche d'exploitation d'une base SQL qui sert à l'application de formation Skill-Tree. L'atelier n'accède pas à une vraie instance de production : vous construisez un document et réalisez des vérifications dans votre environnement isolé.
-
-Votre fiche doit couvrir l'architecture, les accès, les indicateurs, la sauvegarde et la restauration, les changements et la gestion d'incident.
-
-### Étape 1 — Décrire l'architecture
-
-Complétez les champs suivants dans votre fiche :
-- moteur et version ;
-- base et schémas utilisés ;
-- clients et applications autorisés ;
-- méthode de connexion et de chiffrement ;
-- pool de connexions et limites ;
-- stockage et journaux ;
-- réplication éventuelle ;
-- dépendances externes et propriétaire du service.
-
-Le diagramme doit montrer les composants réellement présents. Ne dessinez pas une réplication parce qu'elle semble souhaitable si elle n'existe pas dans l'environnement. La documentation doit refléter la réalité.
-
-### Étape 2 — Définir des rôles
-
-Proposez au moins quatre rôles logiques : application en lecture/écriture sur son périmètre, lecture analytique, migration contrôlée et exploitation. Associez à chacun les opérations nécessaires. Vérifiez ensuite que les rôles n'accordent pas involontairement le droit de créer des comptes, modifier l'ensemble du schéma ou supprimer des données hors périmètre.
-
-Il ne suffit pas de donner des noms de rôles. Notez quelles tables et quelles opérations ils couvrent, comment les droits sont demandés, comment ils sont révoqués et comment leur utilisation est tracée. Les privilèges exacts doivent être traduits en commandes selon le moteur cible.
-
-### Étape 3 — Écrire le plan de sauvegarde
-
-Définissez :
-- les données et objets couverts ;
-- la fréquence de sauvegarde complète et, si pertinent, la conservation de journaux ;
-- le lieu de stockage séparé du système principal ;
-- la durée de rétention et les protections ;
-- les responsables et les canaux d'alerte ;
-- le contrôle d'intégrité ;
-- les exercices de restauration ;
-- le RPO et le RTO convenus avec les propriétaires du service.
-
-Ne choisissez pas des objectifs arbitraires sans discuter du besoin métier. Dans un laboratoire d'apprentissage, notez les valeurs comme hypothèses pédagogiques, puis expliquez qu'elles doivent être validées pour un vrai service.
-
-### Étape 4 — Construire les contrôles SQL
-
-Pour vérifier la santé fonctionnelle du schéma pédagogique, des requêtes simples peuvent compter les objets ou détecter des relations inattendues. Par exemple, la requête suivante recherche les inscriptions sans apprenant ou sans cours correspondant dans un jeu importé :
+Considérons une inscription à une formation limitée à 30 places. Le système doit vérifier la disponibilité puis réserver une place. Si deux requêtes lisent simultanément qu’il reste une place et mettent toutes deux à jour le compteur sans coordination correcte, la limite peut être dépassée. Le problème n’est pas uniquement la syntaxe SQL : il s’agit d’un invariant métier soumis à la concurrence. Une transaction et une contrainte adaptée peuvent empêcher que cet invariant dépende d’un simple test applicatif.
 
 ~~~sql
-SELECT i.apprenant_id, i.cours_id
-FROM inscriptions AS i
-LEFT JOIN apprenants AS a
-  ON a.apprenant_id = i.apprenant_id
-LEFT JOIN cours AS c
-  ON c.cours_id = i.cours_id
-WHERE a.apprenant_id IS NULL
-   OR c.cours_id IS NULL;
+BEGIN;
+
+UPDATE formations
+SET places_restantes = places_restantes - 1
+WHERE id = 42
+  AND places_restantes > 0;
+
+-- L'application doit vérifier que exactement une ligne a été modifiée.
+-- Si aucune ligne n'a été modifiée, la dernière place n'est plus disponible.
+
+INSERT INTO inscriptions (apprenant_id, formation_id, inscrit_le)
+VALUES (105, 42, CURRENT_TIMESTAMP);
+
+COMMIT;
 ~~~
 
-Dans un schéma correctement protégé par les clés étrangères, ce contrôle devrait renvoyer zéro ligne. Il peut rester utile après une importation historique ou avant une migration. Si une ligne est retournée, ne supprimez pas automatiquement l'enregistrement : identifiez l'origine de la référence, la règle de correction et les dépendances concernées.
+Cet exemple illustre la logique mais doit être adapté au schéma réel : l’application doit annuler la transaction si l’UPDATE ne modifie aucune ligne ou si l’insertion échoue. Pour empêcher la double inscription, une contrainte UNIQUE sur le couple apprenant/formation est également nécessaire. Une transaction ne remplace pas une contrainte d’intégrité, pas plus qu’une contrainte ne remplace toute logique transactionnelle.
 
-### Étape 5 — Concevoir un tableau de bord
+Une transaction validée devient durable selon la configuration du moteur et le matériel sous-jacent. Le journal de reprise permet au moteur de reconstruire l’état après un arrêt inattendu. Les garanties dépendent des paramètres de synchronisation, du stockage et, en environnement distribué, de la politique de réplication. Un accusé de réception applicatif ne doit pas être interprété au-delà du niveau de durabilité effectivement garanti.
 
-Votre tableau de bord doit répondre aux questions :
-- la base accepte-t-elle les connexions ?
-- l'application réussit-elle une requête métier représentative ?
-- les requêtes lentes ou les erreurs sont-elles en hausse ?
-- la limite de connexions ou l'espace disque approche-t-il d'un seuil critique ?
-- la réplication, si elle existe, est-elle à jour selon l'objectif attendu ?
-- la dernière sauvegarde s'est-elle terminée ?
-- une restauration récente a-t-elle été testée ?
-- les modifications récentes ont-elles un impact observable ?
+La cohérence doit être définie concrètement. Des contraintes NOT NULL, CHECK, UNIQUE et FOREIGN KEY encadrent certaines règles. D’autres invariants sont contrôlés dans une transaction ou via une conception appropriée. Une validation complexe uniquement dans le code devient fragile quand plusieurs applications, scripts de migration et tâches d’administration écrivent dans la même base. Les règles structurantes doivent être au plus près des données lorsque le moteur peut les exprimer efficacement.
 
-Pour chaque mesure, indiquez sa source, la fréquence, le seuil, la durée nécessaire avant alerte, le destinataire et la procédure associée. Les métriques sans action possible doivent être réévaluées ; elles ne devraient pas simplement augmenter le bruit opérationnel.
+## 5. Concurrence, isolation, verrous et interblocages
 
-### Étape 6 — Simuler un incident
+Les applications modernes exécutent plusieurs transactions simultanément. Le moteur doit permettre une concurrence efficace tout en garantissant que chaque transaction observe un état acceptable. Les mécanismes précis diffèrent. PostgreSQL utilise le contrôle de concurrence multiversion (MVCC) pour que des lectures puissent généralement voir une version cohérente sans bloquer systématiquement les écritures. InnoDB utilise également des mécanismes de versions et de verrous. MVCC ne signifie pas « aucun verrou » : les modifications de mêmes lignes, certaines opérations DDL et des contraintes de sérialisation peuvent encore provoquer une attente.
 
-Choisissez un scénario sans danger, par exemple une requête lente dans la base de laboratoire. Décrivez comment l'alerte serait générée, quelles informations vous collecteriez, quelles hypothèses vous testeriez, comment vous valideriez le rétablissement et quel compte rendu serait écrit.
+Les niveaux d’isolation déterminent quels phénomènes sont possibles. READ COMMITTED fournit, dans PostgreSQL, une vue cohérente pour chaque instruction. REPEATABLE READ maintient une vue plus stable pendant la transaction. SERIALIZABLE cherche à garantir un résultat équivalent à un ordre séquentiel, mais peut annuler des transactions qui doivent être réessayées. Ne considérez pas les libellés comme des garanties identiques dans tous les moteurs : l’implémentation et les phénomènes précis doivent être vérifiés dans la documentation de la version utilisée.
 
-N'injectez pas de panne sur une instance partagée ou de production pour cet exercice. Les tests destructifs ou les exercices de bascule nécessitent une autorisation et un environnement appropriés. L'apprentissage porte sur la préparation et l'observation, non sur la création non contrôlée d'une interruption.
+Un verrouillage peut être légitime : une transaction met à jour une inscription et une autre doit attendre. Le problème apparaît lorsque les attentes deviennent très longues, se propagent ou concernent des opérations nombreuses. Les causes typiques incluent une transaction laissée ouverte, un traitement par lots trop gros, un ordre de verrouillage incohérent, une requête manquant d’index ou une migration qui bloque une table active.
 
-### Étape 7 — Critères d'acceptation
+Un interblocage, ou deadlock, survient lorsque deux transactions se bloquent mutuellement, chacune attendant une ressource détenue par l’autre. Exemple : la transaction A verrouille la ligne X puis demande Y; la transaction B verrouille Y puis demande X. Un moteur qui détecte le cycle choisit généralement une transaction victime et l’annule. L’application doit gérer cet échec et peut réessayer la transaction complète avec une stratégie bornée. Le réessai ne doit pas répéter des effets externes non idempotents comme un paiement ou un courriel sans mécanisme de déduplication.
 
-Votre fiche est prête pour revue si un autre membre de l'équipe peut identifier les composants, connaître les propriétaires, comprendre les risques, exécuter les vérifications documentées dans un laboratoire et savoir quand escalader. Les objectifs de reprise doivent être formulés de façon testable, et la procédure de restauration ne doit pas s'arrêter à « récupérer le fichier ».
+~~~mermaid
+sequenceDiagram
+    participant A as Transaction A
+    participant DB as Moteur SGBD
+    participant B as Transaction B
+    A->>DB: Verrouille la ligne X
+    B->>DB: Verrouille la ligne Y
+    A->>DB: Demande Y
+    DB-->>A: Attente
+    B->>DB: Demande X
+    DB-->>DB: Détecte le cycle d'attente
+    DB-->>B: Annulation de la transaction victime
+    B->>DB: ROLLBACK
+    DB-->>A: Le verrou devient disponible
+~~~
 
-## 14. Exercices d'application avec corrigés
+Pour réduire les deadlocks, maintenez les transactions courtes, accédez aux ressources dans un ordre cohérent, créez les index nécessaires aux prédicats et évitez de verrouiller des lignes non pertinentes. Un index n’élimine pas tous les blocages; il peut réduire la durée de recherche et le nombre de lignes concernées. Ne désactivez pas la détection de deadlock pour masquer le symptôme. Collectez les informations utiles, identifiez les requêtes en cause, puis corrigez la cause dans l’application ou la structure des données.
 
-### Exercice 1 — Connexion impossible
+Le DBA doit connaître les requêtes permettant de lister les sessions bloquantes et bloquées. Une vue de diagnostic peut changer entre versions. Les scripts d’exploitation doivent être testés et versionnés, et être documentés avec les droits nécessaires. Terminer arbitrairement une session peut annuler un traitement métier en cours; cette action demande une analyse des effets, une communication au propriétaire du service et un suivi après intervention.
 
-Une application signale une erreur de connexion. Le serveur SQL répond depuis le terminal d'administration. Quelle est votre première analyse ?
+## 6. Journaux de transaction, écritures et récupération
 
-**Corrigé.** Confirmez le périmètre du problème et examinez séparément l'application, le pilote, les secrets, la résolution DNS, le port, le pare-feu, l'authentification et la capacité de connexion. Comparez les paramètres de la connexion applicative à ceux du terminal. Le serveur accessible depuis une machine ne prouve pas qu'il l'est depuis le réseau de l'application.
+Les moteurs relationnels utilisent des mécanismes de journalisation pour préserver la cohérence des écritures. Dans PostgreSQL, le WAL (Write-Ahead Logging) enregistre les changements nécessaires à la reprise avant que les pages de données correspondantes n’aient toutes été écrites sur leur emplacement final. Au redémarrage, le moteur rejoue ou analyse les informations de journal afin de ramener la base à un état cohérent. Le principe général est de permettre une reprise sans devoir considérer une écriture partielle comme une transaction complète.
 
-### Exercice 2 — Trop de connexions
+Les journaux ne sont pas de simples fichiers de diagnostic humain. Ils remplissent un rôle technique central. Une stratégie de sauvegarde continue peut archiver les segments WAL nécessaires à une récupération à un instant donné. Cela peut réduire la perte de données, mais exige que les sauvegardes de base et les segments requis soient complets, accessibles et compatibles avec la procédure de reprise. Garder trop peu de journaux peut rendre une récupération impossible; les conserver indéfiniment peut saturer le stockage et entraîner une panne.
 
-Après une hausse du trafic, la limite de connexions est atteinte. Pourquoi ne faut-il pas seulement augmenter cette limite ?
+La synchronisation des écritures a un coût. Des réglages plus permissifs peuvent augmenter les performances mais affaiblir les garanties de durabilité. Un DBA ne doit jamais modifier un paramètre critique uniquement parce qu’un test synthétique va plus vite. Il faut documenter la garantie sacrificée, les transactions concernées et l’accord du propriétaire métier. Les valeurs par défaut sont des choix de compromis, non des réponses universelles.
 
-**Corrigé.** Les sessions consomment des ressources et peuvent augmenter la contention. Il faut examiner la taille des pools, le nombre d'instances, les connexions inactives, les transactions longues, les erreurs empêchant la libération des connexions et les temps de réponse. Une fuite ou un pool mal dimensionné ne se corrige pas nécessairement en autorisant davantage de sessions.
+Les écritures peuvent également consommer du stockage dans des fichiers temporaires, des versions de lignes obsolètes, des index, des journaux, des fichiers de sauvegarde et des copies de réplique. La capacité doit être calculée sur la croissance réelle des données et les pics d’activité, pas seulement sur la taille actuelle des tables. Une base de 20 Go avec 200 Go de fichiers temporaires potentiels ou de journaux d’archivage peut manquer d’espace malgré une taille logique modeste.
 
-### Exercice 3 — Cache et performance
+La supervision de l’espace disque doit distinguer le stockage des données, le stockage de WAL/binlogs, les fichiers temporaires, les sauvegardes et les journaux applicatifs. Elle doit déclencher des alertes avant la saturation, avec un seuil tenant compte de la vitesse de croissance et du temps de réaction opérationnel. Une alerte « disque à 95 % » peut être trop tardive si le volume se remplit en quelques minutes.
 
-La même requête est rapide au deuxième essai. Quelles explications devez-vous envisager ?
+## 7. Disponibilité, réplication et haute disponibilité
 
-**Corrigé.** Les pages ou structures nécessaires peuvent être présentes dans le cache lors du deuxième essai. Il peut aussi y avoir des variations de charge ou d'autres facteurs. Documentez l'environnement de test, l'état du cache dans la mesure où il est observable et la distribution des temps ; ne concluez pas à une amélioration durable sur deux exécutions.
+La haute disponibilité vise à maintenir ou rétablir rapidement le service lorsqu’un composant tombe en panne. Une seule instance peut suffire à un prototype; un service métier critique peut exiger plusieurs zones de défaillance, une réplication, une surveillance de santé, un mécanisme de bascule et une procédure claire de retour au fonctionnement normal.
 
-### Exercice 4 — Index présent mais non utilisé
+La réplication copie les modifications d’une instance vers une ou plusieurs autres. Une réplique synchrone peut contribuer à des garanties plus strictes concernant la perte de transactions confirmées, au prix d’une latence et d’une dépendance à la disponibilité des nœuds participants. Une réplique asynchrone peut continuer à recevoir des requêtes lorsque le réseau est perturbé, mais elle risque d’avoir du retard. Si l’application lit immédiatement une donnée depuis une réplique asynchrone après l’avoir écrite sur le primaire, elle peut ne pas voir cette modification pendant un court intervalle.
 
-Un index existe mais l'optimiseur ne l'utilise pas. Faut-il le supprimer immédiatement ?
+Il faut distinguer réplication, sauvegarde et redondance. Une réplication répercute souvent les suppressions et corruptions logiques. Si un utilisateur supprime accidentellement 10 000 inscriptions, les répliques vont généralement reproduire cette suppression. Une sauvegarde fournit une copie récupérable à un point donné. La redondance matérielle protège contre certaines pannes physiques, mais ne remplace ni les copies indépendantes ni un exercice de restauration. Une architecture solide utilise plusieurs mécanismes qui couvrent des modes de défaillance différents.
 
-**Corrigé.** Non. Vérifiez les statistiques, le filtre, la sélectivité, la distribution des données et le plan. Un parcours plus large peut être moins coûteux si une forte proportion de lignes doit être lue. Mesurez aussi l'effet de l'index sur les écritures et l'espace disque.
+Le basculement automatisé peut rétablir le service, mais doit prévenir le double primaire, contrôler le quorum selon l’architecture et informer les clients de la possibilité de réessayer. Un client peut avoir perdu la réponse réseau après une transaction qui a pourtant été validée. Répéter l’opération sans identifiant d’idempotence peut créer un doublon. Le protocole applicatif doit donc traiter les timeouts ambigus avec prudence.
 
-### Exercice 5 — Sauvegarde réussie, restauration impossible
+~~~mermaid
+flowchart LR
+    APP[Applications] --> LB[Point de connexion]
+    LB --> P[Primaire]
+    P -->|Réplication| R1[Réplique lecture]
+    P -->|Journal archivé| B[Stockage de sauvegarde]
+    M[Supervision] --> P
+    M --> R1
+    M --> B
+    M --> F[Bascule contrôlée]
+    F --> R1
+    R1 --> LB
+~~~
 
-Un job confirme que la sauvegarde est terminée, mais le fichier ne se restaure pas. Quels domaines devez-vous examiner ?
+Une architecture de haute disponibilité doit définir des scénarios testables : panne du processus, perte d’une machine, perte de connectivité, disque saturé, retard de réplication, corruption logique, erreur de déploiement et indisponibilité du fournisseur. Pour chaque scénario, documentez la détection, le décideur, la procédure, les données qui peuvent être perdues, les vérifications post-reprise et la communication aux utilisateurs.
 
-**Corrigé.** Vérifiez l'intégrité et la complétude du fichier, les droits, la version du moteur, les options de sauvegarde, les dépendances, les clés de chiffrement, les journaux requis et la procédure utilisée. Cela montre pourquoi un succès de job ne remplace pas un exercice de restauration complet.
+## 8. Sauvegardes et restauration : la garantie réelle
 
-### Exercice 6 — Réplication et suppression accidentelle
+Une sauvegarde n’est utile que si elle peut être restaurée dans le délai demandé et si le contenu restauré est cohérent. Un job vert prouve généralement que la tâche s’est exécutée; il ne prouve pas qu’une sauvegarde est complète, que les clés de chiffrement sont disponibles, que les journaux associés existent, ni que l’application peut utiliser la base restaurée.
 
-Un utilisateur supprime accidentellement une table et le réplicat reflète la suppression. Pourquoi la réplication n'est-elle pas une sauvegarde indépendante ?
+Une politique de sauvegarde précise les objets inclus, la fréquence, la rétention, le chiffrement, les comptes qui peuvent lire les copies, les régions ou supports utilisés, les contrôles d’intégrité et les tests périodiques. La rétention doit répondre aux exigences métier, juridiques et de confidentialité. Les copies ne doivent pas toutes dépendre du même compte privilégié ou du même domaine de panne. Si un attaquant contrôle l’environnement et peut supprimer toutes les sauvegardes, la stratégie est insuffisante.
 
-**Corrigé.** La réplication propage habituellement les modifications, y compris certaines suppressions et corruptions logiques. Une sauvegarde indépendante et un historique permettant de revenir à un état antérieur sont nécessaires pour ce type de scénario, sous réserve des capacités et de la configuration.
+Une sauvegarde complète capture un ensemble de données à un moment défini. Une stratégie incrémentale ou différentielle réduit le volume à sauvegarder, mais peut compliquer la restauration et rendre la chaîne de dépendances essentielle. Les journaux de transaction archivés permettent, si les préconditions sont réunies, de se rapprocher d’un instant cible. La restauration à un instant donné (PITR) exige d’identifier l’heure de l’événement, de disposer d’une sauvegarde de base exploitable et des journaux qui couvrent le chemin de reprise.
 
-### Exercice 7 — RPO et RTO
+En cas de corruption logique, ne rétablissez pas aveuglément l’ancienne sauvegarde sur l’unique production. Préservez les preuves, identifiez la dernière heure connue comme saine, restaurez d’abord dans un environnement isolé, validez les données, puis définissez comment réconcilier les transactions plus récentes. Une restauration complète peut effacer des modifications légitimes effectuées après le point choisi. Le plan doit préciser la procédure de reprise, la validation métier et le sort des données créées pendant l’intervalle.
 
-Le propriétaire métier annonce qu'il tolère au maximum quinze minutes de données perdues et veut le service disponible en une heure. Quels objectifs faut-il formaliser ?
+Le test de restauration doit enregistrer la date, la sauvegarde source, la version du moteur, les paramètres nécessaires, la durée, les erreurs rencontrées, le volume restauré et les contrôles de cohérence effectués. Mesurez le RTO réellement obtenu et la quantité de données perdue par rapport au point attendu. Un test qui se contente de constater qu’un processus a démarré est insuffisant.
 
-**Corrigé.** Le RPO cible est de quinze minutes au maximum de perte temporelle acceptable, et le RTO cible est d'une heure pour restaurer le service selon la définition convenue. Il faut ensuite prouver que l'architecture, les sauvegardes, les journaux et les procédures permettent d'atteindre ces objectifs lors de scénarios représentatifs.
+## 9. Sécurité et séparation des privilèges
 
-### Exercice 8 — Rôle trop puissant
+La sécurité d’une base ne se réduit pas à un mot de passe complexe. Elle combine l’identité, l’authentification, l’autorisation, le réseau, le chiffrement, l’audit, la gestion des secrets, la maintenance et la réponse aux incidents. Le DBA doit limiter l’accès au strict nécessaire, séparer les comptes applicatifs des comptes d’administration et empêcher qu’une fuite d’identifiants d’application donne un contrôle total sur l’instance.
 
-Le compte utilisé par l'application peut créer des utilisateurs, modifier le schéma et supprimer toutes les tables. Quel risque pose cette configuration ?
+Les rôles doivent représenter des capacités précises : lecture de certaines tables, écriture dans un domaine, exécution d’une fonction contrôlée, migration de schéma ou administration complète. Les applications ne devraient pas se connecter avec le superutilisateur. Une séparation entre rôle de migration et rôle d’exécution évite que l’application courante puisse modifier librement les structures ou créer de nouveaux privilèges.
 
-**Corrigé.** Une injection, une erreur de code ou la compromission du compte pourrait provoquer un impact très large. Séparez le rôle applicatif du rôle de migration et d'administration, puis accordez uniquement les opérations nécessaires au compte applicatif. Vérifiez que les changements de droits sont tracés et réversibles.
+Le principe du moindre privilège est dynamique. Un développeur peut avoir besoin d’une lecture temporaire pour diagnostiquer un incident; cette permission doit avoir une justification, une durée et une trace. Les comptes de service doivent être associés à un propriétaire, une finalité, une procédure de rotation et un mécanisme de révocation. Les secrets ne doivent pas être enregistrés en clair dans le dépôt, les fichiers de journal ou les tickets.
 
-### Exercice 9 — Une transaction reste ouverte
+Le chiffrement en transit protège la communication entre client et serveur lorsqu’il est correctement configuré et vérifié. Le chiffrement au repos protège les fichiers ou volumes contre certains scénarios de vol de support, mais ne remplace pas les autorisations SQL. Un compte applicatif déjà autorisé peut généralement lire les données que l’application lui demande, même si le disque est chiffré. Il faut donc combiner les contrôles techniques et la réduction des données exposées.
 
-Des sessions attendent des verrous et vous découvrez une transaction ouverte depuis longtemps. Comment procéder ?
+Les données personnelles doivent être classées et traitées selon leur finalité. La minimisation consiste à ne collecter que ce qui est nécessaire. La durée de conservation doit être justifiée. Les environnements de test utilisent des données synthétiques ou correctement anonymisées lorsque cela est nécessaire. Les sauvegardes contenant des données supprimées de la production nécessitent une politique de rétention et une procédure de purge adaptée; leur conservation ne doit pas devenir une zone sans règle.
 
-**Corrigé.** Identifiez la session, les objets concernés, l'opération en cours et les conséquences avant de décider de l'annuler. Cherchez pourquoi l'application conserve la transaction : traitement lent, attente réseau, erreur non gérée ou logique applicative. Toute action de terminaison doit suivre le runbook et mesurer le risque de rollback et d'impact utilisateur.
+La revue des droits doit être régulière. Listez les rôles, les membres, les privilèges directs, les rôles hérités, les fonctions avec droits particuliers et les comptes inactifs. Après un incident, révoquez les secrets compromis, examinez les accès inhabituels, préservez les journaux pertinents et reconstruisez la chronologie sans détruire les éléments nécessaires à l’investigation.
 
-### Exercice 10 — Bascule déclarée réussie
+## 10. Observabilité : savoir ce qui se passe
 
-Après une bascule vers un secondaire, le serveur accepte les connexions mais l'application échoue encore à enregistrer les inscriptions. La reprise est-elle terminée ?
+L’observabilité rassemble les indicateurs, les journaux et les traces nécessaires pour expliquer un comportement du système. Un tableau de bord utile ne doit pas seulement afficher beaucoup de chiffres; il doit aider à répondre à une question opérationnelle. Une latence applicative élevée peut provenir du serveur SQL, de l’attente de connexion, de l’accès disque, du réseau, du verrouillage ou du volume de résultats. Il faut distinguer ces possibilités.
 
-**Corrigé.** Non. La disponibilité de connexion est une condition nécessaire, mais la reprise doit être validée fonctionnellement. Vérifiez la cible d'écriture, les droits, les données et les parcours métier critiques, ainsi que la reprise des tâches différées et la cohérence de la supervision.
+Les métriques de base incluent le taux de requêtes, les percentiles de latence, le nombre de sessions actives, les connexions en attente, les transactions ouvertes, les verrous, les deadlocks, les erreurs, les écritures, les lectures physiques, les lectures dans le cache, les checkpoints, les fichiers temporaires, le retard de réplication et la croissance du stockage. Les définitions doivent être stables et documentées; un ratio isolé sans fenêtre de mesure peut induire en erreur.
 
-### Exercice 11 — Migration de colonne
+Les percentiles permettent d’observer la queue de distribution. Une médiane acceptable n’empêche pas 1 % des requêtes de prendre plusieurs secondes. Si un parcours utilisateur dépend de quatre appels séquentiels, la latence de chaque appel s’additionne. Une action peut être lente alors que chaque requête semble « presque normale ». Mesurez le flux complet au niveau applicatif et corrélez les appels à la base.
 
-Une migration modifie le type d'une colonne contenant plusieurs millions de lignes. Quelles questions faut-il résoudre avant de la déployer ?
+Les journaux doivent contenir assez d’informations pour l’analyse, sans exposer de mots de passe, de jetons, de données sensibles ou de valeurs personnelles inutiles. Un identifiant de corrélation est souvent plus utile que l’enregistrement de toute la requête avec ses paramètres réels. La collecte des requêtes lentes doit être configurée avec un seuil adapté, une politique de rétention et un contrôle d’accès.
 
-**Corrigé.** Il faut évaluer la conversion des valeurs existantes, les verrous et la durée, l'espace temporaire, les index et contraintes dépendants, la compatibilité de l'application, le plan de validation et la stratégie de retour. Testez sur un volume représentatif et vérifiez le comportement DDL du moteur et de la version ciblés.
+Une alerte doit être déclenchée par un risque opérationnel et inclure un contexte d’action. « CPU à 85 % » n’indique pas forcément une défaillance; un pic bref peut être attendu. « Latence au 95e percentile supérieure à l’objectif pendant dix minutes avec augmentation du taux d’erreur » est plus proche d’un symptôme utilisateur. Les seuils doivent être ajustés sur l’historique, l’heure, la saisonnalité et le budget d’erreur.
 
-### Exercice 12 — Alerte CPU élevée
+## 11. Changements de schéma, migrations et déploiements
 
-Une alerte CPU apparaît, mais la latence de l'application reste stable. Quelle est la bonne réaction ?
+Un changement de schéma est un changement de production. Une migration peut bloquer une table, consommer du disque, produire beaucoup de WAL, perturber les répliques ou rendre une ancienne version de l’application incompatible. Le fait qu’une migration réussisse sur une base vide ne prouve pas qu’elle est sûre sur une table contenant plusieurs dizaines de millions de lignes.
 
-**Corrigé.** Analysez la durée, la charge attendue, les requêtes actives et les indicateurs associés. Déterminez si le signal est un pic planifié, une nouvelle charge ou le début d'une dégradation. Une alerte doit conduire à une investigation contextualisée, pas nécessairement à une intervention immédiate sur le serveur.
+Adoptez une stratégie de compatibilité progressive. Dans un premier déploiement, ajoutez une colonne de manière compatible, sans imposer immédiatement un comportement qui casse l’ancienne version. Déployez ensuite le code qui écrit la nouvelle représentation, réalisez un backfill par lots, vérifiez les données, basculez les lectures, puis retirez l’ancien champ dans une version ultérieure. Ce modèle « expansion puis contraction » facilite le retour arrière car chaque étape conserve temporairement la compatibilité.
 
-## 15. Défi final corrigé — concevoir l'exploitation d'une base d'application
+Chaque migration doit documenter les préconditions, la durée estimée, les verrous attendus, l’impact sur le stockage, le comportement en cas d’interruption et la procédure de rollback. Toutes les migrations ne sont pas réversibles : supprimer une colonne détruit des informations et ne peut pas être annulé par une simple instruction inverse. Un rollback du code n’est pas forcément un rollback des données. Distinguez les deux dans le plan de changement.
 
-### Mission
+Les déploiements sans interruption sont aussi une question d’architecture applicative. Une migration peut être techniquement valide mais incompatible avec deux versions de l’application exécutées en parallèle. La procédure doit considérer le code, les données, les tâches asynchrones, les connexions persistantes et les répliques. Les scripts de migration doivent être idempotents ou conçus pour détecter un état déjà appliqué, quand cette propriété est réalisable.
 
-Vous devez remettre un plan d'exploitation pour une application de formation qui stocke comptes, cours, inscriptions et résultats. Le service est utilisé par plusieurs équipes, et les données ne doivent pas être perdues lors d'une panne courante. Le défi porte sur l'organisation des responsabilités et la preuve des contrôles, pas sur l'invention d'une architecture supposée déjà présente.
+## 12. Capacité, croissance et coût
 
-### Étape A — Cartographier les composants
+La capacité doit être planifiée sur la charge réelle et le profil de croissance. Estimez le nombre de lignes, leur taille moyenne, les index, l’historique, les pièces jointes, les fichiers temporaires, les journaux et les sauvegardes. Les index peuvent parfois occuper autant ou davantage d’espace que les données correspondantes, selon le modèle et les colonnes indexées. Ne calculez pas la capacité uniquement en multipliant le nombre de lignes par la taille des champs.
 
-Dressez une carte du client, des connexions, du moteur SQL, du stockage, des journaux, des sauvegardes, de la supervision et des éventuels réplicats. Identifiez la partie gérée par le fournisseur et celle gérée par l'équipe. Pour chaque composant, indiquez le propriétaire, les dépendances et l'indicateur qui prouve son état.
+Le coût CPU dépend de la concurrence, des plans et du travail effectué. Une requête qui relit une grande table toutes les secondes peut dominer la charge. Une requête coûteuse exécutée une fois par jour peut rester acceptable si elle est planifiée hors pointe. L’analyse doit inclure fréquence, durée, nombre de lignes examinées, nombre de lignes renvoyées et impact sur les autres utilisateurs.
 
-### Étape B — Définir le modèle d'accès
+Le dimensionnement vertical apporte plus de ressources à un seul nœud; il est souvent simple, mais possède des limites et peut accroître le coût. L’échelle horizontale répartit la charge et peut exiger partitionnement, sharding ou répliques. La complexité opérationnelle augmente avec les composants distribués. N’adoptez pas un sharding avant d’avoir démontré que les mesures plus simples — requêtes, index, cache, pool, rétention et capacité — ne résolvent pas le besoin.
 
-Séparez les rôles applicatif, lecture analytique, migration et exploitation. Décrivez les permissions nécessaires et celles qui doivent rester absentes. Identifiez la manière de demander, réviser et retirer un privilège. Indiquez comment les connexions sont chiffrées et comment les secrets sont renouvelés sans inclure de valeur sensible dans le dépôt.
+Les coûts comprennent aussi les transferts de données, les sauvegardes, le stockage de journaux, les instances de test et le temps d’exploitation. Une réplique supplémentaire peut coûter plus cher qu’une optimisation de requête correctement ciblée. Le choix doit comparer coût total, risques, besoins de reprise et efforts de maintenance, pas uniquement le prix d’une instance.
 
-### Étape C — Définir reprise et sauvegarde
+## 13. Procédure de diagnostic lors d’une dégradation
 
-Proposez un calendrier de sauvegarde cohérent avec les volumes et le besoin métier, une rétention, un stockage séparé et un processus de contrôle d'intégrité. Fixez des RPO et RTO après discussion avec les propriétaires du service, puis définissez un exercice qui peut démontrer ces objectifs. Décrivez le rôle éventuel des journaux et de la réplication sans les confondre avec une sauvegarde complète.
+Commencez par confirmer le symptôme. Est-ce une erreur de connexion, un délai d’attente, une requête lente, une panne complète ou un problème limité à un endpoint? Notez l’heure, la région, l’application concernée, les utilisateurs touchés et la première occurrence connue. Une bonne chronologie évite de modifier le système sur la base d’une impression.
 
-### Étape D — Définir les métriques et alertes
+Vérifiez ensuite la santé globale : disponibilité du serveur, place disque, CPU, mémoire, connexions, retard de réplication et erreurs dans les journaux. Identifiez les changements récents : migration, déploiement de code, variation de charge, rotation des secrets ou changement de configuration. Ne modifiez pas plusieurs paramètres simultanément sans hypothèse testable; cela rend l’effet difficile à interpréter.
 
-Choisissez les signaux essentiels : erreurs de connexion, latence des requêtes critiques, sessions, espace disponible, attentes, état des sauvegardes et retard de réplication s'il y a lieu. Pour chaque signal, donnez un seuil provisoire justifié, une durée, un destinataire, un runbook et une condition de clôture. Identifiez les mesures qui nécessitent un étalonnage sur le trafic réel.
+Pour les requêtes lentes, identifiez la famille de requêtes et les paramètres représentatifs. Examinez le plan d’exécution, les statistiques et les index. Pour les connexions saturées, comparez la demande de l’application à la limite du serveur et au nombre d’instances applicatives. Pour les verrous, identifiez la transaction bloquante et son propriétaire avant toute interruption. Pour les problèmes de stockage, déterminez la catégorie de fichiers qui croît plutôt que de supprimer des fichiers au hasard.
 
-### Étape E — Préparer un changement
+Une intervention doit réduire le risque tout en préservant les éléments utiles. Si une action temporaire est nécessaire, indiquez l’heure, la raison, la personne qui l’exécute, le périmètre et les critères de retrait. Après le rétablissement, vérifiez la cohérence métier, les files en attente, la latence et les erreurs. Organisez ensuite une analyse de cause racine qui cherche les conditions ayant permis l’incident, plutôt que de s’arrêter à « le serveur était lent ».
 
-Choisissez une modification fictive, comme ajouter un statut à INSCRIPTIONS. Écrivez un plan de migration avec les préconditions, la compatibilité des versions applicatives, le contrôle des valeurs existantes, la validation après déploiement et la stratégie de retour. Évaluez le besoin de verrouillage et de temps d'arrêt. Exécutez uniquement l'exemple dans un laboratoire jetable.
+## 14. Atelier pratique : observer une base de test
 
-### Étape F — Simuler un incident
+Créez une base isolée avant toute expérimentation. Les commandes suivantes illustrent PostgreSQL et supposent que les outils clients sont installés, que le serveur accepte les connexions et que votre compte dispose des privilèges nécessaires.
 
-Décrivez les étapes de réponse à une hausse durable de latence. Commencez par confirmer l'impact, consulter les métriques, chercher les changements récents, inspecter les plans et attentes, puis décider d'une action à partir des preuves. Préservez les informations utiles au diagnostic et rédigez un bref retour d'expérience qui inclut une action de prévention mesurable.
+~~~bash
+createdb skilltree_lab
+psql -d skilltree_lab
+~~~
 
-### Corrigé de référence
+Dans la session SQL, créez quelques tables représentatives :
 
-Un plan acceptable n'impose pas un moteur, un fournisseur ou un nombre de réplicats arbitraire. Il distingue les responsabilités de l'équipe et du fournisseur, définit les propriétaires, décrit les contrôles et indique comment vérifier les objectifs de service. Il protège les secrets, applique le moindre privilège, possède une procédure de restauration testée et un système d'alertes avec des actions associées.
+~~~sql
+CREATE TABLE apprenants (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    cree_le TIMESTAMPTZ NOT NULL DEFAULT now()
+);
 
-Le plan est également explicite sur les limites : une sauvegarde réussie n'assure pas la restauration tant qu'elle n'a pas été testée ; la réplication ne protège pas automatiquement contre toutes les suppressions ou corruptions logiques ; un pool plus grand n'améliore pas forcément la capacité ; une connexion au serveur ne prouve pas la disponibilité fonctionnelle de l'application ; et un changement de schéma doit tenir compte du volume et de la compatibilité applicative.
+CREATE TABLE inscriptions (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    apprenant_id BIGINT NOT NULL REFERENCES apprenants(id),
+    formation_id BIGINT NOT NULL,
+    inscrit_le TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (apprenant_id, formation_id)
+);
 
-### Critères de réussite
+INSERT INTO apprenants (email)
+VALUES ('amina@example.test'), ('paul@example.test');
 
-Le défi est réussi si un autre membre de l'équipe peut expliquer l'architecture, identifier le responsable de chaque action, appliquer les contrôles dans un laboratoire, savoir quelle alerte déclenche quelle procédure et vérifier une reprise sans se fier à un seul message de succès. La fiche doit indiquer les hypothèses et les éléments qui nécessitent une validation dans l'environnement réel.
+INSERT INTO inscriptions (apprenant_id, formation_id)
+VALUES (1, 101), (2, 101);
+~~~
 
-## 16. Checklist opérationnelle du DBA
+Observez la connexion et l’identité de la base :
 
-Avant une mise en service ou une revue d'exploitation, vérifiez les points suivants :
+~~~sql
+SELECT current_database(), current_user, version();
+SELECT count(*) AS nombre_apprenants FROM apprenants;
+SELECT pid, usename, state, now() - xact_start AS age_transaction
+FROM pg_stat_activity
+WHERE datname = current_database();
+~~~
 
-- Le moteur, sa version, l'environnement et le propriétaire sont connus.
-- L'architecture, les dépendances et les chemins réseau sont documentés.
-- Les comptes applicatifs et humains sont distincts.
-- Les rôles suivent le principe du moindre privilège.
-- Les connexions sont protégées selon le risque et les secrets ne sont pas stockés dans les scripts.
-- Les limites de connexions et le dimensionnement des pools sont connus.
-- Les indicateurs de latence, d'erreur, de capacité et de concurrence sont suivis.
-- Les requêtes critiques disposent d'un moyen de diagnostic du plan d'exécution.
-- Les sauvegardes sont surveillées et stockées avec des protections appropriées.
-- Une procédure de restauration existe et a été testée récemment.
-- Les objectifs RPO et RTO sont validés par le métier et vérifiés par un exercice.
-- La réplication, si elle existe, est surveillée et sa garantie réelle est connue.
-- Les changements de schéma sont revus, testés, versionnés et accompagnés d'un plan de retour.
-- Les procédures d'incident sont à jour et les personnes d'astreinte connaissent leur rôle.
-- Les alertes mènent à des actions et possèdent des critères de clôture.
-- Les tests n'utilisent pas de données sensibles sans autorisation.
-- Les retours d'incident débouchent sur des actions préventives suivies.
+L’objectif est de relier une opération observable à la structure qui l’explique. L’identifiant de base est important avant un changement, car un environnement de test peut ressembler fortement à la production. Les variables de connexion, le nom de l’instance et la commande utilisée doivent être contrôlés avant toute écriture.
 
-## 17. Synthèse finale
+Pour simuler une attente, ouvrez deux sessions dans cet environnement de laboratoire. Dans la session A :
 
-Le DBA contribue à garantir qu'une base de données reste disponible, cohérente, protégée, performante et récupérable. Son travail combine architecture, gestion des accès, supervision, capacité, optimisation, sauvegarde, restauration, préparation des changements et réponse aux incidents. Il collabore avec les développeurs, la plateforme, la sécurité et les propriétaires métier ; il n'est pas un simple opérateur de commandes SQL et ne peut pas, seul, compenser des exigences mal définies.
+~~~sql
+BEGIN;
+UPDATE apprenants SET email = 'amina-modifiee@example.test' WHERE id = 1;
+-- Ne validez pas immédiatement; observez la session depuis la session B.
+~~~
 
-Un SGBD reçoit les requêtes des clients, authentifie les connexions, analyse le SQL, choisit des plans, exécute les opérations et s'appuie sur la mémoire, le stockage et les journaux. Les transactions et mécanismes de concurrence protègent le comportement face aux opérations simultanées. Les détails techniques diffèrent entre moteurs, mais les questions d'exploitation sont communes : quelles ressources sont utilisées, quelles attentes se produisent, quelles garanties sont offertes et comment vérifier le résultat réel ?
+Dans la session B, exécutez :
 
-La sauvegarde, la réplication, la haute disponibilité et la reprise après sinistre sont complémentaires mais non interchangeables. La restauration doit être testée. Les objectifs RPO et RTO doivent venir du besoin métier puis être démontrés par des exercices. La sécurité exige des rôles limités, la gestion des secrets, des connexions protégées et des contrôles appropriés. La surveillance doit transformer des métriques en signaux exploitables, avec des seuils, des responsables et des runbooks.
+~~~sql
+UPDATE apprenants SET email = 'autre-valeur@example.test' WHERE id = 1;
+~~~
 
-Enfin, l'administration fiable repose sur des preuves reproductibles. Une commande réussie ne démontre pas à elle seule que le service est sain ; un job de sauvegarde ne prouve pas que la reprise fonctionnera ; une bascule réseau ne prouve pas le retour de tous les parcours métier. La discipline du DBA consiste à formuler des hypothèses, observer les signaux, vérifier les postconditions, documenter les limites et améliorer les procédures à partir des incidents.
+La session B attend normalement que le verrou de la session A soit libéré. Revenez à la session A et exécutez COMMIT ou ROLLBACK. La session B poursuit alors son travail. Cet exercice permet de comprendre qu’une ligne affichée comme « requête lente » peut en réalité attendre une autre transaction. Réinitialisez les valeurs après l’exercice et ne laissez pas les transactions ouvertes.
 
-## Références techniques
+## 15. Outils de supervision et commandes prudentes
 
-Consultez les guides correspondant à la version réellement exploitée. Les noms de processus, options, métriques et comportements DDL varient selon le moteur et la plateforme.
+Les vues système diffèrent d’un SGBD à l’autre. Dans PostgreSQL, pg_stat_activity décrit les sessions; pg_stat_database fournit des statistiques globales par base; pg_stat_user_tables et les vues associées renseignent sur les tables; EXPLAIN permet d’observer le plan d’une requête. Dans MySQL, les vues Performance Schema et sys offrent des instruments d’analyse complémentaires. Utilisez la documentation correspondant exactement à la version installée avant d’adopter un script de supervision.
 
-- PostgreSQL, documentation officielle : https://www.postgresql.org/docs/current/
-- PostgreSQL, architecture du système : https://www.postgresql.org/docs/current/tutorial-arch.html
+Les commandes administratives doivent être accompagnées de critères. Une action qui termine une session, supprime une table ou change une configuration peut avoir un effet irréversible ou interrompre des utilisateurs. Privilégiez d’abord les commandes de lecture. Si une action modifiante est nécessaire, évaluez le risque, vérifiez les droits, prévenez l’équipe responsable et vérifiez les effets après l’intervention.
+
+La commande PostgreSQL suivante mesure la taille logique d’une base de test :
+
+~~~sql
+SELECT pg_size_pretty(pg_database_size(current_database())) AS taille_base;
+~~~
+
+Pour examiner un plan sans exécuter la requête, utilisez EXPLAIN. EXPLAIN ANALYZE exécute la requête et doit être choisi avec précaution, notamment si le SQL contient une modification. Pour un diagnostic de production, commencez par une requête de lecture sûre et reproduisez le cas sur un échantillon ou un environnement de test si nécessaire. Ne copiez pas un plan d’exécution sans enregistrer les paramètres et les statistiques au moment de sa collecte.
+
+La surveillance doit être testée elle aussi. Faites un exercice de panne simulée sur un environnement de test et confirmez que l’alerte arrive à la bonne équipe, au bon niveau d’urgence et avec les informations nécessaires. Une métrique qui n’est consultée par personne, une alerte toujours ignorée ou un tableau de bord sans propriétaire ne constituent pas un dispositif opérationnel.
+
+## 16. Cas pratique : les inscriptions sont lentes
+
+Une équipe signale que l’inscription à une formation peut durer huit secondes à l’heure de pointe. La première réaction pourrait être d’augmenter la puissance de la base. Le DBA commence plutôt par tracer le flux : attente du pool, temps d’exécution SQL, attente de verrou, commit et délai réseau. L’observation révèle que plusieurs requêtes mettent à jour le même compteur de places, tandis qu’un rapport analytique lance une lecture lourde sur la table des inscriptions.
+
+La première hypothèse est que la contention sur le compteur contribue à la latence. La deuxième est que le rapport augmente l’utilisation des ressources. Le DBA vérifie les sessions, les verrous, les plans et le profil temporel. Une analyse peut démontrer qu’un index manque pour le rapport; une autre peut montrer que le compteur central impose une sérialisation inhérente au modèle. Ce sont deux problèmes distincts qui peuvent requérir deux solutions différentes.
+
+L’équipe ajoute un index ciblé après avoir comparé le plan avant et après, puis réduit la fréquence du rapport en utilisant une table de synthèse. Elle maintient la vérification atomique des places restantes et la contrainte d’unicité de l’inscription. Elle ne retire pas les contrôles d’intégrité pour accélérer le flux. Le résultat est mesuré avec le même jeu de charge, les mêmes paramètres et le même percentile de latence. La modification est déployée graduellement, surveillée, puis conservée seulement si elle améliore le comportement sans dégrader les écritures.
+
+Le compte rendu d’incident contient le symptôme, l’impact, la chronologie, les données collectées, les hypothèses, les changements, le résultat mesuré et les actions préventives. Il ne se contente pas de dire « on a ajouté un index ». Un index qui améliore une requête peut augmenter l’espace disque et le coût d’écriture; son impact doit être observé après le déploiement.
+
+## 17. Exercices avec corrigés
+
+### Exercice 1 — Pool saturé
+
+Une application a huit instances et ouvre jusqu’à 25 connexions par instance. Le serveur autorise 120 connexions utiles après réservation des sessions d’administration. Pourquoi cette configuration est-elle dangereuse et que faut-il mesurer avant de changer les limites?
+
+**Correction.** La capacité théorique de 200 connexions applicatives dépasse la limite utile. Le résultat peut être une erreur à l’ouverture des connexions, ou une hausse de latence si l’application attend dans son propre pool. Il faut observer le nombre de sessions actives, le temps d’attente du pool, les transactions longues, le coût mémoire par session et la charge CPU. Il faut établir un budget de connexions pour toutes les applications, tâches de fond et opérateurs. Réduire la taille des pools peut améliorer la stabilité si le problème est une concurrence excessive; augmenter le nombre de connexions sans vérifier la capacité ne corrige pas le travail SQL qui prend trop longtemps.
+
+### Exercice 2 — Une réplique suffit-elle comme sauvegarde?
+
+Une réplique contient les mêmes données que le primaire. L’équipe propose de supprimer les sauvegardes pour réduire les coûts.
+
+**Correction.** La proposition confond disponibilité et capacité de restauration. Une suppression erronée, un défaut logique ou une corruption répliquée peut affecter tous les nœuds. Une sauvegarde indépendante permet de revenir à un état antérieur selon sa fréquence et sa rétention. Le coût doit être comparé au coût d’une perte de données, et les sauvegardes doivent être testées et protégées contre la suppression accidentelle ou malveillante. Une réplique reste utile, mais elle couvre un autre ensemble de défaillances.
+
+### Exercice 3 — Verrouillage après un déploiement
+
+Après une nouvelle version, plusieurs requêtes restent en attente et une migration est toujours active. Quelles actions mener dans quel ordre?
+
+**Correction.** Premièrement, confirmer les impacts utilisateurs, la durée et l’heure de début. Deuxièmement, identifier les sessions en attente et la transaction bloquante, puis établir si la migration effectue un travail attendu ou reste bloquée. Troisièmement, consulter le plan de déploiement et les propriétaires du changement. Quatrièmement, choisir une action qui réduit le risque : attendre si l’opération avance et reste dans le budget, arrêter proprement la migration si elle est sûre à annuler, ou terminer une session selon un protocole d’urgence. Enfin, vérifier le schéma, la cohérence métier et le taux d’erreur. Ne tue pas de sessions au hasard.
+
+### Exercice 4 — Le CPU est élevé
+
+Le CPU atteint 90 %, mais le nombre d’erreurs reste faible. Faut-il immédiatement redémarrer le serveur?
+
+**Correction.** Non. Le CPU élevé est un signal, pas un diagnostic. Vérifiez sa durée, le taux de requêtes, les plans récemment modifiés, les tâches de fond, les attentes I/O, les connexions et la latence utilisateur. Un redémarrage peut supprimer des éléments diagnostiques, interrompre les transactions et ne rien corriger si la charge se reproduit. Il n’est justifié que par une procédure et un scénario établis, pas comme réaction automatique à un seuil isolé.
+
+### Exercice 5 — Retour arrière
+
+Une migration supprime une colonne obsolète. Une nouvelle version du code échoue et l’équipe souhaite revenir à l’ancienne version.
+
+**Correction.** Le rollback applicatif seul ne suffit pas si l’ancienne version lit encore la colonne supprimée. La migration est destructive et son inverse n’est pas possible sans sauvegarde de la donnée. Une séquence expansion-contraction aurait d’abord retiré les lectures de l’ancienne colonne et vérifié qu’aucune version n’en dépend. Avant la suppression, l’équipe doit vérifier les consommateurs, conserver une sauvegarde ou une transformation de retour possible selon le besoin et définir la procédure de rétablissement.
+
+## 18. Défi final : préparer une mise en production fiable
+
+Vous administrez la base d’une plateforme de formation de 20 000 utilisateurs. Les inscriptions ne doivent jamais dépasser les capacités définies. Les résultats de quiz doivent être durables dès leur confirmation. Une panne ne doit pas faire perdre plus de cinq minutes de données et l’objectif de reprise est de 45 minutes. La base reçoit des écritures toute la journée et un rapport analytique lourd chaque heure. Proposez un plan couvrant les transactions, l’observabilité, la sauvegarde, la sécurité, les tests et le déploiement.
+
+### Correction attendue
+
+1. **Intégrité.** Définir une contrainte unique pour l’inscription par apprenant et formation, une clé étrangère vers les objets nécessaires et une opération transactionnelle qui ne décrémente la capacité que si une place reste disponible. Vérifier le nombre de lignes modifiées et annuler si la condition échoue. Ajouter des tests de concurrence qui tentent de réserver simultanément la dernière place.
+
+2. **Durabilité.** Vérifier la configuration de commit, le stockage sous-jacent et les garanties proposées par le SGBD ou le service managé. Ne pas affaiblir la synchronisation sans décision explicite sur la perte de données acceptable. Documenter les limites exactes du RPO de cinq minutes.
+
+3. **Reprise.** Choisir une sauvegarde compatible avec la reprise à un instant donné, ou un mécanisme équivalent pris en charge par la plateforme. Conserver les sauvegardes et les journaux requis sur un périmètre indépendant, vérifier leur intégrité et exécuter régulièrement une restauration complète dans un environnement isolé. Mesurer un RTO inférieur à 45 minutes avec marge et documenter le rôle de chaque intervenant.
+
+4. **Performance.** Capturer des plans d’exécution pour les requêtes critiques, collecter les statistiques, surveiller les attentes, la latence par percentile et le retard de réplication. Séparer le rapport analytique des transactions critiques lorsque cela est justifié, et évaluer les répliques, agrégats pré-calculés ou exécutions décalées. Mesurer les index ajoutés sur les lectures, les écritures et l’espace disque.
+
+5. **Sécurité.** Attribuer un compte d’exécution restreint à l’application, séparer les migrations et l’administration, gérer les secrets en dehors du code et auditer les privilèges. Classifier les données personnelles, minimiser les champs, appliquer une rétention définie et protéger les copies de sauvegarde.
+
+6. **Déploiement.** Tester la migration sur une copie représentative. Définir les préconditions, la durée, le risque de verrouillage, les métriques de succès et le retour arrière. Utiliser des étapes compatibles entre l’ancienne et la nouvelle version lorsque la base est utilisée sans interruption. Prévoir une fenêtre de surveillance et un responsable de décision.
+
+7. **Vérification opérationnelle.** Simuler la perte d’une instance, la restauration d’une sauvegarde, une saturation de connexions et un blocage de transaction. Pour chaque exercice, conserver les mesures et corriger les écarts avant la mise en production.
+
+Le résultat attendu n’est pas une liste d’outils, mais un système d’exploitation cohérent : exigences mesurables, conception, instrumentation, procédures, responsabilités et preuves d’essais.
+
+## 19. Liste de vérification du DBA
+
+Avant une intervention, identifiez sans ambiguïté le serveur, la base, l’environnement et le compte utilisé. Confirmez l’objectif de l’opération, les autorisations nécessaires, les effets secondaires, le volume de données et les préconditions. Vérifiez la capacité disque et les limites de ressources. Assurez-vous de disposer d’une sauvegarde adaptée et d’un moyen de retour arrière ou, si l’opération est irréversible, d’une stratégie de reprise clairement assumée. Informez les équipes concernées lorsque l’impact le justifie.
+
+Après l’intervention, vérifiez le code de sortie, les journaux, l’état du schéma, la cohérence des données et les métriques de service. Recherchez les erreurs nouvelles, les attentes, les retards de réplication et la croissance inattendue du stockage. Documentez le résultat, y compris les problèmes rencontrés. Un changement qui fonctionne une fois mais n’est pas reproductible ou observable reste un risque.
+
+Une revue régulière doit contrôler les versions supportées, les correctifs, la capacité, les sauvegardes, les privilèges, les comptes inactifs, les index non utilisés, les transactions longues et les alertes. Chaque procédure opérationnelle doit avoir un propriétaire et une date de test. Le DBA doit également vérifier que les objectifs métiers sont encore pertinents : la croissance et les exigences changent, donc les paramètres et les exercices doivent évoluer eux aussi.
+
+## 20. Synthèse et glossaire
+
+Le SGBD transforme des requêtes en opérations coordonnées sur la mémoire, les index, les pages de données et les journaux. Le rôle du DBA est de préserver les propriétés attendues de ce système sous la charge réelle. Une performance acceptable n’est pas suffisante si les données ne peuvent pas être restaurées; une sauvegarde ne suffit pas si elle n’a jamais été testée; une réplique n’est pas une sauvegarde; un compte authentifié ne doit pas bénéficier automatiquement de droits d’administration; un plan d’exécution ne s’interprète pas sans connaître le contexte et les statistiques.
+
+**ACID** décrit les garanties transactionnelles d’atomicité, cohérence, isolation et durabilité. **DBA** désigne l’administrateur de base de données. **MVCC** est un mécanisme de gestion de versions qui aide à coordonner les accès concurrents. **WAL** est le journal d’écriture préalable utilisé notamment par PostgreSQL. **RPO** décrit la perte de données maximale acceptable et **RTO** le temps maximal de reprise. **PITR** est la restauration à un instant donné. **Pool de connexions** signifie réutiliser un ensemble limité de connexions. **Deadlock** désigne un cycle d’attentes entre transactions. **Observabilité** associe métriques, journaux et traces pour expliquer les comportements. **Migration** est une évolution contrôlée du schéma ou des données.
+
+## Ressources officielles pour approfondir
+
+- PostgreSQL, surveillance et statistiques : https://www.postgresql.org/docs/current/monitoring.html
+- PostgreSQL, explication des plans : https://www.postgresql.org/docs/current/using-explain.html
 - PostgreSQL, sauvegarde et restauration : https://www.postgresql.org/docs/current/backup.html
-- PostgreSQL, surveillance des statistiques : https://www.postgresql.org/docs/current/monitoring-stats.html
-- MySQL 8.4, référence officielle : https://dev.mysql.com/doc/refman/8.4/en/
-- MySQL 8.4, moteur InnoDB et architecture : https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html
-- MySQL 8.4, sauvegarde et récupération : https://dev.mysql.com/doc/refman/8.4/en/backup-and-recovery.html
-- OWASP, prévention des injections SQL : https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html
+- PostgreSQL, contrôle de concurrence : https://www.postgresql.org/docs/current/mvcc.html
+- MySQL, InnoDB et architecture de stockage : https://dev.mysql.com/doc/refman/8.4/en/innodb-storage-engine.html
 
-Les commandes présentes dans cette leçon sont illustratives. Validez-les dans une base de laboratoire, selon la version, les privilèges et les procédures de votre environnement, avant tout usage opérationnel.
+Servez-vous de ces références pour confirmer les particularités de la version et du moteur utilisés dans votre environnement. Les concepts généraux se transfèrent d’un système à l’autre, mais les commandes d’administration et les garanties exactes ne sont jamais universelles.
