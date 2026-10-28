@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Surveillance par ICMP (ping, uptime) ».",
+      "prompt": "Une sonde ICMPv4 envoie 100 Echo Request et reçoit 97 Echo Reply avant son timeout. Le service HTTPS de la cible répond normalement. Quelle interprétation est la plus rigoureuse ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "La cible a perdu exactement 3 % de ses paquets applicatifs, car ICMP reflète toute la perte IP.",
+        "La perte observée des sondes Echo est de 3 %, mais elle ne démontre ni la même perte applicative ni si les requêtes ou les réponses ont été perdues.",
+        "La cible est indisponible à 3 %, donc elle doit être déclarée totalement en panne.",
+        "Le service HTTPS est forcément dégradé, car une perte ICMP implique une perte TCP équivalente."
       ],
-      "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "answer": 1,
+      "explanation": "Les 3 réponses manquantes sur 100 représentent une perte de sondes observée de 3 % dans les délais retenus. Ce résultat ne sépare pas la perte de la requête, celle de la réponse, le filtrage ou le retard. Le comportement de TCP et de l'application peut différer. Puisque HTTPS répond, il faut examiner les résultats ICMP comme un signal réseau à contextualiser, et non comme une mesure directe de la perte applicative."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un serveur répond au ping en 1 à 2 ms, mais les utilisateurs reçoivent des erreurs HTTP 503. Quelle action fournit la preuve la plus pertinente pour diagnostiquer le service métier ?",
+      "choices": [
+        "Diminuer le timeout ICMP à 10 ms pour rendre le ping plus strict.",
+        "Augmenter la fréquence du ping jusqu'à obtenir davantage d'échantillons.",
+        "Effectuer un contrôle HTTP/HTTPS autorisé qui vérifie le code de réponse et un contenu attendu, puis corréler avec les journaux et les métriques applicatives.",
+        "Conclure que l'application fonctionne, car la pile IP répond rapidement."
+      ],
+      "answer": 2,
+      "explanation": "Echo valide seulement la capacité à effectuer un échange ICMP avec la cible depuis le point de mesure. Il ne vérifie pas le processus web, les dépendances, la saturation ni la réponse métier. Un contrôle applicatif synthétique est plus directement lié au symptôme HTTP 503 ; les journaux et métriques permettent ensuite d'identifier la cause. Rendre le ping plus strict ou plus fréquent ne teste pas la fonctionnalité en panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un nom DNS retourne une adresse IPv4 et une adresse IPv6. Le ping sans option est intermittent, tandis qu'un ping forcé en IPv4 réussit et un ping forcé en IPv6 échoue. Quelle démarche est la meilleure ?",
+      "choices": [
+        "Mélanger tous les résultats afin de calculer une moyenne de latence globale.",
+        "Désactiver immédiatement IPv6, puisque l'IPv4 fonctionne.",
+        "Comparer séparément les familles, vérifier si le service est censé être accessible en IPv6, puis contrôler routes, filtrage et configuration IPv6 attendue.",
+        "Conclure que le serveur est en panne, car un des chemins ne répond pas."
+      ],
+      "answer": 2,
+      "explanation": "IPv4 et IPv6 peuvent suivre des routes, des ACL et des mécanismes de voisinage différents. Les tests doivent être consignés séparément, et l'équipe doit vérifier si IPv6 fait partie du contrat attendu pour le service. Le succès IPv4 ne valide pas la connectivité IPv6, mais l'échec IPv6 ne démontre pas à lui seul une panne générale. Le choix de désactiver une famille demande une décision technique et de sécurité, pas une réaction automatique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Toutes les cibles rattachées à un collecteur passent simultanément à l'état « aucune donnée reçue », alors que les dernières mesures étaient positives. Quelle règle de conception évite le mieux une avalanche de fausses alertes de panne cible ?",
+      "choices": [
+        "Convertir systématiquement toute absence de mesure en indisponibilité cible.",
+        "Distinguer les échecs explicitement mesurés de l'absence de collecte et superviser la santé du collecteur et de son canal de transmission.",
+        "Augmenter le seuil de RTT de toutes les cibles à une valeur très élevée.",
+        "Supprimer les cibles du tableau de bord lorsqu'elles ne répondent plus."
+      ],
+      "answer": 1,
+      "explanation": "Une mesure négative indique que le collecteur a effectué un contrôle et n'a pas obtenu la réponse attendue. Une absence de données peut plutôt venir du collecteur, du réseau de supervision, de la file d'envoi ou du stockage. Ces états doivent être modélisés séparément. La supervision du heartbeat, du retard de collecte et du canal de transmission permet de diagnostiquer d'abord l'observabilité avant de déclarer des centaines de cibles en panne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une sonde exécute ping toutes les 30 secondes et classe une cible indisponible dès le premier timeout. Les mesures historiques montrent des réponses ponctuellement tardives et un rate limiting ICMP. Quel ajustement est le plus solide ?",
+      "choices": [
+        "Multiplier la fréquence de sondage par dix pour empêcher le rate limiting.",
+        "Supprimer toutes les alertes ICMP, car le protocole n'est jamais utile en production.",
+        "Choisir timeout, seuils et persistance à partir de l'historique, distinguer la dégradation de l'indisponibilité et tester la politique pour mesurer faux positifs et délai de détection.",
+        "Remplacer toutes les valeurs manquantes par un RTT de zéro afin de préserver les moyennes."
+      ],
+      "answer": 2,
+      "explanation": "Le contrôle doit être adapté au comportement normal et aux objectifs de détection. Un timeout trop strict et une transition après un seul échec amplifient les faux positifs, tandis qu'une fréquence excessive peut aggraver la limitation des réponses. Une règle validée sur l'historique peut combiner seuils, fenêtres et échecs consécutifs. Les données manquantes doivent rester distinctes des RTT numériques, afin de ne pas fausser les statistiques."
     }
   ]
 }
