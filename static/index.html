@@ -5743,13 +5743,18 @@
                 moduleOf(n) {
           const id = String(n.id || '');
           if (id.startsWith('maint-')) return 'maintenance';
-          const o = this.moduleOverrides[n.id]; if (o) return o;
-          
-          // 1. D'abord, on vérifie le champ "module" exact.
+
+          // Les modules nouvellement ajoutés au catalogue sont canoniques :
+          // ne pas laisser d'anciennes affectations locales les masquer.
           const raw = String(n.module || '').trim();
-          if (raw === 'Data & Bases de données' || raw.toLowerCase().startsWith('data')) return 'data';
           if (raw === 'AIOps & Intelligence Artificielle' || raw.toLowerCase().startsWith('aiops')) return 'aiops';
-          if (raw.toLowerCase() === 'gestion de projet it') return 'gestion-projet-it';
+          if (raw.toLowerCase() === 'gestion de projet it' || id.startsWith('proj-')) return 'gestion-projet-it';
+
+          // Les affectations manuelles restent disponibles pour les autres cours.
+          const o = this.moduleOverrides[n.id]; if (o) return o;
+
+          // 1. D'abord, on vérifie le champ "module" exact.
+          if (raw === 'Data & Bases de données' || raw.toLowerCase().startsWith('data')) return 'data';
           if (raw === 'Cybersécurité') return 'cybersecurite';
           
           if (raw === 'Réseaux Industriels (OT)') return 'ot';
