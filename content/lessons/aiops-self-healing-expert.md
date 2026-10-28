@@ -503,6 +503,96 @@ Chaque branche de décision doit produire un code de raison stable. Distinguez r
 
 Vérifiez que l'état initial a été sauvegardé, que sa version est cohérente et qu'aucun changement concurrent ne rend la restauration dangereuse. Si l'état est incertain, geler les actions automatiques et escalader. Ne jamais multiplier les commandes de restauration pour forcer un résultat non compris.
 
+## Architecture de référence et implémentation guidée
+
+Un réseau auto-cicatrisant n'est pas un système qui applique automatiquement chaque recommandation du modèle. Il associe une détection fiable, une politique d'action, des garde-fous, un mécanisme de vérification et une capacité d'abstention. L'exécuteur doit recevoir une opération autorisée et bornée, jamais un script libre produit par un modèle de langage.
+
+### Boucle de réparation à états explicites
+
+```mermaid
+stateDiagram-v2
+  [*] --> Observe
+  Observe --> Diagnose: Signaux cohérents
+  Observe --> Escalate: Données insuffisantes
+  Diagnose --> ValidatePolicy: Hypothèse testable
+  Diagnose --> Escalate: Causes contradictoires
+  ValidatePolicy --> Approve: Action autorisée et risque acceptable
+  ValidatePolicy --> Escalate: Cible critique ou hors périmètre
+  Approve --> Execute: Approbation valide
+  Execute --> Verify: Résultat reçu
+  Verify --> Closed: SLO rétabli et preuves conservées
+  Verify --> Rollback: Garde-fous dépassés
+  Rollback --> Verify: Retour arrière terminé
+  Rollback --> Escalate: Retour arrière impossible
+  Escalate --> [*]
+  Closed --> [*]
+```
+
+### Contrat d'une action sûre
+
+```mermaid
+flowchart TD
+  A["Proposition de réparation"] --> B["Valider l'identifiant de cible"]
+  B --> C["Vérifier le niveau de risque"]
+  C --> D["Vérifier préconditions et approbation"]
+  D --> E{"Tous les contrôles sont-ils valides ?"}
+  E -- "Non" --> F["Abstention et escalade"]
+  E -- "Oui" --> G["Capturer l'état avant action"]
+  G --> H["Exécuter une action bornée"]
+  H --> I["Lire l'état après action"]
+  I --> J{"SLO et invariants respectés ?"}
+  J -- "Oui" --> K["Clôturer avec preuves"]
+  J -- "Non" --> L["Rollback et investigation"]
+```
+
+### Exemple de garde-fou côté orchestrateur
+
+```python
+from dataclasses import dataclass
+from enum import Enum
+
+class Decision(str, Enum):
+    ALLOW = "allow"
+    REQUIRE_APPROVAL = "require_approval"
+    DENY = "deny"
+
+@dataclass(frozen=True)
+class RepairRequest:
+    action: str
+    target: str
+    incident_id: str
+    approved_by: str | None = None
+
+ALLOWED_ACTIONS = {"restart_collector", "clear_stale_session"}
+PROTECTED_TARGETS = {"core-router-01", "payment-firewall-01"}
+
+def authorize(request: RepairRequest, known_targets: set[str]) -> Decision:
+    if request.action not in ALLOWED_ACTIONS:
+        return Decision.DENY
+    if request.target not in known_targets:
+        return Decision.DENY
+    if request.target in PROTECTED_TARGETS:
+        return Decision.REQUIRE_APPROVAL
+    if not request.incident_id:
+        return Decision.DENY
+    return Decision.ALLOW
+```
+
+Cette fonction illustre une politique locale ; elle ne remplace ni l'authentification, ni l'autorisation centrale, ni la validation de l'approbateur, ni le journal d'audit. En production, protège la politique contre les modifications non autorisées et vérifie l'approbation au moment de l'exécution, pas seulement au moment de la création de la demande.
+
+### Travaux pratiques — panne de collecteur
+
+1. Injecte une perte de télémétrie sur un collecteur de laboratoire.
+2. Vérifie que la détection différencie « collecteur indisponible » de « réseau sain ».
+3. Soumets une réparation valide et une action inconnue ; seule l'action autorisée peut progresser.
+4. Simule un timeout après l'envoi de la commande : l'orchestrateur doit vérifier l'état réel avant de réessayer.
+5. Simule un redémarrage réussi du processus mais sans reprise des métriques ; le système ne doit pas clôturer l'incident.
+6. Simule un retour arrière impossible et vérifie l'escalade immédiate, avec état avant/après et identifiant d'exécution conservés.
+
+### Critères d'acceptation
+
+Une réparation n'est réussie que si le résultat métier est vérifié, pas seulement si la commande retourne zéro. Les contrôles doivent rester sûrs en cas de doublon, de timeout, de résultats tardifs et de redémarrage de l'orchestrateur. Le système doit pouvoir expliquer pourquoi il a agi, pourquoi il s'est abstenu et quelle preuve a permis la clôture.
+
 ## 16. Exercices corrigés
 
 ### Exercice 1 — Distinguer détection et preuve
