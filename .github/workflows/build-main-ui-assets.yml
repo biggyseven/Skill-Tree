@@ -62,7 +62,7 @@ jobs:
           ]
           for asset in assets:
               digest = hashlib.sha256(Path("static/assets", asset).read_bytes()).hexdigest()[:12]
-              pattern = re.compile(r"(/assets/" + re.escape(asset) + r"\\?v=)[0-9a-f]{12}")
+              pattern = re.compile(r"(/assets/" + re.escape(asset) + r"\?v=)[0-9a-f]{12}")
               html, count = pattern.subn(lambda match: match.group(1) + digest, html)
               if count < 2:
                   raise SystemExit(f"Expected preload plus use for {asset}; found {count} versioned URL(s)")
