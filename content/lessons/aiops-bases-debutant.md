@@ -460,6 +460,47 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — diagnostiquer un incident multisite
+
+### Énoncé
+
+Une entreprise exploite un siège et douze agences. À 08 h 45, plusieurs utilisateurs signalent une lenteur du logiciel métier. La supervision produit simultanément des alertes de latence WAN, des pertes de paquets sur deux agences et une hausse du temps de réponse applicatif. L'équipe ne veut pas automatiser des changements réseau dès le premier jour : elle veut construire une chaîne AIOps utile, explicable et sûre.
+
+Conçois un flux qui collecte les signaux, les enrichit avec le contexte, rapproche les événements, propose une hypothèse et laisse l'humain décider. Définis aussi trois critères de réussite et deux conditions qui doivent conduire à l'abstention.
+
+### Architecture attendue
+
+```mermaid
+flowchart TD
+  A["Métriques WAN et applicatives"] --> D["Collecte horodatée"]
+  B["Journaux et événements"] --> D
+  C["Inventaire et changements"] --> E["Enrichissement contextuel"]
+  D --> E
+  E --> F["Déduplication et corrélation"]
+  F --> G["Hypothèses classées avec preuves"]
+  G --> H{"Preuves suffisantes ?"}
+  H -- "Non" --> I["Demander une collecte complémentaire"]
+  H -- "Oui" --> J["Présenter le diagnostic à l'opérateur"]
+  J --> K["Action approuvée et limitée"]
+  K --> L["Vérifier le service et tracer le résultat"]
+```
+
+### Proposition de correction
+
+Commence par définir le service affecté et l'impact métier, plutôt que de compter les alertes. Normalise les horodatages dans une même zone de référence, conserve la source d'origine et associe chaque signal à un site, une interface ou une application. Ajoute la topologie et les changements récents : une alerte simultanée sur deux sites qui partagent un concentrateur WAN est plus informative que deux alertes sans relation connue.
+
+La corrélation doit produire une hypothèse, pas une certitude artificielle. Pour chaque hypothèse, affiche les faits favorables, les faits qui la contredisent, l'intervalle temporel et la donnée qui permettrait de la tester. Si les collectes sont incomplètes ou les horloges incohérentes, la réponse correcte est de demander davantage de preuves.
+
+Critères de réussite : réduire le délai de triage, augmenter la proportion d'incidents avec une cause confirmée et maintenir un faible taux de fausses escalades. Les conditions d'abstention incluent une perte de télémétrie importante et l'absence de preuve reliant les agences à une dépendance commune. La première version doit rester en mode recommandation ; toute automatisation ultérieure nécessite des politiques, une approbation adaptée au risque et une vérification après action.
+
+### Barème d'autoévaluation
+
+- 2 points : les signaux ont une source, un horodatage et un contexte.
+- 2 points : le rapprochement des événements tient compte de la topologie.
+- 2 points : l'hypothèse est accompagnée de preuves et de contre-indices.
+- 2 points : les conditions d'abstention sont explicites.
+- 2 points : les mesures de succès portent sur le résultat opérationnel et non sur le volume d'alertes.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
