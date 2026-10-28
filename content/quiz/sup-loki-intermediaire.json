@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Loki et Grafana pour les logs ».",
+      "prompt": "Comment Loki organise-t-il principalement les logs pour les rechercher efficacement ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Il crée obligatoirement un index de recherche plein texte sur chaque mot de chaque ligne",
+        "Il regroupe les lignes en flux identifiés par des labels, indexe surtout les labels et stocke les lignes en chunks",
+        "Il convertit automatiquement tous les logs en séries Prometheus avant de les conserver",
+        "Il stocke uniquement les timestamps et détruit le contenu des lignes"
+      ],
+      "answer": 1,
+      "explanation": "Le modèle de Loki est centré sur les labels : chaque combinaison de labels identifie un stream, qui regroupe des entrées de log. Loki indexe principalement ces métadonnées et conserve les lignes dans des chunks compressés. Lors d'une requête, les labels servent à sélectionner les flux candidats, puis les lignes pertinentes sont lues et filtrées. Ce modèle peut réduire certains coûts d'indexation, mais exige une stratégie de labels stable et à faible cardinalité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il généralement éviter d'utiliser trace_id ou request_id comme label de flux Loki ?",
+      "choices": [
+        "Parce que les identifiants ne peuvent jamais apparaître dans une ligne de log",
+        "Parce que LogQL ne peut pas rechercher de chaînes de caractères",
+        "Parce que chaque valeur distincte peut créer une nouvelle combinaison de labels et faire exploser la cardinalité",
+        "Parce que Loki n'accepte que des labels numériques"
+      ],
+      "answer": 2,
+      "explanation": "Les identifiants de requête et de trace changent fréquemment, parfois pour chaque événement. En faire des labels de flux peut créer un très grand nombre de streams et de petits chunks, ce qui pénalise l'ingestion, l'index et les requêtes. Ces valeurs restent utiles pour une enquête individuelle : conservez-les dans le contenu ou, si la version et la configuration le permettent, dans les métadonnées structurées. Commencez par sélectionner l'application et la période, puis filtrez l'identifiant recherché."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle méthode constitue généralement une bonne première étape pour optimiser une requête LogQL lente ?",
+      "choices": [
+        "Sélectionner d'abord un ensemble précis de streams avec des labels et réduire la plage temporelle avant de filtrer les lignes et de parser",
+        "Augmenter immédiatement tous les quotas et parcourir un historique plus long",
+        "Retirer les labels app et env pour inclure encore plus de flux",
+        "Appliquer plusieurs parseurs et expressions régulières à tous les logs sans filtre préalable"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Un sélecteur de labels précis permet à Loki de réduire les streams concernés avant d'examiner le contenu des lignes. Une plage temporelle plus courte limite également le volume de chunks à lire. Les filtres de ligne puis les étapes de parsing peuvent être ajoutés progressivement, en testant leur effet. Augmenter les limites sans comprendre le coût peut simplement transférer le problème aux ressources du cluster ou aux autres tenants."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue Grafana Alloy dans une architecture Loki classique ?",
+      "choices": [
+        "Remplacer Grafana comme interface d'exploration et de dashboards",
+        "Agir obligatoirement comme stockage à long terme de tous les chunks Loki",
+        "Exécuter exclusivement les requêtes LogQL sans collecter de logs",
+        "Collecter ou recevoir des logs, éventuellement les transformer, puis les expédier vers Loki"
+      ],
+      "answer": 3,
+      "explanation": "Alloy est un collecteur de télémétrie qui peut lire des fichiers, recevoir des événements de différentes sources, ajouter des labels ou transformer les données et les expédier vers Loki. Loki reste responsable de l'ingestion, de l'organisation et du stockage des logs ; Grafana fournit l'interface d'exploration. La chaîne de collecte doit être surveillée séparément : un agent arrêté ou incapable d'envoyer ses événements peut provoquer une absence de logs même lorsque Loki et Grafana restent disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle conclusion est correcte lorsqu'une requête LogQL ou un dashboard ne montre aucune erreur ?",
+      "choices": [
+        "L'application est forcément saine, même si aucun nouveau log n'est reçu",
+        "Il faut distinguer un véritable zéro erreur d'une absence de données et vérifier la fraîcheur, la collecte et les filtres",
+        "Cela prouve que tous les agents ont envoyé leurs logs sans retard",
+        "Il faut supprimer la politique de rétention pour faire réapparaître les erreurs"
+      ],
+      "answer": 1,
+      "explanation": "Une absence de résultat peut signifier qu'aucune erreur n'a été produite, mais aussi que l'application a cessé d'émettre des logs, que le collecteur ne lit plus les fichiers, que Loki refuse l'ingestion ou que le sélecteur et la période ne correspondent pas. Il faut surveiller la fraîcheur des sources, les métriques du collecteur, les limites et les erreurs d'ingestion, puis tester la requête par étapes. Les métriques applicatives et de pipeline complètent cette vérification."
     }
   ]
 }
