@@ -446,6 +446,69 @@ Rechercher dérive, migration, changement de capacité ou de version. Dans le co
 
 **Pourquoi un raccourci échoue.** Un exemple favorable ne prouve pas un gain durable. Une métrique globale masque des cas critiques et une collecte lacunaire peut cacher les erreurs. La version et les conditions doivent rester disponibles pour reproduire le résultat. L'exercice est réussi si une autre personne peut expliquer le choix, ses limites et le mécanisme de retrait.
 
+## Défi final corrigé — valider une modification dans le jumeau numérique
+
+### Énoncé
+
+Une modification du routage doit déplacer le trafic d'un lien primaire vers un lien de secours. Avant de toucher la production, le réseau veut simuler la convergence, les contraintes de capacité et les chemins qui deviennent inaccessibles. Le jumeau numérique doit être suffisamment fidèle aux versions, topologie, politiques et limites réellement déployées ; il ne doit pas annoncer une simulation concluante sur un état trop ancien.
+
+### Boucle de synchronisation et simulation
+
+```mermaid
+flowchart TD
+  A["Inventaire et topologie réels"] --> B["Synchroniser versions et état"]
+  B --> C["Calculer l'écart avec le modèle"]
+  C --> D{"Fidélité suffisante ?"}
+  D -- "Non" --> E["Mettre à jour ou marquer le modèle invalide"]
+  D -- "Oui" --> F["Créer un snapshot versionné"]
+  F --> G["Appliquer le changement au modèle"]
+  G --> H["Simuler chemins, capacité et convergence"]
+  H --> I["Comparer aux invariants métier"]
+  I --> J{"Résultat acceptable ?"}
+  J -- "Non" --> K["Bloquer et expliquer les violations"]
+  J -- "Oui" --> L["Plan avec canari et rollback"]
+```
+
+### Exemple de contrat de simulation
+
+```python
+def assess_simulation(snapshot, proposal, simulator):
+    if not snapshot.version or not snapshot.captured_at:
+        return {"status": "invalid", "reason": "snapshot_non_versionne"}
+    if snapshot.stale:
+        return {"status": "invalid", "reason": "snapshot_perime"}
+    result = simulator.run(snapshot=snapshot, proposal=proposal)
+    violations = []
+    if result.unreachable_critical_services:
+        violations.append("service_critique_injoignable")
+    if result.link_utilization_peak > 0.80:
+        violations.append("capacite_insuffisante")
+    return {
+        "status": "blocked" if violations else "candidate",
+        "violations": violations,
+        "snapshot_version": snapshot.version,
+        "simulation_id": result.id,
+    }
+```
+
+Le seuil de 80 % est illustratif : une limite opérationnelle doit être définie avec les marges, les pointes, le type de lien et le contrat de service. Le résultat conserve l'identifiant du snapshot et du moteur de simulation pour pouvoir le reproduire.
+
+### Proposition de correction
+
+Sépare la topologie logique, les liens physiques, les capacités, les métriques, les règles et les versions de configuration. Chaque objet doit avoir une source de vérité et un horodatage de synchronisation. Une différence entre le modèle et le réseau réel est une information de qualité majeure : si elle touche un équipement ou un chemin critique, la simulation doit échouer de manière contrôlée ou être marquée comme incertaine.
+
+Teste d'abord les invariants : services critiques joignables, absence de boucles, chemins de secours disponibles, capacité maximale respectée et convergence dans le délai attendu. Garde des scénarios de référence dont les résultats connus détectent une régression du simulateur. Compare occasionnellement les résultats simulés à un changement réellement approuvé et mesure les différences.
+
+Un jumeau n'est ni un miroir parfait ni une garantie de sécurité. Le déploiement en production garde ses propres contrôles : approbation, canari, mesure des services, critères d'arrêt et retour arrière. Le résultat du simulateur doit expliquer les hypothèses, les écarts connus et les parties du réseau qui ne sont pas modélisées.
+
+### Barème d'autoévaluation
+
+- Le snapshot est daté et versionné.
+- La fidélité du modèle est évaluée avant simulation.
+- Les invariants et les limites de capacité sont explicites.
+- Les résultats sont reproductibles et comparés à des références.
+- La simulation complète, sans remplacer, le contrôle du changement réel.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service sont écrits et mesurables.
