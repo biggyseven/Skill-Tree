@@ -22,6 +22,34 @@ function enterInterfaceConfig(parser) {
   parser.execute('interface Fa0/0');
 }
 
+test('la CLI accepte conf t et les noms d’interface quelle que soit la casse', () => {
+  const device = makeDevice();
+  device.id = 'SW1';
+  device.type = 'switch';
+  device.config.hostname = 'SW1';
+  device.ports[0].id = 'Fa0/7';
+  device.ports[0].name = 'Fa0/7';
+  const parser = new CLIParser(device);
+
+  parser.execute('enable');
+  assert.match(parser.execute('conf t').output, /Enter configuration commands/);
+  assert.equal(parser.mode, 'config');
+
+  // Le nom en minuscules doit sélectionner le port enregistré en Fa0/7.
+  assert.equal(parser.execute('interface fa0/7').output, '');
+  assert.equal(parser.mode, 'interface');
+  assert.equal(parser.context.interface, 'Fa0/7');
+  assert.equal(parser.execute('switchport access vlan 20').output, '');
+  assert.equal(device.ports[0].vlan, 20);
+
+  parser.execute('exit');
+  // Les mêmes commandes restent valides en majuscules/mélange de casse.
+  assert.equal(parser.execute('INTERFACE FA0/7').output, '');
+  assert.equal(parser.context.interface, 'Fa0/7');
+  assert.equal(parser.execute('switchport access vlan 20').output, '');
+  assert.equal(device.ports[0].vlan, 20);
+});
+
 test('configurer une adresse IP ne lève pas automatiquement le shutdown', () => {
   const device = makeDevice();
   const parser = new CLIParser(device);
