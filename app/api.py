@@ -2265,13 +2265,51 @@ def _exam_level(node_id: str, title: str = "") -> str:
     return ""
 
 
+def _exam_is_placeholder(question: Question) -> bool:
+    """Écarte les entrées provisoires qui ne constituent pas une vraie question."""
+    return re.search(
+        r"question temporaire|réponse provisoire|option temporaire",
+        str(question.prompt or ""),
+        flags=re.IGNORECASE,
+    ) is not None
+
+
 def _exam_question_pool(tree: SkillTree, nodes: list[Node]) -> list[Question]:
-    """Privilégie la banque d'examen; utilise le quiz uniquement si ce cours n'en a pas."""
-    pool: list[Question] = []
-    for node in nodes:
-        dedicated = tree.questions(node.id, ProofKind.EXAM)
-        pool.extend(dedicated if dedicated else tree.questions(node.id, ProofKind.QUIZ))
-    return pool
+    """Charge les banques par lots pour que les examens volumineux restent réactifs."""
+    node_ids = list(dict.fromkeys(str(node.id) for node in nodes))
+    if not node_ids:
+        return []
+
+    def load_questions(scope: ProofKind, selected_ids: list[str]) -> dict[str, list[Question]]:
+        by_node: dict[str, list[Question]] = {}
+        # Rester sous les limites de paramètres des versions courantes de SQLite.
+        for start in range(0, len(selected_ids), 400):
+            chunk = selected_ids[start:start + 400]
+            placeholders = ",".join("?" for _ in chunk)
+            rows = tree.conn.execute(
+                f"SELECT * FROM questions WHERE node_id IN ({placeholders}) AND scope = ? "
+                "ORDER BY node_id, position, id",
+                (*chunk, scope.value),
+            ).fetchall()
+            for row in rows:
+                question = _exam_question_from_row(row)
+                if _exam_is_placeholder(question):
+                    continue
+                by_node.setdefault(question.node_id, []).append(question)
+        return by_node
+
+    exam_by_node = load_questions(ProofKind.EXAM, node_ids)
+    # Une banque d'examen composée uniquement de questions provisoires est traitée
+    # comme une banque inutilisable : on tente alors le quiz du même cours.
+    missing_exam_ids = [node_id for node_id in node_ids if not exam_by_node.get(node_id)]
+    quiz_by_node = load_questions(ProofKind.QUIZ, missing_exam_ids) if missing_exam_ids else {}
+
+    # Garder l'ordre des cours demandé par l'interface, puis l'ordre des questions de chaque cours.
+    return [
+        question
+        for node in nodes
+        for question in (exam_by_node.get(str(node.id)) or quiz_by_node.get(str(node.id), []))
+    ]
 
 
 def _exam_nodes_from_payload(payload: dict, tree: SkillTree) -> list[Node]:

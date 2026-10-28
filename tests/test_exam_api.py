@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 import tempfile
 import unittest
@@ -73,6 +74,71 @@ class ExamApiTests(unittest.TestCase):
                     ("ipv6-intermediaire", kind, score),
                 )
             connection.commit()
+
+    def test_build_returns_questions_with_batched_pool_without_answer_key_leaks(self) -> None:
+        payload = {
+            "node_ids": ["ipv6-expert"],
+            "levels": ["expert"],
+            "count": 5,
+            "time_limit": 600,
+        }
+        with patch.object(
+            api.SkillTree,
+            "questions",
+            side_effect=AssertionError("L'examen doit charger les banques SQL par lots."),
+        ):
+            response = self.client.post("/api/exam/build", json=payload)
+
+        self.assertEqual(response.status_code, 200, response.text)
+        exam = response.json()
+        self.assertTrue(exam["id"])
+        self.assertEqual(exam["time_limit"], 600)
+        self.assertEqual(exam["pass_score"], 80)
+        self.assertGreater(len(exam["questions"]), 0)
+        self.assertLessEqual(len(exam["questions"]), 5)
+        for question in exam["questions"]:
+            self.assertTrue(question["prompt"])
+            self.assertNotRegex(question["prompt"], r"question temporaire|réponse provisoire|option temporaire")
+            for secret_field in ("answer", "answer_text", "answer_regex", "explanation", "correct"):
+                self.assertNotIn(secret_field, question)
+
+    def test_placeholder_exam_questions_are_not_used_when_quiz_questions_exist(self) -> None:
+        with sqlite3.connect(self.database_path) as connection:
+            quiz_count = connection.execute(
+                "SELECT COUNT(*) FROM questions WHERE node_id = ? AND scope = 'quiz'",
+                ("ipv6-expert",),
+            ).fetchone()[0]
+            self.assertGreater(quiz_count, 0, "Le cours de test doit disposer d'une banque quiz.")
+
+            connection.execute(
+                "DELETE FROM questions WHERE node_id = ? AND scope = 'exam'",
+                ("ipv6-expert",),
+            )
+            connection.execute(
+                "INSERT INTO questions "
+                "(node_id, scope, prompt, choices, answer, question_type, explanation, position) "
+                "VALUES (?, 'exam', ?, '[]', 0, 'qcm', '', 0)",
+                ("ipv6-expert", "Question temporaire de test — ne doit pas être proposée."),
+            )
+            connection.commit()
+
+        with patch.object(
+            api.SkillTree,
+            "questions",
+            side_effect=AssertionError("L'examen doit charger les banques SQL par lots."),
+        ):
+            response = self.client.post(
+                "/api/exam/build",
+                json={"node_ids": ["ipv6-expert"], "levels": ["expert"], "count": 3, "time_limit": 600},
+            )
+
+        self.assertEqual(response.status_code, 200, response.text)
+        questions = response.json()["questions"]
+        self.assertGreater(len(questions), 0)
+        self.assertTrue(all(
+            not re.search(r"question temporaire|réponse provisoire|option temporaire", q["prompt"], re.I)
+            for q in questions
+        ))
 
     def test_start_returns_questions_without_answer_key_leaks(self) -> None:
         exam = self._start_category_exam()

@@ -1884,6 +1884,7 @@
               <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="80"></span> %.</p></div>
             </div>
             <p x-show="examErr" class="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="examErr"></p>
+            <p x-show="examBusy" x-cloak role="status" aria-live="polite" class="rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-3 text-sm text-emerald-200">Préparation de l’examen… sélection et vérification des questions.</p>
 
             <!-- NOUVEAU : Examens aléatoires massifs -->
             <section class="card">
@@ -6902,60 +6903,111 @@
           return this.exam.questions.map((q, i) => ({ q, i, d: this.examResult.details[i] })).filter(x => x.d && x.d.correct === false);
         },
         async launchExam(cfg) {
-          this.examBusy = true; this.examErr = '';
-          const allModules = cfg.module === 'all';
-          const allLevels = cfg.levels.includes('all');
-          const scope = this.nodes.filter(n =>
-            (allModules || this.moduleOf(n) === cfg.module) &&
-            (allLevels || cfg.levels.includes(this.levelOf(n)))
-          );
-          if (!scope.length || (!allLevels && !cfg.levels.length)) { this.examErr = 'Aucun cours dans ce périmètre.'; this.examBusy = false; return; }
-          
-          let pool = scope;
-          if (allModules || allLevels) {
-            pool = [...scope];
-            for (let i = pool.length - 1; i > 0; i--) {
-              const j = Math.floor(Math.random() * (i + 1));
-              [pool[i], pool[j]] = [pool[j], pool[i]];
-            }
-          }
-          const levelsBody = allLevels ? ['debutant', 'intermediaire', 'expert'] : cfg.levels;
-          const body = {
-            ...(allModules ? {} : { module: cfg.module, node_ids: pool.map(n => n.id) }),
-            levels: levelsBody,
-            count: cfg.count,
-            time_limit: cfg.minutes * 60
-          };
+          if (this.examBusy) return;
+          this.examBusy = true;
+          this.examErr = '';
           try {
-            let r = await fetch('/api/exam/build', { method: 'POST', headers: H, body: JSON.stringify(body) });
-            if (r.status === 404 || r.status === 405) {
-              const c = {}; scope.forEach(n => { c[n.category] = (c[n.category] || 0) + 1; });
-              const category = Object.keys(c).sort((a, b) => c[b] - c[a])[0];
-              r = await fetch('/api/exam/start', { method: 'POST', headers: H, body: JSON.stringify({ ...body, category }) });
+            if (!cfg || !Array.isArray(cfg.levels) || cfg.levels.length === 0) {
+              throw new Error('Choisis au moins un niveau pour lancer cet examen.');
             }
-            if (!r.ok) {
-              const responseText = await r.text();
+            const moduleId = String(cfg.module || 'all');
+            const selectedLevels = cfg.levels.map(level => String(level));
+            const count = Number(cfg.count || 20);
+            const minutes = Number(cfg.minutes || 30);
+            if (!Number.isInteger(count) || count < 1 || count > 500) {
+              throw new Error('Le nombre de questions doit être compris entre 1 et 500.');
+            }
+            if (!Number.isFinite(minutes) || minutes < 1 || minutes > 480) {
+              throw new Error('La durée doit être comprise entre 1 minute et 8 heures.');
+            }
+
+            const allModules = moduleId === 'all';
+            const allLevels = selectedLevels.includes('all');
+            const scope = this.nodes.filter(n =>
+              (allModules || this.moduleOf(n) === moduleId) &&
+              (allLevels || selectedLevels.includes(this.levelOf(n)))
+            );
+            if (!scope.length) {
+              throw new Error('Aucun cours disponible pour le module et les niveaux sélectionnés.');
+            }
+
+            let pool = scope;
+            if (allModules || allLevels) {
+              pool = [...scope];
+              for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+              }
+            }
+            const levelsBody = allLevels ? ['debutant', 'intermediaire', 'expert'] : selectedLevels;
+            const body = {
+              ...(allModules ? {} : { module: moduleId, node_ids: pool.map(n => n.id) }),
+              levels: levelsBody,
+              count,
+              time_limit: minutes * 60
+            };
+
+            let response = await fetch('/api/exam/build', {
+              method: 'POST',
+              headers: H,
+              body: JSON.stringify(body)
+            });
+            if (response.status === 404 || response.status === 405) {
+              const categories = {};
+              scope.forEach(n => {
+                categories[n.category] = (categories[n.category] || 0) + 1;
+              });
+              const category = Object.keys(categories).sort((a, b) => categories[b] - categories[a])[0];
+              if (!category) throw new Error('Impossible de déterminer la catégorie de cet examen.');
+              response = await fetch('/api/exam/start', {
+                method: 'POST',
+                headers: H,
+                body: JSON.stringify({ ...body, category })
+              });
+            }
+            if (!response.ok) {
+              const responseText = await response.text();
               let message = responseText;
               try {
                 const errorPayload = JSON.parse(responseText);
                 message = errorPayload.detail || errorPayload.message || errorPayload.error || responseText;
               } catch (_) { /* Le serveur peut aussi renvoyer un texte brut. */ }
-              throw new Error(message || ('Erreur HTTP ' + r.status));
+              throw new Error(message || ('Erreur HTTP ' + response.status));
             }
-            const data = await r.json();
-            const rawQs = Array.isArray(data.questions) ? data.questions : [];
-            const realQs = rawQs.filter(q => !/question temporaire/i.test(String(q.prompt || '')));
-            const sourceQs = realQs.length ? realQs : rawQs;
-            if (!sourceQs.length) throw new Error('Aucune question disponible pour ce périmètre.');
-            const qs = sourceQs.length > cfg.count ? sourceQs.slice(0, cfg.count) : sourceQs;
-            if (qs.length < cfg.count) this.notify(`Seulement ${qs.length} questions disponibles (demandé : ${cfg.count}).`);
-            this.exam = { ...data, questions: qs, cfg: { ...cfg }, category: allModules ? '🎲 Aléatoire · Tous modules' : (data.category || this.moduleMeta(cfg.module).label) };
-            this.examAnswers = qs.map(() => null); this.examFlags = {}; this.examIdx = 0; this.examResult = null; this.examConfirm = false;
-            this.examLeft = data.time_limit || cfg.minutes * 60; this.examStarted = Date.now(); this.startExamTimer();
-          } catch (e) {
-            this.examErr = e && e.message ? e.message : 'Impossible de démarrer cet examen. Réessaie.';
-            this.notify(this.examErr);
-          } finally { this.examBusy = false; }
+
+            const data = await response.json();
+            const rawQuestions = Array.isArray(data.questions) ? data.questions : [];
+            const questions = rawQuestions.filter(question =>
+              !/question temporaire|réponse provisoire|option temporaire/i.test(String(question.prompt || ''))
+            );
+            if (!questions.length) {
+              throw new Error('Aucune question exploitable pour ce périmètre. Vérifie les banques de quiz et d’examen.');
+            }
+            const selectedQuestions = questions.length > count ? questions.slice(0, count) : questions;
+            if (selectedQuestions.length < count) {
+              this.notify('Seulement ' + selectedQuestions.length + ' questions disponibles (demandé : ' + count + ').');
+            }
+
+            this.exam = {
+              ...data,
+              questions: selectedQuestions,
+              cfg: { module: moduleId, levels: [...selectedLevels], count, minutes },
+              category: allModules ? '🎲 Aléatoire · Tous modules' : (data.category || this.moduleMeta(moduleId).label)
+            };
+            this.examAnswers = selectedQuestions.map(() => null);
+            this.examFlags = {};
+            this.examIdx = 0;
+            this.examResult = null;
+            this.examConfirm = false;
+            this.examLeft = Number(data.time_limit) || minutes * 60;
+            this.examStarted = Date.now();
+            this.startExamTimer();
+          } catch (error) {
+            this.examErr = error && error.message ? error.message : 'Impossible de démarrer cet examen. Réessaie.';
+            if (typeof this.notify === 'function') this.notify(this.examErr);
+          } finally {
+            this.examBusy = false;
+          }
         },
         startExamTimer() { this.stopExamTimer(); this.examTimerId = setInterval(() => { this.examLeft--; if (this.examLeft <= 0) this.submitExam(true); }, 1000); },
         stopExamTimer() { if (this.examTimerId) { clearInterval(this.examTimerId); this.examTimerId = null; } },

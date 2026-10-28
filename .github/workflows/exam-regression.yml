@@ -3,6 +3,7 @@ name: Exam regression tests
 on:
   push:
     branches:
+      - feature/lab-workspace
       - fix/exam-neon-safe-20261027
   pull_request:
     branches:
