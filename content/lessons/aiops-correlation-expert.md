@@ -546,6 +546,402 @@ Un LLM produit un récit clair et une commande de correction, mais il cite des r
 
 **Correction :** rejeter la synthèse, vérifier les références par code et reconstruire le rapport à partir des preuves connues. La commande n'est pas exécutée. Le cas doit être ajouté au corpus de tests adverses.
 
+## Atelier approfondi — corréler les événements sans masquer les causes
+
+Cet atelier traite un problème d'exploitation avancé : comment transformer un grand volume d'événements partiellement fiables en une investigation structurée qui aide réellement à comprendre une panne ? Le système doit éliminer les doublons, repérer les symptômes liés, relier les éléments à la topologie connue au moment concerné, classer des causes candidates et identifier la prochaine vérification qui permettrait de les départager. Il ne doit pas fabriquer une certitude quand les données sont contradictoires ou absentes.
+
+Le scénario principal est une dégradation multisite. Des alertes de latence, de perte, d'état de session et d'indisponibilité applicative arrivent de sources différentes. Certaines sont des conséquences d'un même changement ; d'autres sont des incidents indépendants apparus dans la même période. Le moteur reçoit également des événements tardifs, des changements d'inventaire et des indicateurs de qualité. L'objectif est de restituer une histoire vérifiable plutôt que de produire une explication séduisante mais invérifiable.
+
+### 1. Définir l'unité d'analyse avant de corréler
+
+Trois objets doivent être séparés. Un événement est un fait horodaté provenant d'une source, avec sa cible et sa provenance. Un symptôme est une interprétation fonctionnelle d'un ou plusieurs événements, par exemple « perte de connectivité entre le site A et le service B ». Un incident est un dossier opérationnel qui regroupe les symptômes et les événements jugés liés. Mélanger ces niveaux conduit à des erreurs : une notification répétée est parfois traitée comme un incident distinct, tandis que deux incidents simultanés sont fusionnés parce qu'ils touchent le même service.
+
+L'unité de corrélation dépend de la question posée. Un regroupement des alarmes de port peut être utile pour comprendre une panne locale ; une investigation du service doit considérer les dépendances qui relient le port à un chemin applicatif. Il n'existe pas nécessairement un seul regroupement correct pour tous les consommateurs. Le centre de supervision peut voir un incident parent et plusieurs incidents enfants, alors qu'une équipe applicative ne voit que les symptômes qui affectent son service.
+
+```mermaid
+flowchart TD
+    A["Événements bruts"] --> B["Normalisation"]
+    B --> C["Déduplication"]
+    C --> D["Regroupement en symptômes"]
+    D --> E["Corrélation et graphe de preuves"]
+    E --> F["Incidents candidats"]
+    F --> G["Revue et décision opérationnelle"]
+```
+
+Définissez une politique de séparation qui précise ce qui constitue deux incidents distincts. Des symptômes peuvent être regroupés si leur cible, leur dépendance, leur chronologie et leur comportement sont compatibles. Ils ne doivent pas être fusionnés uniquement parce qu'ils partagent un libellé ou une proximité temporelle. Une cause commune reste une hypothèse jusqu'à ce que des preuves suffisantes la soutiennent. Les changements planifiés, les pannes de collecte et les alertes de performance doivent conserver leur nature afin de ne pas devenir un incident de performance artificiel.
+
+Un dossier d'incident doit pouvoir contenir plusieurs hypothèses concurrentes. Il peut aussi rester temporairement sans cause prioritaire. Le classement « cause probable » n'est pas une propriété immuable : il doit évoluer lorsque des événements tardifs, des tests ou des informations de topologie sont ajoutés. Gardez les anciens états du classement pour que l'enquête puisse expliquer comment l'interprétation a changé.
+
+### 2. Définir un contrat d'événement canonique
+
+Les sources ont souvent des formats différents : compteur, message système, alarme SNMP, notification gNMI, trace distribuée, journal applicatif ou changement d'inventaire. Avant toute corrélation, définissez un contrat commun qui ne détruit pas le contexte d'origine. Chaque événement devrait porter un identifiant stable, un type, une sévérité source, une cible ou un ensemble de cibles, l'heure de l'événement, l'heure de réception, la source, la provenance, une indication de qualité et une référence au contenu source conservé.
+
+La normalisation doit préserver le message original ou une référence fiable vers lui. Le moteur ne doit pas perdre la possibilité de vérifier qu'un événement normalisé représente correctement la donnée d'origine. Les identifiants source peuvent être réutilisés, manquer ou changer après redémarrage ; prévoyez un identifiant interne distinct, tout en conservant la clé source lorsqu'elle existe. L'identité interne ne doit pas être prise pour une preuve d'unicité absolue si des producteurs dupliquent les données.
+
+```mermaid
+flowchart TD
+    A["Source hétérogène"] --> B["Parser et valider"]
+    B --> C["Préserver la provenance"]
+    C --> D["Normaliser temps, cible et type"]
+    D --> E["Attribuer un identifiant interne"]
+    E --> F{"Contrat valide ?"}
+    F -- "Non" --> G["Quarantaine et métrique d'erreur"]
+    F -- "Oui" --> H["Événement canonique"]
+    H --> I["Corrélation"]
+```
+
+Les valeurs absentes doivent être distinguées des valeurs nulles, des valeurs invalides et des valeurs par défaut. Un équipement qui ne publie plus un compteur ne publie pas un compteur égal à zéro. De même, un événement dont le timestamp source manque ne doit pas être horodaté rétroactivement comme si l'heure de réception était l'heure réelle de la panne. Une valeur de remplacement peut parfois être utile, mais le moteur doit conserver l'indication qu'il s'agit d'une estimation.
+
+La sévérité source doit aussi rester distincte de la priorité calculée par la corrélation. Une alarme de faible sévérité peut être très informative si elle est le premier événement dans une chaîne de dépendances ; une alarme critique peut être secondaire si elle décrit la conséquence attendue d'une coupure déjà identifiée. Conservez la classification originale, ajoutez les attributs dérivés et versionnez la règle de priorité.
+
+### 3. Gérer trois notions de temps
+
+Les moteurs de corrélation doivent distinguer au moins l'heure de l'événement, l'heure d'ingestion et l'heure de traitement. L'heure de l'événement décrit le moment déclaré par la source. L'heure d'ingestion décrit l'arrivée dans la plateforme. L'heure de traitement indique quand le moteur a évalué l'événement. Ces temps peuvent diverger lorsqu'un équipement est mal synchronisé, qu'un collecteur est déconnecté ou qu'une file accumule du retard.
+
+Le temps de l'événement est utile pour reconstruire la séquence supposée de la panne, mais sa fiabilité dépend de la source et de l'horloge. Le temps d'ingestion permet de mesurer le retard. Le temps de traitement explique la charge du moteur et la latence interne. Si l'on remplace tous ces champs par un seul timestamp, on ne peut plus distinguer un incident réel d'un événement reçu en retard.
+
+```mermaid
+sequenceDiagram
+    participant S as Source
+    participant I as Ingestion
+    participant Q as File
+    participant C as Corrélateur
+    S->>I: Événement et heure source
+    Note over I: Enregistrer heure de réception
+    I->>Q: Événement normalisé
+    Note over Q: Mesurer l'attente
+    Q->>C: Événement livré
+    Note over C: Enregistrer heure de traitement
+    C->>C: Recalculer chronologie et retard
+```
+
+Choisissez une politique pour les événements tardifs. Une fenêtre d'attente peut retarder la publication d'un incident afin de recevoir davantage de données ; elle améliore parfois la qualité du regroupement, mais augmente le délai d'alerte. Une autre approche publie une hypothèse rapidement puis la réévalue lorsque des données arrivent. Cette seconde option donne une réponse précoce, mais l'interface doit montrer qu'une conclusion est provisoire et conserver l'évolution du dossier.
+
+Ne supposez pas que les timestamps de plusieurs équipements sont directement comparables. La dérive d'horloge, les fuseaux horaires et les résolutions différentes peuvent modifier l'ordre apparent. Utilisez l'heure UTC selon une convention documentée et surveillez l'état de synchronisation lorsqu'il est disponible. En présence d'une incertitude temporelle importante, le moteur doit diminuer la confiance dans une relation d'ordre plutôt que décider qu'un événement est définitivement antérieur à un autre.
+
+```mermaid
+flowchart TD
+    A["Événement tardif"] --> B["Conserver heure source et réception"]
+    B --> C["Calculer retard et incertitude"]
+    C --> D["Relire incident candidat"]
+    D --> E{"Relations temporelles changées ?"}
+    E -- "Non" --> F["Ajouter la preuve au dossier"]
+    E -- "Oui" --> G["Recalculer le classement"]
+    F --> H["Publier mise à jour traçable"]
+    G --> H
+```
+
+### 4. Construire un graphe de dépendances temporel
+
+Un graphe de dépendances représente les relations possibles entre les composants : interfaces, liens, routeurs, services, zones cloud, bases de données ou applications. Les nœuds décrivent des actifs ou fonctions ; les arêtes indiquent une dépendance, une relation physique, une relation de routage ou une relation de service. La direction des arêtes compte. Un service peut dépendre d'un routeur, mais la défaillance du service ne prouve pas que le routeur dépend du service.
+
+Le graphe doit représenter les faits connus à l'instant étudié. Une topologie actuelle peut ne pas être celle qui existait lors de l'incident. Les changements de configuration, migrations, déplacements d'actifs et mises à jour d'inventaire doivent être horodatés. Si la topologie historique est inconnue, signalez cette limite. Une corrélation effectuée sur une topologie anachronique peut accuser un composant qui n'était pas sur le chemin au moment de la panne.
+
+```mermaid
+flowchart TD
+    A["Service métier"] --> B["Service applicatif"]
+    B --> C["Équilibreur"]
+    C --> D["Lien WAN"]
+    D --> E["Routeur de site"]
+    E --> F["Interface physique"]
+    G["Collecteur de télémétrie"] -. "observe" .-> D
+    H["Pipeline de déploiement"] -. "modifie" .-> E
+```
+
+Toutes les arêtes ne représentent pas le même type de preuve. Une dépendance déclarée dans l'inventaire est une information de configuration. Une relation observée pendant une requête peut venir d'une trace distribuée. Une relation temporelle entre deux alarmes est une association statistique. Conservez le type, la source, l'heure de validité et le niveau de confiance de chaque arête. Si vous transformez toutes les relations en simples connexions, le moteur peut confondre une dépendance certaine avec une hypothèse issue de quelques coïncidences.
+
+La centralité d'un nœud peut aider à comprendre combien de services il relie, mais ne constitue pas une preuve de cause racine. Les composants centraux sont souvent plus surveillés et produisent davantage d'événements. Le moteur doit comparer la centralité à d'autres signaux, tels que l'ordre temporel, les changements récents, les pertes observées, les tests de connectivité et les composants qui continuent de fonctionner normalement.
+
+### 5. Combiner dépendance, temps et symptômes
+
+Une cause candidate devrait être soutenue par plusieurs dimensions de preuve : proximité temporelle, dépendance topologique pertinente, cohérence des symptômes, changement récent, mesure directe et absence de contradiction majeure. Le système peut convertir ces éléments en un score ordonné, mais ne doit pas présenter ce score comme une probabilité sans calibration spécifique. Un score de 0,8 issu d'une somme de règles n'a pas automatiquement le sens de « 80 % de chances que cette cause soit vraie ».
+
+Une approche utile consiste à calculer des contributions séparées plutôt qu'un score opaque unique. Par exemple, conserver les composantes temporelle, topologique, statistique et de changement permet de voir pourquoi un candidat arrive en tête. Pondérez les contributions selon l'objectif et testez l'effet de chaque pondération. Si le score favorise toujours le composant le plus central, la corrélation ne fait que reproduire la topologie sans identifier de cause.
+
+```mermaid
+flowchart TD
+    A["Incident candidat"] --> B["Évaluer ordre temporel"]
+    A --> C["Évaluer dépendances"]
+    A --> D["Évaluer cohérence des symptômes"]
+    A --> E["Chercher changements récents"]
+    A --> F["Examiner preuves contraires"]
+    B --> G["Contributions explicites"]
+    C --> G
+    D --> G
+    E --> G
+    F --> H["Ajuster ou déclasser le candidat"]
+    G --> I["Classer les hypothèses"]
+    H --> I
+    I --> J["Proposer le test discriminant"]
+```
+
+Exemple : trois sites perdent le même service quelques secondes après un changement de politique sur un routeur commun. La relation temporelle et la dépendance topologique soutiennent cette hypothèse. Mais si un site conserve une connectivité directe vers le même routeur et que son chemin a changé auparavant, le modèle doit examiner une cause alternative. Les symptômes partagés donnent une piste, non une conclusion automatique.
+
+L'absence d'événement ne doit pas être traitée comme une preuve négative lorsqu'un capteur est muet. Le fait qu'aucune alarme de port ne soit reçue peut indiquer que le port est sain, mais aussi que la source ne publie plus. Une preuve contradictoire n'a de valeur que si la couverture de surveillance était suffisante durant la période. La disponibilité, la qualité et le délai de chaque source doivent accompagner l'interprétation de ses signaux.
+
+### 6. Dédupliquer sans effacer les transitions
+
+La déduplication réduit les alertes répétées, mais une règle trop agressive peut supprimer la transition utile entre un état dégradé et un état rétabli. Un événement identique en texte n'est pas nécessairement le même phénomène : il peut concerner une autre cible, une autre période ou une autre version de configuration. À l'inverse, deux messages formulés différemment peuvent décrire le même état.
+
+Définissez une clé de déduplication à partir de propriétés sémantiques : cible stable, type d'événement, attributs significatifs, fenêtre temporelle et contexte. Les champs volatils, tels qu'un identifiant de requête ou l'heure d'ingestion, ne devraient pas créer une nouvelle identité à chaque message. Les changements de sévérité, l'apparition d'une preuve indépendante ou le retour à la normale doivent être représentés comme des mises à jour du cycle de vie et non éliminés avec les doublons.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Open: premier symptôme
+    Open --> Enriched: nouvelle preuve compatible
+    Enriched --> Escalated: impact augmente
+    Open --> Recovering: conditions de retour vraies
+    Enriched --> Recovering: conditions de retour vraies
+    Escalated --> Recovering: service en reprise
+    Recovering --> Closed: stabilité confirmée
+    Recovering --> Open: réapparition significative
+    Closed --> Open: nouvel épisode après clôture
+```
+
+Une fenêtre de regroupement doit être calibrée selon le type de signal. Quelques secondes peuvent être adaptées à une rafale de messages réseau, alors qu'un événement applicatif peut avoir des symptômes étalés dans le temps. Une fenêtre trop large mélange des pannes séparées ; une fenêtre trop courte crée une multitude d'incidents pour une même perturbation. Évaluez les règles sur des dossiers historiques et conservez les événements bruts pour pouvoir reconstituer le regroupement.
+
+Les transitions de récupération méritent autant d'attention que les déclenchements. Pour conclure un incident, vérifiez que les mesures reviennent dans une plage acceptable pendant une période définie, que la couverture est suffisante et qu'aucun symptôme connexe ne reste actif. Une alarme de fin envoyée par une source ne prouve pas à elle seule que le service est sain. Gardez un état de récupération lorsque les données sont contradictoires ou trop peu nombreuses.
+
+### 7. Gérer les événements tardifs, dupliqués et hors ordre
+
+Les systèmes de messagerie peuvent livrer un événement plusieurs fois, après un délai ou dans un ordre différent de celui de sa création. Le corrélateur doit être conçu pour ces cas plutôt que d'assumer une livraison unique et strictement ordonnée. Un événement ancien peut arriver après la clôture et remettre en cause la cause retenue. Le système doit le rattacher au dossier pertinent, recalculer si nécessaire et préserver la décision originale ainsi que sa révision.
+
+Définissez un horizon de correction tardive. Les événements reçus dans cet horizon peuvent déclencher un recalcul automatique limité. Les événements plus anciens peuvent alimenter un rapport de qualité ou rouvrir une investigation suivant la criticité. L'horizon n'efface pas les données ; il détermine combien de temps le classement temps réel peut changer sans revue. Pour les incidents critiques, une information tardive importante doit rester visible même après la fin de la fenêtre habituelle.
+
+```mermaid
+flowchart TD
+    A["Message reçu"] --> B["Vérifier clé d'événement"]
+    B --> C{"Déjà connu ?"}
+    C -- "Oui" --> D["Actualiser statistiques de duplication"]
+    C -- "Non" --> E["Évaluer timestamp et retard"]
+    E --> F{"Dans l'horizon de correction ?"}
+    F -- "Oui" --> G["Mettre à jour chronologie et candidats"]
+    F -- "Non" --> H["Conserver et marquer comme tardif"]
+    G --> I["Réviser le dossier sans effacer l'historique"]
+    H --> J["Révision selon criticité"]
+```
+
+La gestion des événements tardifs doit être observable. Mesurez leur proportion par source, le retard médian et les percentiles élevés, ainsi que la part des dossiers dont le classement change après arrivée tardive. Une source régulièrement tardive peut nécessiter une politique spécifique, mais ne doit pas bénéficier d'un traitement privilégié qui masque son défaut. La qualité temporelle peut aussi servir à décider si l'on attend davantage avant de déclarer une cause probable.
+
+Les déduplications et recalculs doivent être idempotents. Rejouer le même lot ne devrait pas faire gonfler le nombre d'incidents, répéter les notifications ou changer le classement sans nouvelle preuve. Conservez l'identifiant du lot, la version de la règle et l'état antérieur. Le rejeu est utile pour corriger un défaut de corrélation, mais il doit être distingué de la production normale afin de ne pas déclencher les mêmes actions opérationnelles.
+
+### 8. Comparer des hypothèses causales concurrentes
+
+Une analyse de cause racine ne devrait pas commencer par une hypothèse unique et chercher seulement les éléments qui la confirment. Au moins deux ou trois hypothèses plausibles doivent être formulées quand les faits le permettent. Pour une panne multisite, les possibilités peuvent inclure un lien partagé, un changement d'itinéraire, une défaillance de service applicatif, un défaut de collecte ou plusieurs incidents indépendants. Chaque hypothèse doit préciser les observations attendues si elle est vraie et les observations qui la rendraient moins probable.
+
+Une table d'hypothèses oblige à rendre les raisonnements explicites. Pour chaque cause, conservez les preuves favorables, les preuves défavorables, les données manquantes, le niveau de confiance et le prochain test discriminant. Les contributions doivent rester liées aux sources d'origine. Le classement est une aide au triage, pas un substitut à l'enquête technique.
+
+```mermaid
+flowchart LR
+    A["Symptômes observés"] --> B["Hypothèse A : dépendance partagée"]
+    A --> C["Hypothèse B : changement récent"]
+    A --> D["Hypothèse C : collecte défaillante"]
+    B --> E["Prédictions vérifiables"]
+    C --> F["Prédictions vérifiables"]
+    D --> G["Prédictions vérifiables"]
+    E --> H["Test discriminant"]
+    F --> H
+    G --> H
+    H --> I["Réviser les hypothèses"]
+```
+
+Le prochain test doit maximiser l'information utile tout en restant proportionné au risque et au coût. Une requête en lecture sur un état de route peut être préférable à un changement actif ; un test depuis un seul point peut être insuffisant si plusieurs chemins sont concernés. Pensez à la couverture de chaque test : quelles hypothèses peuvent-il éliminer, quelles conditions doivent être vraies pour l'interpréter, et que conclure si le test échoue lui-même ?
+
+La causalité exige une prudence particulière avec les données observées. Le fait que deux phénomènes évoluent ensemble ne démontre pas que l'un cause l'autre. Une variable tierce peut expliquer les deux, ou les horodatages peuvent être trop imprécis pour déterminer l'ordre. Une intervention contrôlée peut fournir davantage de preuves, mais elle peut être dangereuse en production. Utilisez les historiques de changement, les chemins réellement traversés, les mesures indépendantes et les résultats de tests pour affiner les hypothèses ; mentionnez les limites qui demeurent.
+
+### 9. Calibrer les scores de corrélation et l'incertitude
+
+Un moteur peut attribuer un score à chaque incident candidat à partir de la proximité temporelle, du nombre de symptômes expliqués, de la dépendance topologique, des changements récents et de la qualité des sources. Les caractéristiques doivent être mises à une échelle compréhensible. Un score composé doit montrer la contribution des composants ; sinon, un opérateur risque de prendre un rang relatif pour une probabilité absolue.
+
+Les scores peuvent être utilisés pour classer les investigations et choisir une prochaine action. Ils ne doivent pas être utilisés sans calibration pour annoncer une cause certaine. Si une valeur est présentée comme une probabilité, vérifiez cette interprétation sur des incidents annotés qui n'ont pas servi à construire les règles. Évaluez la calibration par catégorie, car les événements réseau, applicatifs et de plateforme peuvent avoir des distributions et des taux de faux positifs très différents.
+
+```mermaid
+flowchart TD
+    A["Candidats causaux"] --> B["Contributions temporelles"]
+    A --> C["Contributions topologiques"]
+    A --> D["Changements et mesures directes"]
+    A --> E["Qualité et preuves contraires"]
+    B --> F["Score explicable et rang"]
+    C --> F
+    D --> F
+    E --> G["Pénalité, abstention ou faible confiance"]
+    F --> H["Classement des candidats"]
+    G --> H
+    H --> I["Choisir l'investigation suivante"]
+```
+
+L'incertitude peut venir de plusieurs sources : capteur déconnecté, historique incomplet, topologie périmée, labels contradictoires, nouveau comportement ou hypothèses proches en score. Le système doit pouvoir déclarer qu'aucune cause ne se distingue suffisamment. Un résultat « plusieurs hypothèses restent plausibles » est plus utile qu'une cause racine arbitraire. La confiance ne doit pas augmenter simplement parce que plus d'événements dupliqués se rapportent à la même source.
+
+Le score doit aussi être robuste au volume d'alertes. Une cause candidate associée à cent messages répétés d'un même équipement ne doit pas obtenir cent fois plus de poids qu'une preuve indépendante d'une autre source. Agrégez les événements corrélés, estimez leur indépendance et évitez de compter plusieurs dérivés du même signal comme autant de confirmations. Cette précaution limite le biais lié à la densité de surveillance.
+
+### 10. Intégrer traces, métriques, logs et changements
+
+Les métriques décrivent des séries quantifiées dans le temps. Les logs enregistrent des événements textuels ou structurés. Les traces distribuées relient les opérations au fil d'un parcours applicatif. Les événements de changement indiquent les modifications d'état ou de configuration. Ces sources se complètent, mais ne possèdent ni la même granularité ni la même qualité temporelle. Le corrélateur doit les rapprocher en conservant leur nature.
+
+Une trace peut montrer qu'une requête attend longtemps sur une dépendance ; une métrique peut indiquer que la latence globale s'est dégradée ; un log peut préciser une erreur ; un événement de déploiement peut expliquer le début de la perturbation. L'association entre trace et métrique dépend de clés de service et de fenêtres temporelles cohérentes. Lorsque les identifiants de corrélation manquent, utilisez des indices prudents et signalez leur niveau de confiance plutôt que de prétendre suivre exactement la même requête.
+
+```mermaid
+flowchart TD
+    A["Métriques"] --> E["Contexte commun"]
+    B["Logs structurés"] --> E
+    C["Traces distribuées"] --> E
+    D["Événements de changement"] --> E
+    E --> F["Alignement temporel"]
+    F --> G["Relations explicites et provenance"]
+    G --> H["Hypothèses de cause"]
+    H --> I["Vérification par source indépendante"]
+```
+
+L'instrumentation n'est pas uniforme. Certains services n'ont pas de traces distribuées complètes ; certaines requêtes ne portent pas de contexte de propagation ; certains équipements réseau ne peuvent pas exposer les mêmes dimensions que les applications. Le moteur doit supporter les champs manquants et distinguer « aucune trace trouvée » de « ce service n'est pas instrumenté ». Sinon, il privilégiera systématiquement les composants les mieux instrumentés et ignorera les systèmes dont les signaux sont plus rares.
+
+Les changements constituent un élément fort du contexte, mais leur proximité temporelle n'est pas une preuve définitive. Une configuration peut être déployée sans affecter le chemin concerné, ou une panne peut coïncider avec un changement indépendant. Pour évaluer le lien, vérifiez la cible, le périmètre, l'heure d'application, l'état avant/après et les symptômes attendus. Si le plan a été exécuté par une automatisation, utilisez l'identifiant de workflow et ses postconditions pour relier l'opération à l'incident.
+
+### 11. Évaluer le regroupement et l'aide au diagnostic
+
+Les indicateurs de performance ne doivent pas se limiter à la précision de classification d'un événement. Pour la corrélation, il faut évaluer si les événements d'un même incident sont regroupés ensemble, si des incidents distincts restent séparés, si le premier signal pertinent est conservé et si le regroupement facilite l'investigation. Des labels d'incidents imparfaits peuvent néanmoins être utiles, à condition de mesurer leurs limites et de ne pas les traiter comme une référence absolue.
+
+Suivez les regroupements incorrects, les incidents trop fragmentés, les incidents géants, le nombre d'alertes par dossier, le délai avant première hypothèse, le nombre de candidats proposés et la proportion de dossiers pour lesquels l'équipe a pu identifier une cause. Mesurez les résultats par service, source et criticité. Un moteur peut sembler performant en moyenne tout en échouant systématiquement sur un type de topologie ou sur les événements provenant d'un système peu fiable.
+
+```mermaid
+flowchart TD
+    A["Dossiers historiques annotés"] --> B["Exécuter ancienne et nouvelle règle"]
+    B --> C["Comparer regroupements"]
+    C --> D["Mesurer fragmentation"]
+    C --> E["Mesurer fusion d'incidents distincts"]
+    C --> F["Mesurer délai de première hypothèse"]
+    D --> G["Revue qualitative"]
+    E --> G
+    F --> G
+    G --> H["Accepter, ajuster ou rejeter la règle"]
+```
+
+Les métriques doivent être interprétées avec soin. Un regroupement très large réduit le nombre d'incidents mais peut les rendre inutilisables. Un regroupement très fin donne des dossiers simples, mais oblige l'équipe à reconstituer les dépendances manuellement. Les objectifs doivent tenir compte du temps de triage, du taux de dossiers rouverts, de la qualité de la cause proposée et de la capacité des opérateurs à confirmer ou contester l'explication.
+
+Créez un corpus de régression comprenant des incidents bien documentés, des cas ambigus, des événements tardifs, des données manquantes, des changements planifiés et des pannes simultanées mais indépendantes. Chaque changement des règles doit être testé sur ce corpus. Quand une amélioration est faite, enregistrez les cas qui s'améliorent et ceux qui régressent, ainsi que la raison pour laquelle la modification est acceptée.
+
+### 12. Gérer la synthèse générative sans inventer des preuves
+
+Un modèle de langage peut résumer une chronologie, comparer les hypothèses et formuler les prochaines vérifications. Il ne doit pas inventer une alarme, compléter un champ absent par intuition ni présenter une corrélation comme une causalité démontrée. La synthèse doit s'appuyer sur un ensemble de faits structurés et conserver des références vers chaque élément cité. Les contenus provenant de logs ou de tickets sont des données non fiables ; ils ne doivent pas être traités comme des instructions qui modifient la politique du système.
+
+La sortie devrait distinguer « observé », « inféré » et « à vérifier ». Une phrase indiquant qu'un redémarrage a précédé la perte de service devrait citer un événement de redémarrage et un événement de perte avec leurs horodatages et leurs sources. Une phrase qui dit que le redémarrage a causé la perte doit être formulée comme une hypothèse, à moins que des preuves suffisantes ne soient disponibles. L'interface devrait permettre de consulter les événements sources sans perdre le dossier résumé.
+
+```mermaid
+flowchart TD
+    A["Dossier structuré et preuves"] --> B["Construire contexte autorisé"]
+    B --> C["Générer synthèse avec références"]
+    C --> D["Vérifier chaque affirmation"]
+    D --> E{"Toutes les affirmations sont-elles appuyées ?"}
+    E -- "Non" --> F["Retirer ou reformuler comme hypothèse"]
+    E -- "Oui" --> G["Publier avec limites et confiance"]
+    F --> D
+```
+
+Une vérification de synthèse peut contrôler que les identifiants cités existent dans le dossier, que les timestamps correspondent, que les noms de cibles sont exacts et que les causes sont bien étiquetées comme hypothèses ou conclusions. Ce contrôle ne garantit pas qu'une interprétation est correcte, mais il élimine certaines hallucinations factuelles. Une revue humaine reste nécessaire pour les décisions à haut impact.
+
+La synthèse doit également reconnaître quand le dossier est trop incomplet. Si aucun événement ne précise l'état d'un composant et que la source n'est pas instrumentée, il faut annoncer cette limite plutôt que déduire un état normal. Un système honnête peut proposer une requête de diagnostic ou une collecte supplémentaire ; il ne doit pas remplir les blancs pour produire un résumé apparemment fluide.
+
+### 13. Gouverner les changements du moteur de corrélation
+
+Le moteur combine des règles, des modèles, une topologie et des paramètres de fenêtrage. Une modification de l'un de ces éléments peut changer les regroupements et les priorités. Versionnez les règles, les poids, les politiques d'événements tardifs, les modèles de graphe et les seuils. Conservez assez d'information pour reproduire un incident antérieur et expliquer pourquoi la nouvelle version classe différemment une cause candidate.
+
+La promotion d'une nouvelle version doit s'appuyer sur un corpus de régression, une comparaison en mode observation et un déploiement progressif. Il est préférable d'exécuter l'ancienne et la nouvelle version en parallèle sur un échantillon, puis de mesurer les différences. Évitez que deux moteurs publient chacun des notifications d'action : seul le moteur désigné comme actif doit avoir le droit de déclencher les workflows.
+
+```mermaid
+flowchart LR
+    A["Règle ou modèle modifié"] --> B["Tests sur corpus figé"]
+    B --> C["Comparaison en observation"]
+    C --> D["Revue des différences"]
+    D --> E{"Régressions acceptables ?"}
+    E -- "Non" --> F["Corriger ou abandonner"]
+    E -- "Oui" --> G["Déployer sur périmètre pilote"]
+    G --> H["Surveiller qualité des regroupements"]
+    H --> I{"Objectifs maintenus ?"}
+    I -- "Non" --> J["Retour à la version précédente"]
+    I -- "Oui" --> K["Promotion contrôlée"]
+```
+
+Les changements de topologie doivent aussi être versionnés. Le graphe utilisé pour une corrélation doit être identifiable et valide pour l'instant concerné. Si l'inventaire courant remplace l'historique, une enquête réexécutée plus tard peut produire une cause différente sans que les données sources aient changé. La reconstitution historique doit utiliser les versions de dépendances et les changements qui existaient à l'époque, ou signaler qu'une reproduction exacte est impossible.
+
+Le processus de changement doit préciser le propriétaire, le motif, la portée, les résultats de test, les critères de retour et la date d'entrée en vigueur. Une règle temporaire utilisée lors d'un incident ne doit pas rester active indéfiniment sans revue. Les exceptions doivent avoir une expiration, une justification, des alertes si elles dépassent leur date et un processus de révocation.
+
+### 14. Atelier pratique — panne multisite avec hypothèses concurrentes
+
+Construisez un jeu de test contenant plusieurs sites reliés par des chemins partagés, des alarmes d'interface, des mesures de latence, des logs applicatifs et au moins un événement de changement. Injectez trois scénarios : une panne du chemin partagé, un problème d'application indépendant sur un site, et une interruption de collecte qui produit un silence trompeur. Mélangez quelques doublons et faites arriver un événement important en retard.
+
+Le premier objectif est de normaliser les données sans détruire la provenance. Le deuxième est de reconstruire la chronologie en conservant les trois temps lorsque disponibles. Le troisième est de regrouper les symptômes et de maintenir séparés les incidents indépendants. Le quatrième est de classer les causes candidates à partir de preuves explicitement identifiées. Le cinquième est de choisir le prochain test qui permet de départager les hypothèses.
+
+```mermaid
+flowchart TD
+    A["Générer événements et topologie versionnée"] --> B["Normaliser et dédupliquer"]
+    B --> C["Calculer retard et qualité"]
+    C --> D["Construire incidents candidats"]
+    D --> E["Comparer hypothèses"]
+    E --> F["Sélectionner test discriminant"]
+    F --> G["Ajouter résultat du test"]
+    G --> H["Mettre à jour classement et synthèse"]
+    H --> I["Comparer au résultat connu"]
+```
+
+Le dossier de laboratoire doit montrer pourquoi une cause est retenue ou laissée en tête de classement sans être confirmée. Pour chaque candidat, consignez les preuves favorables, les contradictions, les trous de données et le niveau de confiance. Pour chaque action de diagnostic proposée, décrivez le résultat attendu sous chaque hypothèse. Si le test n'est pas discriminant, choisissez une autre mesure au lieu de prétendre que l'incertitude a diminué.
+
+Testez aussi la réexécution du lot avec exactement les mêmes événements : le nombre d'incidents ne doit pas augmenter artificiellement et le classement doit rester stable. Ajoutez ensuite l'événement tardif et comparez les résultats. Le moteur doit expliquer la révision, conserver la décision antérieure et permettre à un opérateur de voir pourquoi la cause candidate a changé.
+
+```mermaid
+sequenceDiagram
+    participant M as Moteur de corrélation
+    participant G as Graphe temporel
+    participant E as Équipe d'exploitation
+    participant T as Test de diagnostic
+    M->>G: Chercher dépendances valides à l'heure de l'incident
+    G-->>M: Chemins et provenance
+    M->>E: Présenter hypothèses et contradictions
+    E->>T: Lancer test autorisé
+    T-->>M: Résultat et heure mesurée
+    M->>M: Recalculer classement
+    M-->>E: Mise à jour avec éléments de preuve
+```
+
+Le rapport final doit contenir le jeu d'événements, les règles versionnées, les résultats du regroupement, le classement, les tests proposés, l'analyse des désaccords et la limite de ce que le système a pu conclure. Il doit permettre de comparer une version de corrélation à une autre sans modifier simultanément toutes les variables de l'expérience.
+
+### 15. Critères d'acceptation pour la production
+
+Une chaîne de corrélation prête pour la production doit être capable de distinguer événement, symptôme et incident ; préserver la provenance et les trois temps ; représenter les dépendances à la période correcte ; traiter les doublons et les événements tardifs ; conserver les hypothèses alternatives ; et expliquer les contributions au classement. Les périodes de silence doivent être interprétées en fonction de la santé et de la couverture des sources, non comme une confirmation automatique de normalité.
+
+Les indicateurs d'acceptation devraient inclure la proportion d'événements correctement regroupés, le taux de fusion de causes indépendantes, le délai avant la première hypothèse utile, la stabilité du classement après arrivée tardive, la part des affirmations de synthèse reliées aux preuves et le coût de triage des opérateurs. Les objectifs doivent être définis à partir du contexte et réévalués avec les responsables concernés ; les mêmes chiffres ne conviennent pas forcément à chaque type de service.
+
+```mermaid
+flowchart TD
+    A["Contrat événementiel validé"] --> B["Topologie historisée"]
+    B --> C["Fenêtres et déduplication testées"]
+    C --> D["Évaluation sur corpus"]
+    D --> E["Synthèse reliée aux preuves"]
+    E --> F["Mode observation"]
+    F --> G{"Qualité acceptable ?"}
+    G -- "Non" --> H["Réviser règles et sources"]
+    H --> C
+    G -- "Oui" --> I["Pilote et surveillance"]
+    I --> J["Revue périodique et retour arrière"]
+```
+
+La corrélation ne remplace pas l'enquête technique. Elle réduit le nombre de pistes à examiner, révèle les relations que les événements isolés ne montrent pas et aide à sélectionner les tests les plus informatifs. Elle doit rester capable de reconnaître plusieurs causes possibles, de signaler une couverture insuffisante et de réviser ses conclusions. La qualité d'un moteur expert se mesure à la qualité de ses preuves et de ses abstentions autant qu'au nombre de causes qu'il propose.
+
+### Grille d'autoévaluation de l'atelier
+
+- [ ] Les événements, symptômes et incidents sont représentés séparément.
+- [ ] La provenance, l'heure source, l'ingestion et le traitement sont préservés.
+- [ ] La topologie est versionnée et sélectionnée selon l'heure de l'incident.
+- [ ] Les relations temporelles, statistiques et topologiques restent distinctes.
+- [ ] Les événements dupliqués et tardifs sont traités sans perdre l'historique.
+- [ ] Les hypothèses concurrentes incluent preuves contraires et tests discriminants.
+- [ ] Les scores sont explicables et ne sont pas présentés comme des probabilités sans calibration.
+- [ ] Les périodes de silence prennent en compte la disponibilité des capteurs.
+- [ ] Les traces, métriques, logs et changements sont rapprochés avec prudence.
+- [ ] La synthèse générative renvoie aux sources et ne fabrique pas de faits.
+- [ ] Les regroupements sont mesurés sur un corpus de régression.
+- [ ] Les changements du moteur sont comparés en mode observation.
+- [ ] Les résultats de corrélation sont traçables et reproductibles.
+- [ ] Le système peut annoncer qu'aucune cause n'est suffisamment étayée.
+
 ## 16. Défi final, checklist et références
 
 ### Défi
