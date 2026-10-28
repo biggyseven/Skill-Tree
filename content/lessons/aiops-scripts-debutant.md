@@ -459,6 +459,85 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — collecteur réseau répétable et sûr
+
+### Énoncé
+
+Écris un petit collecteur qui lit une liste d'équipements, exécute une commande de lecture, enregistre un résultat horodaté et continue lorsqu'un seul équipement est indisponible. La solution doit prévoir un délai maximal, une erreur explicite, des journaux sans secret et une sortie exploitable par une autre étape AIOps.
+
+### Cycle de traitement
+
+```mermaid
+flowchart TD
+  A["Lire la configuration"] --> B["Valider la liste de cibles"]
+  B --> C["Charger les identifiants depuis un coffre"]
+  C --> D["Exécuter une commande de lecture avec timeout"]
+  D --> E{"Résultat exploitable ?"}
+  E -- "Oui" --> F["Normaliser et horodater"]
+  E -- "Non" --> G["Journaliser l'échec sans secret"]
+  F --> H["Écrire un résultat structuré"]
+  G --> H
+  H --> I{"Autres cibles ?"}
+  I -- "Oui" --> D
+  I -- "Non" --> J["Résumé succès, échecs et durée"]
+```
+
+### Proposition de correction
+
+Un collecteur doit séparer configuration, connexion, extraction et persistance. Chaque étape doit être testable indépendamment. Ne place jamais les mots de passe dans le code, les arguments de processus ou les messages de log. L'identité utilisée par le script doit être en lecture seule lorsque la tâche ne nécessite aucune modification de configuration.
+
+Le squelette suivant illustre le contrat de sortie et le traitement des erreurs. La fonction `collect_device` reste un adaptateur à implémenter avec la bibliothèque du fournisseur d'équipements utilisé dans ton laboratoire.
+
+```python
+from datetime import datetime, timezone
+import json
+import logging
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+
+def result_record(device, status, data=None, error=None):
+    return {
+        "device": device,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "status": status,
+        "data": data,
+        "error": error,
+    }
+
+def run_collection(devices, collect_device, output_path):
+    records = []
+    for device in devices:
+        try:
+            # L'adaptateur doit imposer un timeout et ne faire que de la lecture.
+            data = collect_device(device, timeout=10)
+            records.append(result_record(device, "ok", data=data))
+        except TimeoutError:
+            logging.warning("Timeout de collecte pour %s", device)
+            records.append(result_record(device, "error", error="timeout"))
+        except Exception as exc:
+            # Ne pas inclure d'identifiants ni de configuration secrète dans le log.
+            logging.exception("Échec de collecte pour %s", device)
+            records.append(result_record(device, "error", error=type(exc).__name__))
+
+    with open(output_path, "w", encoding="utf-8") as stream:
+        json.dump(records, stream, ensure_ascii=False, indent=2)
+    return records
+```
+
+Le collecteur est idempotent du point de vue du réseau parce qu'il ne modifie aucun équipement. Pour la persistance, choisis une stratégie explicite : fichier horodaté pour un exercice local, stockage append-only ou base avec clé de déduplication pour un service permanent. Un échec ne doit pas disparaître dans une simple instruction `continue` ; il doit être conservé comme donnée de qualité.
+
+### Vérifications de laboratoire
+
+Teste une cible valide, une cible qui expire, une cible qui retourne des données mal formées et une liste vide. Vérifie que toutes les lignes possèdent un horodatage UTC et que le processus renvoie un résumé cohérent. La réussite ne signifie pas « aucune erreur » : elle signifie que les succès et les échecs sont détectables et correctement représentés.
+
+### Barème d'autoévaluation
+
+- Le script a un timeout par cible et ne bloque pas indéfiniment.
+- Les erreurs sont structurées et ne contiennent pas de secrets.
+- Une cible indisponible ne fait pas perdre les résultats des autres cibles.
+- Le format de sortie est stable et documenté.
+- Le comportement est reproductible et vérifiable par des tests.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
