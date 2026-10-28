@@ -97,6 +97,18 @@
       ],
       "answer": 3,
       "explanation": "La mise en quarantaine protège les sorties fiables tout en conservant la trace des rejets. La politique doit prévoir correction, replay, alerte et gestion des données sensibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est le plus utile pour détecter une ingestion silencieusement en retard ?",
+      "choices": [
+        "La couleur du tableau de bord",
+        "La fraîcheur de la dernière donnée par rapport au SLO",
+        "Le nombre de développeurs du projet",
+        "La longueur du nom de la table"
+      ],
+      "answer": 1,
+      "explanation": "Mesurer la fraîcheur du produit détecte un retard même si le job se termine en succès."
     }
   ]
 }
