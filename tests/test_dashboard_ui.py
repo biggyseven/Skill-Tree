@@ -1134,6 +1134,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("weeklyTicketHeight(day, 'opened')", DASHBOARD_HTML)
         self.assertIn("weeklyTicketHeight(day, 'resolved')", DASHBOARD_HTML)
         self.assertIn("daily_breakdown", DASHBOARD_HTML)
+        self.assertIn("Flux des tickets", DASHBOARD_HTML)
+        self.assertIn("maxCount = Math.max(1, ...days.flatMap", DASHBOARD_HTML)
 
     def test_mobile_header_keeps_title_and_actions_on_one_row(self):
         self.assertIn('class="mobile-header-menu-trigger', DASHBOARD_HTML)
