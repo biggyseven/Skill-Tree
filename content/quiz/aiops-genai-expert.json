@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-genai-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique améliore le plus la fiabilité d'une RCA rédigée par un LLM ?",
+      "choices": [
+        "Demander une seule cause sans données.",
+        "Accepter toute réponse qui paraît plausible.",
+        "Ancrer la synthèse dans des preuves vérifiables, valider les références et conserver les hypothèses alternatives.",
+        "Supprimer les logs qui contredisent la réponse."
+      ],
+      "answer": 2,
+      "explanation": "La génération doit être soutenue par des sources réelles et distinguée des inférences. Les références et les contre-indices sont essentiels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter la différence entre fait et hypothèse dans le rapport ?",
+      "choices": [
+        "Marquer clairement les observations issues des sources et séparer les conclusions provisoires des faits confirmés.",
+        "Écrire toutes les hypothèses au présent comme des certitudes.",
+        "Retirer le niveau d'incertitude.",
+        "Mélanger les recommandations et les événements bruts."
+      ],
+      "answer": 0,
+      "explanation": "Cette séparation évite de transformer un récit fluide en preuve ou d'amener l'équipe à arrêter trop tôt l'investigation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif opérationnel le plus utile d'un assistant génératif de diagnostic ?",
+      "choices": [
+        "Remplacer systématiquement les experts.",
+        "Exécuter n'importe quelle commande suggérée.",
+        "Produire le plus long rapport possible.",
+        "Accélérer le triage avec des hypothèses testables, des sources retrouvables et des recommandations proportionnées au risque."
+      ],
+      "answer": 3,
+      "explanation": "La valeur se mesure au temps et à la qualité du diagnostic, tout en maîtrisant les faux récits et les actions dangereuses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un résumé cite un événement absent du stockage. Quelle est la bonne action ?",
+      "choices": [
+        "Le conserver si le contexte semble logique.",
+        "Rejeter ou reconstruire la synthèse après vérification des références par l'application.",
+        "Demander au modèle de deviner un identifiant proche.",
+        "Utiliser l'événement comme preuve sans vérifier."
+      ],
+      "answer": 1,
+      "explanation": "Les références générées doivent être vérifiées contre la source. Une référence invalide est une erreur de qualité bloquante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser une liste d'actions autorisées avec un assistant génératif ?",
+      "choices": [
+        "Pour augmenter librement les privilèges du modèle.",
+        "Pour éviter toute vérification humaine.",
+        "Pour empêcher qu'une sortie textuelle arbitraire devienne une action technique non autorisée.",
+        "Pour rendre le modèle impossible à surveiller."
+      ],
+      "answer": 2,
+      "explanation": "La séparation entre génération et exécution limite le risque d'hallucination et d'injection d'instructions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu est préférable de fournir au LLM lorsqu'il doit diagnostiquer un incident ?",
+      "choices": [
+        "Un dossier minimisé avec des événements pertinents, horodatages, identifiants autorisés et données sensibles redigées.",
+        "Tous les secrets d'administration et toute la base d'utilisateurs.",
+        "Un texte sans provenance ni timestamps.",
+        "Uniquement les alertes qui soutiennent l'hypothèse préférée."
+      ],
+      "answer": 0,
+      "explanation": "La pertinence, la provenance, la minimisation et la présence de contre-indices améliorent la qualité sans exposer des données inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle attaque doit être envisagée lorsqu'un ticket ou un log contient des instructions adressées au LLM ?",
+      "choices": [
+        "Un problème de typographie sans conséquence.",
+        "Une méthode obligatoire d'entraînement.",
+        "Une preuve automatique de la cause racine.",
+        "Une injection d'instructions dans des données non fiables, qui doit rester sans effet sur les permissions et la politique."
+      ],
+      "answer": 3,
+      "explanation": "Les contenus récupérés doivent rester des données. Ils ne doivent pas remplacer les instructions de sécurité ou autoriser des outils."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer un modèle génératif de diagnostic ?",
+      "choices": [
+        "Par la longueur moyenne de ses réponses seulement.",
+        "Par l'exactitude des références, la fidélité aux preuves, la pertinence des tests proposés et les erreurs dangereuses sur des incidents de référence.",
+        "Par le nombre de commandes exécutées automatiquement.",
+        "Par le seul taux d'approbation des opérateurs."
+      ],
+      "answer": 1,
+      "explanation": "Il faut une évaluation orientée métier et sécurité, incluant les citations, les hypothèses et les comportements adverses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il exiger une validation humaine explicite ?",
+      "choices": [
+        "Uniquement quand le LLM formule une réponse courte.",
+        "Jamais si le score de confiance paraît élevé.",
+        "Lorsque l'action proposée est disruptive, le service critique, les preuves contradictoires ou la situation hors du domaine évalué.",
+        "Seulement après un déploiement réussi."
+      ],
+      "answer": 2,
+      "explanation": "L'autonomie doit dépendre du risque et des preuves, pas seulement de la confiance déclarée par le modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faire si un LLM et une mesure indépendante donnent des conclusions incompatibles ?",
+      "choices": [
+        "Préserver la contradiction, inspecter les sources et lancer un test discriminant avant toute action importante.",
+        "Faire confiance au récit le plus convaincant.",
+        "Supprimer la mesure indépendante.",
+        "Exécuter la recommandation pour trancher."
+      ],
+      "answer": 0,
+      "explanation": "Les conflits entre sources doivent déclencher une vérification, pas une sélection arbitraire ou une modification risquée."
+    }
+  ]
+}
