@@ -459,6 +459,620 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+
+## Atelier avancé — écrire, tester et exploiter des scripts d'automatisation
+
+Cet atelier transforme les notions précédentes en une démarche concrète. Le but n'est pas d'écrire le plus petit nombre de lignes possible, mais de produire un outil dont les entrées, les permissions, les effets, les erreurs et les résultats sont compréhensibles. Un script d'administration constitue une partie du système d'exploitation : il doit être conçu, testé, observé, versionné et maintenu.
+
+Les exemples sont destinés à un environnement de laboratoire et à des données synthétiques. Une adresse, une interface, une clé API ou une commande de configuration réelle ne doit être utilisée qu'avec une autorisation explicite. Les exercices de collecte restent en lecture seule par défaut. Toute modification d'équipement, de compte, de base de données ou de réseau doit être séparée de la collecte et encadrée par des contrôles adaptés.
+
+### A. Concevoir le contrat d'un script
+
+Avant d'écrire un script, définis ce qu'il promet à son utilisateur. Un outil de collecte peut recevoir un inventaire d'hôtes, contacter chaque cible, récupérer des indicateurs, normaliser les résultats et les enregistrer dans un fichier horodaté. Mais il doit aussi savoir décrire ce qui arrive lorsqu'une cible ne répond pas, lorsqu'un fichier est inaccessible, lorsque la réponse est invalide ou lorsque le processus est interrompu.
+
+Le contrat du script devrait répondre à ces questions : quelles entrées sont acceptées, quel format est attendu, quelles options sont autorisées, quelles données sont produites, quels effets sont possibles, combien de temps chaque opération peut durer, comment les erreurs sont représentées, comment l'utilisateur peut relancer l'exécution et comment vérifier le résultat. Un script qui réussit uniquement lorsque tout se passe bien n'est pas suffisamment robuste pour l'exploitation.
+
+```mermaid
+flowchart TD
+    REQ["Besoin opérationnel"] --> IN["Définir les entrées et options"]
+    IN --> PERM["Définir les permissions"]
+    PERM --> EFF["Lister les effets autorisés"]
+    EFF --> ERR["Définir erreurs et timeouts"]
+    ERR --> OUT["Définir sorties et codes retour"]
+    OUT --> TEST["Écrire les tests du contrat"]
+    TEST --> USE["Exécution contrôlée"]
+    USE --> AUDIT["Vérification et journalisation"]
+```
+
+Pour un collecteur réseau, un contrat simple pourrait être : il lit un inventaire CSV de cibles autorisées, utilise des délais limités, ne change aucun état, conserve les résultats même si une cible est inaccessible, enregistre les heures en UTC et renvoie un code non nul si la collecte est incomplète. L'utilisateur reçoit un résumé distinguant « collecte terminée sans erreur », « collecte partiellement réussie » et « aucune donnée exploitable ». Ce vocabulaire est plus précis que le simple statut « succès ».
+
+Le contrat doit aussi être stable. Si une nouvelle version renomme une colonne, modifie une unité ou change le sens d'un code retour, les scripts qui consomment ces résultats peuvent casser. Numérote les versions de schéma lorsque des consommateurs externes dépendent du format. Écris un exemple d'entrée, un exemple de sortie et une définition des statuts ; ces exemples deviennent des tests de référence.
+
+### B. Choisir entre Python et Bash selon la tâche
+
+Bash est adapté à l'assemblage de commandes système, à la gestion de petits flux de fichiers et à des tâches d'orchestration simples sur les environnements Unix. Python est plus adapté lorsque la logique devient complexe, que les données doivent être validées ou transformées, que plusieurs API sont utilisées, ou que les tests nécessitent des fonctions indépendantes. Il n'existe pas de règle absolue, mais un script shell contenant beaucoup de parsing, de logique conditionnelle et de gestion d'états devient souvent plus difficile à comprendre et à tester.
+
+```mermaid
+flowchart TD
+    TASK["Tâche à automatiser"] --> CMD{"Assembler quelques commandes système ?"}
+    CMD -- Oui --> SHELL["Bash peut convenir"]
+    CMD -- Non --> DATA{"Beaucoup de données structurées ou d'API ?"}
+    DATA -- Oui --> PY["Préférer Python"]
+    DATA -- Non --> COMPLEX{"Logique, états et erreurs complexes ?"}
+    COMPLEX -- Oui --> PY
+    COMPLEX -- Non --> ENV{"Dépendance forte à Unix ?"}
+    ENV -- Oui --> SHELL
+    ENV -- Non --> PY
+    SHELL --> TEST["Tests, timeout, journaux, code retour"]
+    PY --> TEST
+```
+
+Une approche hybride est parfois utile : Bash prépare l'environnement et appelle une application Python qui réalise la logique métier. Dans ce cas, les frontières doivent être claires. Le shell se charge de l'environnement, de l'activation éventuelle d'un environnement virtuel et de l'appel du programme ; Python valide les entrées, traite les données et produit une sortie structurée. Évite de dupliquer la même logique dans deux langages.
+
+Exemple Bash minimal :
+
+```bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+  printf 'Usage: %s INVENTAIRE.csv SORTIE.jsonl\n' "$0" >&2
+}
+
+if [[ $# -ne 2 ]]; then
+  usage
+  exit 2
+fi
+
+inventory=$1
+output=$2
+
+if [[ ! -r "$inventory" ]]; then
+  printf 'Erreur: inventaire illisible: %s\n' "$inventory" >&2
+  exit 2
+fi
+
+mkdir -p "$(dirname "$output")"
+python3 collect.py --inventory "$inventory" --output "$output"
+```
+
+L'option set -Eeuo pipefail aide à détecter certaines erreurs : une commande en échec, une variable non définie ou l'échec d'un élément dans un pipeline. Elle ne rend pas magiquement le shell infaillible. Les commandes qui peuvent légitimement échouer doivent être traitées explicitement, les fichiers temporaires doivent être nettoyés et les comportements conditionnels doivent être testés. Un script court doit rester lisible plutôt que de cacher toute sa logique derrière une combinaison compacte de symboles.
+
+### C. Traiter les arguments comme des données non fiables
+
+Un paramètre transmis à la ligne de commande peut être vide, mal formé, trop long ou conçu pour détourner l'exécution. Ne construis pas une commande système en concaténant une chaîne fournie par l'utilisateur. En Python, préfère subprocess.run avec une liste d'arguments et shell=False. Il faut aussi limiter le répertoire de travail, l'environnement transmis au processus et sa durée d'exécution.
+
+```mermaid
+flowchart LR
+    INPUT["Argument utilisateur"] --> PARSE["Analyse de l'argument"]
+    PARSE --> VALID["Validation de type et domaine"]
+    VALID --> OK{"Valeur autorisée ?"}
+    OK -- Non --> REJECT["Refus expliqué et code retour"]
+    OK -- Oui --> CMD["Appel avec arguments séparés"]
+    CMD --> TIME["Timeout et gestion d'exception"]
+    TIME --> RESULT["Résultat contrôlé"]
+```
+
+Un exemple classique est une option qui attend un nom d'hôte. Le script doit vérifier que la valeur correspond à un nom accepté ou à une entrée connue de l'inventaire. Il ne doit pas permettre à ce paramètre de devenir une option imprévue pour la commande sous-jacente. Dans un environnement sensible, l'inventaire doit être la source d'autorité : l'utilisateur choisit une cible existante plutôt que de fournir arbitrairement une adresse à contacter.
+
+```python
+import subprocess
+
+def read_local_interface_state():
+    """Exemple pédagogique en lecture seule sur la machine locale."""
+    result = subprocess.run(
+        ["ip", "-brief", "address"],
+        capture_output=True,
+        text=True,
+        timeout=5,
+        check=False,
+        shell=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"Commande locale en échec, code={result.returncode}"
+        )
+    return result.stdout
+```
+
+L'exemple ne se connecte pas à un équipement distant : il illustre uniquement les propriétés de l'appel local. Dans un outil réel, la connexion distante passerait par une bibliothèque adaptée ou par une commande préalablement approuvée. Le script ne devrait jamais transformer une entrée en commande arbitraire.
+
+Une exception doit être transformée en diagnostic utile à la frontière du programme. Il ne faut ni l'ignorer ni afficher tout un environnement contenant potentiellement des secrets. Un message adapté identifie l'opération, la cible logique et le type de problème, sans enregistrer un mot de passe, un jeton ou un contenu sensible.
+
+### D. Gérer le cycle de vie d'un processus
+
+Un processus peut réussir, échouer, rester bloqué, être interrompu ou terminer avec une sortie qui ne respecte pas le format attendu. Lorsqu'un programme Python appelle une commande externe, trois paramètres sont importants : le timeout, la vérification du code retour et la lecture de la sortie standard et de la sortie d'erreur. Il faut définir une stratégie différente pour un échec attendu et pour une anomalie qui invalide toute l'exécution.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Prepare: valider les arguments
+    Prepare --> Running: lancer le processus
+    Running --> Success: code retour 0 et sortie valide
+    Running --> Failed: code retour non nul
+    Running --> TimedOut: durée maximale atteinte
+    Running --> Interrupted: interruption contrôlée
+    Failed --> Record: enregistrer l'erreur
+    TimedOut --> Terminate: arrêter si possible
+    Terminate --> Record
+    Interrupted --> Cleanup: nettoyer les temporaires
+    Success --> Verify: vérifier les postconditions
+    Verify --> Complete: sortie cohérente
+    Record --> Complete: statut partiel ou échec
+    Cleanup --> Complete
+    Complete --> [*]
+```
+
+Pour une collecte sur plusieurs cibles, une cible inaccessible est souvent une erreur partielle, pas une raison de perdre tous les résultats précédents. En revanche, si l'inventaire est invalide ou si le fichier de sortie ne peut pas être sécurisé, il peut être préférable d'arrêter le traitement entier. Cette distinction doit faire partie du contrat et être représentée par un code retour.
+
+La durée maximale dépend de l'opération. Une commande locale de lecture peut nécessiter quelques secondes ; une sauvegarde ou une exportation contrôlée peut exiger davantage. Le timeout ne doit pas être arbitrairement énorme. Il faut aussi tenir compte du temps total : dix mille cibles avec un timeout de trente secondes peuvent provoquer une exécution très longue si elles sont contactées de façon séquentielle.
+
+```python
+import subprocess
+
+def execute_read_only(args, timeout_seconds=8):
+    try:
+        result = subprocess.run(
+            args, capture_output=True, text=True,
+            timeout=timeout_seconds, check=False, shell=False
+        )
+    except subprocess.TimeoutExpired:
+        return {
+            "status": "timeout",
+            "return_code": None,
+            "stdout": "",
+            "error": f"Durée maximale de {timeout_seconds}s dépassée",
+        }
+    except OSError as exc:
+        return {
+            "status": "launch_error",
+            "return_code": None,
+            "stdout": "",
+            "error": f"Impossible de lancer le processus: {type(exc).__name__}",
+        }
+
+    if result.returncode != 0:
+        return {
+            "status": "command_error",
+            "return_code": result.returncode,
+            "stdout": result.stdout,
+            "error": result.stderr[-1000:],
+        }
+
+    return {
+        "status": "ok",
+        "return_code": 0,
+        "stdout": result.stdout,
+        "error": "",
+    }
+```
+
+Le code limite la taille du fragment d'erreur conservé, mais cela ne constitue pas une politique complète de nettoyage des données. Une sortie système peut contenir des secrets ; un outil réel doit masquer les valeurs sensibles avant journalisation. Les sorties externes sont des données non fiables et doivent être analysées dans un cadre défini. N'exécute jamais automatiquement une commande parce qu'elle apparaît dans la sortie d'un programme.
+
+### E. Écrire un script idempotent
+
+Une opération est idempotente si la répétition de la même demande dans le même état aboutit au même résultat final, sans répéter inutilement les effets. Lire l'état d'une interface est généralement idempotent. Ajouter systématiquement une règle sans vérifier son existence ne l'est pas. Créer un utilisateur à chaque exécution, envoyer plusieurs notifications identiques ou empiler des règles de pare-feu sont des exemples de problèmes de répétition.
+
+```mermaid
+flowchart TD
+    START["Demande d'automatisation"] --> READ["Lire l'état actuel"]
+    READ --> COMPARE["Comparer état souhaité et état réel"]
+    COMPARE --> SAME{"Déjà conforme ?"}
+    SAME -- Oui --> NOOP["Ne rien modifier et journaliser no-op"]
+    SAME -- Non --> PRE["Valider les préconditions"]
+    PRE --> APPLY["Appliquer une modification bornée"]
+    APPLY --> RECHECK["Relire l'état réel"]
+    RECHECK --> OK{"État souhaité atteint ?"}
+    OK -- Oui --> DONE["Journaliser le succès vérifié"]
+    OK -- Non --> FAIL["Échec, reprise ou rollback documenté"]
+```
+
+Une bonne automatisation exprime l'état souhaité, lit l'état actuel, calcule la différence, applique seulement les changements nécessaires puis relit l'état réel. Cette approche limite les effets de bord et facilite la reprise après une interruption. En complément, utilise si possible une clé d'idempotence pour les API, ou un identifiant d'opération permettant de reconnaître une demande déjà traitée.
+
+Les opérations d'écriture doivent être encore plus prudentes. Pour une modification réseau, enregistre la configuration avant le changement, vérifie la cible et l'environnement, utilise une fenêtre approuvée, limite le nombre d'équipements touchés et définis un rollback. La première version de l'exercice doit rester en simulation : produire un plan des changements sans les appliquer.
+
+```python
+def plan_desired_state(current, desired):
+    """Construit un plan descriptif sans modifier l'équipement."""
+    plan = []
+    for key, desired_value in desired.items():
+        current_value = current.get(key)
+        if current_value == desired_value:
+            plan.append({
+                "key": key, "action": "no_op",
+                "reason": "déjà conforme",
+            })
+        else:
+            plan.append({
+                "key": key, "action": "change_required",
+                "current": current_value, "desired": desired_value,
+            })
+    return plan
+
+current = {"ntp_server": "192.0.2.10", "logging": True}
+desired = {"ntp_server": "192.0.2.10", "logging": True}
+print(plan_desired_state(current, desired))
+```
+
+L'adresse utilisée dans l'exemple est une adresse de documentation. Le programme ne se connecte à aucun équipement : il illustre seulement la comparaison entre état actuel et état désiré. Avant de convertir un plan en action réelle, il faudrait une API limitée, une validation de politique, des tests et une procédure de récupération adaptée.
+
+### F. Construire un inventaire fiable et une sortie stable
+
+Un inventaire permet de borner les cibles, leurs propriétaires, leur environnement et les méthodes de connexion autorisées. Il ne doit pas être traité comme un simple fichier improvisé. Définis les colonnes, vérifie les doublons, refuse les cibles inconnues et indique comment les changements de l'inventaire sont approuvés.
+
+```mermaid
+flowchart LR
+    FILE["Inventaire CSV versionné"] --> PARSE["Lecture contrôlée"]
+    PARSE --> SCHEMA["Vérifier colonnes et types"]
+    SCHEMA --> DUP{"Cibles uniques ?"}
+    DUP -- Non --> STOP["Refus et rapport de validation"]
+    DUP -- Oui --> AUTH["Contrôler environnement et autorisation"]
+    AUTH --> PLAN["Construire le plan de collecte"]
+    PLAN --> RUN["Exécuter avec limites"]
+    RUN --> JSONL["Produire des résultats structurés"]
+    JSONL --> SUMMARY["Synthèse des statuts et erreurs"]
+```
+
+Pour chaque cible, un enregistrement utile peut contenir son identifiant logique, l'environnement, le propriétaire, la méthode de connexion autorisée, un timeout spécifique si nécessaire, la date de dernière vérification et le statut de l'inventaire. N'enregistre pas de mot de passe dans le CSV. Les secrets doivent être fournis par un mécanisme dédié au moment de l'exécution et le script doit éviter de les exposer dans les arguments visibles par d'autres processus.
+
+Les sorties structurées sont plus simples à traiter que des lignes de texte ad hoc. JSON Lines (un objet JSON par ligne) permet d'ajouter progressivement les résultats et de conserver les enregistrements déjà collectés si un incident survient. CSV est pratique pour l'analyse tabulaire, mais exige un contrat sur l'encodage, le séparateur, les colonnes, les types et le traitement des valeurs manquantes. Le fichier doit être écrit de manière à ne pas présenter un résultat partiel comme un résultat final validé.
+
+```python
+import json
+from datetime import datetime, timezone
+
+def make_result(target, status, details=None, error=None):
+    return {
+        "schema_version": 1,
+        "observed_at": datetime.now(timezone.utc).isoformat(),
+        "target_id": target,
+        "status": status,
+        "details": details or {},
+        "error": error,
+    }
+
+sample = make_result(
+    target="lab-switch-01",
+    status="unreachable",
+    details={"attempts": 2},
+    error="timeout",
+)
+print(json.dumps(sample, ensure_ascii=False))
+```
+
+La valeur target_id doit être un identifiant logique autorisé. L'objet details ne devrait contenir que des champs documentés ; l'objet error doit éviter d'enregistrer une sortie brute qui contiendrait des secrets. Le champ schema_version permet d'introduire des évolutions de format de façon contrôlée. Si une nouvelle version change le type ou le sens d'un champ, les consommateurs doivent pouvoir détecter la différence au lieu d'interpréter la donnée incorrectement.
+
+Une stratégie de fichier temporaire suivie d'un renommage peut éviter que les lecteurs utilisent un fichier à moitié écrit. Pour un flux JSON Lines de grande taille, il est parfois préférable d'écrire chaque résultat au fur et à mesure puis de produire un manifeste final indiquant le nombre de cibles prévues, le nombre de résultats, les échecs et l'état global.
+
+### G. Utiliser une API avec une politique de retries maîtrisée
+
+Les scripts d'exploitation communiquent souvent avec des API. Il faut gérer l'authentification, les codes HTTP, les délais, la pagination, les limites de débit et les formats de réponse. Un code HTTP de réussite ne garantit pas que la réponse contient tous les champs attendus. Il peut aussi être dangereux de relancer sans réfléchir une requête qui modifie l'état.
+
+```mermaid
+sequenceDiagram
+    participant J as Script
+    participant A as API
+    participant V as Validateur
+    J->>A: Requête avec timeout
+    alt Réponse exploitable
+        A-->>J: Code HTTP et corps
+        J->>V: Vérifier statut, schéma et taille
+        V-->>J: Données validées
+    else Erreur temporaire
+        A-->>J: 429 ou 503
+        J->>J: Calculer une pause bornée
+        J->>A: Réessai si budget restant
+    else Erreur permanente
+        A-->>J: 400 ou 403
+        J->>J: Arrêter et expliquer
+    end
+```
+
+Les retries doivent viser les erreurs réellement transitoires. Une erreur de permission ne se corrigera pas en répétant la requête. Une erreur de validation nécessite souvent de corriger les données. Pour certaines erreurs temporaires, applique un nombre maximal de tentatives et un délai progressif. Ajoute un peu d'aléa pour éviter que plusieurs clients réessaient exactement au même moment. Si l'API fournit un délai de reprise explicite, respecte-le dans les limites de la politique.
+
+Pour les écritures, vérifie si l'opération est idempotente ou si l'API prend en charge une clé d'idempotence. Une requête peut avoir été appliquée côté serveur alors que la réponse se perd sur le réseau. La répéter sans protection peut créer un doublon. Pour une demande de création, cherche un identifiant stable ou relis l'état avant de décider si une nouvelle tentative est autorisée.
+
+```python
+import random
+import time
+import requests
+
+RETRYABLE = {429, 500, 502, 503, 504}
+
+def get_json_with_retries(url, headers, attempts=4, timeout=5):
+    last_reason = "aucune tentative"
+    for number in range(attempts):
+        try:
+            response = requests.get(url, headers=headers, timeout=timeout)
+        except requests.Timeout:
+            last_reason = "timeout"
+        except requests.ConnectionError:
+            last_reason = "erreur de connexion"
+        else:
+            if response.status_code == 200:
+                try:
+                    return response.json()
+                except ValueError as exc:
+                    raise RuntimeError("Réponse JSON invalide") from exc
+            if response.status_code not in RETRYABLE:
+                response.raise_for_status()
+            last_reason = f"HTTP {response.status_code}"
+
+        if number < attempts - 1:
+            time.sleep(min(8, (2 ** number) + random.random()))
+
+    raise RuntimeError(
+        f"API indisponible après {attempts} tentatives: {last_reason}"
+    )
+```
+
+Ce helper est un exemple pédagogique qui récupère des données ; il ne gère pas toutes les politiques d'une API réelle. En production, il faut valider le domaine de destination, utiliser la vérification TLS normale, contrôler le schéma JSON et la taille du corps, protéger les secrets, respecter les en-têtes de limite de débit et s'assurer qu'une redirection ne conduit pas à une destination interdite. Le helper ne doit pas être utilisé tel quel pour des requêtes de modification d'état.
+
+### H. Protéger les secrets et réduire les permissions
+
+Un script n'a pas besoin de connaître tous les secrets de l'organisation. Il doit accéder uniquement aux informations nécessaires à sa tâche. Les clés API ne doivent pas être codées en dur dans les fichiers versionnés, écrites dans des journaux, imprimées dans les messages d'erreur ou passées dans des arguments visibles par d'autres processus. Une variable d'environnement peut convenir à certains contextes, mais un gestionnaire de secrets et une identité de service dédiée sont préférables lorsqu'ils sont disponibles.
+
+```mermaid
+flowchart TD
+    OP["Opérateur autorisé"] --> AUTH["Authentification"]
+    AUTH --> RUN["Lancer le script"]
+    RUN --> ID["Identité de service dédiée"]
+    ID --> POLICY["Permissions minimales"]
+    POLICY --> API["API ou équipement ciblé"]
+    RUN --> LOG["Journal nettoyé"]
+    ID --> ROT["Rotation et révocation"]
+    ROT --> POLICY
+    LOG --> AUDIT["Audit sans secret"]
+```
+
+Une séparation utile consiste à distinguer l'identité de lecture de l'identité d'écriture. Un collecteur n'a pas à posséder les droits de changer une configuration réseau. Un outil qui génère un plan de changement doit pouvoir exécuter ses tests sans disposer des permissions nécessaires à l'application du plan. Si une action modifiante est nécessaire, place-la derrière un mode explicitement activé, des droits distincts et une procédure d'approbation.
+
+Les secrets ont un cycle de vie : création, distribution, utilisation, rotation, révocation et suppression. La rotation doit être testée avant d'être imposée, sinon un secret renouvelé peut interrompre les collectes. Un script doit se comporter de façon prévisible si l'identité est expirée : afficher un état d'authentification en échec et arrêter les appels concernés, sans tenter de contourner le contrôle.
+
+### I. Utiliser Bash en sécurité et sans fragilité
+
+Bash convient aux petits wrappers, mais l'expansion des variables, les espaces, les motifs de fichiers et les codes retours peuvent provoquer des erreurs inattendues. Utilise des guillemets autour des variables lorsqu'elles représentent un seul argument, privilégie les tableaux pour construire des listes de paramètres, évite l'évaluation dynamique et ne construis pas un script avec une commande copiée depuis une source non fiable.
+
+```mermaid
+flowchart TD
+    ARG["Entrées shell"] --> QUOTE["Citer les expansions"]
+    QUOTE --> ARRAY["Utiliser des tableaux d'arguments"]
+    ARRAY --> NOEVAL["Éviter eval et commandes interpolées"]
+    NOEVAL --> PIPE["Contrôler pipelines et codes retours"]
+    PIPE --> TEMP["Fichiers temporaires protégés"]
+    TEMP --> CLEAN["Trap et nettoyage contrôlé"]
+    CLEAN --> EXIT["Code retour documenté"]
+```
+
+Un exemple de construction des arguments sans concaténation :
+
+```bash
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+target="lab-switch-01"
+timeout_seconds=5
+
+args=(--target "$target" --timeout "$timeout_seconds" --readonly)
+
+printf 'Exécution prévue pour %s\n' "$target"
+printf 'Argument: <%s>\n' "${args[@]}"
+
+# En laboratoire uniquement, vérifier d'abord l'aide du programme :
+# ./collector --help
+# Puis utiliser l'inventaire de test approuvé.
+```
+
+Le tableau conserve chaque argument séparément et supporte les espaces dans les valeurs. Dans une commande réelle, vérifie encore que chaque option correspond à un comportement autorisé. Un nom d'option comme readonly ne constitue pas à lui seul une garantie ; le programme doit réellement appliquer cette restriction.
+
+Les fichiers temporaires doivent être placés dans un emplacement approprié, avec des permissions restrictives, et supprimés lorsqu'ils ne sont plus nécessaires. Un trap peut assurer un nettoyage lors d'une sortie normale ou de certains signaux, mais un arrêt brutal peut encore laisser un fichier. Prévois une politique de durée de vie et évite les noms prévisibles dans un répertoire partagé.
+
+### J. Définir une stratégie de concurrence et de débit
+
+La collecte parallèle peut réduire la durée totale, mais augmente le nombre de connexions simultanées et la pression sur les systèmes ciblés. Il ne faut pas lancer une tâche par cible sans limite. Le niveau de concurrence doit être borné, adapté à la taille de l'inventaire et soumis aux règles de l'organisation. Certains équipements supportent peu de sessions de gestion ; des appels massifs peuvent eux-mêmes créer un incident.
+
+```mermaid
+flowchart LR
+    INV["Inventaire autorisé"] --> QUEUE["File de cibles"]
+    QUEUE --> LIMIT["Pool de travailleurs borné"]
+    LIMIT --> TIME["Timeout par cible"]
+    TIME --> RESULT["Résultats indépendants"]
+    RESULT --> AGG["Agrégation"]
+    AGG --> REPORT["Rapport global"]
+    LIMIT --> RATE["Limiteur de débit"]
+    RATE --> TARGETS["Systèmes cibles"]
+```
+
+Une première version séquentielle est souvent préférable parce qu'elle facilite la lecture des journaux et le contrôle de charge. Lorsque la durée devient un problème mesuré, ajoute un parallélisme borné et teste le résultat. Contrôle la simultanéité, le débit global, les retries et le comportement lorsque plusieurs cibles tombent en panne ensemble. Si une API limite les appels par minute, le programme doit respecter ce budget au lieu de le contourner.
+
+Le parallélisme ne doit pas modifier l'exactitude du rapport. Chaque tâche doit produire son résultat associé à un identifiant de cible, même si elle se termine dans un ordre différent. Le résumé doit comparer le nombre de cibles prévues au nombre de résultats générés, puis distinguer les réussites, erreurs, timeouts et cibles ignorées selon une règle documentée.
+
+### K. Tester sans joindre un équipement réel
+
+Un test unitaire vérifie une petite fonction isolée. Un test d'intégration contrôle plusieurs composants ensemble. Un test de bout en bout observe la chaîne entière dans un environnement contrôlé. Une automatisation réseau ne devrait pas nécessiter l'accès à un vrai commutateur pour vérifier chaque branche de son code.
+
+```mermaid
+flowchart TD
+    CODE["Script d'automatisation"] --> UNIT["Tests unitaires"]
+    UNIT --> MOCK["Simuler réponses et erreurs"]
+    MOCK --> INTEG["Tests d'intégration en laboratoire"]
+    INTEG --> E2E["Test de bout en bout contrôlé"]
+    E2E --> NEG["Scénarios négatifs"]
+    NEG --> REVIEW["Revue humaine avant usage réel"]
+```
+
+Injecte les dépendances dans les fonctions : au lieu de coder directement une connexion réseau dans chaque partie du script, isole le client, la source des données, l'horloge et la sortie. Les tests peuvent ainsi fournir un client simulé qui retourne une réponse normale, un timeout, un refus d'accès ou un contenu invalide. Ce principe rend les tests reproductibles et aide à vérifier que les erreurs sont traitées sans qu'un système externe soit nécessaire.
+
+Les scénarios indispensables comprennent une entrée valide, une entrée vide, une cible inconnue, une réponse tronquée, un code retour non nul, un timeout, une interruption, un fichier de sortie inaccessible, un inventaire dupliqué et un secret présent dans une sortie à masquer. Pour une action d'écriture, ajoute des tests qui vérifient la simulation, l'absence d'effet si les préconditions ne sont pas remplies, la détection d'un état déjà conforme et le déclenchement de la procédure de reprise en cas d'échec.
+
+```python
+def classify_result(result):
+    if result.get("status") == "ok":
+        return "success"
+    if result.get("status") == "timeout":
+        return "partial_failure"
+    if result.get("status") in {"launch_error", "command_error"}:
+        return "failure"
+    return "unknown"
+
+def test_classify_result():
+    assert classify_result({"status": "ok"}) == "success"
+    assert classify_result({"status": "timeout"}) == "partial_failure"
+    assert classify_result({"status": "command_error"}) == "failure"
+    assert classify_result({"status": "other"}) == "unknown"
+```
+
+Ce test encode explicitement le contrat de statuts. Lorsque le contrat évolue, le test doit évoluer lui aussi. Un code retour du programme principal pourrait valoir zéro lorsque toutes les cibles ont été collectées, un code différent pour un succès partiel, et un autre code pour une erreur de configuration ou de préparation. Les codes exacts sont à définir, documenter et garder stables.
+
+### L. Concevoir la journalisation pour le diagnostic
+
+Un journal utile indique quoi, quand, où et avec quel résultat. Les enregistrements doivent aider à reconstruire l'exécution sans exposer les secrets. Les champs courants incluent un identifiant de lancement, l'identifiant logique de la cible, l'opération, l'heure UTC, la durée, le statut, le code retour et un motif d'erreur normalisé.
+
+```mermaid
+sequenceDiagram
+    participant CLI as CLI
+    participant JOB as Collecteur
+    participant LOG as Journal structuré
+    participant OUT as Sortie résultats
+    CLI->>JOB: Lancer avec run_id
+    JOB->>LOG: Début d'opération
+    JOB->>JOB: Exécuter avec timeout
+    alt Succès
+        JOB->>OUT: Enregistrer la mesure
+        JOB->>LOG: Statut et durée
+    else Échec
+        JOB->>OUT: Enregistrer statut et motif
+        JOB->>LOG: Niveau erreur et code
+    end
+    JOB->>LOG: Résumé final
+```
+
+Évite un journal constitué uniquement de messages tels que « ça n'a pas marché ». Ajoute un code d'erreur stable et une catégorie. À l'inverse, évite de consigner la réponse complète d'une API ou une commande secrète. Les messages devraient permettre de savoir quelle opération a échoué sans répéter l'ensemble des données sensibles impliquées.
+
+L'heure doit conserver le fuseau et les durées doivent être mesurées de façon cohérente. Le journal ne doit pas être l'unique preuve du résultat fonctionnel : il décrit ce que le script a observé et fait, tandis que la validation des postconditions confirme si le système ciblé a obtenu l'état souhaité. Garde le rapport d'exécution et les mesures métier reliés par un identifiant commun.
+
+### M. Planifier une automatisation qui ne surprend pas
+
+Une tâche planifiée peut fonctionner manuellement mais échouer sous un ordonnanceur : chemin courant différent, environnement virtuel non activé, variables d'environnement absentes, droits différents, fuseau non attendu ou répertoire non accessible. Tout ce qui est implicite doit être remplacé par une configuration claire. Le script doit résoudre les chemins de manière prévisible, vérifier les dépendances et produire un statut exploitable.
+
+```mermaid
+flowchart TD
+    SCHED["Ordonnanceur"] --> ENV["Environnement explicite"]
+    ENV --> CHECK["Contrôle prérequis"]
+    CHECK --> LOCK{"Une exécution concurrente existe ?"}
+    LOCK -- Oui --> SKIP["Ignorer ou reporter selon la politique"]
+    LOCK -- Non --> RUN["Lancer le travail"]
+    RUN --> HEALTH["Contrôler durée et sortie"]
+    HEALTH --> REPORT["Publier le résumé"]
+    REPORT --> CLEAN["Nettoyer les temporaires"]
+```
+
+Prévois une protection contre les exécutions concurrentes si deux lancements pourraient traiter les mêmes ressources. Un verrou doit avoir une stratégie de récupération lorsqu'un ancien processus s'est interrompu ; il ne faut pas effacer arbitrairement un verrou qui pourrait correspondre à une exécution encore active. Définis aussi ce que l'ordonnanceur doit faire lorsqu'une exécution échoue : réessayer selon une politique, prévenir un opérateur, ou attendre la fenêtre suivante.
+
+Utilise un environnement virtuel Python et verrouille les dépendances de manière reproductible. Enregistre la version du script et la configuration non secrète dans le résumé. Lorsque la tâche collecte des données de télémétrie, précise la période couverte et le taux de couverture. Si la tâche est interrompue, le rapport doit indiquer si les résultats sont complets ou partiels.
+
+### N. Intégrer les scripts à une chaîne de validation
+
+Les scripts d'exploitation doivent être traités comme du code maintenu. Le dépôt versionné permet de relire les différences, de retrouver l'auteur et de revenir à une révision précédente. Une chaîne de validation peut vérifier le format, le typage, les tests unitaires, les dépendances et certaines règles de sécurité avant qu'une nouvelle version soit autorisée.
+
+```mermaid
+flowchart LR
+    CHANGE["Modification du script"] --> FORMAT["Formatage et lint"]
+    FORMAT --> TEST["Tests unitaires"]
+    TEST --> SECURITY["Vérification secrets et dépendances"]
+    SECURITY --> REVIEW["Revue du diff"]
+    REVIEW --> BUILD["Construire artefact versionné"]
+    BUILD --> LAB["Test en laboratoire"]
+    LAB --> APPROVE["Validation de déploiement"]
+    APPROVE --> RELEASE["Publication contrôlée"]
+```
+
+La chaîne de validation ne prouve pas que tous les comportements sont corrects. Elle réduit des catégories d'erreurs connues et assure que les contrôles sont exécutés de manière répétable. Les tests en laboratoire doivent ensuite vérifier les interactions avec les systèmes concernés. Avant d'autoriser un changement, examine les paramètres par défaut, les permissions nécessaires, les effets de bord, la stratégie de rollback et les journaux produits.
+
+Ne mets jamais un véritable secret dans un test ou dans un exemple pédagogique. Utilise des valeurs synthétiques, les secrets de test fournis par un environnement isolé ou des mocks. Vérifie que le dépôt ne contient ni jeton, ni clé privée, ni export de configuration sensible. La révocation d'un secret publié ne suffit pas toujours : vérifie l'historique, les artefacts de CI et les logs dans lesquels il aurait pu être copié.
+
+### O. Étude de cas complète : collecteur réseau avec résultats partiels
+
+Une équipe souhaite collecter les versions, l'état opérationnel et l'utilisation de quelques interfaces sur une liste d'équipements de laboratoire. Le premier script ouvre une connexion, lit les données et affiche un résumé. Mais une cible indisponible bloque la boucle, et le fichier final ne distingue pas les résultats absents des résultats valides. La solution doit rester en lecture seule et ne pas perdre les observations déjà reçues.
+
+Le contrat exige un identifiant de lancement, un inventaire validé, un timeout par cible, une limite de tentatives, des erreurs structurées, un fichier de résultat documenté et un code de sortie qui indique si la collecte est complète. Le propriétaire du laboratoire choisit le nombre maximal de connexions simultanées. Les secrets sont récupérés depuis un mécanisme autorisé et n'apparaissent pas dans le fichier de sortie.
+
+```mermaid
+flowchart TD
+    START["Démarrer la collecte"] --> CFG["Valider configuration et inventaire"]
+    CFG --> ERR{"Configuration valide ?"}
+    ERR -- Non --> STOP["Arrêt avec code de configuration"]
+    ERR -- Oui --> LOOP["Traiter les cibles autorisées"]
+    LOOP --> CONN["Collecter en lecture seule"]
+    CONN --> STAT{"Résultat valide ?"}
+    STAT -- Oui --> SAVE["Enregistrer les mesures"]
+    STAT -- Non --> ERRROW["Enregistrer statut et motif"]
+    SAVE --> NEXT["Cible suivante"]
+    ERRROW --> NEXT
+    NEXT --> MORE{"Autres cibles ?"}
+    MORE -- Oui --> LOOP
+    MORE -- Non --> SUMMARY["Générer le manifeste de fin"]
+    SUMMARY --> EXIT["Code retour complet ou partiel"]
+```
+
+Le collecteur doit garder une distinction claire entre les opérations de contrôle et les opérations métier. Un échec d'authentification est différent d'un timeout ; un timeout est différent d'une réponse invalide ; une réponse valide mais incomplète est différente d'un état d'interface réellement dégradé. Cette taxonomie permet de décider si une répétition est utile ou si l'erreur nécessite une intervention.
+
+Le manifeste de fin peut contenir le nombre de cibles attendues, le nombre de cibles traitées, le nombre de succès, le nombre de timeouts, le nombre d'erreurs de configuration ou d'accès, la durée totale et le statut de complétude. Le consommateur ne doit pas supposer que toutes les cibles ont réussi simplement parce que le fichier existe. Une collecte partielle peut être exploitable pour un diagnostic mais insuffisante pour calculer une comparaison qui nécessite une couverture complète.
+
+Pour rendre l'outil réversible, commence par une version qui ne fait que lire. Si une modification de configuration est ajoutée plus tard, conserve-la comme action distincte, avec un mode simulation par défaut, une approbation claire et un contrôle de postconditions. Le fait qu'un script lise les mêmes données que celles nécessaires à une modification n'autorise pas automatiquement le script à écrire sur les équipements.
+
+### P. Défi de tests : construire une matrice de scénarios
+
+Pour améliorer la confiance dans l'automatisation, établis une matrice de tests avant de connecter l'outil au laboratoire. Chaque ligne comprend une condition de départ, un résultat attendu et la preuve permettant de l'observer. Les tests doivent couvrir les conditions normales, les erreurs ponctuelles et les erreurs qui affectent toute l'exécution.
+
+| Scénario | Résultat attendu | Critère de réussite |
+|---|---|---|
+| Inventaire valide et toutes les cibles répondent | Collecte complète | Chaque cible a un résultat valide |
+| Une cible expire | Collecte partielle | Les autres résultats sont conservés |
+| Inventaire absent | Arrêt avant connexion | Code de configuration et diagnostic |
+| Cible inconnue | Refus explicite | Aucun accès réseau vers la cible |
+| Réponse mal formée | Statut data_error | Sortie mise en quarantaine |
+| Clé API absente | Échec d'authentification | Pas de retries sans fin |
+| API limite le débit | Reprise bornée | Pause et compteur de tentatives |
+| Fichier de sortie inaccessible | Échec global contrôlé | Pas de rapport de succès trompeur |
+| Deux lancements simultanés | Verrou ou comportement explicite | Pas de double modification |
+| Processus interrompu | Nettoyage et statut incomplet | Temporaires gérés |
+| Données déjà conformes | No-op | Aucun changement inutile |
+| Test en simulation | Plan uniquement | Aucun changement sur la cible |
+
+Les critères doivent être définis avant l'exécution des tests, afin de ne pas déclarer un succès après avoir modifié les attentes pour qu'elles correspondent aux résultats. Pour les échecs partiels, vérifie aussi que le résumé est cohérent : le nombre total de cibles doit correspondre au total des états finaux, sans doublons ni lignes silencieusement perdues.
+
+Un test de performance doit être réalisé en laboratoire avec une taille d'inventaire représentative, mais ne doit pas devenir un test de charge improvisé contre une infrastructure partagée. Fixe une limite de concurrence, observe le temps total, la mémoire, le volume de journaux et la pression exercée sur les cibles. Toute augmentation de concurrence doit être mesurée, validée et réversible.
+
+### Q. Rapport d'exécution : rendre le résultat interprétable
+
+À la fin de la collecte, l'opérateur doit voir ce qui est terminé et ce qui ne l'est pas. Un rapport bien construit contient un identifiant de lancement, la version du programme, l'environnement, l'heure de début et de fin, le nombre de cibles prévues, le nombre de résultats, les statuts par catégorie, les avertissements et les limites de couverture. Il indique également où se trouvent les résultats détaillés.
+
+Exemple de rapport pédagogique :
+
+```text
+Run ID              : COLLECT-LAB-2026-042
+Mode                : lecture seule
+Inventaire attendu  : 12 cibles
+Cibles traitées     : 12
+Succès              : 9
+Timeouts            : 2
+Erreur de schéma    : 1
+Statut global       : collecte partielle
+Durée totale        : 00:00:38
+Effets de configuration : aucun
+Prochaine étape     : vérifier les 3 cibles non collectées
+```
+
+Les valeurs sont fictives. Un rapport ne doit affirmer qu'un contrôle de sécurité a réussi que s'il a effectivement été exécuté. Il doit aider à prendre la prochaine décision. Si une seule cible échoue, le propriétaire peut décider de relancer uniquement cette cible après avoir vérifié la cause. Si la collecte est partielle sur la majorité de l'inventaire, le problème peut concerner l'authentification, le réseau de gestion ou la configuration globale. Si des données sont mal formées, ne relance pas aveuglément sans inspecter le producteur ou le schéma attendu.
+
+### R. Synthèse et critères de maîtrise
+
+Un script d'automatisation fiable a un objectif défini, un contrat d'entrées et de sorties, des permissions minimales, des timeouts et des tentatives bornées, des erreurs observables, un format de résultat stable et des tests qui ne dépendent pas inutilement d'un équipement réel. Il évite les chaînes de commandes construites à partir d'entrées non fiables et distingue les succès complets des résultats partiels.
+
+L'idempotence, les modes de simulation et la vérification de l'état souhaité permettent de contrôler les effets. Les journaux et les manifestes facilitent la reconstitution d'une exécution. La planification et l'intégration continue réduisent les différences entre exécution manuelle et exploitation régulière. La sécurité ne se limite pas à cacher les secrets : elle comprend aussi le périmètre d'accès, les permissions, les effets autorisés, l'approbation, la traçabilité et le retour arrière.
+
+La progression doit rester prudente. Commence par une collecte en lecture seule. Teste les erreurs. Mesure les durées. Vérifie que les statuts sont fidèles. Ajoute ensuite les fonctionnalités une par une, avec une comparaison avant/après et une procédure de restauration testée. Une automatisation utile ne masque pas ses limites : elle expose la couverture de ses résultats, indique les opérations non terminées et laisse à l'opérateur les décisions dont le risque dépasse son autorisation.
+
 ## Défi final corrigé — collecteur réseau répétable et sûr
 
 ### Énoncé
