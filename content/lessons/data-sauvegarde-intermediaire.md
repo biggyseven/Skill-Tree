@@ -226,10 +226,10 @@ MySQL possède plusieurs méthodes de sauvegarde selon la taille, le moteur de s
 Exemple pédagogique pour exporter une base :
 
 ~~~bash
-mysqldump -h 127.0.0.1 -u lab_backup -p skilltree_lab > skilltree_lab.sql
+mysqldump --single-transaction --routines --events --triggers -h 127.0.0.1 -u lab_backup -p skilltree_lab > skilltree_lab.sql
 ~~~
 
-Le client demande le mot de passe de façon interactive avec -p. Dans un environnement automatisé, choisissez un mécanisme de secrets approprié et évitez les valeurs sensibles dans les arguments, les logs et le dépôt. Vérifiez les options qui déterminent la cohérence transactionnelle, les routines, les événements, les triggers et les objets inclus.
+Le client demande le mot de passe de façon interactive avec -p. Dans un environnement automatisé, choisissez un mécanisme de secrets approprié et évitez les valeurs sensibles dans les arguments, les logs et le dépôt. Les options présentées illustrent l'inclusion de routines, événements et triggers et une lecture cohérente pour les tables transactionnelles ; elles doivent être adaptées à la version et au périmètre réel. Avec --single-transaction, les garanties reposent notamment sur les moteurs transactionnels pris en charge, et des opérations DDL concurrentes peuvent affecter la cohérence du dump. Vérifiez les options de votre version ainsi que les objets inclus.
 
 Pour une base utilisant InnoDB, la stratégie de cohérence d'un dump doit tenir compte des transactions et du moteur. Un export effectué pendant que les données changent doit utiliser des options adaptées à un instant cohérent, selon les tables et les objets impliqués. Les options utiles varient avec les besoins et la version ; l'équipe doit noter précisément celles qu'elle utilise.
 
@@ -407,6 +407,14 @@ Un job de sauvegarde terminé avec succès prouve au mieux que le processus a at
 ### 12.1 Vérification du fichier
 
 La présence, la taille, l'horodatage et, selon les outils, une somme de contrôle peuvent détecter certains problèmes de copie ou de stockage. Une taille plausible ne prouve pas la validité interne d'une archive. Un hash calculé au moment de la sauvegarde puis comparé après transfert permet de vérifier que les octets correspondent, mais ne prouve pas que le contenu est restaurable.
+
+Pour une sauvegarde physique PostgreSQL produite avec pg_basebackup et un manifeste compatible, l'outil pg_verifybackup peut vérifier les fichiers sauvegardés par rapport au manifeste. Exemple indicatif :
+
+~~~bash
+pg_verifybackup /srv/backups/pg_basebackup
+~~~
+
+Cette vérification ne remplace pas un test de démarrage et de restauration, et n'est pas applicable à tous les formats de sauvegarde. Le manifeste doit lui-même être protégé contre une modification non autorisée si la vérification vise aussi à détecter une altération malveillante.
 
 Les outils peuvent fournir leurs propres vérifications de contenu et de métadonnées. Utilisez-les selon la méthode de sauvegarde, puis réalisez une restauration d'essai. Le meilleur contrôle reste une procédure de récupération qui parvient à reconstruire la base et à passer les assertions prévues.
 
