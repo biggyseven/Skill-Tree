@@ -126,3 +126,19 @@ select:focus-visible, textarea:focus-visible, [role="button"]:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   #daily-plan-dashboard-v1 *, .mobile-bottom-nav * { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+
+/* Phase 3 — hiérarchie NOC et catalogue de laboratoires. */
+#war-priority-summary-v1 article { min-height: 82px; }
+.war-ticket-card { position: relative; }
+.war-ticket-card:hover { box-shadow: 0 12px 28px -23px rgb(0 0 0 / .85); }
+.war-priority-banner { align-self: flex-start; }
+.lab-catalog-card { text-decoration: none; }
+.lab-catalog-card:focus-visible { outline-offset: 3px; }
+@media (max-width: 640px) {
+  #war-priority-summary-v1 article { min-height: 72px; padding: .85rem; }
+  .lab-catalog-card { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .war-ticket-card, .lab-catalog-card { transition-duration: .01ms !important; }
+}
