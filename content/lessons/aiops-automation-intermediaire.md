@@ -461,6 +461,490 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Atelier approfondi — concevoir une automatisation AIOps sûre
+
+L'automatisation AIOps ne se limite pas à exécuter un script lorsqu'une alerte apparaît. Une chaîne fiable transforme une observation en décision encadrée, prépare une action limitée, vérifie ses préconditions, l'exécute dans un périmètre autorisé, puis mesure si le service est réellement revenu à l'état attendu. À chacune de ces étapes, elle doit pouvoir s'arrêter proprement. Le but n'est pas de rendre chaque opération automatique, mais de retirer les tâches répétitives lorsque la décision est suffisamment sûre et de préserver la capacité humaine pour les situations ambiguës.
+
+Le fil rouge de cet atelier est un changement réseau déclenché après la détection d'une dégradation sur un groupe de liens. Le système peut proposer un rééquilibrage, un ajustement limité ou une collecte supplémentaire, mais il ne doit pas modifier l'infrastructure sur la base d'un score seul. Les exemples sont pédagogiques : toute commande, API, règle de changement et procédure doivent être adaptées au matériel, à l'environnement de laboratoire et aux politiques en vigueur.
+
+### 1. Transformer le signal en intention opérationnelle
+
+Une alerte constitue une observation, pas une instruction exécutable. Elle peut être tardive, incomplète, dupliquée, mal classée ou fondée sur une donnée erronée. L'automatisation doit d'abord réunir le contexte utile : cible, service affecté, durée, gravité, fraîcheur des mesures, changements récents, historique des actions et état de maintenance. Si les signaux sont contradictoires, elle doit demander une vérification ou s'abstenir plutôt que choisir arbitrairement celui qui lui semble le plus convaincant.
+
+Séparez quatre objets. Le signal décrit ce qui est observé. L'intention exprime un objectif opérationnel, comme rétablir un chemin de secours ou réduire le temps de triage. La politique détermine les conditions autorisées et les restrictions. Le plan détaille les changements nécessaires pour satisfaire l'intention. Cette séparation empêche une alerte brute de devenir directement une commande.
+
+```mermaid
+flowchart TD
+    A["Signal ou événement"] --> B["Valider qualité et fraîcheur"]
+    B --> C["Enrichir contexte et dépendances"]
+    C --> D["Formuler une intention"]
+    D --> E["Évaluer politique et risque"]
+    E --> F{"Décision autorisée ?"}
+    F -- "Non" --> G["S'abstenir et transmettre les preuves"]
+    F -- "Oui" --> H["Construire un plan explicite"]
+    H --> I["Contrôler les préconditions"]
+    I --> J["Exécuter puis vérifier"]
+```
+
+Une intention devrait être assez précise pour être évaluée. « Améliorer le réseau » n'est pas testable. « Rétablir la connectivité du segment de test en conservant l'accès d'administration et sans toucher aux sites hors périmètre » définit un objectif et des limites. Ajoutez les conditions de réussite, le délai, le périmètre, la criticité et les cas où l'opération doit être interrompue. Les actions ne doivent jamais élargir silencieusement le périmètre pour compenser un inventaire incomplet.
+
+La décision peut avoir plusieurs résultats : ignorer un signal non pertinent, collecter des données supplémentaires, ouvrir une investigation, proposer un plan, exécuter une action de faible risque ou demander une approbation. Cette palette est plus robuste qu'un simple booléen « agir/ne pas agir ». Le statut « indéterminé » est utile lorsque le système ne dispose pas de données assez fraîches ou lorsque deux politiques se contredisent. Il évite de convertir artificiellement l'incertitude en autorisation.
+
+### 2. Construire une politique explicite et vérifiable
+
+Une politique décrit ce que le système peut faire, sur quelles cibles, sous quelles conditions et avec quels seuils d'arrêt. Elle peut inclure des règles comme « ne jamais modifier la configuration pendant une fenêtre de gel », « ne traiter que les équipements du groupe pilote », « exiger une approbation pour une modification de routage » ou « interdire le déploiement si la télémétrie est trop ancienne ». Les règles doivent être versionnées et testées avec la même rigueur que le code.
+
+Distinguez la politique générale de la configuration par environnement. Les limites d'un laboratoire peuvent autoriser des opérations interdites en production. Une simple valeur de configuration indiquant l'environnement ne doit pas suffire à ouvrir toutes les permissions ; le contexte d'exécution, les identités, les approbations et les protections du système de déploiement doivent aussi le confirmer. Les environnements ne doivent pas partager par défaut les mêmes secrets ou comptes techniques.
+
+```mermaid
+flowchart TD
+    A["Requête d'automatisation"] --> B["Charger politique versionnée"]
+    B --> C["Vérifier environnement et identité"]
+    C --> D["Vérifier fenêtre et périmètre"]
+    D --> E["Vérifier impact et approbation"]
+    E --> F{"Toutes les règles satisfaites ?"}
+    F -- "Non" --> G["Refuser avec raisons précises"]
+    F -- "Oui" --> H["Émettre un plan non encore appliqué"]
+    H --> I["Journaliser la décision"]
+```
+
+Les décisions doivent être expliquées sans révéler les secrets. Un refus peut indiquer qu'une cible est hors périmètre, que l'approbation manque, que la fraîcheur dépasse le délai admis ou que le risque est trop élevé. Un message générique comme « échec de l'automatisation » oblige l'opérateur à chercher à l'aveugle. À l'inverse, un diagnostic ne doit pas contenir un jeton, un mot de passe ou un extrait complet de configuration sensible.
+
+Testez les politiques sur des cas positifs et négatifs : utilisateur autorisé et non autorisé, cible connue et inconnue, fenêtre normale et fenêtre de gel, données fraîches et périmées, approbation valide et expirée, plan de faible risque et plan dépassant la limite. Une politique testée seulement sur les cas acceptés peut sembler correcte tout en laissant passer les actions qu'elle devait interdire.
+
+### 3. Rendre les actions idempotentes
+
+Une action est idempotente lorsque sa répétition, dans les conditions définies, ne crée pas des effets supplémentaires indésirables. Les systèmes distribués peuvent réessayer une requête après une expiration de délai alors que l'opération a déjà été appliquée. Le client ne sait pas toujours si le serveur n'a jamais reçu la demande, l'a appliquée puis a perdu la réponse, ou est encore en train de la traiter. Répéter aveuglément une opération peut alors ajouter des objets en double, inverser une modification ou lancer plusieurs redémarrages.
+
+Privilégiez des opérations déclaratives : définir l'état cible plutôt que rejouer une commande impérative à chaque passage. Comparez l'état actuel à l'état désiré, calculez le changement minimal, puis vérifiez ce qui a réellement été appliqué. Pour une action qui crée un objet, utilisez une clé de déduplication si l'API la prend en charge, ou recherchez l'objet par une identité stable avant de le créer. Une clé ne remplace pas la vérification du résultat, mais elle aide à dédupliquer les requêtes.
+
+```mermaid
+flowchart TD
+    A["Demande reçue"] --> B["Calculer une clé stable d'opération"]
+    B --> C{"Résultat déjà enregistré ?"}
+    C -- "Oui" --> D["Renvoyer l'état connu"]
+    C -- "Non" --> E["Lire état actuel"]
+    E --> F["Calculer différence minimale"]
+    F --> G["Appliquer changement"]
+    G --> H["Lire l'état réel"]
+    H --> I{"État cible atteint ?"}
+    I -- "Oui" --> J["Enregistrer résultat terminal"]
+    I -- "Non" --> K["Enregistrer échec et ouvrir investigation"]
+```
+
+L'idempotence nécessite une définition de l'identité. Si l'identifiant de tâche change à chaque tentative, le système ne peut pas reconnaître deux tentatives de la même intention. Construisez une clé à partir d'éléments stables, comme l'identifiant de demande, l'objet cible et la version du plan. Évitez d'inclure l'heure courante si celle-ci crée une identité nouvelle à chaque tentative. Déterminez aussi combien de temps l'historique de déduplication doit être conservé selon les délais de reprise possibles.
+
+Ne confondez pas idempotence et absence de risque. « Définir le port à l'état désactivé » peut être idempotent, mais reste une opération dangereuse si la cible est mal identifiée. Le plan doit avoir un périmètre, des préconditions et une autorisation. Une action peut également être idempotente au niveau d'une API mais pas au niveau opérationnel si elle déclenche des effets secondaires tels qu'une coupure, une notification ou une facturation répétée.
+
+### 4. Utiliser préconditions, invariants et postconditions
+
+Les préconditions précisent ce qui doit être vrai avant l'exécution : cible identifiée, état observé récent, sauvegarde disponible, chemin d'administration intact, approbation valide et fenêtre de changement ouverte. Les invariants sont des propriétés qui doivent rester vraies pendant l'opération ou au terme du changement : le réseau de gestion reste accessible, les autres sites ne sont pas touchés, les routes essentielles restent présentes et les droits ne sont pas élargis. Les postconditions décrivent ce que l'on doit observer après l'action pour la considérer réussie.
+
+Cette séparation transforme un script en opération vérifiable. « La commande est retournée sans erreur » n'est pas une postcondition suffisante. L'API peut accepter une demande sans que le plan de données converge comme attendu. Il faut lire l'état réel après le changement et, lorsque c'est approprié, tester le service depuis un point de vue indépendant.
+
+```mermaid
+flowchart LR
+    A["Préconditions"] --> B{"Validées ?"}
+    B -- "Non" --> C["Ne pas appliquer"]
+    B -- "Oui" --> D["Appliquer changement minimal"]
+    D --> E["Vérifier invariants"]
+    E --> F["Mesurer postconditions"]
+    F --> G{"Résultat conforme ?"}
+    G -- "Oui" --> H["Clore avec preuve"]
+    G -- "Non" --> I["Arrêt, rollback ou escalade"]
+```
+
+Écrivez les invariants comme des tests que l'on peut exécuter. Par exemple, une opération de test sur une interface ne doit pas modifier les interfaces hors du groupe autorisé ; l'accès d'administration doit continuer à répondre ; le nombre de routes indispensables doit rester au-dessus d'une limite définie. Ces tests doivent être adaptés au service et non copiés d'un exemple générique. Un invariant peut également imposer que l'identité du collecteur reste en lecture seule même lorsqu'un autre service propose un changement.
+
+Les postconditions peuvent combiner plusieurs niveaux. Au niveau de l'API, la modification est acceptée. Au niveau de l'équipement, la configuration ou l'état opérationnel correspond à la cible. Au niveau du service, la connectivité, le délai ou le taux d'erreur revient dans une plage acceptable. Ces niveaux sont complémentaires : une configuration appliquée ne garantit pas que le service a retrouvé son fonctionnement. Définissez également une période d'observation, car le retour immédiat à la normale peut être temporaire.
+
+### 5. Traiter le workflow comme une machine à états
+
+Un workflow d'automatisation doit représenter explicitement son état : reçu, qualifié, préparé, en attente d'approbation, en cours, vérifié, terminé, échoué, compensé ou suspendu. Sans états explicites, un redémarrage du worker peut rendre impossible de savoir si l'action a été appliquée. Évitez de garder la totalité de la progression uniquement dans la mémoire d'un processus.
+
+Chaque transition doit avoir une condition, une limite temporelle, une trace et une stratégie si elle échoue. Une tâche bloquée en attente d'approbation ne doit pas conserver indéfiniment une ressource ou une réservation. Une opération commencée avant une panne peut être reprise, mais elle doit d'abord relire l'état actuel et rechercher un résultat déjà appliqué. Ne repartez pas automatiquement de la première commande sans reconstruire le contexte.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Received
+    Received --> Qualified: contexte valide
+    Qualified --> Planned: plan calculé
+    Planned --> AwaitingApproval: approbation requise
+    Planned --> Running: règle autorise
+    AwaitingApproval --> Running: approbation valide
+    AwaitingApproval --> Rejected: refus ou expiration
+    Running --> Verifying: demande appliquée
+    Verifying --> Succeeded: postconditions vraies
+    Verifying --> Compensating: échec compensable
+    Running --> Failed: erreur avant effet confirmé
+    Compensating --> RolledBack: état restauré
+    Compensating --> Escalated: compensation impossible
+    Succeeded --> [*]
+    Rejected --> [*]
+    Failed --> [*]
+    RolledBack --> [*]
+    Escalated --> [*]
+```
+
+Les transitions doivent être idempotentes elles aussi. Si un événement de file arrive deux fois, la deuxième livraison ne doit pas créer un nouveau workflow qui modifie le même équipement. Si un job est relancé après un crash, il doit retrouver son identifiant, relire le journal et reprendre au bon état. Une version du schéma de workflow aide à traiter les tâches historiques lorsque la logique change. Les transitions impossibles doivent être refusées et signalées, pas réparées silencieusement.
+
+Prévoyez des états « suspendu » et « escaladé ». Une opération peut être impossible à terminer automatiquement parce qu'une vérification est indisponible, qu'une action compensatoire n'est pas sûre ou qu'une donnée essentielle manque. L'équipe doit voir ce blocage, les étapes déjà réalisées et les opérations restantes. Un workflow ne doit pas rester « en cours » pendant des heures sans propriétaire ni expiration.
+
+### 6. Comprendre compensation et rollback
+
+Un rollback n'est pas toujours l'inverse exact d'une action. Une modification réseau peut avoir déclenché des sessions, propagé des routes, changé des états ou provoqué des effets externes. Restaurer un fichier de configuration ne garantit donc pas de restaurer exactement le service. Pour les opérations composées, la compensation consiste à exécuter des actions de correction qui ramènent le système vers un état acceptable. Elle doit elle-même être autorisée, testée et vérifiée.
+
+Avant un changement, capturez un état de référence et identifiez les éléments qui pourront être restaurés. Le snapshot doit être associé à l'équipement, à l'heure, à la version de configuration et à l'opération qui l'utilise. Il doit être protégé contre les accès non autorisés et conserver les informations nécessaires sans exposer inutilement des secrets. Une sauvegarde non testée ou impossible à restaurer n'est pas une garantie de réversibilité.
+
+```mermaid
+flowchart TD
+    A["Changement composé"] --> B["Identifier effets et dépendances"]
+    B --> C["Préparer état de référence"]
+    C --> D["Définir compensation par étape"]
+    D --> E["Tester les chemins d'échec"]
+    E --> F["Appliquer dans le périmètre autorisé"]
+    F --> G{"Postconditions satisfaites ?"}
+    G -- "Oui" --> H["Valider et conserver la preuve"]
+    G -- "Non" --> I["Compensation contrôlée"]
+    I --> J["Relire l'état réel"]
+    J --> K{"État acceptable ?"}
+    K -- "Oui" --> L["Clôturer comme compensé"]
+    K -- "Non" --> M["Escalader et geler les actions liées"]
+```
+
+Il existe des cas où une compensation automatique est plus dangereuse que l'escalade. Si l'état actuel est inconnu, si une modification concurrente a eu lieu ou si le retour arrière peut interrompre un service critique, arrêtez et demandez une décision humaine. La procédure doit connaître ses limites. Ne réappliquez pas aveuglément un snapshot historique si un autre opérateur a modifié l'équipement depuis.
+
+Testez au moins les scénarios suivants : échec avant application, délai expiré après application, réponse perdue, postcondition non satisfaite, rollback partiel, dépendance indisponible pendant la compensation et intervention concurrente. Pour chacun, indiquez l'état final attendu, les preuves à conserver, l'action permise et le point d'escalade. Le rollback devient fiable lorsqu'il est un scénario testé, pas simplement un bouton dans l'interface.
+
+### 7. Déployer progressivement et limiter le rayon d'impact
+
+Une action qui fonctionne sur un équipement de laboratoire peut avoir un effet différent sur un parc réel. Le déploiement progressif réduit le rayon d'impact : un canary ou petit groupe est traité en premier, les résultats sont évalués, puis la vague suivante est autorisée. Le groupe pilote doit représenter les différences pertinentes, sans inclure tous les actifs critiques dès le premier essai. Définissez une taille maximale de vague, une pause d'observation et les critères de passage.
+
+Le choix du canary doit être explicite. Un équipement atypique peut être utile pour tester les cas limites, mais un équipement essentiel n'est pas nécessairement un bon candidat pour le premier essai. Sélectionnez selon la représentativité, le risque, la redondance, la couverture de surveillance et la capacité à restaurer le service. Documentez les équipements exclus et la raison de l'exclusion.
+
+```mermaid
+flowchart TD
+    A["Plan validé"] --> B["Sélectionner canary représentatif"]
+    B --> C["Vérifier préconditions"]
+    C --> D["Appliquer petite vague"]
+    D --> E["Attendre fenêtre d'observation"]
+    E --> F["Mesurer santé et postconditions"]
+    F --> G{"Seuils respectés ?"}
+    G -- "Oui" --> H["Autoriser vague suivante"]
+    H --> I{"Parc terminé ?"}
+    I -- "Non" --> C
+    I -- "Oui" --> J["Rapport de déploiement"]
+    G -- "Non" --> K["Stopper extension"]
+    K --> L["Compenser ou escalader"]
+```
+
+Les seuils d'arrêt doivent être définis avant l'exécution, et non choisis après avoir vu le résultat. Ils peuvent inclure l'augmentation du taux d'erreur, la perte de connectivité, la hausse de latence, la proportion de cibles non conformes, les erreurs d'API ou le dépassement d'un délai. Les seuils doivent être adaptés à chaque type de changement ; un ajustement de collecte et une modification de routage n'ont pas la même criticité.
+
+La progression ne doit pas dépendre du seul taux global. Une moyenne acceptable peut cacher l'échec d'un site ou d'une catégorie de service. Ventilez les mesures selon les populations critiques, gardez un minimum de réussite par groupe et bloquez l'extension si un sous-ensemble dépasse les limites. Une opération peut aussi être suspendue automatiquement si les données nécessaires à la décision cessent d'arriver, parce que l'équipe ne peut plus vérifier son impact.
+
+```mermaid
+flowchart LR
+    A["Résultats du canary"] --> B["Mesures globales"]
+    A --> C["Mesures par site"]
+    A --> D["Mesures par criticité"]
+    B --> E["Évaluer critères fixés avant changement"]
+    C --> E
+    D --> E
+    E --> F{"Une limite est dépassée ?"}
+    F -- "Oui" --> G["Stopper l'expansion"]
+    F -- "Non" --> H["Promouvoir la prochaine vague"]
+    G --> I["Diagnostiquer et décider du rollback"]
+```
+
+Un mécanisme de verrouillage ou de réservation peut empêcher plusieurs workflows de modifier la même cible simultanément. Le verrou doit avoir une durée d'expiration et un moyen de gérer la perte du worker qui le détenait. Un verrou permanent bloquerait le système après un crash ; un verrou trop court autoriserait des actions concurrentes encore en cours. À la reprise, la tâche doit vérifier l'identité du propriétaire, la version de l'état et les modifications réalisées depuis l'acquisition.
+
+### 8. Contrôler concurrence, files et limites de débit
+
+Un événement AIOps peut être dupliqué par le système de transport, réémis à la reconnexion ou généré simultanément par plusieurs détecteurs. Si chaque événement lance une opération, un incident important peut provoquer une avalanche d'actions concurrentes. Les mécanismes de déduplication, de regroupement et de verrouillage réduisent ce risque, mais doivent préserver les événements réellement différents.
+
+La déduplication devrait utiliser des informations sémantiques : actif, type de phénomène, fenêtre temporelle et version de politique. Le simple texte d'une alerte est une clé fragile, car sa formulation peut changer. Une fenêtre trop large peut fusionner deux incidents distincts ; une fenêtre trop courte peut traiter plusieurs symptômes du même incident comme des événements indépendants. Les règles doivent être testées sur des scénarios historiques et les opérations de sévérité supérieure doivent rester visibles.
+
+```mermaid
+flowchart TD
+    A["Événement reçu"] --> B["Valider source et schéma"]
+    B --> C["Construire clé sémantique"]
+    C --> D{"Événement déjà traité ?"}
+    D -- "Oui" --> E["Enrichir dossier existant"]
+    D -- "Non" --> F["Placer en file priorisée"]
+    F --> G["Vérifier verrou et quota"]
+    G --> H{"Cible disponible ?"}
+    H -- "Non" --> I["Réessayer avec attente bornée ou escalader"]
+    H -- "Oui" --> J["Lancer workflow unique"]
+    E --> K["Journaliser et surveiller"]
+    I --> K
+    J --> K
+```
+
+Appliquez un quota global et, si nécessaire, des limites par équipement, par site et par type d'action. La limitation doit protéger l'infrastructure et le service d'automatisation. Un système qui exécute des opérations plus vite que la capacité de vérification ne peut pas confirmer leur résultat. Réservez de la capacité pour les événements critiques, et évitez que des tâches de faible priorité occupent tous les workers ou toutes les connexions.
+
+Les tentatives doivent être classées en erreurs transitoires et permanentes. Un délai dépassé ou une indisponibilité courte peut justifier une nouvelle tentative ; une autorisation refusée, un schéma invalide ou une cible hors périmètre requiert une correction plutôt qu'une répétition sans fin. Utilisez un nombre maximal de tentatives, un délai progressif, de l'aléa pour répartir les reprises et une file d'échec pour les tâches qui nécessitent une intervention.
+
+```mermaid
+flowchart TD
+    A["Erreur de tâche"] --> B{"Catégorie"}
+    B -- "Transitoire" --> C["Calculer délai progressif borné"]
+    C --> D{"Budget de tentatives restant ?"}
+    D -- "Oui" --> E["Rejouer après contrôle d'état"]
+    D -- "Non" --> F["File d'échec et notification"]
+    B -- "Permanente" --> G["Arrêt immédiat et diagnostic"]
+    E --> H["Journaliser résultat"]
+    F --> H
+    G --> H
+```
+
+### 9. Séparer planification, simulation et exécution
+
+Un plan de changement lisible est un résultat à part entière. Il indique les cibles, les opérations, l'état avant, l'état voulu, les différences attendues, les risques, les préconditions et les contrôles postérieurs. La simulation ou le mode de vérification permet d'identifier certains problèmes avant l'exécution, mais ne garantit ni que l'équipement acceptera le changement ni que le service convergera correctement.
+
+La phase de planification ne devrait pas disposer des mêmes droits que l'exécution. Le moteur de plan peut lire les configurations et calculer les différences ; un agent d'exécution séparé peut recevoir un plan approuvé et appliquer uniquement les opérations permises. Cette séparation réduit l'impact d'un défaut dans l'analyse du signal ou la construction du plan. Le plan doit être immuable une fois approuvé ; si la cible ou le contenu change, l'approbation doit être reconsidérée.
+
+```mermaid
+flowchart LR
+    A["Intention"] --> B["Générer plan"]
+    B --> C["Simulation et diff"]
+    C --> D["Tests et revue"]
+    D --> E{"Plan approuvé ?"}
+    E -- "Non" --> F["Réviser ou rejeter"]
+    E -- "Oui" --> G["Signer et versionner le plan"]
+    G --> H["Exécution avec identité limitée"]
+    H --> I["Vérification indépendante"]
+    I --> J["Rapport de résultat"]
+```
+
+Un diff doit être interprétable. Il présente ce qui sera ajouté, supprimé ou modifié, avec les cibles et les risques. Évitez les changements massifs difficiles à examiner et découpez les opérations lorsque cela réduit le rayon d'impact. Les changements de configuration et les modifications de secrets devraient être distingués pour que le rapport de validation n'expose pas de valeurs confidentielles.
+
+Les plans doivent être liés à un inventaire qui reste valable au moment de l'application. Si un nom DNS est réaffecté, un équipement a été remplacé ou la topologie a changé depuis l'approbation, le plan peut viser la mauvaise cible. Enregistrez une identité stable et une version de l'état qui a servi à construire le plan. Juste avant l'exécution, vérifiez les conditions sensibles et refusez l'application si l'écart est devenu trop important.
+
+### 10. Concevoir l'audit et la preuve d'exécution
+
+Un workflow doit laisser une histoire cohérente : déclencheur, données utilisées, version de politique, plan, approbation, identité d'exécution, opérations demandées, réponses, mesures postérieures et résultat. Chaque entrée devrait être horodatée et liée à l'identifiant stable de l'opération. Les journaux ne doivent pas être l'unique source de vérité si leur rotation ou leur indisponibilité peut effacer l'état nécessaire à la reprise.
+
+La preuve doit permettre de répondre à des questions simples : pourquoi l'action a-t-elle été proposée ? Quelles données étaient disponibles à ce moment-là ? Qui ou quelle règle l'a autorisée ? Sur quelles cibles l'action a-t-elle été appliquée ? Les postconditions ont-elles été vérifiées ? Le service est-il resté sain pendant la période d'observation ? Si la réponse n'est pas reconstructible, l'automatisation n'est pas suffisamment contrôlable pour un changement risqué.
+
+```mermaid
+flowchart TD
+    A["Déclencheur avec provenance"] --> B["Décision et version de politique"]
+    B --> C["Plan et approbation"]
+    C --> D["Identité et opérations réalisées"]
+    D --> E["Réponses et état final"]
+    E --> F["Mesures de service après action"]
+    F --> G["Rapport de preuve lié à l'opération"]
+    G --> H["Rétention et accès contrôlés"]
+    H --> I["Revue après incident ou audit"]
+```
+
+Conservez les secrets en dehors des journaux. Les commandes d'exécution peuvent contenir des variables sensibles ou révéler une configuration complète. Les logs doivent privilégier un identifiant de secret ou une référence au coffre, pas sa valeur. Le masquage doit être testé : un message d'exception ou une sortie brute de commande peut contenir le secret même si le code applicatif ne l'imprime jamais volontairement.
+
+La traçabilité doit également rester proportionnée. Ne collectez pas tout le contenu de chaque événement si seules quelques données sont utiles à la justification. Utilisez des références vers des données protégées lorsque nécessaire, définissez les durées de rétention et restreignez les accès. L'objectif est d'être capable d'expliquer une opération, pas de créer un nouvel entrepôt de données sensibles sans finalité claire.
+
+### 11. Tester les workflows au-delà du chemin heureux
+
+Les tests unitaires valident les fonctions de décision, les règles de seuil, les calculs de plan et les conditions de transition. Les tests de contrat vérifient les interfaces avec les API ou équipements. Les tests d'intégration valident le parcours entre la file, l'orchestrateur, l'exécuteur et le système de suivi. Les tests de bout en bout mesurent l'effet réel dans un environnement autorisé. Aucun de ces niveaux ne remplace entièrement les autres.
+
+Un cas réussi avec une API disponible ne couvre pas une réponse perdue après application, une seconde livraison du même événement, une intervention concurrente ou une vérification postérieure indisponible. Injectez des défauts contrôlés : délais, limitations de débit, réponses mal formées, perte de connexion, manque de données, saturation simulée ou worker interrompu. Vérifiez que le système garde un état cohérent, n'exécute pas deux fois une action et sait signaler une opération dont le résultat est incertain.
+
+```mermaid
+flowchart TD
+    A["Workflow de changement"] --> B["Test chemin nominal"]
+    A --> C["Test événement dupliqué"]
+    A --> D["Test réponse perdue après application"]
+    A --> E["Test vérification indisponible"]
+    A --> F["Test cible modifiée en parallèle"]
+    A --> G["Test rollback partiel"]
+    B --> H["Contrôler état et preuves"]
+    C --> H
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    H --> I["Valider invariants et absence de double effet"]
+```
+
+Les tests doivent distinguer l'état de l'opération de l'état du service. Une tâche peut être en échec alors que le changement a finalement été appliqué ; inversement, l'API peut annoncer un succès alors que le service reste dégradé. Introduisez un état « résultat inconnu » lorsque le système ne peut pas déterminer ce qui s'est passé. Dans ce cas, la reprise doit relire l'état et reconstruire les faits avant toute nouvelle action.
+
+Les tests de non-régression devraient enregistrer des cas historiques représentatifs. Lorsqu'une règle est modifiée pour résoudre un faux positif, réévaluez les incidents que l'ancienne version détectait. Une amélioration ciblée peut dégrader d'autres catégories. Conservez la version, les paramètres, le jeu de cas, les résultats et la décision d'acceptation. Les changements de politique doivent être revus comme du code critique.
+
+### 12. Mettre l'automatisation en mode observation
+
+Le mode observation exécute la collecte, l'enrichissement, l'évaluation de la politique et la génération d'un plan, mais ne modifie pas l'infrastructure. Il permet de comparer les propositions automatiques aux décisions humaines et de détecter les cas où le contexte est incomplet. Il faut toutefois s'assurer qu'aucun chemin indirect ne peut déclencher un changement : désactiver un bouton côté interface ne suffit pas si l'identité d'exécution conserve des droits et qu'un autre composant peut appeler l'API directement.
+
+Comparez les propositions aux incidents, aux actions réellement effectuées et aux décisions de l'équipe. Combien de fois le système aurait-il proposé une action inutile ? Combien de fois aurait-il omis une action importante ? Combien de propositions reposaient sur des données trop anciennes ? Combien exigeaient un contexte qui n'était pas présent ? Ces résultats doivent être documentés avant l'autorisation d'une exécution automatique.
+
+```mermaid
+flowchart TD
+    A["Événement réel"] --> B["Automatisation en observation"]
+    B --> C["Proposition et plan"]
+    C --> D["Décision prise par l'équipe"]
+    D --> E["Comparer résultat automatique et humain"]
+    E --> F["Classer désaccords et risques"]
+    F --> G{"Critères d'acceptation atteints ?"}
+    G -- "Non" --> H["Corriger règles et contexte"]
+    H --> B
+    G -- "Oui" --> I["Canary avec droits limités"]
+```
+
+L'observation doit durer assez longtemps pour couvrir les profils de charge, les changements planifiés, les incidents et les périodes moins fréquentes qui peuvent être importantes. Quelques heures sans événement ne valident pas un workflow censé agir sur des pannes rares. Lorsque l'historique ne contient pas certains cas, utilisez des scénarios synthétiques en environnement de test et indiquez clairement la limite de cette preuve.
+
+Le passage du mode observation à l'exécution devrait être un changement explicite, revu et traçable. Les droits, les règles, les seuils et la possibilité de revenir en observation doivent être testés. Une commande de suspension doit empêcher de nouvelles opérations, mais aussi définir quoi faire avec celles qui sont déjà en cours. Certaines peuvent être arrêtées en sécurité, d'autres nécessitent une vérification d'état avant d'être interrompues.
+
+### 13. Mesurer la valeur au niveau du service
+
+Mesurer le nombre d'actions exécutées ne prouve pas que l'automatisation a apporté une amélioration. Une action rapide mais sans effet, une action qui crée un incident secondaire ou un workflow qui traite énormément de petits cas tout en manquant les plus critiques n'apportent pas nécessairement de valeur. Reliez les mesures de l'automatisation aux résultats opérationnels : temps de rétablissement, répétition des incidents, heures de triage, actions réversibles, taux de postconditions atteintes et effets indésirables.
+
+Définissez un indicateur principal et des garde-fous. Par exemple, une baisse du temps moyen de traitement doit être accompagnée d'une mesure du taux de réouverture et des changements ayant dû être compensés. Une augmentation du nombre de workflows terminés ne doit pas dissimuler une hausse des cas escaladés sans contexte. Les mesures doivent être ventilées par type d'action, service, environnement et niveau de risque.
+
+```mermaid
+flowchart LR
+    A["Workflow exécuté"] --> B["Mesurer postconditions"]
+    B --> C["Mesurer effet sur le service"]
+    C --> D["Mesurer effets indésirables"]
+    D --> E["Comparer au scénario de référence"]
+    E --> F{"Bénéfice net et risques acceptables ?"}
+    F -- "Non" --> G["Réduire portée ou suspendre"]
+    F -- "Oui" --> H["Poursuivre avec surveillance"]
+    G --> I["Revue des causes"]
+    H --> J["Rapport périodique"]
+```
+
+Les comparaisons doivent tenir compte des changements de contexte. Une période avec peu d'incidents peut faire croire qu'une automatisation est efficace simplement parce qu'elle a été peu sollicitée. Un déploiement parallèle, une modification d'infrastructure ou un changement de politique peut aussi expliquer l'évolution des métriques. Utilisez une période de référence, documentez les variables de contexte et évitez d'attribuer automatiquement toute amélioration au workflow.
+
+Le rapport doit montrer les bénéfices mais aussi les abstentions et les échecs. Une augmentation des abstentions peut refléter une meilleure prudence si les données étaient insuffisantes ; une hausse des échecs peut signaler un défaut de dépendance ou un plan trop ambitieux. L'enjeu est de rendre ces situations visibles pour permettre un réglage justifié, pas de viser artificiellement un taux de réussite proche de 100 % en refusant toutes les tâches difficiles.
+
+### 14. Sécuriser les identités et limiter les permissions
+
+Les identités d'observation, de planification, d'approbation et d'exécution devraient être séparées lorsque le risque le justifie. Un collecteur en lecture ne doit pas disposer automatiquement d'un accès en écriture. Le moteur de planification n'a pas besoin de secrets d'exécution si un service contrôlé se charge d'appliquer le plan. L'approbateur doit voir le changement proposé, son périmètre, ses risques et les preuves, mais ne pas être obligé d'exposer les identifiants techniques pour donner son accord.
+
+Utilisez une identité technique limitée à la cible et à l'action nécessaires. Les secrets doivent être lus depuis un coffre au moment de l'exécution, soumis à une politique de rotation, et absents des commits et des sorties CI. Préparez une procédure de révocation : si un secret est compromis ou si un service est retiré, l'accès doit pouvoir être bloqué sans attendre un nouveau déploiement complet du code.
+
+```mermaid
+flowchart TD
+    A["Signal et lecture seule"] --> B["Moteur de planification"]
+    B --> C["Plan sans secret"]
+    C --> D["Revue ou approbation"]
+    D --> E["Service d'exécution isolé"]
+    E --> F["Obtention de secret à durée limitée"]
+    F --> G["Application au périmètre permis"]
+    G --> H["Preuves sans secret"]
+    H --> I["Audit et révocation si nécessaire"]
+```
+
+L'approbation n'est pas un substitut à une politique correcte. Une personne peut se tromper ou accepter un changement sur la base d'une information manquante. L'interface doit afficher les cibles exactes, le diff, les préconditions, les risques connus, les tests et le rollback. Les approbations doivent expirer et être liées à une version précise du plan. Si le plan est recalculé après approbation, il doit être soumis à nouveau au contrôle.
+
+La sécurité inclut la capacité d'arrêter l'automatisation. Préservez un mécanisme de suspension qui ne dépend pas uniquement du même orchestrateur en difficulté. Les actions à haut risque doivent avoir une autorité clairement définie pour la reprise. Les journaux devraient enregistrer la suspension, son auteur ou déclencheur, les tâches actives et leur état, tout en limitant l'accès aux informations sensibles.
+
+### 15. Gérer les dépendances et les contrats d'API
+
+Une automatisation dépend généralement de plusieurs contrats : inventaire, système de télémétrie, contrôleur réseau, système de ticketing, approbation et stockage d'état. Chacune de ces dépendances peut évoluer séparément. Validez les versions, les schémas et les conditions d'erreur. Le fait qu'un endpoint réponde avec un code HTTP de succès ne prouve pas que son contenu correspond au contrat attendu, ni que l'état a été appliqué sur le système final.
+
+Les erreurs doivent être interprétées avec discernement. Une erreur de validation du client, une autorisation refusée, un conflit de version, une limitation de débit et une panne temporaire n'appellent pas le même comportement. Certaines réponses peuvent justifier une nouvelle tentative avec délai ; d'autres indiquent qu'une donnée ou une permission doit être corrigée. La classification doit être documentée et validée avec les réponses réellement émises par les interfaces utilisées.
+
+```mermaid
+flowchart TD
+    A["Appel à une dépendance"] --> B["Valider le contrat et la réponse"]
+    B --> C{"Résultat"}
+    C -- "Succès cohérent" --> D["Vérifier l'état métier"]
+    C -- "Limitation ou erreur transitoire" --> E["Réessayer avec délai borné"]
+    C -- "Donnée ou permission invalide" --> F["Arrêter et diagnostiquer"]
+    C -- "Résultat ambigu" --> G["Relire l'état avant toute répétition"]
+    D --> H["Journaliser preuve"]
+    E --> H
+    F --> H
+    G --> H
+```
+
+Un délai dépassé est une absence de réponse dans le délai, pas une preuve que l'opération n'a pas été appliquée. Cette nuance est particulièrement importante pour les requêtes qui modifient un état. Avant de réessayer, utilisez un identifiant de demande, une clé d'idempotence ou une lecture de l'état actuel afin de déterminer si l'opération a produit son effet. Si l'état reste impossible à connaître, suspendez l'opération et ouvrez une investigation au lieu d'empiler des tentatives.
+
+Les changements de contrat doivent être testés avec des jeux représentatifs de réponses. Conservez des exemples non sensibles de succès, de validation échouée, de conflit et d'indisponibilité. Les tests de contrat détectent des modifications qui ne sont pas visibles dans les tests unitaires, comme un champ devenu facultatif, une unité changée ou une nouvelle condition de pagination.
+
+### 16. Laboratoire : automatisation contrôlée d'un incident simulé
+
+Construisez un scénario de laboratoire dans lequel une télémétrie synthétique indique une latence croissante sur un lien redondé. L'automatisation ne doit pas lancer immédiatement un changement. Elle vérifie la fraîcheur, recherche les changements récents, examine la topologie, calcule un plan limité et affiche ses préconditions. Les premières exécutions restent en observation. L'équipe compare ensuite le plan avec un scénario de référence et valide les conditions de passage au mode canary.
+
+Le laboratoire doit contenir au moins un cas positif, un cas négatif et un cas ambigu. Le cas positif satisfait les préconditions et les postconditions. Le cas négatif est bloqué parce que la cible est hors périmètre ou que l'approbation manque. Le cas ambigu comporte une télémétrie trop ancienne ou un état qui change pendant la planification. Dans ce troisième cas, le système doit s'abstenir, actualiser les preuves ou demander une intervention.
+
+```mermaid
+sequenceDiagram
+    participant T as Télémétrie
+    participant O as Orchestrateur
+    participant P as Politique
+    participant H as Humain
+    participant E as Exécuteur
+    participant V as Vérification
+    T->>O: Signal avec qualité et horodatage
+    O->>P: Contexte, intention et périmètre
+    P-->>O: Refus, approbation ou plan autorisé
+    O->>H: Plan lisible et preuves
+    H-->>O: Approbation liée à la version
+    O->>E: Demande d'exécution bornée
+    E-->>V: Résultat et identifiant d'opération
+    V-->>O: Postconditions et effet de service
+```
+
+Réalisez ensuite une panne contrôlée. Simulez une perte de réponse après que l'agent a reçu la demande, puis relancez la tâche. Vérifiez qu'elle ne répète pas aveuglément l'action, qu'elle recherche l'état réel et que le journal conserve une seule identité logique d'opération. Simulez également une vérification postérieure qui échoue : le workflow doit rester ouvert, produire un dossier d'investigation et appliquer la stratégie de compensation autorisée ou escalader.
+
+Préparez enfin un rapport qui explique le signal, la décision, les préconditions, le plan, la version de politique, l'approbation, l'action simulée, les postconditions et les limites. Ajoutez les résultats des cas négatifs : le système doit démontrer non seulement qu'il sait agir dans un cas simple, mais aussi qu'il sait refuser ou s'arrêter dans une situation dangereuse.
+
+```mermaid
+flowchart TD
+    A["Créer scénario synthétique"] --> B["Exécuter en observation"]
+    B --> C["Valider décision et plan"]
+    C --> D["Tester cas autorisé"]
+    C --> E["Tester cible interdite"]
+    C --> F["Tester données périmées"]
+    D --> G["Vérifier idempotence et postconditions"]
+    E --> H["Vérifier refus et audit"]
+    F --> I["Vérifier abstention"]
+    G --> J["Assembler les preuves"]
+    H --> J
+    I --> J
+```
+
+### 17. Critères d'acceptation et mise en service
+
+Avant la production, le système doit démontrer que les intentions sont bornées, les politiques versionnées, les plans examinables, les tâches dédupliquées, les préconditions vérifiées et les postconditions mesurées. Les reprises doivent être sûres ; l'état doit rester reconstructible après un redémarrage ; les secrets doivent être protégés ; les opérations risquées doivent avoir une procédure d'approbation et une stratégie de récupération. Chaque exigence doit être associée à un test et à une preuve.
+
+Le déploiement devrait commencer sur un périmètre limité, puis être étendu seulement si les résultats satisfont les objectifs préalablement définis. Les indicateurs comprennent les taux de réussite et d'échec, la durée des workflows, la fréquence des abstentions, les actions compensées, les réouvertures, les effets indésirables et le temps gagné au niveau du service. Ne mesurez pas uniquement le nombre de tâches exécutées, car ce chiffre pourrait augmenter même si l'automatisation aggrave la situation.
+
+```mermaid
+flowchart TD
+    A["Revue architecture et risque"] --> B["Tests unitaires et contrats"]
+    B --> C["Tests de panne et de reprise"]
+    C --> D["Mode observation"]
+    D --> E["Pilote à droits limités"]
+    E --> F["Mesures et revue"]
+    F --> G{"Objectifs et garde-fous respectés ?"}
+    G -- "Non" --> H["Suspendre et corriger"]
+    H --> B
+    G -- "Oui" --> I["Extension progressive"]
+    I --> J["Revue périodique et versionnement"]
+```
+
+Les responsabilités doivent être explicites : propriétaire du workflow, propriétaire de la politique, équipe d'exécution, approbateur selon la criticité, responsable des secrets et personne capable de suspendre l'automatisation. La procédure d'exploitation décrit comment reprendre une tâche bloquée, comment déterminer si une action a été appliquée, comment restaurer un état acceptable et comment documenter l'incident. Une automatisation mature ne supprime pas la responsabilité humaine ; elle rend l'action répétable, contrôlée et vérifiable.
+
+### Grille d'autoévaluation de l'atelier
+
+- [ ] L'intention et le périmètre sont explicites.
+- [ ] Les politiques sont versionnées et testées avec des cas négatifs.
+- [ ] Les actions sont idempotentes ou possèdent une stratégie de déduplication.
+- [ ] Les préconditions, invariants et postconditions sont vérifiables.
+- [ ] Le workflow est une machine à états persistante.
+- [ ] La compensation est documentée et testée.
+- [ ] Les déploiements sont progressifs avec des seuils d'arrêt.
+- [ ] Les files, quotas, verrous et reprises sont bornés.
+- [ ] La simulation est séparée des droits d'exécution.
+- [ ] Les preuves d'audit protègent les secrets.
+- [ ] Les scénarios d'échec incluent résultat ambigu et panne de vérification.
+- [ ] Le mode observation confirme les décisions avant l'exécution.
+- [ ] Les mesures évaluent la santé du service et les effets indésirables.
+- [ ] Les identités respectent le moindre privilège.
+- [ ] Les contrats de dépendances et de données sont testés.
+- [ ] Le rapport du laboratoire prouve refus, arrêt et reprise contrôlée.
+
 ## Défi final corrigé — pipeline de changement réseau avec arrêt sûr
 
 ### Énoncé
