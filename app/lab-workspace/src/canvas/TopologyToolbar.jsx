@@ -58,6 +58,12 @@ export function TopologyToolbar({ onOpenPostMortem }) {
       window.dispatchEvent(new CustomEvent('lab:check', { detail: {} }));
       return;
     }
+    if (ticket.status === 'failed' || ticket.status === 'resolved') {
+      setPersistenceMessage(ticket.status === 'failed'
+        ? 'Ticket échoué. Consultez l’Archive pour le rejouer avec un nouveau délai SLA.'
+        : 'Ticket déjà résolu.');
+      return;
+    }
     if (ticket.status === 'pending_postmortem') {
       onOpenPostMortem?.();
       return;
@@ -75,7 +81,15 @@ export function TopologyToolbar({ onOpenPostMortem }) {
       if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
       if (!payload.passed) {
         const failed = (payload.checks || []).filter(check => !check.passed).map(check => check.description || (check.target + ' · ' + check.path));
-        setPersistenceMessage((payload.message || 'La vérification a échoué.') + (failed.length ? ' À corriger : ' + failed.join(', ') : ''));
+        const reason = payload.reason || 'config_incorrect';
+        const message = reason === 'sla_exceeded'
+          ? '❌ SLA dépassé : le ticket est marqué comme échoué. Rejouez-le depuis l’Archive.'
+          : '❌ Configuration incorrecte : le ticket est marqué comme échoué. Rejouez-le depuis l’Archive.';
+        const detail = failed.length ? ' À corriger : ' + failed.join(', ') : '';
+        const state = useTicketStore.getState();
+        state.setTicket({ ...ticket, status: 'failed', failure_reason: reason }, state.scenario, state.sla_left);
+        setPersistenceMessage(message + detail);
+        window.alert(message + detail);
         return;
       }
       useTicketStore.getState().setTicket({ ...ticket, status: 'pending_postmortem' }, useTicketStore.getState().scenario, useTicketStore.getState().sla_left);
@@ -199,7 +213,7 @@ export function TopologyToolbar({ onOpenPostMortem }) {
           {persistenceAction === 'load' ? 'Chargement…' : 'Charger'}
         </button>
         <button type="button" onClick={handleCheck}
-          disabled={loading || persistenceBusy || lab?.id === 'demo' || lab?.sandbox === true}
+          disabled={loading || persistenceBusy || lab?.id === 'demo' || lab?.sandbox === true || ticket?.status === 'failed' || ticket?.status === 'resolved'}
           title={lab?.courseLocked === true
             ? 'Mode entraînement : le contrôle est disponible, mais la validation du parcours reste bloquée. ' + (lab.courseLockMessage || '')
             : lab?.sandbox === true
@@ -208,7 +222,7 @@ export function TopologyToolbar({ onOpenPostMortem }) {
                 ? 'La démonstration ne peut pas être vérifiée.'
                 : 'Vérifier les règles du scénario'}
           className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
-          {persistenceAction === 'resolve' ? 'Vérification…' : ticket ? '📝 Résoudre le ticket' : loading ? '…' : lab?.courseLocked === true ? '✓ Vérifier en entraînement' : '✓ Vérifier'}
+          {persistenceAction === 'resolve' ? 'Vérification…' : ticket?.status === 'failed' ? '❌ Ticket échoué' : ticket?.status === 'resolved' ? '✅ Ticket résolu' : ticket ? '📝 Résoudre le ticket' : loading ? '…' : lab?.courseLocked === true ? '✓ Vérifier en entraînement' : '✓ Vérifier'}
         </button>
         {!ticket && (
         <button type="button" onClick={handleSubmit} disabled={submitDisabled}
