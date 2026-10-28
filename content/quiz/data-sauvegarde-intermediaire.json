@@ -4,99 +4,219 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Que mesure le RPO dans un plan de reprise ?",
+      "prompt": "Quelle distinction entre réplication et sauvegarde est la plus importante lors d'une suppression accidentelle ?",
       "choices": [
-        "Le temps nécessaire pour reconstruire un index",
-        "La durée maximale acceptable d’interruption",
-        "La quantité maximale de données que l’on accepte de perdre mesurée dans le temps",
-        "Le nombre de répliques d’une base"
-      ],
-      "answer": 2,
-      "explanation": "Le RPO indique le point de récupération acceptable et donc la perte de données tolérée, par exemple au maximum cinq minutes de transactions."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle différence essentielle distingue une sauvegarde différentielle d’une incrémentale classique ?",
-      "choices": [
-        "La différentielle contient les changements depuis la dernière sauvegarde complète ; l’incrémentale depuis la sauvegarde précédente",
-        "La différentielle ne contient jamais de données",
-        "L’incrémentale est toujours plus simple à restaurer quelle que soit la chaîne",
-        "Il n’existe aucune différence entre les deux"
+        "La réplication peut propager la suppression ; une sauvegarde indépendante peut permettre de revenir à un état antérieur",
+        "La réplication conserve toujours chaque ancienne version de chaque ligne",
+        "Une sauvegarde copie automatiquement les modifications en temps réel",
+        "Les deux mécanismes sont strictement équivalents"
       ],
       "answer": 0,
-      "explanation": "Une restauration différentielle combine généralement la dernière complète et la dernière différentielle. Une chaîne incrémentale nécessite la complète puis les incréments successifs."
+      "explanation": "La réplication transporte habituellement les changements vers un autre nœud et peut ainsi reproduire la suppression. Une sauvegarde indépendante et une chaîne de récupération permettent éventuellement de revenir avant l'erreur."
     },
     {
       "type": "qcm",
-      "prompt": "De quoi une restauration PITR dépend-elle typiquement dans PostgreSQL ?",
+      "prompt": "Que décrit le RPO ?",
       "choices": [
-        "Uniquement d’une copie du fichier de configuration",
-        "D’une sauvegarde de base compatible et d’une chaîne WAL couvrant le point visé",
-        "Uniquement du cache de l’application",
-        "D’un export CSV des tables les plus volumineuses"
+        "La durée cible pour rétablir le service",
+        "La perte de données maximale acceptable exprimée comme une période",
+        "Le nombre de fichiers de sauvegarde conservés",
+        "Le temps moyen d'une requête SQL"
       ],
       "answer": 1,
-      "explanation": "La récupération à un instant précis rejoue les journaux WAL à partir d’une sauvegarde de base jusqu’au point de récupération choisi."
+      "explanation": "Le Recovery Point Objective définit le point de reprise acceptable et donc la fenêtre de perte de données tolérée pour le scénario convenu."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle preuve montre le mieux qu’une sauvegarde est exploitable ?",
+      "prompt": "Que décrit le RTO ?",
       "choices": [
-        "Le fichier existe dans le dossier attendu",
-        "La tâche planifiée affiche une coche verte",
-        "Le fichier est nommé `backup_valid`",
-        "Une restauration réelle a réussi et les contrôles de cohérence ont été exécutés"
-      ],
-      "answer": 3,
-      "explanation": "Une sauvegarde peut être incomplète, corrompue ou inutilisable. Des essais périodiques de restauration et des contrôles métier valident son exploitabilité."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi une réplique active ne suffit-elle pas comme seule protection contre la perte de données ?",
-      "choices": [
-        "Une réplique ne peut jamais servir de source de lecture",
-        "Une suppression ou corruption peut être répliquée immédiatement",
-        "Une réplique ne contient pas les données",
-        "Une réplique empêche toutes les transactions"
-      ],
-      "answer": 1,
-      "explanation": "La réplication propage souvent les changements, y compris les erreurs logiques. Il faut des points de sauvegarde séparés avec une rétention adaptée."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle mesure protège une sauvegarde contre la compromission du compte applicatif ?",
-      "choices": [
-        "Stocker la seule copie dans le même compte et le même répertoire",
-        "Utiliser le même mot de passe partout",
-        "Séparer les identités et permissions de sauvegarde, et conserver si possible une copie immuable ou isolée",
-        "Désactiver la journalisation"
-      ],
-      "answer": 2,
-      "explanation": "La séparation des droits et l’isolement d’une copie réduisent la possibilité qu’un compte applicatif compromis efface aussi les sauvegardes."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment déterminer une fréquence de sauvegarde adaptée ?",
-      "choices": [
-        "À partir des RPO/RTO, du volume de changements et du temps de restauration mesuré",
-        "En prenant toujours une sauvegarde par an",
-        "En choisissant un intervalle uniquement selon l’espace disque disponible",
-        "En se fondant sur le nombre de développeurs"
+        "La durée cible pour rétablir le service selon une définition convenue",
+        "Le volume du journal de transactions",
+        "Le nombre maximal de sauvegardes logiques",
+        "Le taux d'utilisation des index"
       ],
       "answer": 0,
-      "explanation": "La stratégie doit satisfaire les objectifs de perte maximale et de rétablissement, en tenant compte de la rétention et du débit de restauration réel."
+      "explanation": "Le Recovery Time Objective mesure le délai cible de reprise. Il doit préciser ce que signifie service rétabli, notamment les contrôles et parcours métier attendus."
     },
     {
       "type": "qcm",
-      "prompt": "Quel contrôle est important après une restauration de base de données ?",
+      "prompt": "Quelle caractéristique décrit habituellement une sauvegarde logique ?",
       "choices": [
-        "Vérifier uniquement que le serveur répond au ping",
-        "Effacer les journaux de restauration",
-        "Supposer que toutes les lignes sont présentes parce que le processus s’est terminé",
-        "Vérifier intégrité, cohérence applicative, permissions et disponibilité des fonctions critiques"
+        "Elle exporte les objets ou données dans une représentation logique, souvent utilisable pour migration ou restauration sélective",
+        "Elle copie uniquement les pages physiques et ne peut jamais être lue",
+        "Elle assure automatiquement le PITR sans journaux",
+        "Elle remplace tous les contrôles d'intégrité"
       ],
-      "answer": 3,
-      "explanation": "La restauration technique doit être suivie de vérifications d’intégrité et d’un test métier ciblé avant la remise en service."
+      "answer": 0,
+      "explanation": "Une sauvegarde logique représente les objets et les données dans un format exporté. La portabilité, la portée et la méthode de restauration dépendent de l'outil."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel énoncé sur une sauvegarde physique est le plus juste ?",
+      "choices": [
+        "Elle est toujours portable entre tous les moteurs SQL",
+        "Elle capture les structures de stockage selon une méthode prise en charge par le moteur et peut dépendre de la version et de la plateforme",
+        "Elle ne nécessite jamais de cohérence entre fichiers et journaux",
+        "Elle contient forcément toutes les clés de chiffrement externes"
+      ],
+      "answer": 1,
+      "explanation": "Les sauvegardes physiques utilisent des mécanismes propres au moteur et à la plateforme. Il faut respecter les garanties de cohérence et les prérequis de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la fonction principale de pg_dump dans PostgreSQL ?",
+      "choices": [
+        "Exporter logiquement une base",
+        "Restaurer automatiquement chaque instance après une panne physique",
+        "Archiver à lui seul toute la chaîne WAL pour le PITR",
+        "Créer un serveur secondaire"
+      ],
+      "answer": 0,
+      "explanation": "pg_dump réalise une sauvegarde logique d'une base. Une stratégie PITR physique nécessite une sauvegarde de base compatible et les journaux WAL nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel outil PostgreSQL sert couramment à restaurer une archive produite au format custom par pg_dump ?",
+      "choices": [
+        "pg_restore",
+        "mysqldump",
+        "mysqlbinlog",
+        "psql --recovery"
+      ],
+      "answer": 0,
+      "explanation": "pg_restore est l'outil courant pour restaurer les formats d'archive pris en charge par pg_dump. Les options et propriétaires doivent être adaptés au contexte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle relation est nécessaire pour un PITR PostgreSQL classique ?",
+      "choices": [
+        "Uniquement une capture d'écran du tableau de bord",
+        "Une sauvegarde de base compatible et la chaîne de WAL nécessaire jusqu'au point cible",
+        "Uniquement un réplicat qui suit le primaire",
+        "Un index sur chaque colonne"
+      ],
+      "answer": 1,
+      "explanation": "La restauration ponctuelle part d'une sauvegarde de base puis applique les journaux nécessaires. Un segment manquant peut empêcher d'atteindre le point demandé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle le WAL joue-t-il dans la récupération PostgreSQL ?",
+      "choices": [
+        "Il contribue à la récupération des changements et à la restauration ponctuelle lorsqu'il est combiné à une sauvegarde adaptée",
+        "Il remplace systématiquement toutes les sauvegardes de base",
+        "Il ne contient que les noms de comptes",
+        "Il empêche toute erreur de logique applicative"
+      ],
+      "answer": 0,
+      "explanation": "Le Write-Ahead Log participe à la durabilité et à la récupération. Pour le PITR, la sauvegarde et la chaîne de journaux doivent rester compatibles et disponibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est typiquement nécessaire pour un PITR MySQL après restauration d'une sauvegarde complète ?",
+      "choices": [
+        "Les binary logs nécessaires entre l'état sauvegardé et le point cible",
+        "Une clé étrangère sur chaque table",
+        "Un index FULLTEXT sur la base entière",
+        "Uniquement le fichier de configuration du client"
+      ],
+      "answer": 0,
+      "explanation": "Le PITR MySQL repose couramment sur la restauration d'une sauvegarde complète puis le rejeu des événements des binary logs jusqu'au point souhaité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une purge trop précoce de journaux WAL ou binlog est-elle dangereuse ?",
+      "choices": [
+        "Elle peut retirer des éléments nécessaires pour atteindre un point de restauration promis",
+        "Elle accélère toujours la restauration sans contrepartie",
+        "Elle augmente automatiquement le RPO vers zéro",
+        "Elle ne change que l'affichage des tableaux de bord"
+      ],
+      "answer": 0,
+      "explanation": "La PITR exige une chaîne de journaux suffisante. Si les segments requis ont été supprimés, certains points de récupération deviennent inaccessibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un job de sauvegarde s'est terminé sans erreur et le fichier existe. Peut-on conclure que l'application est restaurable ?",
+      "choices": [
+        "Oui, le fichier présent garantit toute la chaîne de reprise",
+        "Non, il faut tester l'intégrité, restaurer dans un environnement d'essai et valider les données et le parcours applicatif",
+        "Oui, si le nom du fichier comprend la date",
+        "Non, car aucune sauvegarde n'est jamais restaurable"
+      ],
+      "answer": 1,
+      "explanation": "La présence du fichier ne prouve ni sa complétude ni la disponibilité des clés, journaux et dépendances. Un exercice de restauration et des contrôles fonctionnels démontrent la capacité réelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle validation après restauration est la plus complète ?",
+      "choices": [
+        "Vérifier uniquement que le serveur accepte une connexion",
+        "Contrôler le schéma, les objets et privilèges, les relations, des données métier et les parcours applicatifs essentiels",
+        "Vérifier uniquement la taille du fichier restauré",
+        "Supprimer toutes les contraintes pour accélérer le test"
+      ],
+      "answer": 1,
+      "explanation": "Le démarrage de la base ne garantit pas que les objets et relations sont corrects ou que l'application fonctionne. Les tests doivent inclure des assertions techniques et métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi restaurer d'abord dans une cible isolée lorsqu'on réalise un exercice ?",
+      "choices": [
+        "Pour éviter d'écraser la base active ou de connecter accidentellement les tâches de production à la copie restaurée",
+        "Parce que les sauvegardes ne peuvent être restaurées que sur un autre serveur physique",
+        "Pour contourner les clés étrangères",
+        "Pour rendre le dump automatiquement plus récent"
+      ],
+      "answer": 0,
+      "explanation": "Une cible isolée protège l'instance active, permet de valider la copie et évite que des tâches ou clients de production modifient la base de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque pose une sauvegarde qui est chiffrée, mais dont la clé n'est plus accessible ?",
+      "choices": [
+        "Aucun : le chiffrement peut toujours être annulé sans clé",
+        "La sauvegarde peut être inutilisable ; la gestion et la récupération des clés font partie de la stratégie",
+        "Le RTO devient automatiquement nul",
+        "Les binary logs recréent la clé manquante"
+      ],
+      "answer": 1,
+      "explanation": "La récupération exige les clés appropriées. Leur disponibilité, séparation des droits, rotation et procédure de récupération doivent être testées avec les données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie protège le mieux contre la compromission du compte qui administre la base principale ?",
+      "choices": [
+        "Conserver toutes les copies dans le même répertoire et avec les mêmes droits",
+        "Séparer le domaine de sécurité des copies, limiter les droits de suppression et appliquer des protections adaptées",
+        "Accorder aussi les droits de sauvegarde à tous les développeurs",
+        "Désactiver la rétention des journaux"
+      ],
+      "answer": 1,
+      "explanation": "Une séparation des identités, du stockage et des permissions réduit le risque qu'une seule compromission détruise simultanément la base et ses sauvegardes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit figurer dans un runbook de restauration ?",
+      "choices": [
+        "Uniquement la commande d'import",
+        "Préconditions, choix du point cible, sauvegardes et journaux requis, étapes, validations, critères de décision et escalade",
+        "Les mots de passe en clair de tous les comptes",
+        "Une promesse que l'opération ne peut pas échouer"
+      ],
+      "answer": 1,
+      "explanation": "Un runbook doit être exploitable sous pression et rendre explicites le point de reprise, les dépendances, les contrôles et les conditions de clôture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu'on mesure le RTO, quel choix est le plus fiable ?",
+      "choices": [
+        "Commencer le chronomètre au milieu de la restauration pour obtenir un meilleur résultat",
+        "Définir les événements de départ et d'arrivée, puis chronométrer détection, préparation, récupération et validation selon l'objectif convenu",
+        "Mesurer uniquement le téléchargement du fichier",
+        "Exclure systématiquement les tests fonctionnels"
+      ],
+      "answer": 1,
+      "explanation": "Le RTO doit avoir une définition précise et reproductible. Mesurer uniquement une étape sous-estime le délai si l'objectif porte sur la remise en service réelle."
     }
   ]
 }
