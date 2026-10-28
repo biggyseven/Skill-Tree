@@ -1117,7 +1117,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         alpine_prefix = 'defer src="/assets/alpine-3.17.5.min.js?v='
         alpine_script = DASHBOARD_HTML.index(alpine_prefix)
         alpine_tag = DASHBOARD_HTML[alpine_script:DASHBOARD_HTML.index(">", alpine_script)]
-        self.assertRegex(alpine_tag, r'\\?v=[0-9a-f]{12}"
+        self.assertRegex(alpine_tag, r'v=[0-9a-f]{12}')
         lazy_loader = DASHBOARD_HTML.index("window.skillTreeLoadScript = function (src, globalName)")
         self.assertLess(lazy_loader, alpine_script)
         # Les bibliothèques spécialisées ne doivent pas bloquer le chargement initial.
