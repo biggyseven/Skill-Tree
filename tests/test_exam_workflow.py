@@ -26,7 +26,7 @@ class ExamWorkflowTests(unittest.TestCase):
         tree = self.client.get("/api/tree")
         self.assertEqual(tree.status_code, 200, tree.text)
         self.nodes = tree.json()["nodes"]
-        self.node = next(node for node in self.nodes if node["id"] == "intro-reseau-debutant")
+        self.node = next(node for node in self.nodes if node["id"] == "intro-reseau-intermediaire")
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -51,8 +51,8 @@ class ExamWorkflowTests(unittest.TestCase):
         response = self.client.post(
             "/api/exam/build",
             json={
-                "node_ids": ["intro-reseau-debutant"],
-                "levels": ["debutant"],
+                "node_ids": ["intro-reseau-intermediaire"],
+                "levels": ["intermediaire"],
                 "count": 5,
                 "time_limit": 600,
             },
