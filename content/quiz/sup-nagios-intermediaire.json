@@ -1,0 +1,18 @@
+{
+  "node_id": "sup-nagios-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Supervision avec Nagios/Centreon ».",
+      "choices": [
+        "Réponse provisoire, à remplacer pendant la rédaction.",
+        "Option temporaire incorrecte numéro 1.",
+        "Option temporaire incorrecte numéro 2.",
+        "Option temporaire incorrecte numéro 3."
+      ],
+      "answer": 0,
+      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+    }
+  ]
+}
