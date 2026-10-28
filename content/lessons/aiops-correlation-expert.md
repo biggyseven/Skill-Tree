@@ -436,6 +436,84 @@ Traitez cela comme une erreur bloquante. Les références d'événements doivent
 
 Ajoutez un statut « non concluant », autorisez plusieurs hypothèses et faites apparaître les données manquantes. Une interface qui force une réponse unique encourage une confiance non justifiée. Le système doit pouvoir indiquer que l'investigation nécessite un test ou une intervention humaine.
 
+## Architecture de référence et implémentation guidée
+
+La corrélation d'événements cherche à réduire le bruit et à trouver les dépendances plausibles entre les symptômes. L'analyse de cause racine ajoute une étape supplémentaire : elle doit comparer des hypothèses concurrentes et rechercher les observations qui peuvent les départager. Une proximité temporelle seule ne constitue pas une preuve de causalité.
+
+### Corrélation temporelle et topologique
+
+```mermaid
+flowchart TD
+  A["Alertes et événements bruts"] --> B["Normaliser les horodatages et identifiants"]
+  B --> C["Dédupliquer les répétitions"]
+  C --> D["Regrouper dans une fenêtre temporelle"]
+  E["Topologie et dépendances"] --> F["Graphe de dépendances versionné"]
+  D --> G["Construire des groupes d'événements"]
+  F --> G
+  G --> H["Générer des hypothèses de cause"]
+  H --> I["Ajouter preuves et contre-indices"]
+  I --> J{"Cause suffisamment étayée ?"}
+  J -- "Non" --> K["Choisir un test discriminant"]
+  J -- "Oui" --> L["Présenter la RCA avec incertitude"]
+```
+
+### Contrôler les preuves avant de publier la synthèse
+
+```mermaid
+sequenceDiagram
+  participant E as Moteur de corrélation
+  participant G as Graphe d'infrastructure
+  participant P as Validateur de preuves
+  participant L as LLM de synthèse
+  participant O as Opérateur
+  E->>G: Demander les dépendances au moment de l'incident
+  G-->>E: Chemins possibles et version du graphe
+  E->>P: Événements, horodatages et identifiants
+  P-->>E: Données valides et contre-indices
+  E->>L: Dossier de preuves borné
+  L-->>P: Hypothèses et références
+  P->>P: Vérifier références et assertions permises
+  P-->>O: Synthèse validée ou signalement d'incertitude
+```
+
+### Exemple de rapprochement avec fenêtre temporelle
+
+```python
+from datetime import datetime, timedelta, timezone
+
+def correlate_events(events, window_seconds=180):
+    ordered = sorted(events, key=lambda event: event["timestamp"])
+    groups = []
+    for event in ordered:
+        timestamp = event["timestamp"]
+        if timestamp.tzinfo is None:
+            raise ValueError("Chaque horodatage doit inclure son fuseau")
+        timestamp = timestamp.astimezone(timezone.utc)
+
+        if not groups:
+            groups.append({"start": timestamp, "events": [event]})
+            continue
+
+        current = groups[-1]
+        if (timestamp - current["start"]) <= timedelta(seconds=window_seconds):
+            current["events"].append(event)
+        else:
+            groups.append({"start": timestamp, "events": [event]})
+    return groups
+```
+
+Cette fonction démontre un regroupement temporel élémentaire, pas un moteur de RCA complet. En production, chaque événement doit être dédupliqué, les événements en retard doivent être gérés explicitement, les sources doivent être pondérées selon leur qualité et la fenêtre doit être liée au service étudié. Un seul groupe peut contenir plusieurs incidents indépendants.
+
+### Travaux pratiques — mêmes symptômes, causes différentes
+
+Construis un petit jeu contenant : une panne d'alimentation qui affecte un commutateur et ses descendants, une panne locale d'interface, un changement de routage, une alerte répétée et un événement arrivé en retard. Compare la corrélation temporelle seule à une corrélation enrichie par la topologie. Vérifie qu'une dépendance absente du graphe ne peut pas être présentée comme établie.
+
+Pour chaque hypothèse de cause, impose un schéma comportant les événements favorables, les contre-indices, les dépendances utilisées, l'heure d'apparition, les inconnues et le test recommandé. L'arrivée tardive d'un événement doit pouvoir reclasser une hypothèse sans effacer l'historique des décisions précédentes. Ne force jamais un score unique à masquer une incertitude importante.
+
+### Critères d'acceptation
+
+Le système trace la version du graphe utilisée, conserve les événements sources, distingue corrélation et causalité et vérifie les identifiants de preuve avant d'afficher la synthèse. Il est préférable de proposer une investigation ciblée plutôt que d'annoncer une cause non démontrée.
+
 ## 15. Exercices corrigés
 
 ### Exercice 1 — Corrélation temporelle
