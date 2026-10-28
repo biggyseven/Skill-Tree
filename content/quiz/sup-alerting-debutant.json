@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Notions d'alerting et de seuils ».",
+      "prompt": "Une règle d'alerte sur le taux d'erreurs HTTP dépasse son seuil lors d'un pic de 20 secondes, puis retourne à la normale. La règle exige 3 minutes de persistance avant de déclencher. Quel comportement est attendu si la condition cesse effectivement d'être vraie avant les 3 minutes ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "L'alerte doit obligatoirement passer à firing dès la première évaluation au-dessus du seuil.",
+        "L'alerte ne devrait pas passer à firing au titre de cette condition persistante ; la durée doit être confirmée selon la sémantique du moteur d'évaluation.",
+        "Le système doit inventer des échantillons jusqu'à atteindre les 3 minutes.",
+        "Le pic court doit être converti en panne permanente afin de conserver l'événement."
       ],
-      "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "answer": 1,
+      "explanation": "Une condition de persistance filtre les excursions qui ne durent pas suffisamment longtemps. Si la condition revient à la normale avant la durée exigée, la règle ne devrait pas atteindre l'état firing pour cette séquence, selon la sémantique de l'outil. Il faut toutefois vérifier les fréquences de collecte et d'évaluation ainsi que le traitement des données manquantes. Une persistance trop longue peut retarder la détection d'un incident réel ; elle doit être adaptée au risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une panne de base de données déclenche 150 alertes sur des API qui en dépendent. L'équipe veut réduire les notifications sans supprimer la visibilité des symptômes secondaires. Quelle approche est la plus appropriée ?",
+      "choices": [
+        "Supprimer toutes les alertes API sans conserver les détails, dès qu'une base de données existe.",
+        "Utiliser le groupement pour rassembler les alertes liées et une inhibition précise pour les notifications secondaires causées par la panne parente, tout en gardant les détails consultables.",
+        "Envoyer chaque alerte dans tous les canaux pour éviter d'en manquer une.",
+        "Créer un silence permanent sur l'ensemble des alertes de production."
+      ],
+      "answer": 1,
+      "explanation": "Le groupement réduit le nombre de notifications similaires et l'inhibition peut empêcher les alertes secondaires dépendantes d'envoyer chacune un message lorsqu'un incident parent est déjà actif. Les alertes secondaires doivent rester consultables afin de connaître la portée réelle. Les critères d'inhibition doivent être précis et testés, car une règle trop large pourrait masquer une panne indépendante. Un silence permanent ne corrige pas la logique de notification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une règle de taux d'erreur n'émet plus d'alerte après que l'exporteur cesse de publier les métriques. Le dashboard affiche les dernières valeurs d'il y a 15 minutes. Quelle correction de conception est prioritaire ?",
+      "choices": [
+        "Interpréter toute absence de série comme un taux d'erreur nul, donc comme un service sain.",
+        "Augmenter le seuil jusqu'à ce que la règle se déclenche à nouveau.",
+        "Distinguer données normales, données absentes et erreurs d'évaluation, puis superviser la fraîcheur de la collecte et l'état de l'exporteur avec une règle appropriée.",
+        "Supprimer le dashboard pour empêcher l'affichage de données périmées."
+      ],
+      "answer": 2,
+      "explanation": "L'absence de série ne signifie pas que le service n'a plus d'erreurs ou qu'il est sain. L'exporteur, le collecteur ou le backend peut être en panne, et une expression peut ne plus retourner de résultat. Il faut détecter la fraîcheur des données, séparer les états inconnus des valeurs numériques et surveiller la chaîne de collecte. Afficher une vieille mesure comme si elle était actuelle masque le risque d'aveuglement de la supervision."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une alerte CPU élevée se déclenche tous les matins pendant un traitement planifié, mais les utilisateurs ne constatent aucune dégradation. Quelle évolution est la plus raisonnable ?",
+      "choices": [
+        "Conserver l'alerte critique telle quelle, car toute CPU élevée constitue une panne.",
+        "Supprimer toute mesure CPU de la plateforme.",
+        "Étudier les historiques et l'impact, puis requalifier la règle en avertissement de capacité ou la conditionner à un risque pertinent, tout en maintenant des alertes sur les symptômes utilisateur.",
+        "Augmenter indéfiniment le seuil jusqu'à ce que l'alerte ne se déclenche plus jamais."
+      ],
+      "answer": 2,
+      "explanation": "Une forte CPU est une cause ou un indicateur de capacité, mais n'implique pas automatiquement que le service est dégradé. L'équipe doit analyser le comportement normal et les effets sur l'utilisateur. La règle peut être requalifiée comme avertissement si elle annonce un risque de capacité, ou être ajustée à une durée et un contexte pertinents. Les alertes sur les symptômes comme le taux d'erreur et la latence doivent continuer à détecter un réel impact."
+    },
+    {
+      "type": "qcm",
+      "prompt": "La règle Prometheus passe correctement à firing, mais aucun destinataire ne reçoit de notification. Quel parcours de diagnostic permet de trouver le problème sans modifier au hasard le seuil ?",
+      "choices": [
+        "Revoir exclusivement le seuil métrique, puisque la condition s'est déclenchée.",
+        "Vérifier les labels de routage, les routes et receveurs, les silences et inhibitions, le groupement et les erreurs du canal, puis exécuter un test de bout en bout.",
+        "Supprimer la persistance pour que l'alerte soit envoyée plus rapidement, indépendamment de la distribution.",
+        "Ajouter un identifiant unique par évaluation dans les labels pour contourner la déduplication."
+      ],
+      "answer": 1,
+      "explanation": "Le passage à firing confirme que le moteur a détecté la condition, mais la distribution est une autre étape. Une route peut ne correspondre à aucun receveur, un silence ou une inhibition peut supprimer la notification, un groupement peut retarder l'envoi ou l'intégration peut échouer. Il faut examiner ces étapes et tester la chaîne avec une alerte contrôlée. Modifier le seuil ne résout pas un problème de routage ou de transport."
     }
   ]
 }
