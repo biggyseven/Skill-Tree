@@ -4,75 +4,75 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel principe doit guider les permissions d’un compte qui interroge une base sensible ?",
+      "prompt": "Un service de reporting doit lire trois colonnes d'une table sensible, mais le rôle actuel peut aussi modifier des lignes et lire les colonnes d'identité. Quelle mesure réduit le mieux le risque ?",
       "choices": [
-        "Donner les droits superutilisateur pour éviter les refus",
-        "Réutiliser un compte partagé entre tous les services",
-        "Accorder les permissions minimales nécessaires et séparer les rôles",
-        "Désactiver les journaux pour réduire le volume"
-      ],
-      "answer": 2,
-      "explanation": "Le moindre privilège limite l’impact d’une compromission et rend les accès plus faciles à auditer. Les comptes techniques doivent être distincts et contrôlés."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Que protège le chiffrement en transit ?",
-      "choices": [
-        "Les données pendant leur transfert sur le réseau, lorsqu’il est correctement configuré et authentifié",
-        "Toutes les copies locales après déchiffrement",
-        "Les données contre toute erreur métier",
-        "Les sauvegardes même si elles sont stockées en clair"
+        "Créer une identité de service dédiée, accorder uniquement SELECT sur les colonnes nécessaires et tester les refus d'accès",
+        "Partager le compte DBA avec les analystes pour simplifier le support",
+        "Activer le chiffrement au repos et laisser les droits inchangés",
+        "Masquer les colonnes dans l'interface mais conserver les droits complets en base"
       ],
       "answer": 0,
-      "explanation": "TLS protège le canal de communication, sous réserve d’une configuration et d’une validation des certificats appropriées. Il ne remplace pas le chiffrement au repos."
+      "explanation": "Le chiffrement ne remplace pas les autorisations d'accès une fois les données déchiffrées. Une identité dédiée, des privilèges minimaux et des tests négatifs réduisent l'exposition."
     },
     {
       "type": "qcm",
-      "prompt": "Pourquoi une stratégie de gestion des clés doit-elle séparer les rôles ?",
+      "prompt": "Une API interne transporte des données personnelles sur un réseau partagé. Le serveur dispose d'un certificat, mais le client n'en valide pas la chaîne. Quel risque persiste ?",
       "choices": [
-        "Pour donner accès aux clés à toutes les applications",
-        "Pour réduire le contrôle d’accès aux clés, permettre la rotation et limiter l’impact d’une compromission",
-        "Pour rendre les clés visibles dans les logs",
-        "Pour supprimer la nécessité de sauvegarder les données"
+        "Le chiffrement au repos devient impossible",
+        "Une interception avec serveur imposteur peut ne pas être détectée ; il faut valider l'identité du serveur et la chaîne de confiance",
+        "Les paramètres SQL protègent automatiquement le canal",
+        "La pseudonymisation rend l'authentification TLS inutile"
       ],
       "answer": 1,
-      "explanation": "Les clés doivent être protégées par des permissions dédiées, un cycle de vie et des procédures de rotation et récupération. Les secrets ne doivent pas être inclus dans le dépôt."
+      "explanation": "Le chiffrement en transit n'est utile contre un attaquant actif que si l'authentification du pair est correctement vérifiée. Un certificat présenté mais non validé n'établit pas la confiance."
     },
     {
       "type": "qcm",
-      "prompt": "Quel principe du RGPD soutient la collecte du minimum de données nécessaire à une finalité donnée ?",
+      "prompt": "Des fichiers sont chiffrés avec des DEK protégées par une KEK. L'équipe crée une nouvelle KEK et veut immédiatement détruire l'ancienne. Quel contrôle doit précéder la destruction ?",
       "choices": [
-        "La conservation illimitée par défaut",
-        "La diffusion publique des données brutes",
-        "L’utilisation libre pour tout objectif ultérieur",
-        "La minimisation des données et la limitation des finalités"
+        "Vérifier seulement que la nouvelle clé apparaît dans le tableau de bord",
+        "Supprimer les sauvegardes afin de ne conserver qu'une clé active",
+        "Désactiver la journalisation des accès aux clés",
+        "Confirmer que toutes les DEK concernées ont été re-enveloppées, que le déchiffrement de contrôle réussit et que les obligations de rétention sont couvertes"
       ],
       "answer": 3,
-      "explanation": "Les données personnelles doivent être adéquates, pertinentes et limitées à ce qui est nécessaire, et traitées pour des finalités déterminées et légitimes."
+      "explanation": "Une clé ancienne peut rester nécessaire pour des DEK, snapshots ou sauvegardes historiques. La destruction anticipée peut rendre les données irrécupérables ; l'inventaire et un test de restauration sont indispensables."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle défense est prioritaire contre l’injection SQL ?",
+      "prompt": "Une équipe collecte les dates de naissance complètes alors que son indicateur ne nécessite qu'une tranche d'âge. Quel changement est le plus cohérent avec la protection des données dès la conception ?",
       "choices": [
-        "Masquer les erreurs sans corriger la requête",
-        "Utiliser des requêtes paramétrées et limiter les privilèges de l’identité applicative",
-        "Autoriser les comptes clients à modifier le schéma",
-        "Supprimer les contraintes de type"
-      ],
-      "answer": 1,
-      "explanation": "La paramétrisation empêche de traiter des valeurs comme du SQL exécutable. Le moindre privilège limite ensuite l’impact d’une éventuelle faille résiduelle."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle différence existe entre pseudonymisation et anonymisation ?",
-      "choices": [
-        "Elles sont toujours synonymes",
-        "La pseudonymisation rend toute réidentification mathématiquement impossible",
-        "La pseudonymisation remplace les identifiants directs mais une réassociation peut rester possible ; l’anonymisation vise à empêcher la réidentification",
-        "L’anonymisation consiste à chiffrer avec une clé commune"
+        "Conserver toutes les dates mais cacher la colonne dans le tableau de bord",
+        "Collecter la date complète puis la journaliser dans chaque trace",
+        "Calculer ou collecter la catégorie nécessaire lorsque c'est compatible avec la finalité, réduire les copies et documenter la durée de conservation",
+        "Remplacer l'accès contrôlé par un lien public vers les données agrégées"
       ],
       "answer": 2,
-      "explanation": "Des données pseudonymisées restent potentiellement personnelles si elles peuvent être reliées à une personne via des informations supplémentaires."
+      "explanation": "La minimisation doit intervenir dès la collecte et dans les copies dérivées. Masquer une colonne dans une interface ne supprime ni la collecte ni l'exposition au niveau des autres accès."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une requête d'API paramétrée ne permet plus l'injection SQL, mais un utilisateur peut changer learner_id dans la requête et lire les données d'un autre tenant. Quel contrôle manque ?",
+      "choices": [
+        "Une autorisation métier appliquée côté serveur et dans la couche de données, par exemple avec un contexte de tenant fiable et des règles d'accès adaptées",
+        "Une longueur de mot de passe plus élevée pour les administrateurs uniquement",
+        "Une rotation hebdomadaire des index SQL",
+        "La compression des réponses HTTP"
+      ],
+      "answer": 0,
+      "explanation": "Les paramètres séparent les valeurs du code SQL, mais ne déterminent pas si l'utilisateur est autorisé à accéder à la ligne. L'identité et le périmètre du tenant doivent être validés par le serveur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une table de correspondance permet de relier des identifiants pseudonymisés à des personnes. Quel énoncé est le plus juste ?",
+      "choices": [
+        "Les données sont anonymes dès que le nom est supprimé",
+        "La pseudonymisation réduit l'exposition mais les données restent susceptibles d'être réattribuées si la correspondance ou des informations auxiliaires sont disponibles",
+        "Le hachage simple de l'identifiant garantit toujours l'anonymat",
+        "La pseudonymisation supprime automatiquement les obligations de contrôle d'accès"
+      ],
+      "answer": 1,
+      "explanation": "La pseudonymisation sépare ou remplace certains identifiants, mais une réassociation peut rester possible. La table de correspondance et les risques de réidentification doivent être protégés et évalués."
     },
     {
       "type": "qcm",
