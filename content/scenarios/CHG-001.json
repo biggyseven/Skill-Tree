@@ -1,0 +1,208 @@
+{
+  "id": "CHG-001",
+  "type": "change",
+  "severity": "medium",
+  "title": "Ouvrir le port 443 vers SRV-WEB",
+  "reported_by": "Équipe Applications — RFC-2048",
+  "impact": "Le portail HTTPS de SRV-WEB doit être accessible depuis les réseaux autorisés. Seul le flux TCP/443 vers 10.0.0.5 doit être ouvert.",
+  "sla_minutes": 15,
+  "reward_xp": 100,
+  "story": "Une mise en production nécessite l'accès HTTPS au serveur SRV-WEB (10.0.0.5). Le changement est limité à une règle ACL sur R1. Préservez le filtrage existant et n'autorisez pas d'autres ports ou destinations.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 140,
+        "y": 180,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.0"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "acls": [],
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 400,
+        "y": 180,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ]
+        }
+      },
+      {
+        "id": "SRV-WEB",
+        "type": "server",
+        "x": 640,
+        "y": 100,
+        "label": "SRV-WEB",
+        "model": "Serveur Web",
+        "iconType": "server",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.0.0.5",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "SRV-WEB",
+          "ip": "10.0.0.5",
+          "mask": "255.255.255.0",
+          "service": "HTTPS"
+        }
+      },
+      {
+        "id": "PC-Admin",
+        "type": "pc",
+        "x": 640,
+        "y": 300,
+        "label": "PC-Admin",
+        "model": "Poste administrateur",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC-Admin",
+          "ip": "192.168.10.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.10.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SRV-WEB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-Admin",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "R1",
+      "area": "acl",
+      "expected": "permit tcp any host 10.0.0.5 eq 443",
+      "actual": "absent",
+      "detail": "La règle d'autorisation HTTPS n'a pas encore été ajoutée à l'ACL de R1."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Vérifier la demande",
+      "instructions": "Confirmez la destination 10.0.0.5, le protocole TCP et le port 443.",
+      "hint": "L'autorisation doit être aussi étroite que possible."
+    },
+    {
+      "title": "Ajouter la règle ACL",
+      "instructions": "Sur R1, ajoutez exactement « permit tcp any host 10.0.0.5 eq 443 » dans config.acls sans supprimer les règles existantes.",
+      "hint": "Respectez la destination et le port précisés dans la RFC."
+    },
+    {
+      "title": "Contrôler le changement",
+      "instructions": "Inspectez la configuration ACL finale et vérifiez que la règle demandée est présente.",
+      "hint": "Une règle plus large ne respecte pas le périmètre du changement."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "R1",
+        "path": "config.acls",
+        "operator": "contains",
+        "value": "permit tcp any host 10.0.0.5 eq 443",
+        "description": "L'ACL de R1 doit contenir la règle d'autorisation TCP/443 vers 10.0.0.5."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

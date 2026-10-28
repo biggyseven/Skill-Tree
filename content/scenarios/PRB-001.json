@@ -1,0 +1,215 @@
+{
+  "id": "PRB-001",
+  "type": "problem",
+  "severity": "medium",
+  "title": "Pourquoi SW1 reboot chaque nuit ?",
+  "reported_by": "Équipe NOC — supervision",
+  "impact": "Les équipements raccordés à SW1 subissent une interruption nocturne ; des alarmes de perte de supervision et des tempêtes de broadcast sont observées autour de 02:00.",
+  "sla_minutes": null,
+  "reward_xp": 200,
+  "story": "Depuis plusieurs nuits, SW1 redémarre ou devient injoignable vers 02:00. Les journaux montrent une hausse brutale du trafic de broadcast juste avant l'incident. Reconstituez le chemin L2, analysez les indices STP et consignez une cause racine exploitable dans le post-mortem.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 150,
+        "y": 180,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "stp": {
+            "enabled": true,
+            "root_bridge": false
+          },
+          "logs": [
+            "02:00:01 broadcast storm detected",
+            "02:00:07 CPU utilization 99%"
+          ]
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "x": 450,
+        "y": 180,
+        "label": "SW2",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [
+            1
+          ],
+          "stp": {
+            "enabled": false
+          },
+          "logs": [
+            "02:00:02 duplicate broadcast frames",
+            "02:00:05 STP BPDU absent"
+          ]
+        }
+      },
+      {
+        "id": "MON",
+        "type": "server",
+        "x": 300,
+        "y": 380,
+        "label": "MON",
+        "model": "Serveur de supervision",
+        "iconType": "server",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.1.0.20",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "MON",
+          "ip": "10.1.0.20",
+          "mask": "255.255.255.0",
+          "service": "NMS",
+          "alerts": [
+            "SW1 unreachable at 02:00",
+            "broadcast rate critical"
+          ]
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/2"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "MON",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "SW1/SW2",
+      "area": "layer2",
+      "detail": "La boucle L2 entre SW1 et SW2 n'est pas neutralisée par STP côté SW2 ; le broadcast storm de 02:00 sature les équipements."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Corréler les alertes",
+      "instructions": "Comparez l'heure des pertes de supervision, les compteurs CPU et les logs de broadcast.",
+      "hint": "La répétition à 02:00 suggère un événement récurrent et non une panne aléatoire."
+    },
+    {
+      "title": "Inspecter la topologie L2",
+      "instructions": "Repérez les liens redondants entre SW1 et SW2 et vérifiez l'état de STP sur les deux commutateurs.",
+      "hint": "Deux chemins L2 parallèles sans blocage STP peuvent former une boucle."
+    },
+    {
+      "title": "Documenter la cause racine",
+      "instructions": "Dans le post-mortem, expliquez la boucle STP, la tempête de broadcast et les mesures correctives préventives.",
+      "hint": "La cause racine doit citer STP, boucle ou broadcast."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "type": "post_mortem_contains",
+        "field": "root_cause",
+        "any_of": [
+          "STP",
+          "boucle",
+          "broadcast"
+        ],
+        "description": "La cause racine doit mentionner STP, boucle ou broadcast."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

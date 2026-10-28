@@ -1,0 +1,366 @@
+{
+  "id": "INC-001",
+  "type": "incident",
+  "severity": "high",
+  "title": "VLAN 20 injoignable depuis 08:05",
+  "reported_by": "Service Desk — équipe ERP",
+  "impact": "Les postes du VLAN 20 ne joignent plus SRV-ERP ; le support ERP est interrompu pour les utilisateurs concernés.",
+  "sla_minutes": 30,
+  "reward_xp": 150,
+  "story": "Depuis 08:05, plusieurs utilisateurs signalent l'impossibilité d'ouvrir l'ERP. Les tests côté serveur sont normaux et seul un sous-ensemble des postes est touché. Le NOC doit diagnostiquer la segmentation L2 et rétablir l'accès sans perturber les autres VLAN.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 120,
+        "y": 160,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/7",
+            "name": "Fa0/7",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/8",
+            "name": "Fa0/8",
+            "state": "up",
+            "vlan": 20
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1,
+            20
+          ],
+          "interfaces": {
+            "Fa0/1": {
+              "mode": "trunk",
+              "allowed_vlans": [
+                1,
+                20
+              ]
+            },
+            "Fa0/7": {
+              "mode": "access",
+              "vlan": 1
+            },
+            "Fa0/8": {
+              "mode": "access",
+              "vlan": 20
+            }
+          }
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "x": 440,
+        "y": 160,
+        "label": "SW2",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 20
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "vlan": 20
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [
+            1,
+            20
+          ],
+          "interfaces": {
+            "Fa0/1": {
+              "mode": "trunk",
+              "allowed_vlans": [
+                1,
+                20
+              ]
+            },
+            "Fa0/2": {
+              "mode": "access",
+              "vlan": 20
+            },
+            "Fa0/3": {
+              "mode": "access",
+              "vlan": 20
+            }
+          }
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 80,
+        "y": 360,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.20.0.11",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "10.20.0.11",
+          "mask": "255.255.255.0",
+          "gateway": "10.20.0.1"
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "x": 245,
+        "y": 360,
+        "label": "PC2",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.20.0.12",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "ip": "10.20.0.12",
+          "mask": "255.255.255.0",
+          "gateway": "10.20.0.1"
+        }
+      },
+      {
+        "id": "PC3",
+        "type": "pc",
+        "x": 420,
+        "y": 360,
+        "label": "PC3",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.20.0.13",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC3",
+          "ip": "10.20.0.13",
+          "mask": "255.255.255.0",
+          "gateway": "10.20.0.1"
+        }
+      },
+      {
+        "id": "PC4",
+        "type": "pc",
+        "x": 580,
+        "y": 360,
+        "label": "PC4",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.20.0.14",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC4",
+          "ip": "10.20.0.14",
+          "mask": "255.255.255.0",
+          "gateway": "10.20.0.1"
+        }
+      },
+      {
+        "id": "SRV-ERP",
+        "type": "server",
+        "x": 730,
+        "y": 160,
+        "label": "SRV-ERP",
+        "model": "Serveur ERP",
+        "iconType": "server",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.20.0.50",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "SRV-ERP",
+          "ip": "10.20.0.50",
+          "mask": "255.255.255.0",
+          "service": "ERP"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/7"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/8"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC3",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC4",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L6",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "SRV-ERP",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "SW1",
+      "interface": "Fa0/7",
+      "expected_vlan": 20,
+      "actual_vlan": 1,
+      "detail": "Le port d'accès est resté dans le VLAN par défaut après un déplacement de poste."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Qualifier l'impact",
+      "instructions": "Confirmez quels postes sont touchés et vérifiez si le serveur ERP est toujours joignable depuis le VLAN attendu.",
+      "hint": "Comparez PC1 avec PC3/PC4 : le défaut est localisé à un port ou à un segment."
+    },
+    {
+      "title": "Examiner les ports d'accès",
+      "instructions": "Inspectez la configuration VLAN des ports de SW1 et SW2, notamment Fa0/7.",
+      "hint": "Un port d'accès doit appartenir au VLAN correspondant au poste."
+    },
+    {
+      "title": "Corriger et vérifier",
+      "instructions": "Configurez SW1 Fa0/7 dans le VLAN 20 puis vérifiez la configuration et la connectivité.",
+      "hint": "Ne modifiez ni le trunk inter-switch ni les autres ports."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/7.vlan",
+        "operator": "equals",
+        "value": 20,
+        "description": "SW1 Fa0/7 doit être un port d'accès du VLAN 20."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}
