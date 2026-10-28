@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « OpenTelemetry en production ».",
+      "prompt": "Quel est l’avantage principal d’un Collector OpenTelemetry dans une architecture de production qui comporte plusieurs services ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Il remplace l’ensemble des instrumentations et connaît automatiquement toutes les règles métier.",
+        "Il centralise des fonctions configurées comme la réception, le batching, le filtrage, le routage et l’export, tout en pouvant isoler l’application des détails du backend.",
+        "Il garantit que toutes les traces sont conservées même sans stockage ou réseau.",
+        "Il dispense de surveiller la mémoire et les erreurs d’export puisque le Collector est un composant standard."
+      ],
+      "answer": 1,
+      "explanation": "Le Collector reçoit la télémétrie puis peut appliquer des traitements et l’exporter vers une ou plusieurs destinations. Cette séparation facilite la gouvernance et le routage, mais crée également un composant qui doit être sécurisé, dimensionné et observé. Il ne garantit pas une livraison absolue ni ne remplace l’instrumentation métier."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche limite le plus efficacement le risque de fuite de données sensibles dans la télémétrie ?",
+      "choices": [
+        "Collecter toutes les données puis supposer que le backend masquera automatiquement les informations confidentielles.",
+        "Ajouter les mots de passe dans baggage afin qu’ils ne soient visibles que dans les traces.",
+        "Éviter la collecte des données sensibles à la source, minimiser les attributs et compléter cette protection par des filtres ou redactions testés.",
+        "Désactiver uniquement le chiffrement, car les attributs ne sont plus sensibles une fois exportés."
+      ],
+      "answer": 2,
+      "explanation": "La protection la plus robuste consiste à ne pas produire les secrets et données personnelles dans la télémétrie lorsque cela peut être évité. Les filtres et processeurs de redaction apportent une défense supplémentaire, mais doivent être testés contre les données réellement émises et les destinations secondaires. Les traces doivent aussi être protégées par le contrôle d’accès et un transport sécurisé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il tester la télémétrie après une mise à jour d’un SDK ou d’une instrumentation automatique ?",
+      "choices": [
+        "Parce que la mise à jour peut modifier la couverture, les attributs ou le nombre de spans, ce qui affecte les recherches, les coûts et la confidentialité.",
+        "Parce que toutes les versions d’OpenTelemetry changent nécessairement le protocole HTTP de l’application.",
+        "Parce qu’une mise à jour garantit que le backend stockera plus longtemps toutes les traces.",
+        "Parce qu’aucune version du SDK ne prend en charge les variables d’environnement."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Les mises à jour peuvent apporter de nouvelles instrumentations ou modifier les conventions et le comportement de collecte. Cela peut doubler les spans, faire évoluer les attributs utilisés par les dashboards, changer le volume exporté ou introduire des champs non anticipés. Une validation en staging, avec comparaison du volume et inspection des données, permet de détecter ces effets avant généralisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une application semble fonctionner, mais aucune trace n’apparaît dans le backend. Quelle démarche est la plus rigoureuse ?",
+      "choices": [
+        "Conclure immédiatement que l’application n’a reçu aucune requête.",
+        "Augmenter le nombre de spans manuels avant de vérifier l’export.",
+        "Ouvrir l’endpoint OTLP à Internet pour contourner les règles réseau.",
+        "Vérifier le trafic, l’initialisation du SDK, les paramètres d’export, la connectivité et la sécurité, puis les métriques de réception, files et rejets du Collector."
+      ],
+      "answer": 3,
+      "explanation": "Une absence de traces peut provenir d’un manque de trafic, d’une instrumentation inactive, d’un endpoint incorrect, d’un problème TLS ou d’autorisation, d’un filtre ou d’un rejet au niveau du Collector. Il faut suivre la chaîne depuis le processus réel jusqu’au backend et s’appuyer sur des traces témoins et métriques de pipeline. Exposer l’ingestion à Internet sans contrôle créerait un risque de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une grande file d’attente d’export n’est-elle pas une garantie suffisante de résilience ?",
+      "choices": [
+        "Parce qu’une file d’export désactive toujours le batching.",
+        "Parce qu’une file consomme de la mémoire ou du disque, peut retarder les données et ne protège pas contre tous les arrêts brutaux ; il faut aussi définir les limites, retries et objectifs de perte.",
+        "Parce que le Collector ne peut pas envoyer de données après une interruption du backend.",
+        "Parce qu’une file plus grande réduit systématiquement le débit d’export à zéro."
+      ],
+      "answer": 1,
+      "explanation": "Une file peut absorber une interruption courte, mais son contenu consomme des ressources et peut devenir trop ancien pour être utile. Une queue en mémoire ne survit généralement pas à toutes les interruptions du processus, et une file trop volumineuse peut épuiser la mémoire ou créer un rattrapage agressif. Les limites, politiques de retry, stockage persistant éventuel et alertes doivent correspondre aux objectifs de résilience."
     }
   ]
 }
