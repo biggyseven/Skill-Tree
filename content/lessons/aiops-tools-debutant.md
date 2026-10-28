@@ -460,6 +460,614 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+
+## Atelier approfondi — choisir et exploiter les outils d'automatisation réseau
+
+Cet atelier complète les bases d'Ansible et de Nornir par une méthode de travail reproductible. L'objectif n'est pas de lancer une commande sur chaque appareil aussi vite que possible. Il est de transformer un inventaire fiable en opérations contrôlées, de limiter le risque d'un changement incorrect et de prouver l'état obtenu. Un outil d'automatisation est une partie du système d'exploitation réseau : sa configuration, ses dépendances, ses identités, ses résultats et ses procédures de reprise doivent être maintenus comme du code.
+
+Les exemples sont conçus pour un environnement de laboratoire. Les noms d'équipements, les adresses de documentation et les politiques sont fictifs. Commence par la collecte en lecture seule et la simulation. N'applique pas de playbook ou de script sur une infrastructure réelle sans autorisation, sauvegarde, analyse d'impact, fenêtre de changement et procédure de retour arrière testée.
+
+### A. Choisir un outil selon le problème à résoudre
+
+Ansible et Nornir peuvent tous deux aider à automatiser un parc, mais leurs modèles de travail ne sont pas identiques. Ansible organise généralement les opérations autour d'inventaires, de tâches, de rôles et de playbooks déclaratifs. Son approche est pratique pour décrire un état souhaité, réutiliser des rôles et faire relire un changement dans un dépôt. Nornir est un framework Python qui fournit une structure d'inventaire et d'exécution, particulièrement adaptée aux équipes qui souhaitent composer leurs opérations en Python et intégrer facilement des bibliothèques réseau spécialisées.
+
+Le choix dépend du profil de la tâche, du niveau de personnalisation requis, des connecteurs disponibles, de la culture de l'équipe, de la gestion des secrets, de la qualité des tests et de la capacité à maintenir les dépendances. Il ne faut pas choisir un outil uniquement parce qu'il est populaire. Il faut commencer par définir les résultats mesurables : durée d'un audit, taux d'échec, reproductibilité, qualité des rapports et temps nécessaire pour diagnostiquer un incident.
+
+```mermaid
+flowchart TD
+    TASK["Besoin d'automatisation"] --> DECL{"État cible déclaratif et rôles réutilisables ?"}
+    DECL -- Oui --> ANS["Évaluer Ansible"]
+    DECL -- Non --> PY{"Logique Python ou traitement personnalisé important ?"}
+    PY -- Oui --> NOR["Évaluer Nornir"]
+    PY -- Non --> CONN["Examiner les API et connecteurs disponibles"]
+    CONN --> CHOICE["Comparer les options sur un prototype"]
+    ANS --> EVAL["Comparer coût, test, sécurité et maintenance"]
+    NOR --> EVAL
+    CHOICE --> EVAL
+    EVAL --> DEC{"Résultats démontrés ?"}
+    DEC -- Non --> PILOT["Réduire le périmètre et tester"]
+    DEC -- Oui --> ADOPT["Adopter avec procédures d'exploitation"]
+```
+
+Une équipe peut aussi combiner les deux outils : par exemple, Ansible pour certains changements déclaratifs et Python/Nornir pour des collectes ou vérifications spécialisées. Une telle combinaison doit toutefois avoir une raison explicite. Multiplier les outils accroît les dépendances, les systèmes de secrets, les formats de sortie, les conventions et les compétences à maintenir. Chaque frontière entre composants doit définir le format des données, les codes de statut et la responsabilité en cas d'échec.
+
+| Critère | Ansible | Nornir | Question à vérifier |
+|---|---|---|---|
+| Modèle de travail | Playbooks, tâches, rôles, inventaires | Objets Python, tâches et plugins | Quel modèle l'équipe comprend-elle le mieux ? |
+| Logique personnalisée | Modules, filtres, plugins et rôles | Fonctions et bibliothèques Python | Quelle quantité de logique spécifique est nécessaire ? |
+| Réutilisation | Rôles et collections | Packages et fonctions | Comment versionner et tester les composants ? |
+| Exécution parallèle | Contrôlée par les paramètres d'exécution | Contrôlée dans le modèle Nornir | Quelle charge le parc peut-il supporter ? |
+| Simulation | Dépend de la prise en charge du module et du playbook | À construire et à tester selon les fonctions utilisées | La simulation couvre-t-elle réellement tous les effets ? |
+| Résultats | Événements de tâches structurés | Résultats Python personnalisables | Comment distinguer succès, échec et inconnu ? |
+| Maintenabilité | Très bonne pour un modèle déclaratif clair | Souple, mais le code doit être organisé | Les nouveaux membres peuvent-ils relire le changement ? |
+
+Le tableau est un guide de décision, pas un classement universel. Les capacités dépendent des modules, plugins, plateformes, versions et collections installés. Une fonction disponible dans un environnement ne sera pas forcément disponible ailleurs. Vérifie les versions réelles et consulte la documentation du composant exact avant de dépendre d'une option ou d'un mode de simulation.
+
+### B. Définir un contrat commun pour tous les outils
+
+Quel que soit l'outil retenu, une opération doit posséder un objectif, une portée, des préconditions, un résultat attendu, une limite de temps, une identité responsable, un plan de reprise et un format de rapport. Sans contrat commun, les tâches Ansible et Nornir peuvent produire des résultats difficilement comparables ou donner un sens différent au mot « succès ».
+
+```mermaid
+flowchart LR
+    REQ["Demande approuvée"] --> SCOPE["Portée et inventaire"]
+    SCOPE --> PRE["Préconditions"]
+    PRE --> RUN["Tâche Ansible ou Nornir"]
+    RUN --> RESULT["Résultats par cible"]
+    RESULT --> POST["Vérifications après action"]
+    POST --> STATUS["Succès, partiel, échec ou inconnu"]
+    STATUS --> AUDIT["Rapport et preuves"]
+```
+
+Un résultat doit être attaché à un identifiant stable de cible. Il devrait indiquer la version de l'outil, la tâche exécutée, l'horodatage, la durée, le statut, le code d'erreur normalisé et l'identifiant de la demande de changement. En cas d'échec, il faut pouvoir répondre à la question : l'opération n'a-t-elle jamais démarré, a-t-elle échoué avant le changement, a-t-elle peut-être changé l'état ou a-t-elle réussi mais échoué à vérifier le résultat ?
+
+Les statuts doivent différencier au minimum réussite confirmée, échec confirmé, réussite partielle et état inconnu. Un équipement inaccessible n'est pas conforme par défaut. Une tâche qui a produit une configuration sans avoir relu l'état réel n'est pas équivalente à une tâche dont les postconditions sont vérifiées. Si le format de sortie est traité par un système de supervision, garde les noms des statuts stables et documente les évolutions.
+
+### C. Construire un inventaire de confiance
+
+L'inventaire est une source de vérité sur les cibles, leurs propriétés et leur périmètre d'autorisation. Il peut contenir des identifiants logiques, une plateforme, une version logicielle, une région, un groupe fonctionnel, un propriétaire, une méthode de connexion et une criticité. Il ne devrait pas contenir de mot de passe ou de jeton en clair.
+
+```mermaid
+flowchart TD
+    SOURCE["Source d'inventaire approuvée"] --> LOAD["Chargement"]
+    LOAD --> SCHEMA["Validation des champs"]
+    SCHEMA --> DUP{"Identifiants uniques ?"}
+    DUP -- Non --> REJECT["Rejet et rapport"]
+    DUP -- Oui --> PLATFORM["Plateforme et version reconnues ?"]
+    PLATFORM -- Non --> REVIEW["Cible non prise en charge"]
+    PLATFORM -- Oui --> OWNER["Propriétaire et environnement définis"]
+    OWNER --> AUTH["Vérifier le périmètre autorisé"]
+    AUTH --> PLAN["Inventaire de travail validé"]
+```
+
+Un inventaire manuel peut commencer avec un CSV versionné, puis être intégré à une source dynamique lorsque les besoins augmentent. Une source dynamique n'est pas automatiquement fiable : elle peut être en retard, contenir des doublons, avoir des groupes mal définis ou exposer des ressources qui ne doivent pas être gérées par le job. Il faut toujours contrôler l'origine des données et leur fraîcheur.
+
+Exemple de CSV pédagogique :
+
+```csv
+host,platform,environment,site,owner,role,enabled
+lab-sw-01,ios_like,lab,douala,netops,switch,true
+lab-rtr-01,nx_like,lab,douala,netops,router,true
+lab-fw-01,firewall_lab,lab,douala,security,firewall,true
+```
+
+Les identifiants sont fictifs. Avant de traiter une ligne, vérifie que la plateforme figure dans une liste autorisée, que l'environnement correspond à celui sélectionné et que le propriétaire est défini. Ne laisse pas une valeur arbitraire dans la colonne platform choisir librement un exécuteur ou un plugin. Une plateforme inconnue doit produire un statut explicitement « non prise en charge » et être exclue des opérations modifiantes.
+
+Évite de traiter l'adresse IP comme l'unique identité de la cible. Les adresses peuvent changer et être réutilisées. Un identifiant logique permet d'associer l'historique à une ressource tout en gardant l'adresse comme un attribut modifiable. Enregistre la provenance et l'heure de dernière synchronisation afin qu'une opération puisse bloquer si son inventaire est trop ancien pour le risque considéré.
+
+### D. Organiser le dépôt et rendre la configuration relisible
+
+Un dépôt clair aide à séparer les paramètres, les inventaires, les rôles, les tâches, les tests et les rapports. Les secrets n'ont pas leur place dans les fichiers versionnés. Les environnements doivent avoir des configurations explicites, et la valeur par défaut devrait être un mode de lecture ou de simulation lorsque c'est possible.
+
+```mermaid
+flowchart TD
+    REPO["Dépôt d'automatisation"] --> INV["Inventaires et schémas"]
+    REPO --> PLAY["Playbooks ou tâches Python"]
+    REPO --> ROLES["Rôles et fonctions réutilisables"]
+    REPO --> TESTS["Tests unitaires et fixtures"]
+    REPO --> DOC["Documentation et runbooks"]
+    REPO --> CI["Pipeline de validation"]
+    CI --> LINT["Lint et format"]
+    CI --> TESTS
+    CI --> SECRET["Détection des secrets"]
+    LINT --> REVIEW["Revue du changement"]
+    TESTS --> REVIEW
+    SECRET --> REVIEW
+```
+
+Une structure de départ possible :
+
+```text
+network-automation/
+  README.md
+  requirements.txt
+  ansible.cfg
+  inventories/
+    lab/
+      hosts.yml
+      group_vars/
+    staging/
+      hosts.yml
+  playbooks/
+    collect_state.yml
+    validate_policy.yml
+    apply_change.yml
+  roles/
+    collect_facts/
+    baseline_config/
+  nornir_jobs/
+    inventory.py
+    tasks.py
+    runner.py
+  tests/
+    fixtures/
+    test_inventory.py
+    test_result_schema.py
+  schemas/
+    target-inventory.schema.json
+    result.schema.json
+  reports/
+    .gitkeep
+```
+
+Cette structure est une proposition, pas une obligation. Il faut l'ajuster au nombre de plateformes et aux conventions de l'équipe. Évite les copies de tâches qui dérivent entre elles ; place les logiques communes dans des rôles ou fonctions et documente les exceptions. La cohérence est plus importante qu'une architecture compliquée.
+
+Les rapports volumineux ou sensibles ne doivent pas forcément être versionnés avec le code. Pour les artefacts qui doivent être conservés, définis un stockage, des permissions, une durée de rétention et une politique de masquage. Le dépôt devrait garder les tests et les exemples synthétiques, afin que les développeurs puissent reproduire les validations sans connaître les secrets de l'environnement réel.
+
+### E. Séparer la collecte, la planification et le changement
+
+Une collecte lit l'état ; une planification compare l'état observé à une cible ; une application modifie l'état ; une vérification relit le système. Il est dangereux de mélanger ces étapes dans un gros script où la lecture d'une donnée déclenche implicitement une écriture. La séparation facilite la revue, les tests, la reprise et la réduction des permissions.
+
+```mermaid
+sequenceDiagram
+    participant I as Inventaire
+    participant C as Collecteur en lecture
+    participant P as Planificateur
+    participant R as Relecteur
+    participant A as Exécuteur
+    participant V as Vérificateur
+    I->>C: Cibles validées
+    C->>C: Collecter l'état actuel
+    C->>P: État observé
+    P->>P: Comparer au résultat attendu
+    P->>R: Diff et risques
+    R-->>P: Approbation de la version du plan
+    P->>A: Plan exact autorisé
+    A->>V: Demander une nouvelle lecture
+    V-->>R: Résultat et écarts résiduels
+```
+
+Un job de collecte ne devrait pas disposer des droits de modification. Le planificateur peut travailler sans accès en écriture au réseau. Le service qui applique le changement reçoit uniquement un plan approuvé et une identité disposant de droits limités. Le vérificateur doit s'appuyer sur des observations pertinentes, idéalement indépendantes du code qui a effectué le changement.
+
+Cette séparation permet aussi de faire du mode « plan seulement » en continu. Le système peut comparer le plan actuel à l'intention, publier les écarts et demander une revue, sans appliquer quoi que ce soit. Le fait de produire un diff propre ne signifie pas qu'il est sans danger : une règle supprimée ou déplacée peut avoir des effets importants sur un flux existant.
+
+### F. Utiliser Ansible de manière déclarative
+
+Ansible est souvent efficace lorsque l'objectif peut être décrit comme un état souhaité. Les tâches devraient s'appuyer sur des modules qui comprennent l'état de la cible plutôt que lancer systématiquement des commandes brutes. Lorsqu'un module ne connaît pas la sémantique du système cible, il faut compenser par des contrôles explicites et ne pas supposer qu'un mode check est disponible.
+
+```mermaid
+flowchart TD
+    VARS["Variables et inventaire validés"] --> PRE["Précontrôles"]
+    PRE --> CHECK["Mode check si supporté"]
+    CHECK --> DIFF["Examiner les changements proposés"]
+    DIFF --> APPROVE["Approuver le périmètre"]
+    APPROVE --> APPLY["Exécuter le playbook"]
+    APPLY --> READBACK["Relire l'état cible"]
+    READBACK --> RESULT["Rapport de conformité"]
+```
+
+Exemple de playbook de collecte qui ne modifie pas la configuration :
+
+```yaml
+- name: Collecter un état réseau de laboratoire
+  hosts: lab_switches
+  gather_facts: false
+  serial: 2
+  tasks:
+    - name: Vérifier que l'identifiant de cible est défini
+      ansible.builtin.assert:
+        that:
+          - inventory_hostname is defined
+          - inventory_hostname | length > 0
+        fail_msg: "Identifiant de cible absent"
+
+    - name: Afficher un marqueur de collecte
+      ansible.builtin.debug:
+        msg:
+          target: "{{ inventory_hostname }}"
+          mode: "read_only_lab"
+```
+
+Ce playbook illustre la structure et la validation d'un inventaire ; il n'interroge pas réellement l'état d'un équipement. Pour la collecte réelle, utilise les modules ou collections supportés par la plateforme, valide leur version, limite les permissions et vérifie le schéma de sortie. N'utilise pas ansible.builtin.debug comme preuve d'une collecte réseau : il affiche seulement les valeurs données au playbook.
+
+Le mode check d'Ansible est une aide utile, mais il n'est pas équivalent à une simulation complète pour chaque module. Certains modules ne sont pas pris en charge, certains états dépendent du système réel, et les tâches reposant sur des commandes brutes peuvent avoir des résultats insuffisants. Lis la documentation du module utilisé, teste son comportement dans le laboratoire et exige une validation indépendante après l'application.
+
+### G. Organiser Nornir et les tâches Python
+
+Nornir fournit un modèle Python pour les inventaires et l'exécution des tâches. Il convient lorsque les opérations demandent un traitement personnalisé, l'appel de bibliothèques spécialisées ou la composition de résultats. La qualité dépend de la structure du code : chaque tâche doit avoir une responsabilité simple, les exceptions doivent être représentées, et l'exécution sur plusieurs cibles doit avoir une limite de concurrence maîtrisée.
+
+```mermaid
+flowchart TD
+    CONFIG["Configuration Nornir"] --> INV["Inventaire et filtres"]
+    INV --> SELECT["Sélection des cibles autorisées"]
+    SELECT --> RUN["Exécuter les tâches"]
+    RUN --> RAW["Résultats par hôte"]
+    RAW --> NORMAL["Normaliser les statuts"]
+    NORMAL --> AGG["Agrégation et métriques"]
+    AGG --> REPORT["Rapport par cible et global"]
+```
+
+Exemple de fonction de normalisation des résultats, indépendante de Nornir pour faciliter les tests :
+
+```python
+from dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class OperationResult:
+    target_id: str
+    status: str
+    duration_ms: int
+    details: dict[str, Any]
+    error_code: str | None = None
+
+VALID_STATUSES = {"success", "partial", "failed", "unknown"}
+
+def normalize_result(target_id, raw_status, duration_ms, details=None, error=None):
+    status_map = {
+        "ok": "success",
+        "changed": "success",
+        "timeout": "partial",
+        "failed": "failed",
+        "unreachable": "unknown",
+    }
+    status = status_map.get(raw_status, "unknown")
+    if status not in VALID_STATUSES:
+        status = "unknown"
+    return OperationResult(
+        target_id=str(target_id),
+        status=status,
+        duration_ms=max(0, int(duration_ms)),
+        details=details if isinstance(details, dict) else {},
+        error_code=error,
+    )
+```
+
+Ce code sert d'exemple de normalisation, pas de remplacement de l'objet résultat natif d'une version particulière de Nornir. Le mapping réel doit être écrit en fonction des plugins utilisés et de leurs statuts. Une cible inaccessible est présentée comme inconnue plutôt que conforme. Une réponse brute ne doit pas être acceptée sans vérifier son type et ses champs.
+
+Garde les fonctions indépendantes du transport lorsque c'est possible. La logique métier peut recevoir une structure déjà collectée et en dériver un résultat attendu ; le module de connexion reste responsable de l'accès à l'équipement. Cela simplifie les tests unitaires, permet de simuler les réponses et évite d'avoir besoin d'un vrai équipement pour tester les règles de décision.
+
+### H. Contrôler la concurrence, le temps et le budget de reprise
+
+Le parallélisme peut accélérer une collecte, mais chaque connexion consomme des ressources côté contrôleur et côté cible. Une trop grande concurrence peut saturer le plan de gestion, déclencher une limitation de débit ou rendre les résultats moins fiables. Le degré de concurrence doit être choisi par mesure et limité par un paramètre explicite.
+
+```mermaid
+flowchart TD
+    TARGETS["Cibles validées"] --> QUEUE["File des opérations"]
+    QUEUE --> POOL["Pool de travailleurs borné"]
+    POOL --> TIMEOUT["Timeout par cible"]
+    TIMEOUT --> STATUS["Résultat par cible"]
+    POOL --> LIMIT["Limiteur de débit"]
+    LIMIT --> CONNECT["Connexions vers le parc"]
+    STATUS --> AGG["Agrégation"]
+    AGG --> SUMMARY["Rapport de complétude"]
+```
+
+Les tentatives supplémentaires doivent être réservées aux erreurs transitoires. Un refus d'accès ne sera généralement pas corrigé par dix nouvelles tentatives. Chaque cible dispose d'un timeout, d'un nombre maximal d'essais et, si nécessaire, d'une pause progressive. Le budget total du job doit inclure les reprises afin qu'un petit nombre de systèmes en panne ne bloque pas indéfiniment le traitement du reste du parc.
+
+Il faut aussi considérer les opérations concurrentes sur une même ressource. Deux jobs de configuration qui s'exécutent au même moment peuvent écraser mutuellement leurs changements. Pour les tâches modifiantes, définis un verrou par cible ou un mécanisme de réservation, une règle de priorité et une procédure de reprise lorsque le job s'arrête. Le verrou n'est pas une autorisation : les contrôles d'accès doivent toujours être appliqués.
+
+Les résultats doivent être conservés même si le job est partiellement en échec. Le rapport global indique le nombre de cibles attendues, terminées, réussies, partiellement traitées et inconnues. Ne déduis pas la réussite globale du seul code retour d'une sous-tâche. Un code de sortie doit suivre le contrat du job et permettre à l'ordonnanceur de distinguer un succès complet d'une collecte partielle.
+
+### I. Gérer les secrets, les identités et les permissions
+
+Un outil qui automatise le réseau peut avoir accès à des ressources sensibles. Ne stocke pas les mots de passe dans l'inventaire, les playbooks, les notebooks, les fichiers de test ou les messages d'erreur. Utilise un gestionnaire de secrets ou un mécanisme approuvé, une identité de service dédiée et des permissions minimales. La lecture de l'état doit être séparée des droits de configuration lorsque les outils le permettent.
+
+```mermaid
+flowchart LR
+    OP["Opérateur autorisé"] --> REVIEW["Validation de demande"]
+    REVIEW --> JOB["Job approuvé"]
+    JOB --> ID["Identité technique dédiée"]
+    ID --> READ["Permissions de lecture"]
+    ID --> WRITE["Permissions d'écriture bornées"]
+    READ --> DEVICE["Équipements ciblés"]
+    WRITE --> DEVICE
+    JOB --> LOG["Journal sans secrets"]
+    LOG --> AUDIT["Audit et rotation des accès"]
+```
+
+Les identités différentes permettent de réduire le risque d'un script compromis. Le compte de collecte n'a pas besoin de modifier les configurations. Le compte utilisé pour un changement peut être distinct et activé uniquement lorsque le job est approuvé. La séparation n'est efficace que si les identifiants ne peuvent pas être récupérés par le collecteur ou un utilisateur non autorisé.
+
+La rotation des secrets doit être testée pour éviter les interruptions imprévues. Les erreurs d'authentification doivent être visibles sans afficher les identifiants. Si un secret est potentiellement exposé, révoque-le, vérifie les journaux et artefacts de CI, et détermine si des accès ont été effectués. Un secret retiré du dernier commit peut toujours exister dans l'historique et les copies.
+
+### J. Tester l'idempotence et le comportement réel des modules
+
+Une opération idempotente peut être rejouée sans créer de changements supplémentaires une fois l'état cible atteint. En automatisation réseau, cette propriété est essentielle pour les jobs planifiés et les reprises après panne. Elle dépend du module, du système cible et de la manière dont la tâche décrit l'état attendu ; elle ne doit pas être supposée.
+
+```mermaid
+sequenceDiagram
+    participant J as Job
+    participant M as Module
+    participant D as Équipement
+    J->>M: État cible déclaré
+    M->>D: Lire état actuel
+    D-->>M: État actuel
+    M->>M: Calculer l'écart
+    alt Déjà conforme
+        M-->>J: Aucun changement
+    else Écart autorisé
+        M->>D: Appliquer le changement
+        M->>D: Relire l'état réel
+        D-->>M: Nouvel état
+        M-->>J: Résultat et postconditions
+    end
+```
+
+Un test utile exécute deux fois la même tâche sur le même état de laboratoire. Le premier passage peut annoncer un changement ; le second devrait annoncer qu'aucun changement supplémentaire n'est nécessaire, si le module est réellement déclaratif et si l'état n'a pas évolué. Si le second passage change encore la cible, enquête : la comparaison peut être instable, l'ordre de configuration peut varier ou la tâche peut effectuer des effets secondaires.
+
+Il faut tester les cas où le module ne peut pas lire l'état, où l'état renvoyé ne correspond pas au schéma attendu ou où la commande de modification réussit mais la vérification échoue. Le résultat ne doit pas être simplement « tâche terminée ». Il doit inclure un statut qui indique si l'état final a été observé et si les propriétés attendues sont satisfaites.
+
+Les tests doivent couvrir les limites de chaque plateforme. Un module peut être déclaré compatible avec une technologie sans prendre en charge toutes les fonctions d'une version donnée. Vérifie les exigences de connexion, les versions de collections, la syntaxe attendue et les contraintes de simulation. Si un module ne prend pas en charge la vérification nécessaire, ajoute une collecte indépendante ou bloque l'automatisation d'écriture.
+
+### K. Écrire des tests indépendants des équipements
+
+Les fonctions de validation, de normalisation et de comparaison de configuration se testent sans connexion réseau. Prépare des fixtures représentant l'état souhaité, un état conforme, une dérive connue, une donnée absente et une réponse corrompue. Le test doit vérifier non seulement la sortie de la fonction, mais aussi que le statut ne peut pas devenir « conforme » si une donnée nécessaire manque.
+
+```mermaid
+flowchart TD
+    FIX["Fixtures synthétiques"] --> SCHEMA["Tester les schémas"]
+    FIX --> INV["Tester l'inventaire"]
+    FIX --> DIFF["Tester le calcul de drift"]
+    FIX --> ERR["Tester erreurs et timeouts"]
+    SCHEMA --> SUITE["Suite automatisée"]
+    INV --> SUITE
+    DIFF --> SUITE
+    ERR --> SUITE
+    SUITE --> LAB["Tests intégration en laboratoire"]
+    LAB --> REVIEW["Revue du changement"]
+```
+
+Un exemple Python de comparaison entre état attendu et état observé :
+
+```python
+def compare_state(expected, observed):
+    missing = sorted(set(expected) - set(observed))
+    unexpected = sorted(set(observed) - set(expected))
+    differences = {
+        key: {
+            "expected": expected[key],
+            "observed": observed[key],
+        }
+        for key in expected.keys() & observed.keys()
+        if expected[key] != observed[key]
+    }
+
+    if missing:
+        status = "unknown"
+    elif differences or unexpected:
+        status = "non_compliant"
+    else:
+        status = "compliant"
+
+    return {
+        "status": status,
+        "missing": missing,
+        "unexpected": unexpected,
+        "differences": differences,
+    }
+
+expected = {"ntp": "ntp.lab.example", "logging": True}
+observed = {"ntp": "ntp.lab.example", "logging": False}
+print(compare_state(expected, observed))
+```
+
+Ce code compare des dictionnaires synthétiques, pas une configuration réseau complète. Dans un vrai système, les valeurs peuvent avoir des représentations différentes qui sont pourtant équivalentes, ou des champs en lecture seule qui changent d'eux-mêmes. Définis donc une normalisation et un schéma par type de ressource avant la comparaison. Les règles d'équivalence doivent être documentées et testées ; il ne faut pas ignorer arbitrairement des différences parce qu'elles gênent le rapport.
+
+Les tests d'intégration utilisent ensuite une maquette ou un environnement dédié, avec une portée réduite et des secrets réservés au test. Ils vérifient l'authentification, les capacités du module, le comportement de la plateforme, la lecture de l'état réel et le rollback. Un test en production n'est pas une alternative à un environnement de test simplement parce qu'il est plus représentatif.
+
+### L. Faire de la simulation une véritable étape de décision
+
+Le mode check ou dry-run est utile mais ne remplace pas toutes les autres validations. Le niveau de simulation dépend du module, de la plateforme, de la qualité de l'inventaire et des appels exécutés. Un playbook peut afficher une intention de changement sans savoir si la plateforme acceptera chaque opération, et un script Python peut annoncer un plan sans avoir simulé les effets secondaires.
+
+```mermaid
+flowchart TD
+    PLAN["Plan construit"] --> SYNTAX["Validation syntaxique"]
+    SYNTAX --> CAP["Vérifier capacités et limites"]
+    CAP --> DIFF["Inspecter les modifications"]
+    DIFF --> SIM["Simulation prise en charge"]
+    SIM --> TEST["Tester invariants et flux"]
+    TEST --> DEC{"Preuves suffisantes ?"}
+    DEC -- Non --> HOLD["Bloquer et demander une revue"]
+    DEC -- Oui --> APPROVE["Approbation de changement"]
+```
+
+Une simulation de qualité devrait montrer les cibles concernées, les modifications prévues, les règles supprimées, les risques connus et les éléments qui n'ont pas pu être simulés. Les zones inconnues doivent être signalées. Si le module ne supporte pas le mode check, n'appelle pas le résultat « dry-run réussi » simplement parce que la tâche a été limitée à quelques commandes de lecture.
+
+Le plan d'une modification de réseau doit aussi être confronté au contexte actuel. Si le service est en panne, si l'inventaire vient de changer ou si une autre intervention est en cours, les hypothèses de simulation peuvent ne plus être vraies. Avant l'application, revalide les préconditions essentielles et vérifie que l'approbation se rapporte toujours au plan exact.
+
+### M. Déployer par lots et prévoir le retour arrière
+
+Une stratégie de déploiement par lots réduit l'étendue d'un incident potentiel. Le premier lot doit être limité et représentatif, mais ne doit pas contenir d'emblée tous les systèmes critiques. Après chaque lot, contrôle les indicateurs prévus, l'accessibilité de gestion, les tests de flux et les alertes. Poursuis seulement si les critères de progression sont respectés.
+
+```mermaid
+flowchart TD
+    APPROVED["Plan approuvé"] --> SAVE["Sauvegarder état de référence"]
+    SAVE --> CANARY["Appliquer au lot pilote"]
+    CANARY --> CHECK["Contrôler l'état et les tests"]
+    CHECK --> PASS{"Critères satisfaits ?"}
+    PASS -- Non --> ROLLBACK["Restaurer ou stopper"]
+    PASS -- Oui --> NEXT["Appliquer le lot suivant"]
+    NEXT --> MORE{"Lots restants ?"}
+    MORE -- Oui --> CHECK2["Vérifier le lot courant"]
+    CHECK2 --> PASS
+    MORE -- Non --> CLOSE["Rapport de clôture"]
+    ROLLBACK --> VERIFY["Vérifier la récupération"]
+```
+
+Le plan de rollback doit préciser le propriétaire, la version de la configuration de référence, les conditions d'activation et la façon de confirmer que le service est restauré. Évite une restauration aveugle qui écraserait des changements légitimes intervenus après la sauvegarde. Si le contexte a changé, compare les états et fais approuver une reprise adaptée.
+
+Pour les changements critiques, assure-toi que l'accès de gestion restera possible ou qu'une voie de récupération séparée est disponible. Un script qui peut couper la connexion qui le contrôle a besoin d'une stratégie explicite : mécanisme natif de confirmation, console hors bande, timer de restauration ou étape intermédiaire sur un équipement pilote selon les capacités. Les mécanismes concrets varient par plateforme ; ils doivent être testés dans la maquette.
+
+### N. Détecter la dérive avec une classification utile
+
+La conformité réseau est un état évalué avec des preuves, pas une simple réussite de tâche. Trois résultats doivent être séparés : conforme, non conforme et inconnu. Conforme signifie que les propriétés requises ont été observées et vérifiées ; non conforme signifie qu'une différence a été démontrée ; inconnu signifie que les données ou les capacités ne permettent pas de conclure.
+
+```mermaid
+flowchart TD
+    WANT["État attendu versionné"] --> READ["Collecter état réel"]
+    READ --> QUALITY{"Couverture suffisante ?"}
+    QUALITY -- Non --> UNKNOWN["Statut inconnu"]
+    QUALITY -- Oui --> COMPARE["Comparer après normalisation"]
+    COMPARE --> DIFF{"Différences pertinentes ?"}
+    DIFF -- Non --> COMPLIANT["Conforme sur le périmètre testé"]
+    DIFF -- Oui --> NONCOMP["Non conforme"]
+    NONCOMP --> CLASS["Classer gravité et cause possible"]
+    CLASS --> PLAN["Préparer correction ou exception"]
+```
+
+Le rapport de dérive doit identifier la ressource, la version de l'intention, les propriétés différentes, l'heure de collecte, la provenance, la gravité et la prochaine étape. Si l'état réel n'est pas observable, l'écart ne peut pas être classé comme inexistant. Il faut mesurer la couverture de collecte et montrer les ressources non vérifiables.
+
+Le système ne doit pas automatiquement écraser toute différence. Un changement manuel peut être une intervention d'urgence approuvée, un nouvel état légitime à déclarer ou une erreur à corriger. Le contrôleur rassemble les faits, consulte l'historique des changements et propose la prochaine action. La correction automatique n'est acceptable que pour les catégories d'écarts explicitement approuvées, dans un périmètre borné et avec un mécanisme de reprise testé.
+
+### O. Utiliser des exceptions temporaires et auditables
+
+Dans un environnement réel, des exceptions peuvent être nécessaires : migration d'un service, dépendance transitoire, équipement ancien ou test ponctuel. Pour éviter qu'elles deviennent invisibles, exige un identifiant, une justification, un propriétaire, une portée minimale, une date d'expiration, un niveau de risque et une preuve de retrait.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Requested
+    Requested --> Reviewed
+    Reviewed --> Rejected
+    Reviewed --> Approved
+    Approved --> Active
+    Active --> Monitoring
+    Monitoring --> Expiring
+    Expiring --> Removed
+    Expiring --> RenewalRequested
+    RenewalRequested --> Reviewed
+    Removed --> Verified
+    Verified --> [*]
+    Rejected --> [*]
+```
+
+Une exception expirée doit cesser d'être considérée comme valide. Si le besoin persiste, une nouvelle demande doit justifier la durée supplémentaire et être revue. L'extension d'échéance ne doit pas être automatique sans limite. La revue doit également vérifier que l'exception n'autorise pas plus de ressources ou de protocoles que nécessaire.
+
+Les rapports de conformité doivent indiquer quelles exceptions expliquent les écarts et quand elles expirent. Lorsqu'une politique dépend d'une exception, le retrait peut provoquer une interruption ; la procédure doit donc préciser les tests à réaliser et l'approbation requise. Le but est de rendre l'exception gouvernable, pas de la supprimer sans comprendre son impact.
+
+### P. Rédiger un rapport de changement exploitable
+
+Le rapport final doit relier la demande métier, la version d'intention, le plan généré, l'approbation, la liste des cibles, les opérations exécutées, les statuts, les tests après changement et les écarts restants. Un identifiant de demande commun permet de naviguer entre les journaux sans copier des informations sensibles dans tous les systèmes.
+
+```mermaid
+flowchart LR
+    REQUEST["Demande métier"] --> INTENT["Version de l'intention"]
+    INTENT --> PLAN["Plan et empreinte"]
+    PLAN --> APPROVAL["Approbation"]
+    APPROVAL --> RUN["Exécution par cible"]
+    RUN --> TEST["Tests post-changement"]
+    TEST --> REPORT["Rapport complet"]
+    REPORT --> AUDIT["Audit et retour d'expérience"]
+```
+
+Le résumé doit dire ce qui est vérifié, ce qui a échoué et ce qui reste inconnu. Un rapport qui affirme « le déploiement a réussi » uniquement parce que le programme s'est terminé sans exception peut être dangereux. L'application peut avoir eu lieu sur une partie du parc, une cible peut être restée inaccessible et une propriété requise peut encore manquer.
+
+```json
+{
+  "report_version": 1,
+  "run_id": "network-job-lab-008",
+  "intent_id": "guest-isolation",
+  "intent_version": 3,
+  "environment": "lab",
+  "targets_expected": 8,
+  "targets_observed": 7,
+  "targets_compliant": 5,
+  "targets_non_compliant": 1,
+  "targets_unknown": 2,
+  "change_applied": true,
+  "postchecks_passed": false,
+  "overall_status": "partial_failure",
+  "next_step": "investigate_unverified_targets"
+}
+```
+
+Les nombres sont fictifs. Le modèle illustre qu'un changement peut avoir été appliqué et que des vérifications peuvent néanmoins échouer. La taxonomie réelle doit définir si les catégories sont disjointes et comment la cible absente est comptée, afin d'éviter les totaux incohérents. Les résultats détaillés doivent être stockés dans un emplacement autorisé, avec un contrôle d'accès et une rétention adaptée.
+
+### Q. Mesurer la qualité de l'automatisation
+
+La qualité ne se mesure pas uniquement au temps nécessaire pour pousser une configuration. Les indicateurs peuvent inclure la proportion de cibles vérifiées, le taux de réussite des postconditions, les écarts résiduels, les actions annulées, les échecs de connexion, le nombre de changements bloqués en simulation et le temps de récupération après un changement incorrect.
+
+```mermaid
+flowchart TD
+    COVER["Couverture de collecte"] --> CONF["Conformité mesurée"]
+    CONF --> DRIFT["Dérives par catégorie"]
+    DRIFT --> FIX["Délai de correction"]
+    FIX --> REC["Taux de récupération"]
+    REC --> REVIEW["Revue périodique"]
+    REVIEW --> IMPROVE["Améliorer inventaire, tests et rôles"]
+    IMPROVE --> COVER
+```
+
+Une amélioration apparente peut être trompeuse si le système commence à ignorer les cibles qui échouent. Affiche toujours la couverture et le nombre de statuts inconnus. Une réduction du nombre de changements ne signifie pas nécessairement une meilleure sécurité : elle peut simplement montrer que les règles ne sont plus appliquées ou que les demandes sont bloquées sans résolution.
+
+Définis les métriques avant le pilote. Chaque indicateur doit avoir une définition, une source, une période, un propriétaire et une action lorsque son seuil est dépassé. Les résultats doivent être comparés sur des périodes et des périmètres équivalents. Pour un petit échantillon, affiche les nombres absolus et ne présente pas un pourcentage comme une garantie.
+
+### R. Étude de cas — harmoniser une politique sur plusieurs plateformes
+
+Une organisation de laboratoire possède deux familles d'équipements de commutation et un pare-feu. Elle veut empêcher les postes invités d'initier des connexions vers un service de paiement, tout en préservant le DNS autorisé et les accès de maintenance légitimes. Les capacités de segmentation et de vérification diffèrent suivant les plateformes.
+
+La première étape est d'identifier la source fiable de l'inventaire et de confirmer les appartenances aux groupes. La deuxième est de formaliser l'intention en règles et en invariants. La troisième consiste à vérifier les capacités de chaque équipement et à produire une traduction candidate. La quatrième est de créer une matrice de tests incluant les flux interdits. La cinquième est de simuler, faire relire, approuver puis déployer un lot pilote. Après l'application, on relit l'état réel et on vérifie les flux.
+
+```mermaid
+flowchart TD
+    BIZ["Objectif : isoler le segment invité"] --> INV["Inventaire de confiance"]
+    INV --> INTENT["Intention formalisée"]
+    INTENT --> CAP["Vérification des capacités"]
+    CAP --> PLAN["Traduction par plateforme"]
+    PLAN --> TESTS["Tests autorisés et interdits"]
+    TESTS --> DRY["Simulation et diff"]
+    DRY --> APPROVE["Approbation"]
+    APPROVE --> PILOT["Pilote sur périmètre réduit"]
+    PILOT --> VERIFY["Read-back et tests de flux"]
+    VERIFY --> GO{"Invariants vérifiés ?"}
+    GO -- Non --> STOP["Stopper et restaurer selon le plan"]
+    GO -- Oui --> NEXT["Étendre progressivement"]
+```
+
+Si une plateforme ne sait pas appliquer un contrôle nécessaire, le système ne doit pas inventer une règle ou prétendre que l'intention complète est garantie. Il peut bloquer le changement et proposer une solution de substitution documentée. Si une cible ne répond pas, son état demeure inconnu. Si les tests négatifs ne peuvent pas être exécutés, la conformité reste partiellement vérifiée.
+
+La clôture de changement doit fournir le plan approuvé, l'empreinte de la configuration candidate, les résultats de tests, la couverture de collecte, les écarts résiduels, l'identité de l'approbateur et la méthode de rollback. Ce dossier rend la décision compréhensible et permet de comparer le résultat avec les futures révisions de politique.
+
+### S. Revue de conception — questions à poser avant chaque déploiement
+
+Avant une modification, pose les questions suivantes et conserve les réponses dans le dossier de changement. Est-ce que l'intention est exprimée en propriétés qui se testent ? L'inventaire est-il frais ? Les cibles ont-elles les capacités requises ? Le plan contient-il des suppressions inattendues ? Les tests positifs comme négatifs sont-ils prêts ? Le mécanisme de simulation couvre-t-il vraiment le module utilisé ? Les changements sont-ils approuvés pour cette version précise ? L'accès au plan de gestion peut-il être conservé ou restauré ? Le résultat final sera-t-il observé ? Les statuts inconnus restent-ils visibles ?
+
+```mermaid
+flowchart TD
+    Q["Revue avant déploiement"] --> I{"Intention testable ?"}
+    I -- Non --> BLOCK["Bloquer"]
+    I -- Oui --> CAP{"Capacités suffisantes ?"}
+    CAP -- Non --> BLOCK
+    CAP -- Oui --> TEST{"Tests et simulation disponibles ?"}
+    TEST -- Non --> BLOCK
+    TEST -- Oui --> RB{"Rollback préparé ?"}
+    RB -- Non --> BLOCK
+    RB -- Oui --> APPROVAL{"Approbation liée au plan ?"}
+    APPROVAL -- Non --> BLOCK
+    APPROVAL -- Oui --> DEPLOY["Déploiement limité et vérifié"]
+```
+
+Cette revue doit empêcher les changements dont les préconditions sont inconnues, et non simplement remplir un formulaire. Un refus doit expliquer quelle preuve manque et ce qui permettrait de poursuivre. La personne qui approuve doit pouvoir comprendre l'impact attendu et le coût potentiel de l'échec.
+
+Après le déploiement, la revue s'intéresse aux faits : le résultat a-t-il été mesuré, combien de cibles sont vérifiables, quels écarts restent, la procédure de retour arrière a-t-elle été nécessaire, et quels tests doivent être ajoutés ? Le rapport doit nourrir l'amélioration du dépôt et de l'inventaire.
+
+### T. Synthèse de l'atelier
+
+L'automatisation réseau à l'aide d'Ansible et Nornir doit rester contrôlable, même lorsque le parc est hétérogène. L'inventaire indique quelles ressources peuvent être ciblées ; le contrat de tâche décrit le résultat attendu ; les contrôles préalables vérifient les entrées et les capacités ; l'exécution est bornée ; les résultats sont normalisés ; les postconditions prouvent l'état obtenu. La collecte, la planification, l'application et la vérification doivent rester des étapes distinguables.
+
+Un outil n'est fiable que s'il distingue le succès d'un état inconnu, limite la concurrence, évite les effets non idempotents, protège les secrets et fournit un rapport reproductible. La simulation et les tests sont utiles mais dépendent de la prise en charge réelle des modules et équipements. Toute action modifiante nécessite un périmètre autorisé, une approbation appropriée, une méthode de reprise et une vérification après action.
+
+Au niveau débutant, construis d'abord un job de lecture seule, valide son inventaire, teste ses réponses simulées, puis compare l'état observé à un état cible. Une fois cette chaîne fiable, ajoute un déploiement de laboratoire progressivement. Ne considère pas la vitesse d'exécution comme la seule mesure de succès : l'objectif est de rendre les opérations plus répétables, explicables et sûres.
+
+
 ## Défi final corrigé — inventaire et déploiement réseau contrôlé
 
 ### Énoncé
