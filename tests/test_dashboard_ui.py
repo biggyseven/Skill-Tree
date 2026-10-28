@@ -1137,6 +1137,15 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Flux des tickets", DASHBOARD_HTML)
         self.assertIn("maxCount = Math.max(1, ...days.flatMap", DASHBOARD_HTML)
 
+
+    def test_war_room_weekly_report_is_null_safe_before_data_load(self):
+        self.assertIn("warWeeklyReport?.fastest_resolution_minutes == null", DASHBOARD_HTML)
+        self.assertIn("warWeeklyReport?.slowest_resolution_minutes == null", DASHBOARD_HTML)
+        self.assertIn("warWeeklyReport?.best_sla?.ticket_id", DASHBOARD_HTML)
+        self.assertNotIn('x-text="warWeeklyReport.fastest_resolution_minutes == null', DASHBOARD_HTML)
+        self.assertNotIn('x-text="warWeeklyReport.slowest_resolution_minutes == null', DASHBOARD_HTML)
+        self.assertNotIn('x-text="warWeeklyReport.best_sla ?', DASHBOARD_HTML)
+
     def test_mobile_header_keeps_title_and_actions_on_one_row(self):
         self.assertIn('class="mobile-header-menu-trigger', DASHBOARD_HTML)
         self.assertIn('aria-controls="mobile-header-action-items"', DASHBOARD_HTML)

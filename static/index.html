@@ -1575,9 +1575,9 @@
               <div class="rounded-xl border border-white/10 bg-black/10 p-4">
                 <div class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-300">Records personnels</div>
                 <div class="space-y-3 text-xs">
-                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Plus rapide</span><strong class="text-emerald-200 text-right" x-text="warWeeklyReport.fastest_resolution_minutes == null ? '—' : warWeeklyReport.fastest_ticket_id + ' · ' + Number(warWeeklyReport.fastest_resolution_minutes).toLocaleString('fr-FR') + ' min'"></strong></div>
-                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Plus lent</span><strong class="text-rose-200 text-right" x-text="warWeeklyReport.slowest_resolution_minutes == null ? '—' : warWeeklyReport.slowest_ticket_id + ' · ' + Number(warWeeklyReport.slowest_resolution_minutes).toLocaleString('fr-FR') + ' min'"></strong></div>
-                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Meilleur SLA</span><strong class="text-cyan-200 text-right" x-text="warWeeklyReport.best_sla ? warWeeklyReport.best_sla.ticket_id + ' · +' + warWeeklyReport.best_sla.margin_minutes + ' min de marge' : '—'"></strong></div>
+                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Plus rapide</span><strong class="text-emerald-200 text-right" x-text="warWeeklyReport?.fastest_resolution_minutes == null ? '—' : (warWeeklyReport?.fastest_ticket_id || '—') + ' · ' + Number(warWeeklyReport?.fastest_resolution_minutes ?? 0).toLocaleString('fr-FR') + ' min'"></strong></div>
+                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Plus lent</span><strong class="text-rose-200 text-right" x-text="warWeeklyReport?.slowest_resolution_minutes == null ? '—' : (warWeeklyReport?.slowest_ticket_id || '—') + ' · ' + Number(warWeeklyReport?.slowest_resolution_minutes ?? 0).toLocaleString('fr-FR') + ' min'"></strong></div>
+                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Meilleur SLA</span><strong class="text-cyan-200 text-right" x-text="warWeeklyReport?.best_sla?.ticket_id ? warWeeklyReport.best_sla.ticket_id + ' · +' + warWeeklyReport.best_sla.margin_minutes + ' min de marge' : '—'"></strong></div>
                 </div>
               </div>
             </div>
