@@ -8575,5 +8575,309 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "aiops-bases-debutant",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Qu'est-ce que l'AIOps ? — Débutant",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4358,
+    "description": "Fondamentaux de l'AIOps, données opérationnelles, cas d'usage, limites et indicateurs de valeur.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-ia-vs-ml-debutant",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "IA, Machine Learning, Deep Learning — Débutant",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4359,
+    "description": "Différences entre IA, apprentissage automatique, apprentissage profond et règles déterministes.",
+    "prereqs": [
+      "aiops-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-scripts-debutant",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Automatisation avec Python et Bash — Débutant",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4360,
+    "description": "Scripts reproductibles, collecte de données, API, gestion des erreurs et exécution sécurisée.",
+    "prereqs": [
+      "aiops-ia-vs-ml-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-chatops-debutant",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Automatiser via Slack/Teams (ChatOps) — Débutant",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4361,
+    "description": "Commandes conversationnelles, bots, webhooks, contrôles d'accès et journalisation des actions.",
+    "prereqs": [
+      "aiops-scripts-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-intent-debutant",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Intent-Based Networking (IBN) — Débutant",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4362,
+    "description": "Traduire une intention réseau en politiques vérifiables, puis observer et corriger les écarts.",
+    "prereqs": [
+      "aiops-chatops-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-tools-debutant",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Outils (Ansible, Nornir) — Débutant",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4363,
+    "description": "Choisir et utiliser Ansible et Nornir pour automatiser des opérations réseau idempotentes.",
+    "prereqs": [
+      "aiops-intent-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-ml-supervision-intermediaire",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "ML pour la supervision réseau — Intermédiaire",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4364,
+    "description": "Construire des jeux de données de télémétrie et appliquer des modèles ML à la supervision réseau.",
+    "prereqs": [
+      "aiops-tools-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-anomalie-intermediaire",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Détection d'anomalies (Z-score, clustering) — Intermédiaire",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4365,
+    "description": "Détecter les écarts, définir des seuils robustes et comparer les méthodes statistiques et le clustering.",
+    "prereqs": [
+      "aiops-ml-supervision-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-automation-intermediaire",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Pipelines CI/CD pour le réseau — Intermédiaire",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4366,
+    "description": "Tester, valider, déployer et revenir en arrière sur des changements d'infrastructure via des pipelines.",
+    "prereqs": [
+      "aiops-anomalie-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-llm-intermediaire",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Introduction aux LLMs pour l'administration réseau — Intermédiaire",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4367,
+    "description": "Utiliser les LLM comme assistants contrôlés pour expliquer des sorties, préparer des commandes et documenter des incidents.",
+    "prereqs": [
+      "aiops-automation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-telemetry-intermediaire",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Streaming Telemetry (gNMI, gRPC) — Intermédiaire",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4368,
+    "description": "Collecter des métriques en flux, comprendre gNMI/gRPC et exploiter une télémétrie à haute fréquence.",
+    "prereqs": [
+      "aiops-llm-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-digital-twin-intermediaire",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Jumeaux numériques réseau — Intermédiaire",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4369,
+    "description": "Modéliser un réseau, simuler les changements et comparer les résultats simulés aux observations réelles.",
+    "prereqs": [
+      "aiops-telemetry-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "aiops-genai-expert",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "IA générative pour le diagnostic d'incidents — Expert",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4370,
+    "description": "Orchestrer une assistance générative avec sources vérifiables, outils contrôlés et validation humaine.",
+    "prereqs": [
+      "aiops-digital-twin-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "aiops-self-healing-expert",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Réseaux auto-cicatrisants — Expert",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4371,
+    "description": "Concevoir une boucle de détection, décision, exécution et vérification avec garde-fous et retour arrière.",
+    "prereqs": [
+      "aiops-genai-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "aiops-predictive-expert",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Maintenance prédictive par IA — Expert",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4372,
+    "description": "Estimer le risque de panne, évaluer les prédictions et organiser une maintenance fondée sur les données.",
+    "prereqs": [
+      "aiops-self-healing-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "aiops-correlation-expert",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Corrélation d'événements et RCA automatisée — Expert",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4373,
+    "description": "Corréler événements et dépendances pour identifier des causes racines probables, avec niveau de confiance.",
+    "prereqs": [
+      "aiops-predictive-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "aiops-mlops-expert",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "MLOps pour l'infrastructure — Expert",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4374,
+    "description": "Versionner données et modèles, déployer des pipelines ML et surveiller dérive et performance en production.",
+    "prereqs": [
+      "aiops-correlation-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "aiops-ethique-expert",
+    "module": "AIOps & Intelligence Artificielle",
+    "title": "Éthique de l'IA et biais algorithmiques — Expert",
+    "category": "AIOps & Intelligence Artificielle",
+    "order": 4375,
+    "description": "Évaluer biais, explicabilité, confidentialité, responsabilité et gouvernance des systèmes d'IA opérationnels.",
+    "prereqs": [
+      "aiops-mlops-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   }
 ]
