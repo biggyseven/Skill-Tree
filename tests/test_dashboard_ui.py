@@ -1114,7 +1114,52 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
 
     def test_startup_prioritizes_interactive_ui_and_avoids_duplicate_tree_scans(self):
-        alpine_script = DASHBOARD_HTML.index('defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"')
+        alpine_prefix = 'defer src="/assets/alpine-3.17.5.min.js?v='
+        alpine_script = DASHBOARD_HTML.index(alpine_prefix)
+        alpine_tag = DASHBOARD_HTML[alpine_script:DASHBOARD_HTML.index(">", alpine_script)]
+        self.assertRegex(alpine_tag, r'\\?v=[0-9a-f]{12}"
+        lazy_loader = DASHBOARD_HTML.index("window.skillTreeLoadScript = function (src, globalName)")
+        self.assertLess(lazy_loader, alpine_script)
+        # Les bibliothèques spécialisées ne doivent pas bloquer le chargement initial.
+        self.assertNotIn('defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"', DASHBOARD_HTML)
+        self.assertNotIn('defer src="https://cdn.jsdelivr.net/npm/chart.js"', DASHBOARD_HTML)
+        self.assertIn("window.skillTreeLoadScript('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js', 'Drawflow')", DASHBOARD_HTML)
+        self.assertIn("window.skillTreeLoadStyle('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css')", DASHBOARD_HTML)
+        self.assertIn("window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/chart.js', 'Chart')", DASHBOARD_HTML)
+        self.assertIn("const refreshTask = this.refreshAll()", DASHBOARD_HTML)
+        init_start = DASHBOARD_HTML.index("async init() {", DASHBOARD_HTML.index("function skilltreeBase()"))
+        init_end = DASHBOARD_HTML.index("// --- Préférences d'affichage", init_start)
+        init_source = DASHBOARD_HTML[init_start:init_end]
+        self.assertNotIn("await this.refreshAll();", init_source)
+
+        tree_start = API_SOURCE.index('@app.get("/api/tree")')
+        tree_end = API_SOURCE.index('@app.get("/api/stats")', tree_start)
+        tree_route = API_SOURCE[tree_start:tree_end]
+        self.assertIn("statuses = {node.id: status_of(node, validated_ids) for node in nodes}", tree_route)
+        self.assertNotIn("statuses = tree.statuses()", tree_route)
+
+        stats_start = API_SOURCE.index('@app.get("/api/stats")')
+        stats_end = API_SOURCE.index('@app.get("/api/daily-plan")', stats_start)
+        stats_route = API_SOURCE[stats_start:stats_end]
+        self.assertIn("validated_count = sum(1 for node in nodes if is_validated(node))", stats_route)
+        self.assertNotIn("statuses = tree.statuses()", stats_route)
+
+    def test_mobile_header_keeps_title_and_actions_on_one_row(self):
+        self.assertIn('class="mobile-header-menu-trigger', DASHBOARD_HTML)
+        self.assertIn('aria-controls="mobile-header-action-items"', DASHBOARD_HTML)
+        self.assertIn(":class=\"{ 'is-open': mobileActionsOpen }\"", DASHBOARD_HTML)
+        self.assertIn("mobileActionsOpen: false", DASHBOARD_HTML)
+        self.assertIn("mobile-header-summary", DASHBOARD_HTML)
+        self.assertIn('class="mobile-action-label">Atelier libre</span>', DASHBOARD_HTML)
+        self.assertIn('class="mobile-action-label">Notifications</span>', DASHBOARD_HTML)
+        self.assertIn("@media (max-width: 1023px)", DASHBOARD_HTML)
+        self.assertIn("position: fixed !important;", DASHBOARD_HTML)
+        self.assertIn("min-height: 4.5rem;", DASHBOARD_HTML)
+
+
+if __name__ == "__main__":
+    unittest.main()
+)
         lazy_loader = DASHBOARD_HTML.index("window.skillTreeLoadScript = function (src, globalName)")
         self.assertLess(lazy_loader, alpine_script)
         # Les bibliothèques spécialisées ne doivent pas bloquer le chargement initial.
