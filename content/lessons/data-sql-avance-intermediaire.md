@@ -110,6 +110,15 @@ WHERE score > (
 
 La sous-requête calcule une valeur moyenne. La requête principale compare ensuite chaque score à cette valeur. Les valeurs NULL sont ignorées par AVG ; elles ne passent pas non plus la condition score > moyenne. Si la table ne contient aucun score connu, AVG renvoie NULL et la comparaison ne sera pas vraie pour les lignes. Le résultat doit donc être interprété selon les données présentes.
 
+~~~mermaid
+flowchart TD
+    A["Sous-requête"] --> B{"Résultat attendu ?"}
+    B -- "Une valeur" --> C["Sous-requête scalaire"]
+    B -- "Un ensemble de valeurs" --> D["IN, ANY ou ALL"]
+    B -- "Existence d'une ligne" --> E["EXISTS ou NOT EXISTS"]
+    B -- "Un ensemble de lignes jointes" --> F["FROM, table dérivée ou CTE"]
+~~~
+
 ### 3.1 Sous-requête scalaire
 
 Une sous-requête scalaire est utilisée dans un contexte qui attend une seule valeur. Elle doit renvoyer au plus une ligne et une colonne. Si elle renvoie une ligne avec une valeur NULL, la valeur obtenue est NULL ; si elle renvoie zéro ligne, le résultat est également traité comme une valeur absente dans les contextes appropriés. Si elle renvoie plusieurs lignes dans un contexte scalaire, le moteur renvoie normalement une erreur.
@@ -236,6 +245,15 @@ WHERE apprenant_id NOT IN (
 ~~~
 
 Si autre_source.apprenant_id contient une valeur NULL, l'effet de NOT IN peut être inattendu. Il faut comprendre la possibilité de NULL et choisir une expression qui correspond au besoin. Pour tester l'absence de correspondance, NOT EXISTS est souvent plus robuste, car il vérifie l'existence de lignes liées plutôt que de comparer une valeur à une liste potentiellement contaminée par NULL.
+
+~~~mermaid
+flowchart LR
+    A["Besoin métier"] --> B{"Que teste-t-on ?"}
+    B -- "Valeur dans un ensemble" --> C["IN"]
+    B -- "Au moins une ligne liée" --> D["EXISTS"]
+    B -- "Aucune ligne liée" --> E["NOT EXISTS"]
+    B -- "Au moins une / toutes les valeurs" --> F["ANY / ALL"]
+~~~
 
 ### 4.3 EXISTS : une ligne correspondante existe-t-elle ?
 
@@ -378,6 +396,14 @@ ORDER BY c.cours_id;
 ~~~
 
 La première CTE nomme les lignes d'inscription possédant un score. La seconde agrège ces lignes par cours. La requête finale rattache les agrégats au catalogue, ce qui garde aussi les cours sans score. Cette structure permet au lecteur de comprendre le calcul par étapes.
+
+~~~mermaid
+flowchart TD
+    A["WITH"] --> B["CTE : filtrer les lignes"]
+    B --> C["CTE : agréger ou enrichir"]
+    C --> D["Requête finale : joindre et filtrer"]
+    D --> E["Résultat métier"]
+~~~
 
 ### 6.1 Plusieurs CTE dépendantes
 
@@ -585,6 +611,15 @@ Une procédure stockée est une routine enregistrée dans le SGBD et appelée ex
 
 Les procédures ne sont pas une réponse automatique à tout SQL répétitif. Il faut tenir compte de la maintenance, de la portabilité, du contrôle de version, des droits, des tests, de la visibilité de la logique et de la façon dont l'application gère les transactions. Une requête simple peut rester dans le code applicatif. Une procédure est plus intéressante quand elle exprime une opération de données cohérente, possède un contrat clair et peut être gérée avec les mêmes pratiques d'ingénierie que le reste du système.
 
+~~~mermaid
+flowchart TD
+    A["Réutiliser une logique SQL"] --> B{"Quelle portée ?"}
+    B -- "Une seule instruction" --> C["CTE"]
+    B -- "Lecture réutilisable" --> D["Vue"]
+    B -- "Valeur calculée" --> E["Fonction"]
+    B -- "Action avec étapes et paramètres" --> F["Procédure stockée"]
+~~~
+
 ### 9.1 Procédure, fonction, vue et CTE : différences
 
 - **Sous-requête** : un bloc SQL imbriqué dans une instruction.
@@ -745,6 +780,23 @@ Les erreurs retournées aux utilisateurs ne devraient pas révéler des secrets,
 
 ## 13. Transactions et responsabilités d'une procédure
 
+~~~mermaid
+sequenceDiagram
+    participant App as Application
+    participant Proc as Procédure
+    participant DB as Base de données
+    App->>DB: Début de transaction selon le contrat
+    App->>Proc: Appel avec paramètres
+    Proc->>DB: Contrôles et modifications
+    alt Opération valide
+        Proc-->>App: Résultat de succès
+        App->>DB: COMMIT selon la stratégie choisie
+    else Erreur
+        Proc-->>App: Erreur contrôlée
+        App->>DB: ROLLBACK selon l'état transactionnel
+    end
+~~~
+
 Une procédure stockée doit définir si elle participe à la transaction initiée par l'appelant ou si son architecture autorise certaines actions de transaction propres au moteur. Ce point est crucial quand l'opération inclut plusieurs insertions ou modifications qui doivent être réalisées ensemble.
 
 Dans une application, le modèle courant est que le code appelant ouvre la transaction, invoque les opérations et valide ou annule selon le résultat. Cela rend la frontière transactionnelle visible côté applicatif, mais il existe d'autres architectures. Le choix dépend du besoin de réutilisation, des droits et des contraintes du moteur. Le contrat doit préciser qui possède la responsabilité de COMMIT et ROLLBACK.
@@ -773,6 +825,15 @@ Une procédure ne doit pas remplacer la séparation des responsabilités. L'appl
 ## 15. Performance des sous-requêtes et des CTE
 
 La lisibilité est un critère majeur, mais les requêtes doivent aussi respecter les objectifs de performance. Une sous-requête corrélée n'est pas intrinsèquement mauvaise ; une CTE n'est pas intrinsèquement rapide ; une jointure n'est pas toujours meilleure que EXISTS. Les optimisateurs modernes transforment de nombreux motifs SQL. Le résultat dépend de la version du moteur, des statistiques, de la taille des relations, des index, de la sélectivité et du plan choisi.
+
+~~~mermaid
+flowchart TD
+    A["Optimisation SQL"] --> B["Définir le résultat attendu"]
+    B --> C["Comparer les résultats sur cas limites"]
+    C --> D["Examiner EXPLAIN et statistiques"]
+    D --> E["Mesurer sur données représentatives"]
+    E --> F["Choisir lisibilité et coût global acceptables"]
+~~~
 
 ### 15.1 Comparer EXISTS et JOIN
 
@@ -953,7 +1014,7 @@ flowchart TD
     B --> C["Contrôle des cours sans activité"]
     C --> D["Comparaison des scores"]
     D --> E["Exploration récursive"]
-    E --> F["Routine stockée")
+    E --> F["Routine stockée"]
     F --> G["Tests positifs et négatifs"]
     G --> H["Mesures et compte rendu"]
 ~~~
