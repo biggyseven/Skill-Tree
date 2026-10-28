@@ -38,6 +38,43 @@ test('le bouton Examens affiche le centre de préparation', async ({ page }) => 
   await expect(page.getByRole('heading', { name: "Centre d'examens" })).toBeVisible();
 });
 
+test('un examen aléatoire démarre sans envoyer une liste de plus de 1 000 cours', async ({ page }) => {
+  await openDashboard(page);
+
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  await navigation.getByRole('button', { name: 'Examens', exact: true }).click();
+  await expect(page.getByRole('heading', { name: "Centre d'examens" })).toBeVisible();
+
+  // Simule un catalogue navigateur très volumineux. L'API connaît déjà le vrai catalogue ;
+  // pour tous les modules, le client doit laisser le serveur filtrer le périmètre.
+  await page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    const source = app.nodes[0];
+    app.nodes = Array.from({ length: 1001 }, (_, index) => ({
+      ...source,
+      id: 'exam-payload-regression-' + index,
+    }));
+  });
+
+  const buildRequestPromise = page.waitForRequest(request => {
+    return new URL(request.url()).pathname === '/api/exam/build' && request.method() === 'POST';
+  });
+  await page.getByRole('button', { name: /Express/ }).click();
+  const request = await buildRequestPromise;
+  const payload = request.postDataJSON();
+
+  expect(payload.node_ids).toBeUndefined();
+  expect(payload.levels).toEqual(['debutant', 'intermediaire', 'expert']);
+  expect(payload.count).toBe(50);
+
+  await expect.poll(() => page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    return Array.isArray(app.exam?.questions) ? app.exam.questions.length : 0;
+  }), { timeout: 30_000 }).toBeGreaterThan(0);
+  await expect(page.getByRole('heading', { name: /Question 1 \/ \d+/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Terminer', exact: true })).toBeVisible();
+});
+
 test('recliquer sur l’onglet Radar actif ne relance pas inutilement son chargement', async ({ page }) => {
   await openDashboard(page);
 
