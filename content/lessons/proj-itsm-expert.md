@@ -22,6 +22,21 @@ Le cas « Transférer une nouvelle plateforme au service IT » sert de fil rouge
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser un outil ou un processus sans résoudre le problème métier.
 
+**Schéma de synthèse — relier stratégie et exploitation.** L’ITSM ne doit pas devenir une collection de tickets : il traduit les priorités de l’organisation en services exploitables, mesurables et améliorables.
+
+```mermaid
+flowchart TD
+    A["Stratégie métier"] --> B["Résultats attendus"]
+    B --> C["Portefeuille de services"]
+    C --> D["Conception et transition"]
+    D --> E["Exploitation et support"]
+    E --> F["Mesures et retours"]
+    F --> G["Amélioration continue"]
+    G --> C
+```
+
+Ce cycle rappelle qu’une décision stratégique doit atteindre les opérations, puis être réévaluée à partir de résultats observés. Le catalogue, les processus et les indicateurs sont cohérents lorsqu’ils servent tous la même intention métier.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -37,6 +52,24 @@ Le cas « Transférer une nouvelle plateforme au service IT » sert de fil rouge
 ## Méthodologie et outils
 
 Commencer par formuler le problème, les bénéficiaires, le résultat attendu et les contraintes non négociables. Décrire ensuite les options, les dépendances, les responsabilités, les risques et les preuves nécessaires. La planification fournit une hypothèse structurée ; elle doit être révisée lorsque de nouveaux faits modifient le travail restant ou les conditions de réussite.
+
+**Vue d’ensemble — de la demande au service durable.** Utilisez ce parcours comme fil conducteur pour éviter qu’un projet soit considéré comme terminé alors que le service reste difficile à exploiter.
+
+```mermaid
+flowchart LR
+    A["Besoin métier"] --> B["Analyse de valeur"]
+    B --> C["Conception du service"]
+    C --> D["Préparation opérationnelle"]
+    D --> E["Mise en production"]
+    E --> F["Support et mesure"]
+    F --> G{"Résultat conforme ?"}
+    G -->|Oui| H["Optimiser"]
+    G -->|Non| I["Corriger et apprendre"]
+    I --> C
+    H --> F
+```
+
+Chaque passage doit avoir un responsable, des critères de sortie et des preuves. Le processus peut être léger pour un changement réversible, mais les services critiques exigent des contrôles explicites et des possibilités de retour arrière.
 
 Les outils servent à externaliser la mémoire collective. Ils doivent permettre de répondre à des questions concrètes : quel résultat est attendu, qui le prend en charge, qu’est-ce qui est bloqué, quelle décision est en attente, quelle preuve existe et comment la prévision change-t-elle ? La simplicité est une qualité si les contrôles essentiels restent couverts et si les données sont maintenues.
 
@@ -57,6 +90,19 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », projet et service constitue une pratique qui doit répondre à une intention précise. Le projet produit un changement temporaire ; un service fournit durablement une capacité utile aux utilisateurs et au métier. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — distinguer livraison et responsabilité durable.** Le projet est temporaire ; le service continue après la clôture et doit disposer d’un propriétaire, d’un budget, d’une capacité de support et d’indicateurs.
+
+```mermaid
+flowchart TD
+    A["Projet"] --> B["Livrables acceptés"]
+    B --> C["Transition vers les opérations"]
+    C --> D["Service en production"]
+    D --> E["Support, coûts et niveaux de service"]
+    E --> F["Valeur constatée"]
+```
+
+La clôture du projet ne constitue donc pas automatiquement la preuve que les bénéfices sont atteints. Le transfert doit nommer les personnes qui répondent des incidents, des évolutions et du suivi des résultats après le départ de l’équipe projet.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le portail est un livrable du projet, mais son catalogue, son service desk et son modèle de support restent actifs après la clôture. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -72,6 +118,21 @@ G --> A
 ### 2. ITSM et co-création de valeur
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », itsm et co-création de valeur constitue une pratique qui doit répondre à une intention précise. La gestion des services relie demandes, capacités, parties prenantes et résultats ; la valeur se crée avec les utilisateurs et l’organisation. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+**Schéma — la valeur est co-produite.** Le fournisseur apporte une capacité ; les utilisateurs, les métiers et les partenaires contribuent aussi à son adoption et à ses résultats.
+
+```mermaid
+flowchart LR
+    A["Fournisseur IT"] --> C["Service utilisable"]
+    B["Utilisateurs et métier"] --> C
+    D["Partenaires et fournisseurs"] --> C
+    C --> E["Résultats métier"]
+    E --> F["Retour d'expérience"]
+    F --> A
+    F --> B
+```
+
+Un service disponible mais inutilisé peut représenter un coût sans valeur. Il faut donc observer non seulement la qualité technique, mais également l’adoption, la facilité d’accès, la satisfaction et la contribution aux objectifs métiers.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -89,6 +150,22 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », itil et version du référentiel constitue une pratique qui doit répondre à une intention précise. Les référentiels ITSM évoluent ; les pratiques doivent être adaptées à l’organisation et les supports de certification vérifiés sur les pages officielles. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — adapter les pratiques, ne pas appliquer un référentiel mécaniquement.** Le référentiel fournit un vocabulaire et des orientations ; le contexte détermine les pratiques et les contrôles à retenir.
+
+```mermaid
+flowchart TD
+    A["Référentiel et principes"] --> B["Contexte de l'organisation"]
+    B --> C["Pratiques sélectionnées"]
+    C --> D["Rôles et workflows"]
+    D --> E["Mesure des effets"]
+    E --> F{"Résultats utiles ?"}
+    F -->|Oui| G["Standardiser"]
+    F -->|Non| H["Adapter la pratique"]
+    H --> C
+```
+
+Documentez la version des sources officielles utilisées, les obligations applicables et les adaptations locales. Évitez de présenter une pratique interne comme une exigence universelle simplement parce qu’elle figure dans un outil ITSM.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** L’équipe vérifie la version du référentiel retenu et ne copie pas aveuglément un processus conçu pour une autre organisation. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -104,6 +181,19 @@ G --> A
 ### 4. Catalogue de services
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », catalogue de services constitue une pratique qui doit répondre à une intention précise. Le catalogue décrit les services, leurs utilisateurs, conditions d’accès, prestations et moyens de demande. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+**Schéma — le catalogue comme interface de service.** Une entrée de catalogue doit aider un public défini à choisir le bon service, connaître les conditions et formuler une demande exploitable.
+
+```mermaid
+flowchart TD
+    A["Besoin utilisateur"] --> B["Recherche dans le catalogue"]
+    B --> C["Description et éligibilité"]
+    C --> D["Formulaire et approbation"]
+    D --> E["Exécution de la demande"]
+    E --> F["Confirmation et mesure"]
+```
+
+Une fiche utile précise le propriétaire, les bénéficiaires, les conditions d’éligibilité, les délais cibles, les coûts éventuels, les données nécessaires et le canal de support. Une entrée floue produit des demandes incomplètes et encourage les contournements.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -121,6 +211,22 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », service level agreement constitue une pratique qui doit répondre à une intention précise. Un SLA exprime une cible convenue pour un service et doit être défini avec les horaires, mesures, exclusions et attentes métier. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — relier engagement, mesure et réponse.** Un SLA doit être compréhensible par le métier et techniquement mesurable ; un chiffre isolé sans définition de mesure produit des désaccords.
+
+```mermaid
+flowchart LR
+    A["Besoin métier"] --> B["Engagement SLA"]
+    B --> C["Définition de la mesure"]
+    C --> D["Collecte des données"]
+    D --> E["Rapport de service"]
+    E --> F{"Cible atteinte ?"}
+    F -->|Oui| G["Maintenir et surveiller"]
+    F -->|Non| H["Plan d'action avec responsable"]
+    H --> D
+```
+
+Définissez le calendrier de couverture, le point de départ et la fin de mesure, les exclusions, les périodes de maintenance et la source de données. Complétez le SLA par les accords internes et engagements fournisseurs nécessaires à sa réalisation.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le temps de réponse est calculé sur une source partagée avec une règle claire pour les tickets en attente du demandeur. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -136,6 +242,23 @@ G --> A
 ### 6. Incident management
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », incident management constitue une pratique qui doit répondre à une intention précise. La gestion des incidents vise à restaurer le service et réduire l’impact ; la recherche de cause profonde est un objectif distinct. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+**Schéma — restaurer le service avant d’approfondir la cause.** L’incident est piloté selon l’impact et l’urgence. La communication et la restauration ne doivent pas attendre que la cause profonde soit entièrement comprise.
+
+```mermaid
+flowchart TD
+    A["Signalement ou alerte"] --> B["Enregistrer et classifier"]
+    B --> C["Évaluer impact et urgence"]
+    C --> D{"Incident majeur ?"}
+    D -->|Oui| E["Mobiliser la cellule de crise"]
+    D -->|Non| F["Diagnostiquer et traiter"]
+    E --> G["Restaurer le service"]
+    F --> G
+    G --> H["Informer et clôturer"]
+    H --> I["Transmettre les apprentissages"]
+```
+
+La résolution rapide peut utiliser un contournement sûr et documenté. Conservez les horodatages et les communications essentielles, puis orientez l’investigation de la cause vers la pratique de gestion des problèmes lorsque cela est pertinent.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -153,6 +276,21 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », problem management constitue une pratique qui doit répondre à une intention précise. La gestion des problèmes recherche les causes des incidents, les contournements et les erreurs connues pour réduire les répétitions. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — réduire les récurrences, pas seulement fermer des tickets.** La gestion des problèmes exploite les tendances et incidents répétés pour identifier les causes et réduire leur probabilité ou leur impact futur.
+
+```mermaid
+flowchart TD
+    A["Incidents répétés ou majeurs"] --> B["Regrouper les symptômes"]
+    B --> C["Analyser les causes possibles"]
+    C --> D["Définir contournement et erreur connue"]
+    D --> E["Planifier la correction durable"]
+    E --> F["Valider la correction"]
+    F --> G["Mesurer les récidives"]
+    G -->|Récidive| C
+```
+
+N’attendez pas une certitude absolue pour documenter une erreur connue et un contournement maîtrisé. En revanche, rendez visibles les hypothèses, le niveau de confiance, le risque résiduel et la personne qui accepte ce risque.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une analyse identifie pourquoi les demandes disparaissent d’une file et suit une correction préventive. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -168,6 +306,23 @@ G --> A
 ### 8. Change enablement
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », change enablement constitue une pratique qui doit répondre à une intention précise. La gestion des changements évalue les risques, autorisations et conditions de réalisation pour maximiser les changements réussis sans rendre chaque changement bureaucratique. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+**Schéma — contrôle proportionné au risque.** Le changement doit être rendu possible de façon fiable. Une procédure standard préautorisée peut accélérer un changement répétable et bien maîtrisé ; un changement risqué demande une évaluation approfondie.
+
+```mermaid
+flowchart TD
+    A["Proposition de changement"] --> B["Évaluer portée et risque"]
+    B --> C{"Type de changement"}
+    C -->|Standard éprouvé| D["Exécuter selon procédure approuvée"]
+    C -->|Normal| E["Évaluer et autoriser"]
+    C -->|Urgent| F["Autorisation d'urgence adaptée"]
+    D --> G["Mise en œuvre et vérification"]
+    E --> G
+    F --> G
+    G --> H["Revue du résultat"]
+```
+
+La décision doit prendre en compte les dépendances, la fenêtre d’intervention, l’impact client, les contrôles de sécurité, la sauvegarde et le retour arrière. L’approbation ne remplace pas une preuve que le changement a été correctement exécuté.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -185,6 +340,23 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », release et déploiement constitue une pratique qui doit répondre à une intention précise. Release management rend disponible un ensemble cohérent de changements ; deployment management place les composants dans un environnement cible. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — séparer le contenu livré de son installation.** Une release rassemble une capacité cohérente ; le déploiement place des composants dans un environnement. Ces activités sont liées, mais ne sont pas identiques.
+
+```mermaid
+flowchart LR
+    A["Changements validés"] --> B["Assembler la release"]
+    B --> C["Vérifier dépendances et notes"]
+    C --> D["Préparer le déploiement"]
+    D --> E["Déployer progressivement"]
+    E --> F{"Contrôles réussis ?"}
+    F -->|Oui| G["Rendre disponible"]
+    F -->|Non| H["Restaurer ou corriger"]
+    H --> E
+    G --> I["Suivre la production"]
+```
+
+Les preuves de test, la version des artefacts, les consignes de déploiement, la compatibilité et le plan de retour doivent être traçables. Un déploiement réussi techniquement doit encore faire l’objet d’une vérification fonctionnelle et opérationnelle.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le plan de version relie artefacts, fenêtres, approbations, communication et critères de retour arrière. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -200,6 +372,22 @@ G --> A
 ### 10. Configuration et actifs
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », configuration et actifs constitue une pratique qui doit répondre à une intention précise. Les informations de configuration et d’actifs soutiennent l’impact analysis, la résolution et la gouvernance des coûts. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+**Schéma — comprendre les dépendances avant d'agir.** Les données de configuration permettent d’estimer les éléments affectés par une panne ou un changement. Leur valeur dépend de leur exactitude et de leur mise à jour.
+
+```mermaid
+flowchart TD
+    A["Service métier"] --> B["Application"]
+    B --> C["API et services partagés"]
+    C --> D["Infrastructure et réseau"]
+    D --> E["Fournisseurs externes"]
+    F["CMDB et données d'actifs"] -. décrit les liens .-> A
+    F -. décrit les liens .-> B
+    F -. décrit les liens .-> C
+    F -. décrit les liens .-> D
+```
+
+Ne cherchez pas nécessairement à enregistrer chaque élément imaginable. Définissez les éléments de configuration nécessaires aux décisions, attribuez un propriétaire aux données et mesurez les incohérences qui pourraient fausser l’analyse d’impact.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -217,6 +405,27 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », transition opérationnelle constitue une pratique qui doit répondre à une intention précise. La transition vérifie que support, runbooks, supervision, sauvegarde, accès et capacité sont prêts avant le transfert. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — vérifier la préparation avant la mise en service.** La préparation opérationnelle est une activité structurée ; elle ne se limite ni à une réunion de transfert ni à la remise d’un document final.
+
+```mermaid
+flowchart TD
+    A["Solution prête"] --> B["Support et escalade"]
+    A --> C["Supervision et alertes"]
+    A --> D["Sauvegarde et reprise"]
+    A --> E["Accès et sécurité"]
+    A --> F["Runbooks et connaissances"]
+    B --> G{"Critères de préparation validés ?"}
+    C --> G
+    D --> G
+    E --> G
+    F --> G
+    G -->|Oui| H["Autoriser le passage en production"]
+    G -->|Non| I["Corriger les écarts"]
+    I --> A
+```
+
+Les critères d’acceptation doivent être établis tôt et accompagnés de preuves : test de restauration, exercice de support, alertes vérifiées, accès contrôlés et responsabilité d’astreinte connue. Un risque accepté doit être nommé, limité et suivi.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le support réalise un exercice guidé de diagnostic et confirme qu’il peut escalader une anomalie critique. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -233,6 +442,21 @@ G --> A
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », observabilité et expérience constitue une pratique qui doit répondre à une intention précise. Les mesures techniques doivent être reliées à l’expérience et aux résultats du service, en tenant compte des SLO et des objectifs métier. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+**Schéma — relier signaux techniques et expérience utilisateur.** Les métriques d’infrastructure expliquent parfois les symptômes, mais elles ne décrivent pas à elles seules si le service rend effectivement le résultat attendu.
+
+```mermaid
+flowchart LR
+    A["Métriques, logs, traces"] --> D["Diagnostic technique"]
+    B["Tests de parcours utilisateur"] --> E["Expérience du service"]
+    C["Tickets et retours"] --> E
+    D --> F["Objectifs de service"]
+    E --> F
+    F --> G["Priorités de fiabilité"]
+    G --> H["Actions d'amélioration"]
+```
+
+Choisissez quelques indicateurs liés aux résultats, avec seuils et fenêtres d’observation explicites. Une moyenne peut masquer des dégradations sévères ; examinez les percentiles, la proportion de demandes réussies, les erreurs et les parcours réels lorsque cela correspond au service.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une alerte de disponibilité est corrélée à des erreurs de parcours utilisateur et au volume de demandes affectées. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -248,6 +472,24 @@ G --> A
 ### 13. Amélioration continue
 
 **Comprendre le concept.** Dans « Intégration ITSM et stratégie », amélioration continue constitue une pratique qui doit répondre à une intention précise. L’amélioration continue choisit des changements sur la base de données, d’une priorité et d’une mesure de l’effet. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+**Schéma — passer du signal à une amélioration vérifiée.** Une action d’amélioration doit partir d’un problème ou d’une opportunité observable, disposer d’un propriétaire et être évaluée après son déploiement.
+
+```mermaid
+flowchart TD
+    A["Signal ou opportunité"] --> B["Décrire la situation de référence"]
+    B --> C["Prioriser selon valeur et effort"]
+    C --> D["Définir une hypothèse mesurable"]
+    D --> E["Réaliser une amélioration"]
+    E --> F["Mesurer l'effet"]
+    F --> G{"Bénéfice démontré ?"}
+    G -->|Oui| H["Standardiser et partager"]
+    G -->|Non| I["Adapter ou arrêter"]
+    I --> C
+    H --> A
+```
+
+Évitez les tableaux d’actions sans preuve d’effet. Une initiative terminée n’est pas automatiquement une amélioration réussie ; consignez la situation de départ, le résultat obtenu, les effets secondaires et la décision suivante.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -269,17 +511,85 @@ Une nouvelle plateforme de gestion de demandes doit rejoindre le catalogue de se
 
 Les acteurs commencent par décrire le problème avec des faits vérifiables, puis identifient les bénéficiaires, les exigences et les contraintes. Ils séparent les obligations impératives des préférences, écrivent les hypothèses et demandent confirmation lorsque celles-ci conditionnent fortement le coût ou la date. Le responsable désigne un propriétaire pour chaque décision majeure, fixe un mécanisme d’escalade et conserve une trace des validations.
 
+**Schéma — découvrir les exigences d’exploitation pendant le cadrage.** Les exigences ITSM doivent être recueillies en parallèle des besoins fonctionnels, et non après que l’architecture et le calendrier sont devenus difficiles à modifier.
+
+```mermaid
+flowchart TD
+    A["Objectifs et utilisateurs"] --> D["Exigences du service"]
+    B["Criticité et risques"] --> D
+    C["Contraintes de support"] --> D
+    D --> E["SLA, sécurité et conformité"]
+    D --> F["Runbooks et supervision"]
+    D --> G["Coûts et responsabilités"]
+    E --> H["Périmètre de solution"]
+    F --> H
+    G --> H
+```
+
+Dans le cas de transfert d’une plateforme, demandez dès le cadrage qui assurera le support, quels horaires sont nécessaires, quelles données sont conservées, quelles dépendances sont critiques et comment la reprise sera testée.
+
 ### Comparaison des options
 
 L’équipe compare au moins deux options réalistes, dont une option limitée ou progressive. Chaque option est évaluée selon valeur, coût complet, délai, risques, réversibilité, dépendances et conséquences en exploitation. Les avantages non mesurés sont explicitement identifiés comme hypothèses. Une décision est recommandée lorsque le raisonnement est clair, les compromis sont compris et la personne habilitée dispose des éléments nécessaires.
+
+**Schéma — comparer aussi le coût de fonctionnement.** Le coût initial ne reflète pas nécessairement le coût total : l’exploitation, les licences, la formation, les astreintes et les engagements du fournisseur doivent être considérés.
+
+```mermaid
+flowchart TD
+    A["Option A : transfert rapide"] --> D["Évaluer les options"]
+    B["Option B : transition progressive"] --> D
+    C["Option C : maintenir temporairement"] --> D
+    D --> E["Valeur et délai"]
+    D --> F["Coût total et compétences"]
+    D --> G["Risque et réversibilité"]
+    D --> H["Support et conformité"]
+    E --> I["Décision argumentée"]
+    F --> I
+    G --> I
+    H --> I
+```
+
+Présentez les critères avec leur importance relative et distinguez les faits des hypothèses. Une option progressive peut limiter le risque de transfert, mais elle peut aussi prolonger des coûts ou maintenir une double exploitation ; ces compromis doivent être visibles.
 
 ### Mise en œuvre et suivi
 
 Le plan est découpé en livrables vérifiables. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier sa définition.
 
+**Schéma — piloter le transfert par des jalons vérifiables.** Le calendrier doit montrer non seulement les tâches du projet, mais aussi la preuve attendue pour autoriser chaque passage vers l’exploitation.
+
+```mermaid
+flowchart LR
+    A["Préparer les opérations"] --> B["Tester support et supervision"]
+    B --> C["Répéter la bascule"]
+    C --> D["Go / No-Go"]
+    D -->|Go| E["Mettre en service"]
+    D -->|No-Go| F["Traiter les écarts"]
+    F --> B
+    E --> G["Surveiller renforcé"]
+    G --> H["Passer au régime courant"]
+```
+
+Associez à chaque jalon un responsable décisionnaire, des critères de sortie, les preuves collectées et une procédure d’escalade. Une date planifiée n’est pas une raison suffisante pour passer en production lorsque les conditions de sécurité ou de reprise ne sont pas réunies.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, les causes des écarts, les adaptations utiles et les pratiques à conserver.
+
+**Schéma — clôturer le projet sans perdre la responsabilité des bénéfices.** Après transfert, les équipes d’exploitation doivent prendre en charge le service et les bénéfices doivent être mesurés selon une échéance réaliste.
+
+```mermaid
+flowchart TD
+    A["Critères de service vérifiés"] --> B["Acceptation par les responsables"]
+    B --> C["Transfert des responsabilités"]
+    C --> D["Suivi des SLA et coûts"]
+    D --> E["Mesure de l'adoption et des résultats"]
+    E --> F{"Bénéfices attendus constatés ?"}
+    F -->|Oui| G["Capitaliser les pratiques"]
+    F -->|Non| H["Définir actions correctives"]
+    H --> D
+```
+
+L’acceptation doit inclure les écarts résiduels, leurs propriétaires et leurs échéances. La rétrospective distingue les événements observables, les hypothèses explicatives et les adaptations concrètes, afin que les prochains projets héritent d’un apprentissage utilisable.
 
 ## Atelier pratique
 
