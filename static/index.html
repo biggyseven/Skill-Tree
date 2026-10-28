@@ -910,7 +910,7 @@
         <template x-if="!exam">
           <div class="space-y-8">
             <div class="flex flex-wrap items-end justify-between gap-3">
-              <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="70"></span> %.</p></div>
+              <div><p class="eyebrow">Évaluation</p><h2 class="mt-1 text-2xl font-semibold text-white">Centre d'examens</h2><p class="mt-1 text-sm text-zinc-400">Examens construits à partir des cours de chaque module et de chaque niveau. Réussite à partir de <span class="text-white" x-text="80"></span> %.</p></div>
             </div>
             <p x-show="examErr" class="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200" x-text="examErr"></p>
             <template x-for="m in modules" :key="m.id">
@@ -1003,7 +1003,7 @@
             <div class="card text-center" :class="examResult.passed ? '!border-emerald-400/30' : '!border-rose-400/30'">
               <p class="text-4xl" x-text="examResult.passed ? '🎉' : '💪'"></p>
               <p class="mt-2 font-mono text-6xl font-semibold text-white" x-text="examResult.score + ' %'"></p>
-              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (70 % requis)'"></p>
+              <p class="mt-2 text-lg font-bold" :class="examResult.passed ? 'text-emerald-400' : 'text-rose-400'" x-text="examResult.passed ? 'Examen réussi' : 'Examen non validé (80 % requis)'"></p>
               <p class="mt-1 text-sm text-zinc-400" x-text="examResult.correct + ' / ' + examResult.total + ' bonnes réponses · ' + fmtClock(examResult.duration) + (examResult.auto ? ' · temps écoulé' : '')"></p>
               <div class="mt-5 flex flex-wrap justify-center gap-2"><button type="button" class="btn btn-primary" @click="launchExam(exam.cfg)">Refaire un examen</button><button type="button" class="btn" @click="resetExam()">Retour au centre d'examens</button><button type="button" class="btn" @click="resetExam(); setTab('rewards')">Voir mes diplômes</button></div>
             </div>
@@ -1988,9 +1988,23 @@
         },
 
         async startExam() {
-          this.examBusy = true;
-          const r = await fetch('/api/exam/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category: this.examCategory }) });
-          this.exam = await r.json(); this.examAnswers = this.exam.questions.map(q => null); this.examResult = null; this.examBusy = false;
+          this.examBusy = true; this.examErr = '';
+          try {
+            const r = await fetch('/api/exam/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category: this.examCategory }) });
+            const text = await r.text();
+            let data;
+            try { data = JSON.parse(text); } catch (_) { data = { detail: text }; }
+            if (!r.ok || !Array.isArray(data.questions) || !data.id) throw new Error(data.detail || text || ('Erreur HTTP ' + r.status));
+            this.exam = { ...data, cfg: { module: this.examCategory || data.category || 'examen', levels: ['all'] } };
+            this.examAnswers = this.exam.questions.map(() => null);
+            this.examResult = null; this.examIdx = 0; this.examFlags = {}; this.examConfirm = false;
+            this.examLeft = Number(data.time_limit || data.duration_seconds || 1800);
+            this.examStarted = Date.now(); this.examInitialTime = this.examLeft; this.examPaused = false;
+            this.startExamTimer();
+          } catch (error) {
+            this.examErr = 'Impossible de démarrer l’examen : ' + (error.message || 'erreur réseau') + '.';
+            this.notify(this.examErr);
+          } finally { this.examBusy = false; }
         },
         async submitExam() {
           this.examBusy = true;
@@ -2052,7 +2066,7 @@
 
   <script>
     /* ====================== Skill Tree v3 : modules, recherche, examens, labs, récompenses ====================== */
-    const PASS_SCORE = 70;
+    const PASS_SCORE = 80;
 
     const LEVELS = [
       { id: 'debutant', label: 'Débutant', icon: '🌱' },
@@ -2951,29 +2965,51 @@
         };
         app.submitExam = async function (auto) {
           if (!this.exam || this.examResult || this.examBusy) return;
-          this.examBusy = true; this.stopExamTimer(); this.examPaused = false; this.examConfirm = false;
-          const duration = Math.max(0, (Number(this.examInitialTime) || Number(this.examLeft) || 0) - Number(this.examLeft || 0));
-          let res = null;
+          this.examBusy = true; this.stopExamTimer(); this.examConfirm = false;
+          const clientDuration = Math.max(0, (Number(this.examInitialTime) || Number(this.examLeft) || 0) - Number(this.examLeft || 0));
           try {
-            if (this.exam.id) {
-              const r = await fetch('/api/exam/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers }) });
-              if (r.ok) res = await r.json();
+            if (!this.exam.id) throw new Error('Identifiant de session manquant.');
+            const response = await fetch('/api/exam/submit', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers })
+            });
+            const responseText = await response.text();
+            let result;
+            try { result = JSON.parse(responseText); } catch (_) { result = { detail: responseText }; }
+            if (!response.ok || result.score === undefined) {
+              throw new Error(result.detail || responseText || ('Erreur HTTP ' + response.status));
             }
-          } catch (e) { console.warn('Soumission serveur indisponible', e); }
-          const local = this.gradeLocally();
-          if (!res || res.score === undefined) res = local || { score: 0, correct: 0, total: this.exam.questions.length, offline: true };
-          else if (local && !res.details) res.details = local.details;
-          const score = Math.round(Number(res.score) || 0);
-          const passed = res.passed !== undefined ? !!res.passed : score >= PASS_SCORE;
-          const correct = res.correct !== undefined ? res.correct : (local ? local.correct : 0);
-          const total = res.total !== undefined ? res.total : this.exam.questions.length;
-          this.examResult = { ...res, score, passed, auto: !!auto, duration, correct, total };
-          this.examHistory = [{ id: Date.now(), date: new Date().toISOString(), module: this.exam.cfg.module, levels: this.exam.cfg.levels, score, passed, correct, total, duration }, ...this.examHistory].slice(0, 50);
-          LS.set('exam-history', this.examHistory);
-          this.examBusy = false;
-          if (passed) this.celebrate();
-          await this.refreshAll();
+
+            const score = Math.round(Number(result.score) || 0);
+            const passed = result.passed !== undefined ? !!result.passed : score >= PASS_SCORE;
+            const correct = result.correct !== undefined ? Number(result.correct) || 0 : 0;
+            const total = result.total !== undefined ? Number(result.total) || this.exam.questions.length : this.exam.questions.length;
+            const duration = result.duration !== undefined ? Math.max(0, Number(result.duration) || 0) : clientDuration;
+            const timedOut = !!auto || !!result.time_expired;
+            this.examErr = '';
+            this.examResult = { ...result, score, passed, auto: timedOut, duration, correct, total };
+            const cfg = this.exam.cfg || {};
+            this.examHistory = [{
+              id: Date.now(), date: new Date().toISOString(),
+              module: cfg.module || this.exam.category || 'Examen',
+              levels: Array.isArray(cfg.levels) ? cfg.levels : [],
+              score, passed, correct, total, duration
+            }, ...this.examHistory].slice(0, 50);
+            LS.set('exam-history', this.examHistory);
+            if (passed) this.celebrate();
+            try { await this.refreshAll(); } catch (refreshError) {
+              console.warn('Résultat enregistré; actualisation du tableau de bord indisponible.', refreshError);
+            }
+          } catch (error) {
+            this.examErr = 'L’examen n’a pas été enregistré : ' + (error.message || 'erreur réseau') + '. Tes réponses sont conservées à l’écran ; réessaie de terminer.';
+            this.notify(this.examErr);
+            if (!auto && Number(this.examLeft) > 0 && !this.examPaused) this.startExamTimer();
+          } finally {
+            this.examBusy = false;
+          }
         };
+
         app.resetExam = function () {
           this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false;
           this.examPaused = false; this.examInitialTime = 0; this.examAnswers = []; this.examFlags = {}; this.examLeft = 0;
