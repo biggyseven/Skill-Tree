@@ -415,12 +415,13 @@
         </section>
 
         <div class="mb-8 flex flex-wrap gap-3">
-          <button type="button" @click="treeFilter = 'all'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'all' && moduleFilter === 'all' ? 'border-white/20 bg-white/10 text-white shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🗂️ Tous les modules</button>
+          <button type="button" @click="treeFilter = 'all'; moduleFilter = 'all'; submoduleFilter = null; showAllCourses = true" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'all' && moduleFilter === 'all' && showAllCourses ? 'border-white/20 bg-white/10 text-white shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌐 Tout voir</button>
+          <button type="button" @click="treeFilter = 'all'; moduleFilter = 'all'; submoduleFilter = null; showAllCourses = false" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'all' && moduleFilter === 'all' && !showAllCourses ? 'border-white/20 bg-white/10 text-white shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🗂️ Tous les modules</button>
           <button type="button" @click="treeFilter = 'beginner'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'beginner' && moduleFilter === 'all' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🌱 Débutant</button>
           <button type="button" @click="treeFilter = 'intermediaire'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'intermediaire' && moduleFilter === 'all' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🚀 Intermédiaire</button>
           <button type="button" @click="treeFilter = 'expert'; moduleFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="treeFilter === 'expert' && moduleFilter === 'all' ? 'border-fuchsia-400/30 bg-fuchsia-400/10 text-fuchsia-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🔥 Expert</button>
-          <button type="button" @click="moduleFilter = moduleFilter === 'Data & Bases de données' ? 'all' : 'Data & Bases de données'; treeFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'Data & Bases de données' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">📊 Data & Bases de données</button>
-          <button type="button" @click="moduleFilter = moduleFilter === 'AIOps & Intelligence Artificielle' ? 'all' : 'AIOps & Intelligence Artificielle'; treeFilter = 'all'; submoduleFilter = null" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'AIOps & Intelligence Artificielle' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🤖 AIOps & Intelligence Artificielle</button>
+          <button type="button" @click="moduleFilter = moduleFilter === 'Data & Bases de données' ? 'all' : 'Data & Bases de données'; treeFilter = 'all'; submoduleFilter = null; showAllCourses = false" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'Data & Bases de données' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">📊 Data & Bases de données</button>
+          <button type="button" @click="moduleFilter = moduleFilter === 'AIOps & Intelligence Artificielle' ? 'all' : 'AIOps & Intelligence Artificielle'; treeFilter = 'all'; submoduleFilter = null; showAllCourses = false" class="rounded-xl border px-4 py-2 text-xs font-semibold transition" :class="moduleFilter === 'AIOps & Intelligence Artificielle' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200 shadow-lg' : 'border-white/5 text-zinc-400 hover:text-white hover:bg-white/5'">🤖 AIOps & Intelligence Artificielle</button>
         </div>
 
         <div id="tree-browser" class="space-y-6">
@@ -1146,7 +1147,7 @@
         showUpdateToast: false,
         profileMenuOpen: false, profileDraft: '',
         theme: document.documentElement.classList.contains('light') ? 'light' : 'dark',
-        focusMode: false, treeFilter: 'all', moduleFilter: 'all', submoduleFilter: null, sidebarCollapsed: false,
+        focusMode: false, treeFilter: 'all', moduleFilter: 'all', submoduleFilter: null, showAllCourses: false, sidebarCollapsed: false,
         notificationsOpen: false, settingsMenuOpen: false, tab: 'tree',
         userName: localStorage.getItem('skilltree-name') || 'Ton Nom',
         nodes: [], total: 0, validated: 0, loading: true, streakDays: 0,
@@ -1906,7 +1907,7 @@
         },
 
         get showModuleOverview() {
-          return this.moduleFilter === 'all' && this.treeFilter === 'all' && this.submoduleFilter === null;
+          return this.moduleFilter === 'all' && this.treeFilter === 'all' && this.submoduleFilter === null && !this.showAllCourses;
         },
         get showSubmoduleOverview() {
           return this.moduleFilter !== 'all' && this.treeFilter === 'all' && this.submoduleFilter === null && this.submodules.length > 1;
@@ -1919,6 +1920,7 @@
           this.moduleFilter = moduleName;
           this.treeFilter = 'all';
           this.submoduleFilter = null;
+          this.showAllCourses = false;
         },
         selectSubmodule(categoryName) {
           this.submoduleFilter = categoryName;
@@ -1930,6 +1932,7 @@
           this.moduleFilter = 'all';
           this.treeFilter = 'all';
           this.submoduleFilter = null;
+          this.showAllCourses = false;
         },
         categoryIcon(name) {
           const icons = {
