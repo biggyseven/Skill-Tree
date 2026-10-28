@@ -64,6 +64,7 @@ from .lab_routes import (
 )
 from .lab_schema_v2 import Topology
 from .scenario_loader import (SCENARIO_DIR, build_scenario, generate_random_scenario, get_scenario_options, load_scenario, list_scenarios)
+from .war_badges import build_war_badges
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if load_dotenv is not None:
@@ -497,6 +498,32 @@ def _ticket_payload(row: Any) -> dict[str, Any]:
     return ticket
 
 
+def _ticket_active_elapsed_seconds(ticket: dict[str, Any], ended_at: datetime | None = None) -> float:
+    """Temps actif d'un ticket, hors périodes de pause SLA enregistrées."""
+    opened_at = _war_room_parse_time(ticket.get("opened_at"))
+    ended = ended_at or _war_room_parse_time(ticket.get("resolved_at")) or _war_room_now()
+    if opened_at is None:
+        return 0.0
+    data = ticket.get("resolution_data")
+    if not isinstance(data, dict):
+        data = {}
+    paused_total = max(0.0, float(data.get("paused_total_seconds") or 0))
+    return max(0.0, (ended - opened_at).total_seconds() - paused_total)
+
+
+def _ticket_sla_met(ticket: dict[str, Any]) -> bool:
+    if ticket.get("status") != "resolved":
+        return False
+    data = ticket.get("resolution_data")
+    if not isinstance(data, dict):
+        data = {}
+    if isinstance(data.get("sla_met"), bool):
+        return data["sla_met"]
+    ended = _war_room_parse_time(ticket.get("resolved_at"))
+    deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+    return ended is not None and (deadline is None or ended <= deadline)
+
+
 def _ticket_action(conn: Any, ticket_id: str, action_type: str, payload: dict[str, Any]) -> None:
     conn.execute(
         "INSERT INTO ticket_actions (ticket_id, action_type, payload, at) VALUES (?, ?, ?, ?)",
@@ -622,7 +649,7 @@ def _war_ticket_summary(row: Any, conn: Any | None = None) -> dict[str, Any]:
         scenario = {}
     opened_at = _war_room_parse_time(ticket.get("opened_at"))
     ended_at = _war_room_parse_time(ticket.get("resolved_at"))
-    duration_seconds = max(0, int((ended_at - opened_at).total_seconds())) if opened_at and ended_at else None
+    duration_seconds = int(_ticket_active_elapsed_seconds(ticket, ended_at)) if opened_at and ended_at else None
     ticket.update({
         "title": scenario.get("title", ticket.get("scenario_id", ticket.get("id"))),
         "scenario_title": scenario.get("title", ticket.get("scenario_id", ticket.get("id"))),
@@ -724,7 +751,7 @@ def list_open_tickets() -> list[dict[str, Any]]:
     try:
         _expire_war_room_tickets(conn)
         rows = conn.execute(
-            "SELECT * FROM tickets WHERE status IN ('open', 'pending_postmortem') ORDER BY opened_at ASC"
+            "SELECT * FROM tickets WHERE status IN ('open', 'pending_postmortem', 'paused') ORDER BY opened_at ASC"
         ).fetchall()
         now = _war_room_now()
         result: list[dict[str, Any]] = []
@@ -735,7 +762,11 @@ def list_open_tickets() -> list[dict[str, Any]]:
             except FileNotFoundError:
                 scenario = {}
             deadline = _war_room_parse_time(ticket.get("sla_deadline"))
-            ticket["sla_left"] = max(0, int((deadline - now).total_seconds())) if deadline else None
+            pause = ticket["resolution_data"].get("sla_pause") if isinstance(ticket.get("resolution_data"), dict) else None
+            if ticket.get("status") == "paused" and isinstance(pause, dict):
+                ticket["sla_left"] = pause.get("remaining_sla_seconds")
+            else:
+                ticket["sla_left"] = max(0, int((deadline - now).total_seconds())) if deadline else None
             ticket["scenario"] = scenario
             ticket["title"] = scenario.get("title", ticket["scenario_id"])
             ticket["story"] = scenario.get("story", "")
@@ -914,7 +945,7 @@ def open_ticket(scenario_id: str) -> dict[str, Any]:
         # Les tickets RND ont leur JSON en base ; les USER/pilotes sont des fichiers.
         active = conn.execute(
             "SELECT * FROM tickets WHERE (scenario_id = ? OR id = ?) "
-            "AND status IN ('open', 'pending_postmortem') ORDER BY opened_at DESC LIMIT 1",
+            "AND status IN ('open', 'pending_postmortem', 'paused') ORDER BY opened_at DESC LIMIT 1",
             (scenario_id, scenario_id),
         ).fetchone()
         if active:
@@ -944,7 +975,7 @@ def open_ticket(scenario_id: str) -> dict[str, Any]:
 
 @app.post("/api/tickets/{scenario_id}/replay")
 def replay_ticket(scenario_id: str) -> dict[str, Any]:
-    """Supprime le ticket archivé ciblé et rouvre le scénario avec un nouveau timer SLA."""
+    """Rouvre le scénario avec un nouveau timer SLA sans effacer l'historique du ticket précédent."""
     conn = _open_ticket_conn()
     try:
         _expire_war_room_tickets(conn)
@@ -963,13 +994,12 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
         except FileNotFoundError:
             raise HTTPException(status_code=404, detail="Ticket ou scénario War Room introuvable.")
         active = conn.execute(
-            "SELECT id FROM tickets WHERE scenario_id = ? AND status IN ('open', 'pending_postmortem') LIMIT 1",
+            "SELECT id FROM tickets WHERE scenario_id = ? AND status IN ('open', 'pending_postmortem', 'paused') LIMIT 1",
             (target_scenario_id,),
         ).fetchone()
         if active and (not old or str(active["id"]) != str(old["id"])):
             raise HTTPException(status_code=409, detail="Ce scénario possède déjà un ticket actif.")
-        if old:
-            conn.execute("DELETE FROM tickets WHERE id = ?", (old["id"],))
+        # Conserver le ticket précédent pour l'Archive, les rapports et le badge Comeback Kid.
         ticket_id = f"{target_scenario_id}-{uuid.uuid4().hex[:8].upper()}"
         now = _war_room_now()
         opened_at_iso = _war_room_iso_precise(now)
@@ -983,6 +1013,255 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
         _ticket_action(conn, ticket_id, "opened", {"source": "replay", "replayed_ticket_id": str(old["id"]) if old else None})
         conn.commit()
         return {"success": True, "new_ticket_id": ticket_id}
+    finally:
+        conn.close()
+
+
+
+@app.get("/api/tickets/open-count")
+def get_open_ticket_count() -> dict[str, int]:
+    """Nombre de tickets dont le statut est strictement « open »."""
+    conn = _open_ticket_conn()
+    try:
+        _expire_war_room_tickets(conn)
+        row = conn.execute("SELECT COUNT(*) AS count FROM tickets WHERE status = 'open'").fetchone()
+        return {"count": int(row["count"] or 0)}
+    finally:
+        conn.close()
+
+
+@app.post("/api/tickets/{ticket_id}/pause")
+def pause_ticket(ticket_id: str) -> dict[str, Any]:
+    """Suspend le SLA en stockant le temps restant dans resolution_data."""
+    conn = _open_ticket_conn()
+    try:
+        _expire_war_room_tickets(conn)
+        row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Ticket introuvable.")
+        ticket = _ticket_payload(row)
+        if ticket["status"] == "paused":
+            pause = ticket["resolution_data"].get("sla_pause", {})
+            return {"success": True, "ticket_id": ticket_id, "status": "paused",
+                    "sla_left": pause.get("remaining_sla_seconds")}
+        if ticket["status"] != "open":
+            raise HTTPException(status_code=409, detail="Seul un ticket ouvert peut être mis en pause.")
+        now = _war_room_now()
+        now_iso = _war_room_iso_precise(now)
+        deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+        remaining = max(0.0, (deadline - now).total_seconds()) if deadline else None
+        if deadline is not None and remaining <= 0:
+            _expire_war_room_tickets(conn, now)
+            raise HTTPException(status_code=409, detail="SLA dépassé : ce ticket ne peut plus être mis en pause.")
+        data = ticket.get("resolution_data")
+        if not isinstance(data, dict):
+            data = {}
+        data["sla_pause"] = {"paused_at": now_iso, "remaining_sla_seconds": int(remaining) if remaining is not None else None}
+        conn.execute("UPDATE tickets SET status = 'paused', resolution_data = ? WHERE id = ?",
+                     (json.dumps(data, ensure_ascii=False), ticket_id))
+        _ticket_action(conn, ticket_id, "paused", {"paused_at": now_iso, "remaining_sla_seconds": data["sla_pause"]["remaining_sla_seconds"]})
+        conn.commit()
+        return {"success": True, "ticket_id": ticket_id, "status": "paused",
+                "sla_left": data["sla_pause"]["remaining_sla_seconds"]}
+    finally:
+        conn.close()
+
+
+@app.post("/api/tickets/{ticket_id}/resume")
+def resume_ticket(ticket_id: str) -> dict[str, Any]:
+    """Reprend un ticket et recrée son échéance à partir du temps SLA sauvegardé."""
+    conn = _open_ticket_conn()
+    try:
+        row = conn.execute("SELECT * FROM tickets WHERE id = ?", (ticket_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Ticket introuvable.")
+        ticket = _ticket_payload(row)
+        if ticket["status"] != "paused":
+            raise HTTPException(status_code=409, detail="Ce ticket n'est pas en pause.")
+        data = ticket.get("resolution_data")
+        if not isinstance(data, dict):
+            data = {}
+        pause = data.get("sla_pause")
+        if not isinstance(pause, dict):
+            raise HTTPException(status_code=409, detail="Les données de pause SLA sont absentes.")
+        now = _war_room_now()
+        paused_at = _war_room_parse_time(pause.get("paused_at"))
+        if paused_at:
+            pause_duration = max(0.0, (now - paused_at).total_seconds())
+            data["paused_total_seconds"] = round(float(data.get("paused_total_seconds") or 0) + pause_duration, 2)
+        remaining = pause.get("remaining_sla_seconds")
+        deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+        new_deadline = _war_room_iso_precise(now + timedelta(seconds=max(0, float(remaining)))) if remaining is not None else None
+        data.pop("sla_pause", None)
+        conn.execute("UPDATE tickets SET status = 'open', sla_deadline = ?, resolution_data = ? WHERE id = ?",
+                     (new_deadline if deadline is not None or remaining is not None else None,
+                      json.dumps(data, ensure_ascii=False), ticket_id))
+        _ticket_action(conn, ticket_id, "resumed", {"resumed_at": _war_room_iso_precise(now), "paused_total_seconds": data.get("paused_total_seconds", 0)})
+        conn.commit()
+        return {"success": True, "ticket_id": ticket_id, "status": "open", "sla_left": remaining}
+    finally:
+        conn.close()
+
+
+@app.get("/api/tickets/badges")
+def get_war_room_badges() -> list[dict[str, Any]]:
+    """Calcule les badges War Room depuis les tickets et leur historique."""
+    conn = _open_ticket_conn()
+    try:
+        return build_war_badges(conn)
+    finally:
+        conn.close()
+
+
+@app.post("/api/tickets/stress-test")
+def create_stress_test() -> dict[str, Any]:
+    """Crée trois tickets aléatoires avec une échéance de mission commune à 45 minutes."""
+    conn = _open_ticket_conn()
+    try:
+        now = _war_room_now()
+        now_iso = _war_room_iso_precise(now)
+        mission_id = "STRESS-" + uuid.uuid4().hex[:10].upper()
+        deadline = now + timedelta(minutes=45)
+        deadline_iso = _war_room_iso_precise(deadline)
+        created: list[dict[str, Any]] = []
+        for _ in range(3):
+            scenario = generate_random_scenario()
+            scenario_id = "RND-" + uuid.uuid4().hex[:10].upper()
+            scenario["id"] = scenario_id
+            _validate_scenario_document(scenario)
+            conn.execute(
+                "INSERT INTO war_room_scenarios (scenario_id, scenario_json, created_at) VALUES (?, ?, ?)",
+                (scenario_id, json.dumps(scenario, ensure_ascii=False), now_iso),
+            )
+            conn.execute(
+                "INSERT INTO tickets (id, scenario_id, type, severity, status, opened_at, sla_deadline, resolution_data, xp_earned) "
+                "VALUES (?, ?, ?, ?, 'open', ?, ?, ?, 0)",
+                (scenario_id, scenario_id, scenario["type"], scenario["severity"], now_iso, deadline_iso,
+                 json.dumps({"stress_test": {"mission_id": mission_id, "deadline_at": deadline_iso, "xp_multiplier": 2}}, ensure_ascii=False)),
+            )
+            _ticket_action(conn, scenario_id, "opened", {"source": "stress_test", "mission_id": mission_id})
+            created.append({"ticket_id": scenario_id, "title": scenario.get("title", scenario_id), "type": scenario["type"]})
+        conn.commit()
+        return {"mission_id": mission_id, "deadline_at": deadline_iso, "tickets": created,
+                "message": "3 incidents simultanés. Tu as 45 minutes pour tous les résoudre. Bon courage !"}
+    finally:
+        conn.close()
+
+
+@app.get("/api/itsm/stress-test/{mission_id}")
+def get_stress_test_status(mission_id: str) -> dict[str, Any]:
+    conn = _open_ticket_conn()
+    try:
+        now = _war_room_now()
+        all_rows = conn.execute("SELECT * FROM tickets ORDER BY opened_at ASC").fetchall()
+        mission_rows: list[dict[str, Any]] = []
+        for row in all_rows:
+            ticket = _ticket_payload(row)
+            stress = ticket["resolution_data"].get("stress_test") if isinstance(ticket.get("resolution_data"), dict) else None
+            if isinstance(stress, dict) and stress.get("mission_id") == mission_id:
+                mission_rows.append(ticket)
+        if not mission_rows:
+            raise HTTPException(status_code=404, detail="Mission Stress Test introuvable.")
+        deadline = next((_war_room_parse_time((ticket.get("resolution_data") or {}).get("stress_test", {}).get("deadline_at"))
+                         for ticket in mission_rows if (ticket.get("resolution_data") or {}).get("stress_test", {}).get("deadline_at")), None)
+        if deadline and now > deadline:
+            for ticket in mission_rows:
+                if ticket.get("status") in {"open", "paused", "pending_postmortem"}:
+                    data = ticket.get("resolution_data") if isinstance(ticket.get("resolution_data"), dict) else {}
+                    data.update({"reason": "stress_test_timeout", "failed_at": _war_room_iso(now), "sla_met": False})
+                    conn.execute("UPDATE tickets SET status = 'failed', resolved_at = ?, resolution_data = ? WHERE id = ?",
+                                 (_war_room_iso(now), json.dumps(data, ensure_ascii=False), ticket["id"]))
+                    _ticket_action(conn, ticket["id"], "failed", {"reason": "stress_test_timeout", "mission_id": mission_id})
+            conn.commit()
+            all_rows = conn.execute("SELECT * FROM tickets ORDER BY opened_at ASC").fetchall()
+            mission_rows = []
+            for row in all_rows:
+                ticket = _ticket_payload(row)
+                stress = ticket["resolution_data"].get("stress_test") if isinstance(ticket.get("resolution_data"), dict) else None
+                if isinstance(stress, dict) and stress.get("mission_id") == mission_id:
+                    mission_rows.append(ticket)
+        summaries = [{"ticket_id": ticket["id"], "status": ticket["status"],
+                      "xp_earned": int(ticket.get("xp_earned") or 0)} for ticket in mission_rows]
+        done = all(ticket.get("status") in {"resolved", "failed"} for ticket in mission_rows)
+        succeeded = len(mission_rows) == 3 and all(ticket.get("status") == "resolved" for ticket in mission_rows)
+        status = "succeeded" if done and succeeded else ("failed" if done or (deadline and now > deadline) else "in_progress")
+        return {"mission_id": mission_id, "deadline_at": _war_room_iso(deadline) if deadline else None,
+                "status": status, "tickets": summaries,
+                "resolved": sum(item["status"] == "resolved" for item in summaries), "total": len(summaries)}
+    finally:
+        conn.close()
+
+
+@app.get("/api/itsm/weekly-report")
+def get_itsm_weekly_report() -> dict[str, Any]:
+    """Rapport des sept derniers jours calendaires en UTC."""
+    conn = _open_ticket_conn()
+    try:
+        now = _war_room_now()
+        _expire_war_room_tickets(conn, now)
+        start_day = now.date() - timedelta(days=6)
+        start = datetime.combine(start_day, datetime.min.time(), tzinfo=timezone.utc)
+        start_iso = _war_room_iso(start)
+        rows_raw = conn.execute(
+            "SELECT * FROM tickets WHERE opened_at >= ? OR resolved_at >= ? ORDER BY opened_at ASC",
+            (start_iso, start_iso),
+        ).fetchall()
+        rows = [_ticket_payload(row) for row in rows_raw]
+        days = [(start_day + timedelta(days=index)).isoformat() for index in range(7)]
+        daily = {day: {"date": day, "opened": 0, "resolved": 0, "failed": 0} for day in days}
+        opened_rows: list[dict[str, Any]] = []
+        resolved_rows: list[dict[str, Any]] = []
+        failed_rows: list[dict[str, Any]] = []
+        type_counts: Counter[str] = Counter()
+        for ticket in rows:
+            opened = _war_room_parse_time(ticket.get("opened_at"))
+            ended = _war_room_parse_time(ticket.get("resolved_at"))
+            if opened and opened >= start:
+                opened_rows.append(ticket)
+                day = opened.date().isoformat()
+                if day in daily:
+                    daily[day]["opened"] += 1
+                type_counts[str(ticket.get("type") or "inconnu")] += 1
+            if ended and ended >= start:
+                day = ended.date().isoformat()
+                if ticket.get("status") == "resolved":
+                    resolved_rows.append(ticket)
+                    if day in daily:
+                        daily[day]["resolved"] += 1
+                elif ticket.get("status") == "failed":
+                    failed_rows.append(ticket)
+                    if day in daily:
+                        daily[day]["failed"] += 1
+        duration_pairs = [(ticket, _ticket_active_elapsed_seconds(ticket, _war_room_parse_time(ticket.get("resolved_at"))))
+                          for ticket in resolved_rows if _war_room_parse_time(ticket.get("resolved_at"))]
+        duration_pairs.sort(key=lambda pair: pair[1])
+        sla_good = [ticket for ticket in resolved_rows if _ticket_sla_met(ticket)]
+        best_margin_ticket = None
+        best_margin_seconds = None
+        for ticket in sla_good:
+            deadline = _war_room_parse_time(ticket.get("sla_deadline"))
+            ended = _war_room_parse_time(ticket.get("resolved_at"))
+            if deadline and ended:
+                margin = (deadline - ended).total_seconds()
+                if best_margin_seconds is None or margin > best_margin_seconds:
+                    best_margin_seconds, best_margin_ticket = margin, ticket
+        return {
+            "period_start": start_day.isoformat(),
+            "period_end": now.date().isoformat(),
+            "tickets_opened": len(opened_rows),
+            "tickets_resolved": len(resolved_rows),
+            "tickets_failed": len(failed_rows),
+            "mttr_minutes": round(sum(value for _, value in duration_pairs) / len(duration_pairs) / 60, 1) if duration_pairs else 0.0,
+            "sla_compliance_pct": round(len(sla_good) / len(resolved_rows) * 100, 1) if resolved_rows else 0.0,
+            "fastest_resolution_minutes": round(duration_pairs[0][1] / 60, 2) if duration_pairs else None,
+            "fastest_ticket_id": duration_pairs[0][0]["id"] if duration_pairs else None,
+            "slowest_resolution_minutes": round(duration_pairs[-1][1] / 60, 2) if duration_pairs else None,
+            "slowest_ticket_id": duration_pairs[-1][0]["id"] if duration_pairs else None,
+            "best_sla": ({"ticket_id": best_margin_ticket["id"], "margin_minutes": round(best_margin_seconds / 60, 1)}
+                         if best_margin_ticket is not None and best_margin_seconds is not None else None),
+            "top_scenario_type": type_counts.most_common(1)[0][0] if type_counts else None,
+            "daily_breakdown": [daily[day] for day in days],
+        }
     finally:
         conn.close()
 
@@ -1002,7 +1281,11 @@ def get_ticket(ticket_id: str) -> dict[str, Any]:
             raise HTTPException(status_code=404, detail="Scénario associé au ticket introuvable.")
         deadline = _war_room_parse_time(ticket.get("sla_deadline"))
         now = _war_room_now()
-        ticket["sla_left"] = max(0, int((deadline - now).total_seconds())) if deadline else None
+        pause = ticket["resolution_data"].get("sla_pause") if isinstance(ticket.get("resolution_data"), dict) else None
+        if ticket.get("status") == "paused" and isinstance(pause, dict):
+            ticket["sla_left"] = pause.get("remaining_sla_seconds")
+        else:
+            ticket["sla_left"] = max(0, int((deadline - now).total_seconds())) if deadline else None
         return {"ticket": ticket, "scenario": scenario}
     finally:
         conn.close()
@@ -1018,6 +1301,8 @@ def resolve_ticket(ticket_id: str, payload: TicketResolveRequest) -> dict[str, A
         ticket = _ticket_payload(row)
         if ticket["status"] in {"resolved", "failed"}:
             raise HTTPException(status_code=409, detail="Ce ticket est déjà clôturé.")
+        if ticket["status"] == "paused":
+            raise HTTPException(status_code=409, detail="Reprenez le ticket avant de tenter sa résolution.")
         if ticket["status"] == "pending_postmortem":
             raise HTTPException(status_code=409, detail="Le post-mortem de ce ticket reste à valider.")
         scenario = _load_scenario_by_id(ticket["scenario_id"], conn)
@@ -1025,19 +1310,22 @@ def resolve_ticket(ticket_id: str, payload: TicketResolveRequest) -> dict[str, A
         config_passed = all(check["passed"] for check in checks)
         now = _war_room_now()
         opened_at = _war_room_parse_time(ticket.get("opened_at"))
-        server_elapsed = max(0.0, (now - opened_at).total_seconds()) if opened_at else float(payload.elapsed_seconds)
+        server_elapsed = _ticket_active_elapsed_seconds(ticket, now) if opened_at else float(payload.elapsed_seconds)
         deadline = _war_room_parse_time(ticket.get("sla_deadline"))
         sla_met = deadline is None or now <= deadline
         reason = "sla_exceeded" if not sla_met else (None if config_passed else "config_incorrect")
         passed = config_passed and sla_met
-        resolution_data = {
+        resolution_data = ticket.get("resolution_data")
+        if not isinstance(resolution_data, dict):
+            resolution_data = {}
+        resolution_data.update({
             "topology": payload.topology,
             "checks": checks,
             "submitted_elapsed_seconds": float(payload.elapsed_seconds),
             "server_elapsed_seconds": round(server_elapsed, 2),
             "sla_met": sla_met,
             "checked_at": _war_room_iso(now),
-        }
+        })
         if passed:
             conn.execute(
                 "UPDATE tickets SET status = 'pending_postmortem', resolution_data = ? WHERE id = ?",
@@ -1123,8 +1411,14 @@ def save_ticket_post_mortem(ticket_id: str, payload: TicketPostMortemRequest) ->
         resolution_data = ticket.get("resolution_data") if isinstance(ticket.get("resolution_data"), dict) else {}
         resolution_data["post_mortem"] = post_mortem
         resolution_data["closed_at"] = _war_room_iso(_war_room_now())
+        now = _war_room_now()
         xp = max(0, int(scenario.get("reward_xp") or 0))
-        now_iso = _war_room_iso(_war_room_now())
+        stress = resolution_data.get("stress_test") if isinstance(resolution_data.get("stress_test"), dict) else None
+        stress_deadline = _war_room_parse_time(stress.get("deadline_at")) if stress else None
+        if stress and stress_deadline and now <= stress_deadline:
+            xp *= 2
+            stress["xp_multiplier_applied"] = 2
+        now_iso = _war_room_iso(now)
         conn.execute(
             "UPDATE tickets SET status = 'resolved', resolved_at = ?, resolution_data = ?, xp_earned = ? WHERE id = ?",
             (now_iso, json.dumps(resolution_data, ensure_ascii=False), xp, ticket_id),
