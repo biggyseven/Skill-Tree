@@ -48,7 +48,21 @@ jobs:
               "maint-audits-expert",
               "maint-fournisseurs-expert",
               "maint-retex-expert",
+              "data-bigdata-expert",
+              "data-streaming-expert",
+              "data-datalake-expert",
+              "data-securite-expert",
+              "data-gouvernance-expert",
+              "data-ingestion-expert",
           )
+          DATA_EXPERTS = frozenset({
+              "data-bigdata-expert",
+              "data-streaming-expert",
+              "data-datalake-expert",
+              "data-securite-expert",
+              "data-gouvernance-expert",
+              "data-ingestion-expert",
+          })
           RUN_AUTHENTICATED = os.environ.get("SKILLTREE_RUN_AUTHENTICATED_SMOKE", "").strip().lower() == "true"
           PASSWORD = os.environ.get("SKILLTREE_PRODUCTION_TEST_PASSWORD", "")
           nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
@@ -166,6 +180,10 @@ jobs:
                   questions = quiz.get("questions")
                   if quiz.get("node_id") != course_id or not isinstance(questions, list) or not questions:
                       raise RuntimeError(f"{course_id} quiz has no questions or the wrong node_id")
+                  if course_id in DATA_EXPERTS and len(questions) != 18:
+                      raise RuntimeError(
+                          f"{course_id} expert quiz must contain 18 questions; got {len(questions)}"
+                      )
                   if any(
                       "answer" in question or "answer_regex" in question
                       for question in questions if isinstance(question, dict)
