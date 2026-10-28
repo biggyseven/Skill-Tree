@@ -22,8 +22,8 @@
   <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 
   <link rel="stylesheet" href="/app.css">
-  <link rel="preload" href="/assets/skilltree-ui.css?v=0d805e07e39e" as="style">
-  <link rel="preload" href="/assets/skilltree-core.js?v=72ded8fc6ef0" as="script">
+  <link rel="preload" href="/assets/skilltree-ui.css?v=9e618714ba85" as="style">
+  <link rel="preload" href="/assets/skilltree-core.js?v=3d08b1fa3ab1" as="script">
   <link rel="preload" href="/assets/skilltree-catalog.js?v=c4d9677c1276" as="script">
   <link rel="preload" href="/assets/skilltree-study.js?v=b28b3330745a" as="script">
   <link rel="preload" href="/assets/skilltree-ux.js?v=ae5ac43745be" as="script">
@@ -94,7 +94,7 @@
 
 
 
-  <link rel="stylesheet" href="/assets/skilltree-ui.css?v=0d805e07e39e">
+  <link rel="stylesheet" href="/assets/skilltree-ui.css?v=9e618714ba85">
 </head>
 
 <body class="flex h-screen overflow-hidden bg-[color:var(--bg)] font-sans text-white antialiased" x-data="skilltree()" :class="{ 'overflow-hidden': open, 'focus-layout': focusMode, 'compact-ui': compactUi }" @click.window.capture="closeModalsOnOutside($event); closeThemeOnOutside($event); closeSidebarContextMenuOnOutside($event)" @keydown.escape.window="closeSidebarContextMenu()">
@@ -2235,7 +2235,7 @@
   <!-- ================= NOTIFICATION ================= -->
   <div x-show="toast.show" x-cloak x-transition.opacity.duration.300ms role="status" aria-live="polite" class="toast-notification fixed bottom-6 right-6 max-w-sm rounded-2xl px-5 py-3 text-sm font-semibold transition-all duration-300" x-text="toast.text"></div>
 
-  <script src="/assets/skilltree-core.js?v=72ded8fc6ef0"></script>
+  <script src="/assets/skilltree-core.js?v=3d08b1fa3ab1"></script>
 
   <script src="/assets/skilltree-catalog.js?v=c4d9677c1276"></script>
 
