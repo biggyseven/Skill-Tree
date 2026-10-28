@@ -1,0 +1,102 @@
+{
+  "node_id": "data-gouvernance-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier catalogue de données au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Catalogue de données doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Catalogue de données doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier lignage technique et métier au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Lignage technique et métier doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Lignage technique et métier doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier dimensions de qualité au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Dimensions de qualité doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Dimensions de qualité doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier contrats de données au niveau intermédiaire ?",
+      "choices": [
+        "Contrats de données doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Contrats de données doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier classification et confidentialité au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Classification et confidentialité doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Classification et confidentialité doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier gestion des changements au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Gestion des changements doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Gestion des changements doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier observabilité des données au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Observabilité des données doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Observabilité des données doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Qualité, lignage et gouvernance », quelle pratique convient pour vérifier cycle de vie et preuves au niveau intermédiaire ?",
+      "choices": [
+        "Cycle de vie et preuves doit respecter le contrat de qualité, lignage et gouvernance, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Cycle de vie et preuves doit être relié au besoin métier et à un contrôle vérifiable. Pour « un indicateur d'activité ayant plusieurs définitions concurrentes entre équipes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

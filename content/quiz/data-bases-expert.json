@@ -1,0 +1,102 @@
+{
+  "node_id": "data-bases-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un réplica n'est-il pas une sauvegarde suffisante à lui seul ?",
+      "choices": [
+        "Parce qu'un réplica ne peut jamais servir en lecture",
+        "Parce que la réplication supprime toutes les contraintes",
+        "Parce qu'une suppression ou corruption logique peut aussi être répliquée",
+        "Parce que les réplications ne conservent aucune donnée"
+      ],
+      "answer": 2,
+      "explanation": "Une erreur logique peut être propagée vers toutes les copies. Il faut des sauvegardes restaurables, des journaux et des exercices de reprise adaptés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque un mécanisme de fencing ou de quorum cherche-t-il à limiter dans un basculement ?",
+      "choices": [
+        "Le nombre de colonnes d'une table",
+        "La possibilité que deux nœuds acceptent simultanément des écritures comme autorité",
+        "La taille d'un index secondaire",
+        "La normalisation d'une adresse email"
+      ],
+      "answer": 1,
+      "explanation": "Après une partition réseau, deux nœuds pourraient se croire primaires. Une autorité d'écriture unique évite des historiques divergents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence décrit le mieux partitionnement et réplication ?",
+      "choices": [
+        "Ce sont des synonymes exacts dans tout moteur",
+        "Le partitionnement chiffre les données, la réplication les déchiffre",
+        "Le partitionnement remplace les sauvegardes",
+        "Le partitionnement organise des données en parties, la réplication maintient des copies"
+      ],
+      "answer": 3,
+      "explanation": "Les deux mécanismes ont des objectifs distincts. Le partitionnement organise la donnée et la réplication maintient des copies pour des objectifs de disponibilité ou de lecture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une lecture doit toujours voir immédiatement une écriture qui vient d'être validée. Quelle décision faut-il prendre ?",
+      "choices": [
+        "Définir un chemin de lecture après écriture qui respecte la cohérence requise, souvent via l'autorité d'écriture",
+        "Lire toujours le réplica le plus éloigné",
+        "Augmenter la taille de tous les index",
+        "Désactiver les transactions"
+      ],
+      "answer": 0,
+      "explanation": "Un réplica asynchrone peut être en retard. Les parcours critiques doivent utiliser une route ou un mécanisme dont la garantie de cohérence est documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une décision d'architecture solide ?",
+      "choices": [
+        "Uniquement le nom du produit retenu",
+        "Uniquement une capture du tableau de bord",
+        "Contexte, objectifs mesurables, options, compromis, risques, preuves et déclencheurs de réévaluation",
+        "Une garantie que les pannes sont impossibles"
+      ],
+      "answer": 2,
+      "explanation": "Une décision traçable explicite ses hypothèses, preuves, compromis et limites afin d'être réévaluée quand la charge ou les contraintes changent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle protège le mieux une base contre l'accès injustifié aux données d'un autre utilisateur ?",
+      "choices": [
+        "Augmenter les délais de requête",
+        "Séparer les rôles, appliquer l'autorisation et tester les chemins d'accès, y compris les opérations privilégiées",
+        "Masquer les données uniquement dans la page HTML",
+        "Ajouter un index sur l'identifiant d'utilisateur"
+      ],
+      "answer": 1,
+      "explanation": "La sécurité doit être appliquée au niveau approprié du système et testée avec des accès autorisés et interdits. L'affichage seul n'est pas une frontière de sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment valider un objectif RTO ?",
+      "choices": [
+        "Le copier depuis un contrat sans test",
+        "Mesurer uniquement le temps de démarrage du processus",
+        "Vérifier seulement la taille de la sauvegarde",
+        "Chronométrer une restauration et un retour au service fonctionnel dans un scénario défini"
+      ],
+      "answer": 3,
+      "explanation": "Le RTO mesure le temps de rétablissement, qui inclut les dépendances, contrôles d'intégrité, routage et vérifications métier, pas seulement le démarrage du moteur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi augmenter sans cesse la limite du pool de connexions peut-il aggraver une saturation ?",
+      "choices": [
+        "Plus de connexions peuvent amplifier la pression mémoire, la concurrence et le nombre de requêtes simultanées",
+        "La limite détermine la clé primaire",
+        "Les connexions supplémentaires rendent les transactions atomiques impossibles",
+        "La limite active la sauvegarde automatiquement"
+      ],
+      "answer": 0,
+      "explanation": "Il faut rechercher la cause de la saturation : transactions longues, requêtes bloquées, workers ou coût de requêtes. Augmenter la limite peut déplacer ou amplifier le problème."
+    }
+  ]
+}

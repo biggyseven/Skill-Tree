@@ -1,0 +1,102 @@
+{
+  "node_id": "data-streaming-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier événement et contrat au niveau débutant ?",
+      "choices": [
+        "Événement et contrat doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Événement et contrat doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier topics et partitions au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Topics et partitions doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Topics et partitions doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier clés de partition au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Clés de partition doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Clés de partition doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier offsets et groupes consommateurs au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Offsets et groupes consommateurs doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Offsets et groupes consommateurs doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier sémantiques de livraison au niveau débutant ?",
+      "choices": [
+        "Sémantiques de livraison doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Sémantiques de livraison doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier idempotence et déduplication au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Idempotence et déduplication doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Idempotence et déduplication doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier temps d'événement au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Temps d'événement doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Temps d'événement doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Kafka et traitement en temps réel », quelle pratique convient pour vérifier schémas et évolution au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Schémas et évolution doit respecter le contrat de kafka et traitement en temps réel, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Schémas et évolution doit être relié au besoin métier et à un contrôle vérifiable. Pour « ingérer des événements d'activité et mettre à jour des indicateurs quasi temps réel », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "node_id": "data-dba-role-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier responsabilités du dba au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Responsabilités du DBA doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Responsabilités du DBA doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier architecture mémoire et stockage au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Architecture mémoire et stockage doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Architecture mémoire et stockage doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier connexions et pools au niveau débutant ?",
+      "choices": [
+        "Connexions et pools doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Connexions et pools doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier comptes et rôles au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Comptes et rôles doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Comptes et rôles doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier maintenance et statistiques au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Maintenance et statistiques doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Maintenance et statistiques doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier observabilité opérationnelle au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Observabilité opérationnelle doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Observabilité opérationnelle doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier sauvegarde et reprise au niveau débutant ?",
+      "choices": [
+        "Sauvegarde et reprise doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Sauvegarde et reprise doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Rôle du DBA et architecture SGBD », quelle pratique convient pour vérifier gestion du changement au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Gestion du changement doit respecter le contrat de rôle du dba et architecture sgbd, avec résultat observable et test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Gestion du changement doit être relié au besoin métier et à un contrôle vérifiable. Pour « un service de formation dont le volume augmente et dont les sauvegardes doivent être démontrées », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

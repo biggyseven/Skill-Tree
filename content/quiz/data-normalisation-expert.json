@@ -1,0 +1,102 @@
+{
+  "node_id": "data-normalisation-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier bcnf et clés candidates au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "BCNF et clés candidates doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "BCNF et clés candidates doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier décomposition sans perte au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Décomposition sans perte doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Décomposition sans perte doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier préservation des dépendances au niveau expert ?",
+      "choices": [
+        "Préservation des dépendances doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Préservation des dépendances doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier anomalies de modification au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Anomalies de modification doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Anomalies de modification doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier dénormalisation intentionnelle au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Dénormalisation intentionnelle doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Dénormalisation intentionnelle doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier tests de propriétés au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Tests de propriétés doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Tests de propriétés doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier dépendance fonctionnelle au niveau expert ?",
+      "choices": [
+        "Dépendance fonctionnelle doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Dépendance fonctionnelle doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Normalisation (1NF, 2NF, 3NF) », quelle pratique convient pour vérifier première forme normale au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Première forme normale doit respecter le contrat de normalisation (1nf, 2nf, 3nf), avec résultat observable et test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Première forme normale doit être relié au besoin métier et à un contrôle vérifiable. Pour « un schéma de commandes répétant clients, adresses, produits et tarifs », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

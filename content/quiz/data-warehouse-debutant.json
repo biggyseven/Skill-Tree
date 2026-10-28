@@ -1,0 +1,102 @@
+{
+  "node_id": "data-warehouse-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier etl et elt au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "ETL et ELT doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "ETL et ELT doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier zone de staging au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Zone de staging doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Zone de staging doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier modèle en étoile au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Modèle en étoile doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Modèle en étoile doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier dimensions à évolution lente au niveau débutant ?",
+      "choices": [
+        "Dimensions à évolution lente doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Dimensions à évolution lente doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier chargements incrémentaux au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Chargements incrémentaux doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Chargements incrémentaux doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier qualité analytique au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Qualité analytique doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Qualité analytique doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier orchestration au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Orchestration doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Orchestration doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Entrepôt de données et ETL », quelle pratique convient pour vérifier catalogue et lignage au niveau débutant ?",
+      "choices": [
+        "Catalogue et lignage doit respecter le contrat de entrepôt de données et etl, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Catalogue et lignage doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport quotidien construit depuis plusieurs systèmes opérationnels », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

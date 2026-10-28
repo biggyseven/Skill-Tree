@@ -1,0 +1,102 @@
+{
+  "node_id": "data-nosql-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier modèle documentaire au niveau débutant ?",
+      "choices": [
+        "Modèle documentaire doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Modèle documentaire doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier identifiants et schémas au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Identifiants et schémas doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Identifiants et schémas doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier index mongodb au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Index MongoDB doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Index MongoDB doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier clés et valeurs redis au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Clés et valeurs Redis doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Clés et valeurs Redis doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier ttl et expiration au niveau débutant ?",
+      "choices": [
+        "TTL et expiration doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "TTL et expiration doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier invalidation de cache au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Invalidation de cache doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Invalidation de cache doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier cohérence et durabilité au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Cohérence et durabilité doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Cohérence et durabilité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier transactions et atomicité au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Transactions et atomicité doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Transactions et atomicité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

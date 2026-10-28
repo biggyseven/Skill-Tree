@@ -1,0 +1,102 @@
+{
+  "node_id": "data-ingestion-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier idempotence des lots au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Idempotence des lots doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Idempotence des lots doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier cdc et changements au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "CDC et changements doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "CDC et changements doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier déduplication au niveau intermédiaire ?",
+      "choices": [
+        "Déduplication doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Déduplication doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier évolution du schéma au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Évolution du schéma doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Évolution du schéma doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier retry et quarantaine au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Retry et quarantaine doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Retry et quarantaine doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier orchestration et dépendances au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Orchestration et dépendances doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Orchestration et dépendances doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier back-pressure et débit au niveau intermédiaire ?",
+      "choices": [
+        "Back-pressure et débit doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Back-pressure et débit doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Pipelines de données complexes », quelle pratique convient pour vérifier observabilité de bout en bout au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Observabilité de bout en bout doit respecter le contrat de pipelines de données complexes, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Observabilité de bout en bout doit être relié au besoin métier et à un contrôle vérifiable. Pour « charger exports et événements de plusieurs systèmes dans un entrepôt analytique », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-2-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler cardinalité des jointures au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée.",
+        "Cardinalité des jointures doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Cardinalité des jointures doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler group by au niveau expert ?",
+      "choices": [
+        "GROUP BY doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 0,
+      "explanation": "GROUP BY doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler having et where au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "HAVING et WHERE doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 1,
+      "explanation": "HAVING et WHERE doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler count et null au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "COUNT et NULL doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 2,
+      "explanation": "COUNT et NULL doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler agrégation conditionnelle au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée.",
+        "Agrégation conditionnelle doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Agrégation conditionnelle doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler sous-requêtes et cte au niveau expert ?",
+      "choices": [
+        "Sous-requêtes et CTE doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 0,
+      "explanation": "Sous-requêtes et CTE doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler fonctions de fenêtre au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Fonctions de fenêtre doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 1,
+      "explanation": "Fonctions de fenêtre doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Jointures et agrégations SQL », quelle pratique convient pour contrôler performance et exactitude au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Performance et exactitude doit respecter le contrat de jointures et agrégations sql, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 2,
+      "explanation": "Performance et exactitude doit être relié au besoin métier et à un contrôle vérifiable. Dans « un reporting croisant inscriptions, cours, évaluations, paiements et périodes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

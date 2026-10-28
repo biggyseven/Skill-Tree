@@ -1,0 +1,102 @@
+{
+  "node_id": "data-datalake-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier parquet et formats colonnaires au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Parquet et formats colonnaires doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Parquet et formats colonnaires doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier catalogue et métadonnées au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Catalogue et métadonnées doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Catalogue et métadonnées doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier évolution du schéma au niveau intermédiaire ?",
+      "choices": [
+        "Évolution du schéma doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Évolution du schéma doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier formats de tables au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Formats de tables doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Formats de tables doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier partition pruning au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Partition pruning doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Partition pruning doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier compaction et petits fichiers au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Compaction et petits fichiers doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Compaction et petits fichiers doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier gouvernance de la zone brute au niveau intermédiaire ?",
+      "choices": [
+        "Gouvernance de la zone brute doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Gouvernance de la zone brute doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier contrôle de qualité au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Contrôle de qualité doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Contrôle de qualité doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "node_id": "data-modelisation-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler clés candidates au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Clés candidates doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 2,
+      "explanation": "Clés candidates doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler cardinalités au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée.",
+        "Cardinalités doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Cardinalités doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler entités associatives au niveau expert ?",
+      "choices": [
+        "Entités associatives doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 0,
+      "explanation": "Entités associatives doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler mcd et mld au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "MCD et MLD doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 1,
+      "explanation": "MCD et MLD doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler contraintes d'intégrité au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Contraintes d'intégrité doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 2,
+      "explanation": "Contraintes d'intégrité doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler dictionnaire de données au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée.",
+        "Dictionnaire de données doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Dictionnaire de données doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler évolution du modèle au niveau expert ?",
+      "choices": [
+        "Évolution du modèle doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 0,
+      "explanation": "Évolution du modèle doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Modélisation et diagrammes (MCD/MLD) », quelle pratique convient pour contrôler validation par scénarios au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Validation par scénarios doit respecter le contrat de modélisation et diagrammes (mcd/mld), avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 1,
+      "explanation": "Validation par scénarios doit être relié au besoin métier et à un contrôle vérifiable. Dans « une plateforme pédagogique avec apprenants, cours, parcours, inscriptions et évaluations », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}
