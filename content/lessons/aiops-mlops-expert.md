@@ -570,6 +570,444 @@ Le retour à l'ancien modèle fonctionne, mais le nouveau pipeline lui envoie de
 
 **Correction :** restaurer un ensemble cohérent modèle-plus-transformations ou une version compatible du schéma. Le rollback doit être testé sur le contrat complet et non seulement sur le fichier du modèle.
 
+## Atelier approfondi — industrialiser un cycle MLOps expert
+
+Cet atelier relie les concepts de la leçon dans une chaîne de production vérifiable. L'objectif n'est pas de construire un pipeline spectaculaire qui entraîne un modèle à chaque commit, mais un système capable d'expliquer chaque décision, de rejeter un candidat dangereux, de déployer progressivement et de revenir à une version connue. Dans un environnement AIOps, le résultat du modèle influence souvent la priorité donnée à un incident, la capacité d'une équipe à détecter une anomalie et la confiance des opérateurs. La qualité du processus est donc aussi importante que la qualité statistique du modèle.
+
+### 1. Définir l'unité de livraison : un modèle n'est pas un fichier isolé
+
+Un artefact de modèle ne suffit pas pour décrire ce qui tourne en production. Son comportement dépend des transformations, de l'ordre et des unités des caractéristiques, des valeurs par défaut, des seuils de décision, des bibliothèques, du code d'inférence et parfois d'un dictionnaire d'équipements ou d'un référentiel de services. Il faut livrer un ensemble cohérent, désigné ici comme une version du modèle opérationnel.
+
+Ce paquet logique contient au minimum un identifiant immuable, la version du modèle, la révision du code, l'identifiant du jeu de données ou de son snapshot, la version du schéma, le fichier de paramètres, les transformations de caractéristiques, l'environnement d'exécution, les métriques de validation, les limites connues, le propriétaire et la date de création. Les données elles-mêmes peuvent être conservées dans un stockage séparé, selon les règles de confidentialité, mais l'identifiant et l'empreinte du snapshot doivent rester auditables.
+
+```mermaid
+flowchart TD
+  A[Code source versionné] --> B[Pipeline de données]
+  D[Snapshot des données] --> B
+  E[Configuration versionnée] --> C[Entraînement]
+  B --> C
+  C --> F[Artefact du modèle]
+  F --> G[Évaluation et rapport]
+  G --> H{Gates acceptées ?}
+  H -- non --> I[Rejet avec motif]
+  H -- oui --> J[Registre immuable]
+  J --> K[Paquet de déploiement]
+  K --> L[Service et transformations compatibles]
+```
+
+Il faut pouvoir répondre à une question d'audit sans reconstruire l'histoire à partir des journaux dispersés : « quelle combinaison exacte de données, de code, de paramètres et de transformations a produit cette prédiction ? ». Cette réponse doit être obtenue à partir de métadonnées fiables, pas d'une convention de nommage telle que latest, best ou final. Ces noms sont mouvants et ne doivent jamais être la seule référence d'un déploiement.
+
+### 2. Concevoir les contrats de données avant le modèle
+
+Un contrat formalise ce que le pipeline accepte et ce que le service produit. Il doit couvrir les noms des champs, les types, les unités, les plages plausibles, la politique des valeurs manquantes, la granularité temporelle, la fraîcheur, la cardinalité attendue et le traitement des catégories inconnues. Pour une télémétrie réseau, une valeur de latence de 25 millisecondes n'est pas interchangeable avec 25 secondes. Un changement d'unité peut laisser l'API techniquement fonctionnelle tout en rendant les scores absurdes.
+
+Le contrat d'entrée n'est pas simplement un schéma JSON. Il précise la signification des champs et leurs relations. Par exemple, un taux de retransmission doit avoir un dénominateur défini, une fenêtre de calcul explicite et un comportement documenté lorsque le nombre de paquets observés est nul. Le contrat de sortie définit également la sémantique du score : probabilité calibrée ou score relatif, seuil de décision, version du modèle et raison éventuelle d'une abstention.
+
+```mermaid
+flowchart LR
+  A[Événement brut] --> B{Schéma valide ?}
+  B -- non --> C[Quarantaine et compteur]
+  B -- oui --> D{Unité et plage valides ?}
+  D -- non --> E[Rejet métier explicable]
+  D -- oui --> F{Fraîcheur acceptable ?}
+  F -- non --> G[Mode dégradé ou abstention]
+  F -- oui --> H[Caractéristiques validées]
+  H --> I[Prédiction avec version]
+```
+
+Séparez la validation structurelle de la validation sémantique. La première vérifie les colonnes, les types et les champs requis. La seconde vérifie les invariants : absence d'horodatage futur, ordre temporel cohérent, unités autorisées, identifiants non vides, valeurs compatibles avec le domaine et règles de calcul stables. Les deux niveaux doivent être exécutés dans le pipeline d'entraînement et à la frontière du service, avec des stratégies adaptées au coût de la vérification.
+
+Toute évolution du contrat est une décision de compatibilité. Une colonne ajoutée avec une valeur par défaut peut être rétrocompatible ; renommer une caractéristique, changer son unité ou modifier son calcul ne l'est généralement pas. Versionnez le contrat, définissez une période de migration et testez les producteurs ainsi que les consommateurs. Ne corrigez jamais silencieusement des données ambiguës en leur attribuant une valeur plausible.
+
+### 3. Assurer une reproductibilité utile, pas seulement théorique
+
+La reproductibilité signifie que l'équipe peut expliquer et, dans la mesure permise par les outils et le matériel, reproduire le résultat. Certains entraînements distribués ou calculs accélérés ne sont pas strictement déterministes. Ce fait n'excuse pas l'absence de traçabilité : il faut enregistrer les graines aléatoires, les versions de bibliothèques, les paramètres, le matériel pertinent, la stratégie de parallélisme, l'ordre des données lorsqu'il influence le résultat et les métriques obtenues.
+
+Un run doit disposer d'un identifiant stable et d'un statut terminal explicite : réussi, rejeté, interrompu ou échoué. Un fichier de métriques produit juste avant un crash ne doit pas être présenté comme un entraînement validé. Le pipeline doit enregistrer séparément le statut de l'entraînement, celui des évaluations et celui de la publication de l'artefact.
+
+```mermaid
+sequenceDiagram
+  participant O as Orchestrateur
+  participant D as Données versionnées
+  participant T as Job d'entraînement
+  participant E as Évaluateur
+  participant R as Registre
+  O->>D: Demander le snapshot identifié
+  D-->>O: Identifiant et empreinte
+  O->>T: Code, paramètres, environnement
+  T->>T: Entraîner et écrire les journaux
+  T-->>O: Statut du run et artefact
+  O->>E: Comparer au baseline
+  E-->>O: Rapport signé ou motif de rejet
+  alt Tous les contrôles passent
+    O->>R: Publier une version immuable
+  else Au moins un contrôle échoue
+    O->>O: Conserver le rapport et arrêter la promotion
+  end
+```
+
+Il faut aussi séparer l'identité d'un run de celle d'un modèle. Deux entraînements peuvent produire des modèles différents à partir du même code et du même dataset, par exemple à cause d'une graine ou d'un changement d'environnement. Inversement, deux artefacts peuvent être identiques tout en provenant de runs distincts. Une empreinte cryptographique aide à comparer les contenus, mais ne remplace pas le registre de provenance.
+
+Les données personnelles et les secrets ne doivent pas être copiés dans les journaux d'entraînement pour améliorer artificiellement la reproductibilité. Conservez les métadonnées minimales nécessaires, les identifiants d'accès contrôlés et les liens vers les sources autorisées. La durée de rétention doit être cohérente avec les obligations métier, les politiques de sécurité et les coûts de stockage.
+
+### 4. Éviter les fuites temporelles et l'optimisme de validation
+
+Dans les systèmes opérationnels, l'ordre temporel est souvent le premier piège. Une caractéristique calculée à partir d'événements futurs peut donner d'excellentes performances hors ligne et s'avérer impossible à calculer au moment réel de la prédiction. Il faut documenter, pour chaque variable, l'instant où sa valeur devient effectivement disponible. L'heure de l'incident, l'heure de réception et l'heure de disponibilité dans le pipeline peuvent être différentes.
+
+Une séparation aléatoire des données n'est pas toujours valide. Si les exemples proches sont fortement corrélés, ou si le même équipement se retrouve dans l'entraînement et la validation, la performance peut mesurer la capacité à mémoriser un contexte plutôt qu'à généraliser. Pour un modèle visant des équipements nouveaux ou une période future, utilisez une séparation par temps, par site, par famille d'équipement ou une combinaison correspondant à l'usage prévu.
+
+```mermaid
+flowchart TD
+  A[Historique brut] --> B[Définir l'instant de prédiction]
+  B --> C[Construire seulement les variables disponibles à cet instant]
+  C --> D[Ensemble d'entraînement antérieur]
+  C --> E[Validation temporelle]
+  C --> F[Test final postérieur]
+  D --> G[Choix du modèle]
+  E --> G
+  G --> H[Une seule évaluation finale]
+  F --> H
+  H --> I[Rapport avec limites de généralisation]
+```
+
+Le jeu de test final ne doit pas servir à choisir continuellement les paramètres. Si une équipe regarde le test à chaque itération et ajuste sa stratégie en fonction de ses résultats, le test devient indirectement une partie de l'entraînement. Gardez une période de test réellement réservée, documentez chaque changement de protocole et préférez une validation croisée temporelle lorsque le volume disponible le justifie.
+
+Le rapport doit distinguer les performances agrégées des résultats par segment. Un modèle peut afficher une bonne précision globale tout en ratant les incidents rares d'un type d'équipement. Pour l'AIOps, analysez au minimum les faux négatifs coûteux, les faux positifs qui épuisent les équipes, le délai de détection et l'effet sur le volume d'alertes. Choisissez les métriques à partir de l'usage réel, non parce qu'elles sont simples à calculer.
+
+### 5. Construire une CI adaptée aux systèmes ML
+
+Une CI ML ne se limite pas à vérifier que le code Python compile. Elle doit tester les contrats, les transformations, le comportement du modèle, la compatibilité avec le service, la sécurité des dépendances et les conditions de promotion. Il n'est pas nécessaire de lancer un entraînement complet à chaque modification documentaire ou à chaque changement sans effet sur le modèle. Séparez les contrôles rapides des validations coûteuses, sans permettre à un raccourci de contourner la dernière barrière avant production.
+
+Une stratégie pratique comprend quatre catégories. Les tests unitaires vérifient les fonctions de transformation et les cas limites. Les tests de données rejettent les schémas ou distributions impossibles. Les tests de modèle comparent le candidat à une baseline sur une suite figée et versionnée. Les tests de service vérifient que l'artefact réellement empaqueté se charge, respecte le contrat et produit des réponses compatibles avec le consommateur.
+
+```mermaid
+flowchart TD
+  A[Pull request] --> B[Lint et tests unitaires]
+  B --> C[Validation de schéma]
+  C --> D[Tests de transformations]
+  D --> E[Test d'inférence et de contrat]
+  E --> F[Scan dépendances et secrets]
+  F --> G[Évaluation déterminée sur dataset de référence]
+  G --> H{Seuils et régressions acceptables ?}
+  H -- non --> I[Échec avec rapport exploitable]
+  H -- oui --> J[Artefact candidat signé]
+  J --> K[Validation en environnement isolé]
+  K --> L[Approbation de promotion]
+```
+
+Le dataset de référence utilisé dans les tests doit lui-même être versionné et contrôlé. Il peut être petit pour les tests rapides, à condition de représenter les cas significatifs : entrée minimale, valeurs manquantes, catégories inconnues, plages limites, événements hors ordre et exemples qui doivent déclencher une abstention. Les jeux de référence ne doivent pas contenir de données sensibles sans justification et contrôle d'accès.
+
+Les seuils de qualité doivent être définis avant de voir les résultats du candidat. Établissez les métriques obligatoires, la tolérance de régression, les segments critiques et les cas de rejet dur. Il est raisonnable d'avoir une zone de validation manuelle lorsque l'incertitude est élevée, mais cette zone ne doit pas devenir une approbation automatique par fatigue. Chaque exception doit enregistrer un responsable, une justification, une expiration et une mesure de réduction du risque.
+
+### 6. Gérer le registre et la promotion comme une machine à états
+
+Le registre est un dossier de décisions, pas un simple répertoire de fichiers. Une version peut passer par les états entraînée, évaluée, candidate, approuvée, déployée, retirée ou rejetée. Les transitions doivent être explicites et vérifier les conditions requises. Un modèle rejeté ne doit pas être promu par un appel qui change uniquement son étiquette ; une approbation humaine ne doit pas réécrire l'artefact après validation.
+
+```mermaid
+stateDiagram-v2
+  [*] --> Entrainee
+  Entrainee --> Evalue: rapport généré
+  Evalue --> Rejete: gate échouée
+  Evalue --> Candidate: contrôles passés
+  Candidate --> Approuve: revue et politique
+  Candidate --> Rejete: risque identifié
+  Approuve --> Canari: déploiement progressif
+  Canari --> Production: seuils respectés
+  Canari --> RetourArriere: seuil dépassé
+  Production --> Retire: remplacement validé
+  Production --> RetourArriere: incident confirmé
+  RetourArriere --> Approuve: version connue restaurée
+  Rejete --> [*]
+  Retire --> [*]
+```
+
+Conservez l'auteur de la transition, l'horodatage, le rapport évalué, le motif et l'identifiant du système cible. Les permissions d'entraînement ne devraient pas permettre automatiquement de publier en production. Une même identité technique ne devrait pas pouvoir créer un candidat arbitraire, ignorer les contrôles et valider son propre déploiement sans séparation des responsabilités lorsque le niveau de risque le justifie.
+
+Les noms lisibles comme « stable » ou « production » peuvent servir d'alias, mais ils doivent pointer vers un identifiant immuable et leur résolution doit être journalisée. Lorsque le déploiement est déclenché, capturez l'identifiant exact résolu et comparez-le ensuite à l'état effectif du service. Sans cette vérification, l'équipe risque de croire qu'elle a promu une version alors qu'un processus concurrent a remplacé la référence.
+
+### 7. Choisir les stratégies de déploiement et leur niveau de preuve
+
+Le mode fantôme, ou shadow, permet de soumettre les mêmes événements au modèle candidat sans utiliser son résultat pour agir. Il mesure la latence, la disponibilité et les divergences sur du trafic réel, tout en limitant l'impact sur les utilisateurs. Il ne prouve toutefois pas à lui seul que la qualité du modèle est bonne : les labels peuvent arriver plus tard et certaines erreurs ne deviennent visibles qu'après intervention terrain.
+
+Un canari dirige une petite fraction du trafic vers le candidat. Fixez à l'avance la durée minimale, la population exposée, les signaux d'arrêt et la procédure de retour. Si le volume d'événements est faible, un canari trop court peut donner une fausse assurance. Il est aussi essentiel de vérifier que les groupes comparés sont semblables et que le routage n'expose pas seulement des équipements faciles ou uniquement une région particulière.
+
+```mermaid
+flowchart LR
+  A[Trafic réel] --> B[Version stable]
+  A --> C[Version candidate en shadow]
+  B --> D[Métriques de référence]
+  C --> E[Métriques candidat]
+  D --> F[Comparer sans changer la décision]
+  E --> F
+  F --> G{Écart et risque acceptables ?}
+  G -- non --> H[Arrêter le candidat]
+  G -- oui --> I[Canari limité]
+  I --> J{SLO et garde-fous respectés ?}
+  J -- oui --> K[Augmenter graduellement]
+  J -- non --> H
+  K --> L[Promotion ou arrêt explicite]
+```
+
+Le test A/B compare l'effet de variantes sur une mesure définie, mais il doit éviter les contaminations entre groupes. Il convient rarement de tester naïvement un modèle qui influence la charge ou les incidents de toute une infrastructure : la réponse à une alerte dans un groupe peut affecter les observations de l'autre. Dans ce cas, un déploiement progressif contrôlé, un test sur des segments isolés ou une validation en mode fantôme peuvent être plus appropriés.
+
+Le pourcentage de trafic n'est pas une mesure de risque suffisante. Dix pour cent de requêtes peut représenter presque tous les événements rares ou critiques. Découpez aussi selon le service, la criticité, la région ou la famille d'équipements, et vérifiez que chaque segment respecte ses garde-fous. Un déploiement reste une décision opérationnelle : les limites statistiques, le plan de communication et les responsables d'arrêt doivent être clairs avant la première requête.
+
+### 8. Définir des signaux de santé qui distinguent service et modèle
+
+La santé du service décrit le fait que le système répond correctement : taux d'erreurs, latence, saturation, disponibilité, taille des files et fraîcheur des entrées. La santé du modèle décrit la pertinence des résultats : qualité sur les labels disponibles, calibration, dérive des caractéristiques, distribution des scores et performance par segment. Ces dimensions sont corrélées mais non interchangeables. Un modèle peut répondre en 20 millisecondes tout en se trompant systématiquement à cause d'une nouvelle unité de mesure.
+
+Définissez des SLI observables, des objectifs SLO et des seuils opérationnels. Un SLI pourrait mesurer le pourcentage de prédictions valides respectant une latence donnée, sur une fenêtre et une population clairement définies. Un SLO est la cible sur la période, par exemple le taux de réponses conformes au contrat. Un budget d'erreur aide à arbitrer entre vitesse de livraison et stabilité ; il n'est pas une permission de dépasser une limite de sécurité explicite.
+
+```mermaid
+flowchart TD
+  A[Collecte des signaux] --> B[Signaux du service]
+  A --> C[Signaux des données]
+  A --> D[Signaux statistiques]
+  A --> E[Résultats terrain et labels]
+  B --> F[Diagnostic de disponibilité et latence]
+  C --> G[Diagnostic de contrat et fraîcheur]
+  D --> H[Diagnostic de dérive et calibration]
+  E --> I[Évaluation retardée de qualité]
+  F --> J[Décision opérationnelle]
+  G --> J
+  H --> J
+  I --> J
+```
+
+Pour les indicateurs de dérive, documentez la référence utilisée, la fenêtre courante, le volume minimal, la méthode statistique, le seuil et l'action associée. Une alerte ne doit pas être déclenchée par une variation saisonnière attendue sans contexte, ni ignorée parce qu'elle est fréquente. Établissez une période de référence, comparez des segments pertinents et vérifiez la qualité de la télémétrie qui alimente le contrôle de dérive.
+
+Les labels terrain sont souvent tardifs, incomplets ou biaisés par la décision du modèle. Si les équipes n'inspectent que les alertes positives, il manque une partie des résultats négatifs et l'évaluation est biaisée. Prévoyez un échantillonnage de contrôle, une procédure de labellisation, l'enregistrement des interventions humaines et la distinction entre absence de preuve et preuve d'absence d'incident. Le tableau de bord doit afficher ces limites plutôt que présenter une précision prétendument exacte.
+
+### 9. Séparer détection de dérive, diagnostic et réentraînement
+
+La dérive des données signifie que les entrées ont changé ; elle ne prouve pas automatiquement que le modèle est devenu mauvais. Une nouvelle version de collecteur peut modifier les champs, une saison peut modifier la consommation ou un changement de topologie peut changer la distribution légitimement. La dérive de concept concerne la relation entre les caractéristiques et la cible. Dans beaucoup de systèmes opérationnels, ces deux phénomènes ne se détectent pas avec les mêmes signaux.
+
+Un pipeline de réentraînement déclenché uniquement par un seuil de dérive peut amplifier le problème. Si le collecteur est cassé, réentraîner sur des données incorrectes donne un nouveau modèle adapté au défaut. Si les labels sont incomplets, le modèle peut apprendre les biais du processus d'incident. Le réentraînement doit être proposé par un déclencheur explicable, puis conditionné à la validation des données, à la disponibilité des labels et à une comparaison avec la version en place.
+
+```mermaid
+flowchart TD
+  A[Signal de dérive] --> B[Valider la télémétrie]
+  B --> C{Contrat violé ?}
+  C -- oui --> D[Corriger collecte ou transformation]
+  C -- non --> E[Analyser saisonnalité et segments]
+  E --> F[Vérifier labels et impact métier]
+  F --> G{Dégradation démontrée ?}
+  G -- non --> H[Surveiller et documenter]
+  G -- oui --> I[Créer un candidat d'entraînement]
+  I --> J[Évaluation temporelle et par segment]
+  J --> K{Candidat supérieur et sûr ?}
+  K -- non --> L[Rejeter le candidat]
+  K -- oui --> M[Promotion progressive]
+```
+
+Définissez une politique qui sépare l'observation, l'investigation, la création de candidat et la promotion. Une hausse du taux de valeurs manquantes peut déclencher une investigation immédiatement ; elle ne doit pas nécessairement lancer l'entraînement. Une dégradation confirmée par des labels peut déclencher un candidat ; elle ne doit pas contourner les contrôles de qualité ou l'approbation nécessaire. Le réentraînement n'est pas une guérison automatique, c'est une nouvelle modification du système qui doit être évaluée.
+
+Conservez un historique des décisions, même lorsque le résultat est « aucune action ». Cet historique permet de mesurer combien d'alertes de dérive étaient utiles, combien étaient des effets saisonniers et combien de fois une collecte défectueuse a été détectée. Il rend aussi les seuils révisables à partir d'un retour d'expérience plutôt que selon des impressions.
+
+### 10. Tester le rollback complet et les modes dégradés
+
+Un rollback fiable restaure un état compatible, pas uniquement les poids du modèle. L'ancienne version peut avoir besoin d'une ancienne transformation, d'un autre schéma de caractéristiques ou d'une bibliothèque qui n'est plus installée. La configuration des seuils, le code d'inférence, le contrat de sortie et les règles de routage font partie du périmètre de retour arrière. Il faut garder disponibles les artefacts que la politique de rétention autorise à réactiver.
+
+Le test du rollback doit être pratiqué avant incident, puis vérifié lors d'un exercice périodique. Mesurez le temps entre la décision d'arrêt et le retour à un état stable, vérifiez l'identifiant de version effectivement utilisé et contrôlez le résultat avec une requête représentative. Il faut également vérifier le chemin de retour si le registre ou le service de déploiement est temporairement indisponible.
+
+```mermaid
+sequenceDiagram
+  participant M as Monitoring
+  participant O as Opérateur
+  participant C as Contrôleur de déploiement
+  participant R as Registre
+  participant S as Service
+  M-->>O: SLO ou garde-fou dépassé
+  O->>C: Arrêter la promotion
+  C->>R: Résoudre la dernière version validée
+  R-->>C: Identifiant immuable et artefacts
+  C->>S: Restaurer modèle et transformations compatibles
+  S-->>C: Santé et version active
+  C-->>O: Confirmation ou échec du rollback
+  O->>M: Vérifier les signaux post-retour
+```
+
+Prévoyez un mode dégradé utile. Si le modèle de scoring ne fonctionne plus, l'application peut conserver les règles déterministes, afficher explicitement l'absence de score ML et transmettre la décision à un opérateur. Remplacer une panne par un score nul ou une valeur par défaut sans signalement est dangereux : cela transforme une indisponibilité visible en résultat apparemment légitime. La stratégie de dégradation doit être compatible avec l'objectif métier et documentée dans les procédures d'exploitation.
+
+Après un rollback, ne supprimez pas les traces du candidat. Préservez les métriques, le manifeste, les paramètres de routage et l'heure de transition afin de faciliter l'analyse de cause. L'incident doit permettre de distinguer un défaut de modèle, une incompatibilité de schéma, une régression de dépendance, une saturation d'infrastructure et un défaut de déploiement. Chaque cause conduit à un correctif différent.
+
+### 11. Sécuriser la chaîne d'approvisionnement du modèle
+
+Le modèle et son pipeline constituent une surface d'attaque. Un fichier de modèle sérialisé peut déclencher un comportement inattendu lors du chargement selon son format ; une dépendance compromise peut modifier les prédictions ou exfiltrer des données ; une identité de CI trop puissante peut publier un artefact qui n'a jamais été évalué. La sécurité ne doit donc pas être ajoutée uniquement au service en production : elle traverse les données, les environnements de build, le registre et les permissions de promotion.
+
+Utilisez des dépendances verrouillées, des sources de paquets approuvées, des images d'exécution identifiées par digest, des secrets à courte durée de vie et des droits minimaux. Évitez de passer des jetons permanents aux jobs qui exécutent du code fourni par une pull request non fiable. Les permissions de lecture des données d'entraînement et d'écriture en production doivent être séparées. Les artefacts et manifestes importants doivent pouvoir être vérifiés par empreinte ou signature lorsque l'infrastructure le permet.
+
+```mermaid
+flowchart TD
+  A[Code et dépendances] --> B[Build isolé]
+  C[Données autorisées] --> D[Entraînement isolé]
+  B --> E[Contrôles de sécurité]
+  D --> E
+  E --> F[Manifeste et empreinte]
+  F --> G[Signature ou attestation]
+  G --> H[Registre à accès contrôlé]
+  H --> I[Déploiement avec identité limitée]
+  I --> J[Vérification à l'exécution]
+  J --> K[Journal d'audit]
+```
+
+Les données de production doivent être minimisées. Les identifiants clients, adresses, secrets de configuration et données d'authentification ne devraient pas être envoyés au modèle ou inclus dans les journaux par défaut. Un identifiant pseudonymisé peut rester sensible si la ré-identification est possible. Définissez les champs autorisés, le masquage, la durée de conservation, les accès aux jeux de données et les conditions de suppression.
+
+Un artefact signé prouve au mieux que le contenu correspond à une identité de signature et à un processus donné ; il ne prouve pas que le modèle est correct, sûr ou équitable. La signature doit être accompagnée des contrôles de contenu, des résultats d'évaluation et de la provenance. Le contrôle technique complète la gouvernance, il ne la remplace pas.
+
+### 12. Concevoir la capacité, la latence et le coût d'inférence
+
+La qualité d'un modèle en laboratoire ne suffit pas si son coût ou sa latence empêche l'usage prévu. Définissez un budget par prédiction, la charge moyenne et de pointe, le taux d'événements par équipement, les attentes de disponibilité et les pics lors d'incidents. Une panne réseau peut créer davantage de télémétrie précisément au moment où le modèle est le plus sollicité. Un benchmark effectué seulement sur une charge stable sous-estime donc le risque.
+
+Mesurez la latence par percentiles plutôt que par la moyenne seule. Une moyenne de 40 ms peut masquer un p99 de plusieurs secondes. Séparez le temps de file, la préparation des caractéristiques, le chargement ou l'exécution du modèle, les appels externes et la sérialisation. Surveillez le débit utile et le taux d'échec, car un service rapide qui rejette une partie des requêtes ne satisfait pas le contrat.
+
+```mermaid
+flowchart LR
+  A[Arrivée des événements] --> B[File]
+  B --> C[Transformations]
+  C --> D[Inférence]
+  D --> E[Post-traitement]
+  E --> F[Réponse]
+  B -. mesure .-> G[Latence par étape]
+  C -. mesure .-> G
+  D -. mesure .-> G
+  E -. mesure .-> G
+  G --> H[Coût, p50, p95, p99 et erreurs]
+```
+
+Évaluez l'effet du batch, du cache et de la mise en mémoire du modèle sur la latence, mais vérifiez que ces choix n'altèrent pas la sémantique. Le batch peut augmenter le débit mais retarder une prédiction urgente ; le cache peut réduire le coût mais rendre un résultat obsolète ; le partage d'un modèle chargé réduit le temps d'initialisation mais demande de bien gérer la concurrence. Chaque optimisation doit être accompagnée d'un test de charge et d'un test de correction.
+
+Le coût doit être observé par unité utile : coût par mille prédictions conformes, coût par alerte pertinente ou coût par service couvert, selon le but du système. Cela évite de favoriser un système peu coûteux mais inutilisable. Définissez un comportement de surcharge : priorité aux événements critiques, limitation de débit, file bornée, abandon explicite d'événements trop anciens ou bascule vers une règle simple. Un mode de saturation non documenté peut créer une dégradation silencieuse.
+
+### 13. Gérer les dépendances entre services et les effets de bord
+
+Une chaîne ML dépend souvent d'un collecteur, d'un stockage, d'un orchestrateur, d'un registre, d'une API de caractéristiques et d'un système d'identité. Le déploiement doit identifier les dépendances obligatoires et facultatives. Une indisponibilité du stockage historique peut bloquer un entraînement futur, mais ne devrait pas forcément arrêter immédiatement l'inférence si les artefacts et les caractéristiques nécessaires sont déjà présents et valides.
+
+Établissez des délais d'attente, des limites de tentatives, une temporisation exponentielle et un circuit breaker pour les appels distants. Les nouvelles tentatives doivent être sûres : une opération de publication ne doit pas créer plusieurs versions contradictoires si la réponse réseau est perdue après que le serveur a accepté la requête. Utilisez des clés d'idempotence ou vérifiez l'état final avant de recommencer.
+
+```mermaid
+flowchart TD
+  A[Requête d'inférence] --> B{Caractéristiques locales valides ?}
+  B -- oui --> C[Exécuter le modèle chargé]
+  B -- non --> D[Appeler la source distante]
+  D --> E{Réponse avant timeout ?}
+  E -- oui --> F{Contrat respecté ?}
+  F -- oui --> C
+  F -- non --> G[Mode dégradé explicite]
+  E -- non --> H[Circuit breaker]
+  H --> G
+  C --> I[Réponse versionnée]
+  G --> J[Signal d'indisponibilité et journal]
+```
+
+Les messages et files doivent transporter des métadonnées de traçabilité : identifiant de corrélation, horodatage d'émission, version du schéma, source et version du modèle lorsque la prédiction est matérialisée. Ne loguez pas tout le contenu brut si cela expose des secrets ou crée un volume excessif. Les identifiants doivent permettre de relier les étapes sans reconstituer de données sensibles.
+
+Précisez le traitement des événements retardés, dupliqués et désordonnés. Selon l'application, il peut être nécessaire de dédupliquer, de rejeter les événements trop anciens, de recalculer une fenêtre ou de marquer la prédiction comme partielle. Ces règles ne peuvent pas être improvisées au moment d'un incident : elles font partie du contrat métier et doivent être testées.
+
+### 14. Organiser l'observabilité et les réponses aux incidents
+
+Un bon tableau de bord mène à une action ; il ne se limite pas à accumuler des courbes. Organisez la vue autour de questions opérationnelles : le service est-il disponible ? Les entrées sont-elles valides et assez fraîches ? Quel modèle et quel schéma sont actifs ? La qualité se dégrade-t-elle dans un segment ? Une dépendance ralentit-elle le pipeline ? Peut-on revenir à la version précédente sans perdre les événements ?
+
+Les journaux structurés décrivent les décisions et les transitions. Les métriques agrègent les tendances. Les traces relient les étapes d'une requête ou d'un job. Les trois signaux sont complémentaires. Un identifiant de corrélation permet de passer d'une alerte agrégée à quelques événements précis, sans transformer chaque trace en stockage de contenu sensible. Définissez la cardinalité des étiquettes : utiliser chaque identifiant de flux comme label d'une métrique peut faire exploser le coût de stockage.
+
+```mermaid
+flowchart TD
+  A[Alerte de production] --> B[Confirmer la portée]
+  B --> C{Panne technique ?}
+  C -- oui --> D[Restaurer disponibilité ou mode dégradé]
+  C -- non --> E[Évaluer entrées et métriques modèle]
+  E --> F{Données invalides ?}
+  F -- oui --> G[Corriger collecte ou transformation]
+  F -- non --> H{Version candidate liée à la dégradation ?}
+  H -- oui --> I[Arrêt de promotion ou rollback]
+  H -- non --> J[Investiguer changement de contexte]
+  D --> K[Valider les signaux de retour]
+  G --> K
+  I --> K
+  J --> K
+  K --> L[Chronologie, cause et actions préventives]
+```
+
+Une procédure d'incident doit préciser qui peut arrêter la promotion, qui décide du rollback, quelles équipes sont averties et quels seuils autorisent la reprise. Les responsabilités peuvent être partagées entre data science, plateforme, SRE et équipe métier ; le modèle d'astreinte doit éviter que chacun attende la décision des autres. Documentez les points de décision pour que l'opérateur ne doive pas improviser sous pression.
+
+Après l'incident, établissez une chronologie fondée sur les données, séparez les faits des hypothèses, estimez l'impact, documentez les décisions et attribuez les actions correctives. Cherchez les défaillances de conception autant que l'erreur immédiate : absence d'un test d'unité, contrôle trop tardif, alerte ambiguë ou rollback qui restaure seulement le modèle. L'objectif est de réduire la probabilité et l'impact d'un incident similaire, pas de désigner une personne à blâmer.
+
+### 15. Exercices avancés : prouver les propriétés du pipeline
+
+**Exercice A — Incompatibilité de caractéristiques.** Le candidat améliore le rappel en validation, mais le service utilise une ancienne version de la transformation. Décrivez un test qui détecte ce décalage avant promotion.
+
+**Correction attendue :** l'artefact de livraison doit déclarer la version du contrat et de la transformation. La CI charge exactement le paquet de service construit, lui fournit des fixtures versionnées et vérifie les noms, l'ordre logique, les unités, les valeurs par défaut et les résultats attendus. Un changement de contrat rompt la compatibilité explicitement ; l'environnement de validation ne doit pas reconstituer à la main une configuration différente de la production.
+
+**Exercice B — Régression par segment.** Le score global reste stable, mais les faux négatifs triplent sur les équipements d'un fournisseur particulier.
+
+**Correction attendue :** un gate segmenté rejette le candidat ou exige une revue selon la politique définie avant l'expérience. Vérifiez la taille de l'échantillon, le mode de collecte, la représentativité des labels et les intervalles d'incertitude. Évitez de masquer le problème par une moyenne pondérée. Si le segment est trop petit pour une estimation fiable, documentez l'incertitude et définissez un mode conservateur plutôt que de déclarer la qualité acceptable.
+
+**Exercice C — Réentraînement en boucle.** Un seuil de dérive génère un entraînement chaque nuit ; les candidats n'améliorent pas les résultats et le coût explose.
+
+**Correction attendue :** séparez l'alerte de dérive de la promotion, exigez une validation de la télémétrie et des labels, ajoutez une fenêtre de refroidissement et un contrôle de gain minimal par rapport au baseline. Une politique peut regrouper plusieurs signaux dans un dossier d'investigation sans lancer de job coûteux. Chaque run doit avoir une raison, un budget et un statut final. Le pipeline peut conclure qu'aucun réentraînement n'est justifié.
+
+**Exercice D — Rollback incomplet.** L'ancien modèle est restauré mais le nouveau service conserve des paramètres de seuil et de normalisation incompatibles.
+
+**Correction attendue :** versionnez et promouvez un ensemble cohérent comprenant l'artefact, la transformation, le schéma, les seuils et la configuration de service. Le test de retour arrière lance une requête de référence, vérifie l'identifiant effectivement servi et contrôle les métriques de santé après transition. La restauration doit être atomique du point de vue du consommateur, ou maintenir un mode temporaire qui évite l'association de composants incompatibles.
+
+**Exercice E — Artefact altéré.** Le manifeste pointe vers un modèle dont l'empreinte ne correspond plus.
+
+**Correction attendue :** refuser le chargement, signaler l'événement et revenir à un artefact précédemment validé dont l'identité est confirmée. N'ignorez pas l'écart sous prétexte que l'API démarre. Enregistrez la source et la chaîne de publication, restreignez les droits du compte responsable et recherchez une possible altération. Une signature est utile si les clés et les contrôles de confiance sont correctement gérés.
+
+### 16. Atelier pratique — constituer un dossier de release
+
+Créez un répertoire de release qui contient le manifeste, le rapport d'évaluation, les résultats des tests, la version du contrat, les instructions de lancement, les limites connues et la procédure de retour arrière. Le dossier ne doit pas contenir de secret ni de copie inutile des données. Les liens vers des stockages autorisés doivent utiliser des identifiants vérifiables et une politique de rétention explicite.
+
+```mermaid
+flowchart TD
+  A[Manifeste] --> G[Dossier de release]
+  B[Rapport de qualité] --> G
+  C[Résultats de tests] --> G
+  D[SBOM et contrôle sécurité] --> G
+  E[Version du contrat] --> G
+  F[Plan de rollback] --> G
+  G --> H{Relecture indépendante}
+  H -- incomplet --> I[Release bloquée]
+  H -- complet --> J[Signature ou approbation]
+  J --> K[Promotion contrôlée]
+```
+
+Le manifeste doit être lisible par une machine et par une personne. Il peut être en JSON ou YAML, avec une validation de schéma obligatoire. Exemple de structure illustrative :
+
+```yaml
+release_id: risk-score-2026-10-28.3
+model:
+  name: network-risk-classifier
+  version: 4.2.0
+  artifact_digest: sha256:...
+code:
+  commit: 0123456789abcdef
+data:
+  snapshot_id: telemetry-week-2026-40
+  schema_version: telemetry-v3
+features:
+  pipeline_version: features-7
+evaluation:
+  report_id: evaluation-2026-10-28-103
+  baseline_version: 4.1.2
+  promotion_gate: passed
+deployment:
+  strategy: shadow-then-canary
+  rollback_target: 4.1.2
+ownership:
+  team: platform-ai
+```
+
+Cet exemple n'est pas un format universel : adaptez les champs aux systèmes existants et validez le manifeste par un schéma maintenu en version. N'acceptez pas le texte libre « passed » comme seule preuve ; référencez un rapport signé ou un identifiant de run vérifiable. Les valeurs d'exemple doivent être remplacées par des valeurs réelles lors d'une release, sans réutiliser un identifiant déjà attribué à un contenu différent.
+
+### 17. Critères de réussite de l'atelier
+
+L'atelier est réussi lorsque l'équipe peut produire un candidat depuis une révision versionnée, expliquer de quelles données et transformations il dépend, reproduire les évaluations dans un environnement contrôlé et empêcher une promotion lorsque l'un des contrôles obligatoires échoue. Le candidat est ensuite chargé dans le même type de paquet que celui utilisé par le service, soumis à une évaluation de contrat et testé en mode fantôme avant tout élargissement du trafic.
+
+Le registre permet de retrouver le modèle réellement actif, l'origine d'une prédiction et la justification de la décision de promotion. Les métriques distinguent disponibilité, latence, fraîcheur, dérive, qualité et coût. La procédure d'incident définit une action sûre en cas d'indisponibilité de modèle, de données incohérentes ou de dégradation par segment. Enfin, le retour arrière est exercé et confirme la version effective, les transformations et les paramètres restaurés.
+
+Le point essentiel est de traiter la chaîne de modèle comme un système distribué à part entière. L'entraînement n'est qu'une étape ; les contrats, l'identité de l'artefact, les permissions, la compatibilité, les signaux de production et les décisions humaines déterminent si le système reste fiable dans la durée. Un pipeline expert est celui qui refuse une mauvaise livraison de façon explicable autant que celui qui livre un bon candidat rapidement.
+
 ## 18. Défi final, checklist et références
 
 ### Défi
