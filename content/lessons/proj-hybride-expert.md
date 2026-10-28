@@ -22,6 +22,22 @@ Le cas « Moderniser une plateforme bancaire » sert de fil rouge. Il permet de 
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser un outil ou un processus sans résoudre le problème métier.
 
+```mermaid
+flowchart TD
+    A["Besoins, incertitude et contraintes"] --> B["Choisir le cycle de vie par composant"]
+    B --> C["Plan directeur et jalons de gouvernance"]
+    B --> D["Backlog et livraisons incrémentales"]
+    C --> E["Architecture, sécurité et conformité"]
+    D --> E
+    E --> F["Intégration et preuves de qualité"]
+    F --> G["Décisions aux portes de contrôle"]
+    G --> H["Livraison, adoption et bénéfices"]
+    H --> I["Retour d'expérience et adaptation"]
+    I --> B
+```
+
+Une approche hybride combine des éléments prédictifs et adaptatifs de manière intentionnelle. Elle ne consiste pas à juxtaposer un Gantt et un tableau agile : les équipes doivent clarifier quelles décisions sont prises à long terme, quelles parties du produit sont livrées par incréments, comment les dépendances sont gérées et quelles preuves sont exigées avant chaque jalon. La méthode est choisie au niveau pertinent — projet, flux de travail, produit ou composant — en fonction de l’incertitude, du coût de changement et des obligations.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -58,6 +74,20 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », choisir une approche par risque constitue une pratique qui doit répondre à une intention précise. Le choix considère stabilité du besoin, coût d’erreur, incertitude technique, dépendances et besoin d’apprentissage. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Décrire composants, contraintes et résultat"] --> B["Évaluer incertitude et coût du changement"]
+    B --> C["Identifier obligations et dépendances"]
+    C --> D{"Le périmètre est-il stable et vérifiable ?"}
+    D -->|"Majoritairement oui"| E["Planification prédictive possible"]
+    D -->|"Partiellement ou non"| F["Livraisons adaptatives pour les éléments incertains"]
+    E --> G["Définir interfaces entre les approches"]
+    F --> G
+    G --> H["Tester l'adéquation et réviser au fil du projet"]
+```
+
+Le choix du cycle de vie doit se fonder sur le contexte : stabilité des exigences, conséquences d’une erreur, besoins de feedback, dépendances externes, disponibilité des experts et contraintes réglementaires. Une pièce matérielle à long délai peut nécessiter des engagements précoces, alors qu’une interface utilisateur incertaine bénéficie d’incréments testés avec les utilisateurs. Le niveau d’hybridation doit résoudre une vraie contrainte, pas satisfaire une préférence méthodologique.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le matériel suit un délai d’achat prédictif, mais le parcours utilisateur est conçu et validé par incréments. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -73,6 +103,19 @@ H --> I[Retour et amélioration]
 ### 2. Waterfall et prédictif
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », waterfall et prédictif constitue une pratique qui doit répondre à une intention précise. Une approche prédictive planifie des phases et validations lorsque les exigences et dépendances peuvent être spécifiées tôt. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Besoin et exigences"] --> B["Architecture et conception approuvées"]
+    B --> C["Planification des lots et approvisionnements"]
+    C --> D["Réalisation contrôlée"]
+    D --> E["Vérifications et tests"]
+    E --> F["Validation et autorisation"]
+    F --> G["Déploiement et transfert"]
+    G --> H["Suivi des résultats"]
+```
+
+Une approche prédictive est utile lorsque les étapes sont fortement interdépendantes, que le coût des changements tardifs est élevé ou que des autorisations formelles sont nécessaires. Les exigences, les livrables, les dépendances et les critères de passage sont établis avec un niveau de détail proportionné au risque. Cela n’interdit ni les prototypes ni les retours utilisateurs : une conception prédictive peut apprendre avant d’engager des dépenses irréversibles.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -90,6 +133,19 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », agile et adaptatif constitue une pratique qui doit répondre à une intention précise. Une approche adaptative découpe le produit en incréments, recueille du feedback et réordonne le travail selon la valeur. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Objectif produit"] --> B["Backlog ordonné"]
+    B --> C["Sélection d'un incrément"]
+    C --> D["Conception, réalisation et tests continus"]
+    D --> E["Incrément conforme aux critères qualité"]
+    E --> F["Feedback des utilisateurs"]
+    F --> G["Réviser les priorités et les hypothèses"]
+    G --> B
+```
+
+Une approche adaptative convient lorsque la connaissance du besoin progresse grâce aux résultats et aux retours d’usage. Elle garde un cap produit mais permet de préciser le contenu à partir d’éléments observés. Les incréments doivent rester intégrables et vérifiés ; les contraintes de sécurité, d’architecture et d’exploitation sont intégrées au travail plutôt que repoussées à une phase finale séparée.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le formulaire utilisateur est testé sur un prototype avant que l’équipe n’engage les optimisations de détail. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -105,6 +161,20 @@ H --> I[Retour et amélioration]
 ### 4. Architecture et interfaces
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », architecture et interfaces constitue une pratique qui doit répondre à une intention précise. Les contrats d’interface doivent être définis assez tôt pour intégrer des équipes qui travaillent à des cadences différentes. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    A["Plateforme et fondations"] --> B["Contrats d'API stabilisés"]
+    B --> C["Équipe produit A"]
+    B --> D["Équipe produit B"]
+    C --> E["Tests de contrat et intégration"]
+    D --> E
+    E --> F["Version intégrée vérifiable"]
+    G["Principes d'architecture et sécurité"] --> B
+    G --> E
+```
+
+L’hybridation augmente le besoin de coordination autour des interfaces. Les composants peuvent évoluer à des cadences différentes, mais leurs contrats, versions, exigences de sécurité et conditions d’intégration doivent être compris par tous. Une architecture suffisamment claire limite les changements coûteux, tandis que les tests de contrat, environnements partagés et décisions d’architecture révisables permettent à l’innovation locale de rester compatible avec l’ensemble.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -122,6 +192,20 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », portes de gouvernance constitue une pratique qui doit répondre à une intention précise. Les portes formelles vérifient des critères de décision sans imposer que tout le travail soit figé dès le départ. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Préparer un jalon de gouvernance"] --> B["Rassembler livrables et preuves"]
+    B --> C["Vérifier qualité, sécurité, risques et coûts"]
+    C --> D{"Critères de passage satisfaits ?"}
+    D -->|"Oui"| E["Autoriser la prochaine étape"]
+    D -->|"Non mais récupérable"| F["Plan d'action et nouvelle revue"]
+    D -->|"Non et risque inacceptable"| G["Suspendre, redimensionner ou arrêter"]
+    F --> B
+    E --> H["Continuer avec les limites approuvées"]
+```
+
+Une porte de gouvernance est une décision fondée sur des critères et des preuves, pas seulement une réunion de statut. Les critères peuvent exiger une conception approuvée, une preuve de sécurité, des tests réussis, un plan de retour arrière ou une capacité de support. Les équipes agiles peuvent continuer à livrer entre les portes, à condition que le produit ne franchisse pas une limite de risque ou d’autorisation avant que les conditions requises soient satisfaites.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le comité autorise la production lorsque contrôles, preuves et solution de repli sont prêts. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -137,6 +221,20 @@ H --> I[Retour et amélioration]
 ### 6. Planification multi-horizon
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », planification multi-horizon constitue une pratique qui doit répondre à une intention précise. Un plan intégré combine jalons de haut niveau, dépendances longues et plans détaillés à court terme révisables. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Vision, résultats et jalons de haut niveau"] --> B["Plan de version et dépendances majeures"]
+    B --> C["Plan détaillé de la prochaine période"]
+    C --> D["Itération ou lot en cours"]
+    D --> E["Données réelles et feedback"]
+    E --> F["Réviser les hypothèses proches"]
+    F --> C
+    E --> G["Escalader les changements de portée ou de jalon"]
+    G --> A
+```
+
+La planification multi-horizon stabilise les décisions qui nécessitent de la visibilité tout en gardant souple le détail éloigné. Le budget, les contrats et les jalons réglementaires peuvent être établis au niveau programme ; le contenu du prochain incrément est détaillé avec l’équipe ; les travaux lointains restent des prévisions avec une marge d’incertitude. Cette distinction évite à la fois le plan figé et l’absence de prévisibilité.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -154,6 +252,20 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », qualité dans les deux modes constitue une pratique qui doit répondre à une intention précise. La qualité doit être intégrée à l’incrément et démontrée aux portes formelles sans duplication inutile des mêmes contrôles. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Critères de qualité communs"] --> B["Contrôles continus pendant la construction"]
+    B --> C["Tests automatisés et revues"]
+    C --> D["Intégration fréquente des composants"]
+    D --> E["Vérifications formelles au jalon"]
+    E --> F{"Preuves suffisantes ?"}
+    F -->|"Oui"| G["Passage autorisé"]
+    F -->|"Non"| H["Corriger et compléter la preuve"]
+    H --> C
+```
+
+Un modèle hybride ne doit pas créer deux définitions de la qualité, l’une pour les équipes agiles et l’autre pour la gouvernance. La Definition of Done, les critères d’acceptation, les exigences non fonctionnelles et les conditions de passage doivent se renforcer mutuellement. Les tests continus réduisent la découverte tardive des défauts ; les revues formelles confirment que les éléments critiques de risque, de conformité et d’exploitation sont bien couverts.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** La CI valide les tests à chaque changement et la recette réglementaire conserve une preuve formellement approuvée. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -169,6 +281,20 @@ H --> I[Retour et amélioration]
 ### 8. Gestion de configuration
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », gestion de configuration constitue une pratique qui doit répondre à une intention précise. Les versions de livrables, exigences, contrats, environnements et approbations doivent rester cohérentes. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Élément de configuration identifié"] --> B["Version, propriétaire et dépendances"]
+    B --> C["Changement proposé"]
+    C --> D["Analyser impact et compatibilité"]
+    D --> E["Revue et autorisation adaptée au risque"]
+    E --> F["Construire, tester et versionner"]
+    F --> G["Publier les notes et preuves"]
+    G --> H["Déployer de manière contrôlée"]
+    H --> I["Traçabilité et retour arrière"]
+```
+
+Les livrables prédictifs, les composants logiciels, les exigences, les environnements et les configurations opérationnelles doivent partager une stratégie de version claire. La gestion de configuration protège l’intégrité et permet de savoir quelle version a été testée, approuvée et déployée. Les équipes conservent la possibilité d’itérer, mais tout changement d’un composant partagé doit prendre en compte les interfaces, la compatibilité et les preuves de non-régression.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -186,6 +312,21 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », budget et engagement constitue une pratique qui doit répondre à une intention précise. Les contrats et achats lourds sont budgétés en amont, tandis que la construction itérative suit la valeur et les coûts réels. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Financement et contraintes globales"] --> B["Prévoir lots, capacité et achats"]
+    B --> C["Engagements irréversibles et coûts de sortie"]
+    B --> D["Budget d'incréments et hypothèses de valeur"]
+    C --> E["Prévision intégrée du coût total"]
+    D --> E
+    E --> F["Revue régulière des coûts et bénéfices"]
+    F --> G{"L'investissement reste-t-il justifié ?"}
+    G -->|"Oui"| H["Continuer selon l'autorisation"]
+    G -->|"Non"| I["Revoir périmètre, cadence ou financement"]
+```
+
+Le budget hybride doit intégrer les dépenses qui doivent être engagées tôt — par exemple un matériel à long délai ou un contrat fournisseur — et celles qui peuvent être libérées progressivement selon les apprentissages. Il faut séparer un engagement contractuel, une prévision de consommation et une réserve, puis relier les changements de budget à des décisions de gouvernance. La flexibilité n’autorise pas à masquer les coûts ou à ajouter continuellement du périmètre sans arbitrage.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une enveloppe est libérée par phase, puis le Product Owner réordonne le backlog dans le cadre autorisé. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -201,6 +342,20 @@ H --> I[Retour et amélioration]
 ### 10. Gestion des changements
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », gestion des changements constitue une pratique qui doit répondre à une intention précise. La gouvernance distingue les demandes produit des changements qui affectent un contrat ou une certification. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Nouveau besoin ou contrainte"] --> B["Qualifier le changement et son urgence"]
+    B --> C["Analyser valeur, impact, risque et dépendances"]
+    C --> D{"Dans les tolérances et délégations ?"}
+    D -->|"Oui"| E["Ajuster le backlog ou le plan local"]
+    D -->|"Non"| F["Soumettre des options à l'autorité compétente"]
+    F --> G["Décision et références mises à jour"]
+    E --> H["Communiquer et vérifier l'effet"]
+    G --> H
+```
+
+Le modèle hybride distingue les adaptations locales réversibles des changements qui modifient un engagement majeur : budget global, date contractuelle, périmètre réglementaire, architecture critique ou seuil de risque. Les petites évolutions peuvent être ordonnées dans le backlog ou le plan détaillé selon les règles convenues ; les changements qui dépassent les tolérances suivent une procédure d’arbitrage. Dans tous les cas, les impacts croisés doivent être visibles.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -218,6 +373,19 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », coordination des équipes constitue une pratique qui doit répondre à une intention précise. Les cadences doivent être synchronisées sur les dépendances réelles, pas par des réunions permanentes sans décision. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Cadence des équipes agiles"] --> C["Synchronisation des dépendances"]
+    B["Jalons de gouvernance et fournisseurs"] --> C
+    C --> D["Revue des interfaces, risques et décisions ouvertes"]
+    D --> E["Résoudre les conflits de capacité et d'ordre"]
+    E --> F["Mettre à jour le plan intégré"]
+    F --> A
+    F --> B
+```
+
+La coordination doit réunir les cadences nécessaires sans transformer toutes les réunions en cérémonies supplémentaires. Les équipes ont leurs routines de planification et d’inspection ; les responsables de dépendances se synchronisent sur les interfaces, environnements et dates ; la gouvernance reçoit les informations dont elle a besoin aux jalons. Un registre partagé des décisions, des dépendances, des propriétaires et des échéances évite de faire reposer la coordination sur la mémoire individuelle.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une revue d’intégration fréquente rassemble les responsables concernés par les interfaces et les risques. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -233,6 +401,20 @@ H --> I[Retour et amélioration]
 ### 12. Critères de préparation
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », critères de préparation constitue une pratique qui doit répondre à une intention précise. Une équipe n’entre pas dans une phase ou release sans prérequis connus et critères de sortie observables. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Demande d'entrée en réalisation"] --> B["Exigences et but compris"]
+    B --> C["Dépendances et accès disponibles"]
+    C --> D["Critères de test et sécurité définis"]
+    D --> E["Capacité et données de test prêtes"]
+    E --> F{"Prêt à commencer ?"}
+    F -->|"Oui"| G["Planifier et réaliser"]
+    F -->|"Non"| H["Rendre visibles les écarts et le propriétaire"]
+    H --> E
+```
+
+Les critères de préparation, souvent appelés Definition of Ready par certaines équipes, peuvent aider à révéler les dépendances et informations manquantes, mais ils ne sont pas une exigence universelle de Scrum. Utilise-les comme une aide à la conversation plutôt que comme une porte bureaucratique. Pour des travaux à fort risque, les prérequis doivent inclure les autorisations, accès, données, environnement, critères de sécurité et personne capable de prendre les décisions nécessaires.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -250,6 +432,21 @@ H --> I[Retour et amélioration]
 
 **Comprendre le concept.** Dans « Méthodologies hybrides Agile/Waterfall », apprendre et ajuster constitue une pratique qui doit répondre à une intention précise. L’approche hybride doit être inspectée et adaptée si l’expérience révèle une inadéquation. Le responsable doit définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Observer résultats et écarts"] --> B["Identifier la source : incertitude, dépendance ou processus"]
+    B --> C["Formuler une amélioration limitée"]
+    C --> D["Tester avec un incrément ou un lot"]
+    D --> E["Mesurer qualité, délai, risque et valeur"]
+    E --> F{"L'approche est-elle plus efficace ?"}
+    F -->|"Oui"| G["Conserver et documenter"]
+    F -->|"Non"| H["Adapter le modèle ou rétablir un contrôle utile"]
+    G --> A
+    H --> A
+```
+
+Une approche hybride doit elle-même être améliorée. Examine où les décisions sont prises trop tard, où les validations créent des files d’attente, où les incréments sont difficiles à intégrer et où l’équipe découvre les contraintes après l’engagement. Les ajustements doivent être testables et mesurer plusieurs dimensions : délai, coût de reprise, qualité, exposition au risque et valeur réellement livrée. Il ne faut pas confondre la suppression d’une étape avec l’amélioration du résultat.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Après deux cycles de validation lente, l’équipe simplifie le dossier de revue sans supprimer les contrôles obligatoires. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -266,21 +463,90 @@ H --> I[Retour et amélioration]
 
 Le projet inclut acquisition de matériel, revue d’architecture, exigences de contrôle, développement d’API, migration de données, tests de sécurité et amélioration itérative d’interfaces. Les étapes de gouvernance restent obligatoires tandis que certains besoins peuvent évoluer.
 
+```mermaid
+flowchart TD
+    A["Contraintes bancaires, sécurité et continuité"] --> B["Plan directeur, architecture et jalons d'approbation"]
+    B --> C["Approvisionnements et préparation des environnements"]
+    C --> D["Équipes API livrent des incréments"]
+    D --> E["Tests d'intégration et de sécurité continus"]
+    E --> F["Porte formelle avant migration de données"]
+    F --> G["Migration pilote et validation"]
+    G --> H{"Critères d'exploitation atteints ?"}
+    H -->|"Oui"| I["Déploiement par lots"]
+    H -->|"Non"| J["Corriger et réévaluer"]
+    J --> E
+```
+
+La plateforme bancaire combine des dépendances d’infrastructure, des achats, des obligations de sécurité et des besoins produit qui évoluent avec les retours utilisateurs. Une approche hybride peut fixer tôt les contrôles, les interfaces critiques et les fenêtres de changement, tout en laissant aux équipes la capacité de livrer et ajuster les API en incréments. Les portes de passage protègent les risques à fort impact, tandis que les équipes ne reportent pas tous les tests à la fin.
+
 ### Cadrage et analyse
 
 Les acteurs commencent par décrire le problème avec des faits vérifiables, puis identifient les bénéficiaires, les exigences et les contraintes. Ils séparent les obligations impératives des préférences, écrivent les hypothèses et demandent confirmation lorsque celles-ci conditionnent fortement le coût ou la date. Le responsable désigne un propriétaire pour chaque décision majeure, fixe un mécanisme d’escalade et conserve une trace des validations.
+
+```mermaid
+flowchart TD
+    A["Cartographier obligations et objectifs métier"] --> B["Séparer contraintes fixes et éléments incertains"]
+    B --> C["Identifier dépendances, délais d'approvisionnement et compétences"]
+    C --> D["Choisir approche par composant"]
+    D --> E["Définir jalons, critères d'acceptation et cadence"]
+    E --> F["Attribuer décisions, propriétaires et tolérances"]
+```
+
+Le cadrage identifie ce qui doit être stable et contrôlé : conformité, sécurité, interfaces, fenêtre de bascule, exigences de disponibilité et contrats. Il identifie aussi ce qui doit pouvoir être découvert : ergonomie, détail des fonctionnalités et priorités utilisateur. La structure de gouvernance précise comment l’information issue des incréments peut conduire à des décisions sur le périmètre ou les dates sans court-circuiter les responsabilités.
 
 ### Comparaison des options
 
 L’équipe compare au moins deux options réalistes, dont une option limitée ou progressive. Chaque option est évaluée selon valeur, coût complet, délai, risques, réversibilité, dépendances et conséquences en exploitation. Les avantages non mesurés sont explicitement identifiés comme hypothèses. Une décision est recommandée lorsque le raisonnement est clair, les compromis sont compris et la personne habilitée dispose des éléments nécessaires.
 
+```mermaid
+flowchart TD
+    A["Modèle entièrement prédictif"] --> D["Comparer prévisibilité, feedback, coût de changement et risques"]
+    B["Modèle fortement adaptatif"] --> D
+    C["Modèle hybride par composant et par jalon"] --> D
+    D --> E["Vérifier les obligations et la capacité d'intégration"]
+    E --> F["Identifier compromis et critères de révision"]
+    F --> G["Décision documentée"]
+```
+
+Une approche entièrement prédictive apporte de la visibilité sur les engagements, mais peut figer trop tôt des détails incertains. Une approche entièrement adaptative accélère le feedback, mais peut s’adapter difficilement à certains achats, contrats ou jalons réglementaires. L’approche hybride cherche à combiner ces avantages, au prix d’une coordination plus exigeante ; ses interfaces, ses responsabilités et ses règles de passage doivent être explicites.
+
 ### Mise en œuvre et suivi
 
 Le plan est découpé en livrables vérifiables. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier sa définition.
 
+```mermaid
+flowchart TD
+    A["Plan intégré et backlog"] --> B["Réaliser des incréments"]
+    B --> C["Intégrer tests et preuves continus"]
+    C --> D["Suivre coûts, dépendances et jalons"]
+    D --> E{"Une porte de décision est-elle due ?"}
+    E -->|"Non"| F["Poursuivre l'apprentissage et l'intégration"]
+    E -->|"Oui"| G["Examiner critères et risques résiduels"]
+    G --> H{"Passage autorisé ?"}
+    H -->|"Oui"| I["Continuer vers l'étape suivante"]
+    H -->|"Non"| J["Correction, replanification ou arrêt"]
+    F --> B
+    I --> B
+    J --> C
+```
+
+Le pilotage utilise un plan intégré qui relie les livraisons incrémentales, les jalons, les engagements contractuels et les dépendances. Il faut vérifier régulièrement si le produit intégré correspond toujours aux hypothèses d’architecture et si les critères de gouvernance peuvent être démontrés. Les retards et défauts sont analysés dans leur contexte ; les équipes évitent de modifier artificiellement le statut d’un livrable pour satisfaire le calendrier.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, les causes des écarts, les adaptations utiles et les pratiques à conserver.
+
+```mermaid
+flowchart TD
+    A["Vérifier produit intégré et preuves"] --> B["Confirmer critères fonctionnels, non fonctionnels et conformité"]
+    B --> C["Obtenir l'autorisation de livraison"]
+    C --> D["Transférer opérations, support et responsabilités"]
+    D --> E["Mesurer stabilité et adoption après déploiement"]
+    E --> F["Comparer modèle prévu et résultats réels"]
+    F --> G["Ajuster les pratiques hybrides pour la suite"]
+```
+
+L’acceptation porte sur un produit intégré et des preuves vérifiables, pas uniquement sur la fin des sprints ou la tenue d’un jalon. Le transfert inclut support, supervision, procédures, accès, risques résiduels et plans de reprise. Après la mise en service, l’organisation compare les résultats au modèle prévu : cela permet d’améliorer le niveau de contrôle, la cadence d’intégration et le dosage entre planification prédictive et adaptation.
 
 ## Atelier pratique
 
