@@ -364,3 +364,194 @@ Les tests d’ingestion couvrent le contenu, la progression et les effets second
 | Suppression | Dérivés traités selon le contrat | Vérification des destinations concernées |
 
 Au-delà d’exemples individuels, les tests de propriété peuvent générer différents ordres de livraison, doublons et séquences de reprise pour vérifier des invariants : une même clé ne produit pas deux effets métier, un événement plus ancien ne remplace pas une version plus récente sans règle explicite, et un événement invalide ne devient pas publiable à la suite d’une erreur de conversion silencieuse.
+
+## 16. Reprise après incident et opérations de production
+
+Une procédure de reprise décrit comment diagnostiquer, contenir, restaurer et vérifier un pipeline après incident. Elle doit distinguer l’indisponibilité de la source, la destination saturée, un schéma invalide, un checkpoint perdu, une clé expirée, un dépassement de quota et une erreur métier. Un redémarrage générique ne traite pas ces causes de la même manière.
+
+### 16.1 Diagnostic initial
+
+Commencez par vérifier la portée : quels flux sont touchés, depuis quand, quels consommateurs sont affectés, quel est l’âge du message le plus ancien et si les données de sortie sont complètes. Comparez les débits entrants et sortants. Examinez les changements récents de configuration, de schéma, de code ou de permission. Préservez les journaux et états nécessaires à l’analyse.
+
+Ne relancez pas un backfill massif avant d’avoir vérifié la capacité de destination, la stratégie de déduplication et la disponibilité du checkpoint. Un replay mal préparé peut empirer l’incident, écraser des données corrigées ou saturer une dépendance.
+
+### 16.2 Reprise d’un checkpoint
+
+Si un checkpoint est perdu ou suspect, déterminez la dernière position durable confirmée et comparez-la à l’état de destination. Selon le système, la stratégie la plus sûre peut être de revenir à une position antérieure et de rejouer avec idempotence, ou de reconstruire un état depuis une source de vérité. Ne choisissez pas un offset arbitraire sur la seule base de la date du fichier le plus récent.
+
+La récupération doit consigner la position avant incident, la position retenue, la raison, l’opérateur, les vérifications effectuées et les résultats de réconciliation. Une modification manuelle de checkpoint sans trace met en danger la capacité future à expliquer les pertes ou doublons.
+
+### 16.3 Rattrapage de backlog
+
+Estimez le volume à traiter, le débit disponible, l’arrivée de nouveaux messages et la limite de rétention de la source. Ajustez la concurrence de façon contrôlée et surveillez la destination. Il peut être nécessaire de prioriser les flux critiques ou de suspendre temporairement des traitements non essentiels.
+
+La fin du rattrapage ne se détermine pas uniquement lorsque la file semble vide. Vérifiez que les consommateurs ont dépassé le point attendu, que les données publiées couvrent la période et que les contrôles de qualité et de réconciliation sont satisfaits. Informez les consommateurs lorsque le SLO est rétabli et lorsqu’une correction historique a modifié des valeurs déjà publiées.
+
+### 16.4 Revue après incident
+
+La revue après incident doit identifier la cause, l’impact, les moyens de détection qui ont fonctionné ou manqué, la qualité du runbook et les actions de prévention. Attribuez chaque action à une équipe, avec un critère de clôture testable. Un objectif vague tel que « surveiller davantage » ne doit pas être considéré comme une mesure corrective suffisante.
+
+Les incidents répétitifs peuvent signaler une conception inadéquate : mauvais partitionnement, contrat incomplet, absence d’idempotence, dépendance à des secrets durables, rétention de broker trop courte ou charge de reprise non dimensionnée. Corriger la configuration seule sans revoir le mécanisme laisse le même risque dans le système.
+
+## 17. Exercices corrigés
+
+### Exercice 1 — Une exécution réussie suffit-elle ?
+
+Un job se termine en succès mais ne reçoit aucune donnée depuis trois heures, alors qu’un flux est normalement continu. Quelle mesure manque ?
+
+**Correction.** Il manque une mesure de fraîcheur ou de progression, fondée sur la dernière donnée métier, l’offset et le retard du consommateur. La réussite du processus ne garantit pas que la sortie réponde au besoin. Il faut une cible de fraîcheur, une alerte et un propriétaire capables d’investiguer la source et le transport.
+
+### Exercice 2 — Retry après un timeout de paiement
+
+Une API de paiement retourne un timeout juste après l’envoi d’une demande. Peut-on répéter immédiatement l’appel sans précaution ?
+
+**Correction.** Non. Le client peut ignorer si le serveur a réalisé l’opération. Il faut utiliser une clé d’idempotence si elle est supportée, interroger l’état réel ou procéder à une réconciliation avant la répétition. Les erreurs doivent être classées selon que l’échec est confirmé ou que le résultat reste inconnu.
+
+### Exercice 3 — Traitement exactement une fois
+
+Un moteur promet un traitement exactement une fois, mais le consommateur envoie un email et tombe avant de sauvegarder son offset. L’email peut-il partir deux fois ?
+
+**Correction.** Oui, selon la frontière de garantie du moteur et la façon dont l’effet externe est orchestré. La garantie exactement une fois dans un périmètre transactionnel ne couvre pas automatiquement une API externe. Il faut une clé d’idempotence côté service, une outbox ou un état transactionnel permettant de contrôler l’effet.
+
+### Exercice 4 — Même identifiant, contenu différent
+
+Deux messages présentent le même identifiant d’événement et des montants différents. Le consommateur ignore toujours le second comme doublon. Qu’est-ce qui manque ?
+
+**Correction.** La déduplication doit distinguer un replay identique d’un conflit. Il faut comparer le contenu ou une empreinte stable, enregistrer le conflit, le mettre en quarantaine et définir une procédure d’arbitrage. Ignorer silencieusement le second peut masquer une réutilisation d’identifiant ou une corruption chez le producteur.
+
+### Exercice 5 — CDC avec checkpoint perdu
+
+Après une panne, l’équipe ne sait plus quel offset avait été traité. Peut-elle reprendre au dernier horodatage connu ?
+
+**Correction.** Seulement si le contrat et le mécanisme source permettent de démontrer que ce point couvre toutes les modifications. Un timestamp peut être partagé, tardif ou modifié. Il faut comparer l’état de destination, le journal source et les checkpoints disponibles, choisir un point sûr et effectuer une réconciliation. Un replay idempotent est préférable à une progression hasardeuse.
+
+### Exercice 6 — Dead-letter queue qui grossit
+
+La DLQ compte des milliers de messages vieux de plusieurs semaines. Quel problème opérationnel cela révèle-t-il ?
+
+**Correction.** Le système isole les erreurs mais ne possède pas un cycle de résolution efficace. Il faut catégoriser les erreurs, attribuer un propriétaire, mesurer l’âge, définir la rétention, décider du rejet ou du replay et produire des alertes. La DLQ ne doit pas devenir une file oubliée ou un stockage de données sensibles sans contrôle.
+
+### Exercice 7 — Événement tardif
+
+Un événement du lundi arrive le mercredi après la fermeture de sa fenêtre. Quelle décision doit être prévue ?
+
+**Correction.** Le contrat doit préciser si l’événement tardif est ignoré, mis en quarantaine, envoyé vers un flux de correction ou utilisé pour recalculer l’agrégat. La décision dépend de la finalité et du coût d’une correction. Le système doit tracer la révision et permettre d’expliquer pourquoi le résultat a changé.
+
+### Exercice 8 — Schéma de message modifié
+
+Un producteur renomme un champ sans versionner le contrat. Comment réduire ce risque ?
+
+**Correction.** Valider le schéma en CI, définir une politique de compatibilité, annoncer le changement, fournir une migration ou une période de double publication et tester les consommateurs supportés. Un changement de nom est généralement une rupture pour un consommateur qui dépend de l’ancien champ.
+
+### Exercice 9 — Backlog après panne
+
+Le débit entrant est de 2 000 messages par seconde, le débit de traitement disponible de 2 500, et le backlog est de 900 000 messages. Estimez le temps de rattrapage si les débits restent constants.
+
+**Correction.** La capacité nette disponible est 2 500 moins 2 000, soit 500 messages par seconde. Le temps estimé est 900 000 divisé par 500, soit 1 800 secondes ou 30 minutes. Cette approximation néglige les variations, pauses et goulots. Si le traitement disponible n’était pas supérieur au débit entrant, le backlog ne diminuerait pas.
+
+### Exercice 10 — Partition chaude
+
+Un topic possède beaucoup de partitions, mais une seule est constamment en retard parce que toutes les commandes d’un grand client utilisent la même clé. Que faire ?
+
+**Correction.** Examiner la distribution des clés et le besoin d’ordre. La clé actuelle crée une partition chaude. Une clé composite ou une répartition différente peut augmenter le parallélisme, mais il faut vérifier si l’ordre par client ou par commande est nécessaire. Le choix doit conserver les invariants métier tout en évitant le déséquilibre.
+
+### Exercice 11 — Rejeu après correction
+
+Un lot erroné est corrigé dans le code puis rejoué. Quelle preuve doit être vérifiée avant de republier le produit ?
+
+**Correction.** Vérifier la version de code et du contrat, la période concernée, les volumes, la déduplication, les règles de qualité, la réconciliation entre source et destination et les consommateurs affectés. La reprise doit être traçable et reproductible. Il faut également expliquer aux consommateurs que des valeurs précédemment publiées ont été remplacées si cela affecte leurs décisions.
+
+### Exercice 12 — Suppression dans un flux
+
+Un événement de suppression est consommé par la table principale, mais un ancien message de mise à jour arrive plus tard et recrée la ligne. Quelle protection manque ?
+
+**Correction.** Il faut une règle de résolution temporelle ou de version : une mise à jour plus ancienne ne doit pas réactiver la donnée après une suppression plus récente sans politique métier explicite. Les consommateurs doivent connaître l’ordre, les tombstones et la règle de rejeu, et tester ce scénario en présence de messages réordonnés.
+
+## 18. Défi final : concevoir une chaîne d’ingestion résiliente
+
+### Scénario
+
+Une entreprise collecte des commandes via une API, reçoit des événements de paiement dans un broker, synchronise le CRM par CDC et publie un produit analytique quotidien. Une interruption de destination a provoqué un backlog. Après la reprise, plusieurs commandes sont comptées deux fois, certains événements arrivent en retard et des messages de schéma invalide s’accumulent dans la DLQ. Le tableau de bord n’indique pas clairement si les données publiées sont complètes.
+
+### Travail demandé
+
+1. Définissez l’identité et le contrat de chaque type d’événement.
+2. Choisissez les stratégies de livraison et justifiez le besoin d’idempotence.
+3. Concevez la frontière de cohérence entre l’écriture métier et le checkpoint.
+4. Définissez les politiques de retry, backoff, DLQ, correction et replay.
+5. Précisez la gestion des événements tardifs et les watermarks.
+6. Décrivez l’initialisation et la reprise CDC, y compris la cohérence du snapshot et du journal.
+7. Proposez des métriques, SLO et alertes qui rendent le backlog et la fraîcheur visibles.
+8. Définissez les tests de résilience, de charge, de contrat et de non-régression.
+9. Présentez le runbook de récupération, de rattrapage et de réconciliation.
+10. Décrivez comment traiter les données sensibles, les logs, la DLQ et les demandes de suppression.
+
+### Correction indicative
+
+L’API de commande attribue une clé d’opération stable et utilise une clé d’idempotence pour les appels répétés lorsque le contrat le permet. Les événements de paiement sont identifiés par un identifiant source stable et versionnés. Le CDC enregistre un point de progression durable et suit la procédure de snapshot cohérent prescrite par le connecteur. Chaque flux décrit la source de vérité, la clé, l’ordre requis, le traitement des suppressions et la stratégie de rejeu.
+
+La livraison au moins une fois, associée à un consommateur idempotent et à une contrainte de destination, peut être un compromis opérationnel robuste. L’écriture de la sortie et l’enregistrement de l’identité traitée doivent être atomiques dans la base lorsqu’ils partagent cette base. Si le checkpoint du broker n’est pas inclus dans la même transaction, le système accepte les rejeux et les neutralise. Pour les effets externes, une outbox ou une clé d’idempotence et une réconciliation sont nécessaires.
+
+Les erreurs transitoires font l’objet de tentatives bornées, avec backoff et jitter. Les erreurs permanentes et de contrat sont classées et placées en quarantaine, avec propriétaire et durée de conservation. Le replay conserve l’identifiant original et ajoute une trace de tentative. Les événements tardifs sont traités selon une politique définie : mise à jour d’agrégat, flux de correction ou quarantaine. Le watermark est une frontière opérationnelle, pas une preuve qu’aucun événement tardif n’existera.
+
+Les métriques incluent débit entrant et sortant, lag, âge du plus vieux message, volume et âge de DLQ, taux d’erreur par catégorie, conflits de déduplication, fraîcheur de bout en bout et résultat de réconciliation. Les alertes indiquent le flux, l’ampleur, le propriétaire et le runbook. Le rattrapage utilise une concurrence bornée pour ne pas saturer la destination et est déclaré terminé après vérification des offsets, de la période couverte, des contrôles de qualité et de la réconciliation.
+
+La CI valide les contrats, les transformations et les politiques de compatibilité. Les tests d’intégration simulent des crashes aux frontières entre écriture et offset, des doublons, des messages invalides, des retards et une indisponibilité. Une revue post-incident examine pourquoi la déduplication n’a pas empêché le double comptage et ajoute des tests ciblés. Les payloads sensibles sont minimisés dans les logs et protégés dans la DLQ, avec permissions, rétention et processus d’effacement.
+
+## 19. Checklist opérationnelle avant production
+
+- [ ] Chaque flux possède un propriétaire, une finalité, un contrat et un niveau de criticité.
+- [ ] Les identifiants d’événement sont stables pendant les retries et les rejeux.
+- [ ] Les garanties de livraison et les frontières de cohérence sont documentées.
+- [ ] Les consommateurs sont idempotents ou disposent d’une déduplication durable.
+- [ ] Les effets externes utilisent une clé d’idempotence, une outbox ou une réconciliation.
+- [ ] Les checkpoints et offsets sont persistés et la procédure de récupération est testée.
+- [ ] Les extractions incrémentales traitent les retards, égalités d’horodatage et suppressions.
+- [ ] Les changements de schéma et de sémantique passent les tests de contrat.
+- [ ] Les retries sont bornés, différencient les erreurs transitoires et permanentes et utilisent un backoff adapté.
+- [ ] La DLQ possède un propriétaire, des alertes, une rétention et une procédure de replay.
+- [ ] Les événements tardifs sont traités selon une politique connue des consommateurs.
+- [ ] Le backlog, la fraîcheur, la réconciliation et les erreurs sont mesurés.
+- [ ] La capacité de rattrapage est estimée et testée sans saturer la destination.
+- [ ] Les données sensibles et les secrets sont protégés dans les payloads, logs, snapshots et DLQ.
+- [ ] Les suppressions et corrections se propagent aux destinations appropriées.
+- [ ] Les runbooks, contacts et preuves post-incident sont maintenus.
+- [ ] Les tests de résilience démontrent le comportement face aux pannes et rejeux.
+
+## 20. Glossaire
+
+**Batch :** traitement d’un ensemble de données regroupées dans une exécution.  
+**Micro-batch :** traitement fréquent de petites fenêtres de données.  
+**Streaming :** traitement continu d’événements à mesure qu’ils arrivent.  
+**CDC :** capture des changements d’une source, souvent à partir d’un journal transactionnel.  
+**Offset :** position d’un consommateur dans un flux ordonné ou partitionné.  
+**Checkpoint :** état de progression ou d’exécution conservé pour reprendre après une interruption.  
+**Watermark :** estimation de la progression du temps événementiel utilisée pour gérer les fenêtres et les retards.  
+**Idempotence :** propriété selon laquelle répéter une opération ne produit pas d’effet supplémentaire indésirable.  
+**Déduplication :** mécanisme qui reconnaît et neutralise des événements répétés selon une identité et une règle explicites.  
+**At-most-once :** stratégie de livraison qui évite certains doublons au prix d’un risque de perte.  
+**At-least-once :** stratégie de livraison qui retente et peut produire des doublons.  
+**Exactly-once :** garantie de traitement dans un périmètre précis, dont la portée doit être explicitement documentée.  
+**Outbox :** table ou mécanisme transactionnel qui enregistre l’intention de publier un événement avec la mutation métier.  
+**DLQ :** dead-letter queue, espace d’isolation des messages qui échouent durablement.  
+**Backpressure :** situation où le débit d’arrivée dépasse la capacité d’un ou plusieurs composants.  
+**Backfill :** traitement rétroactif d’une période de données passée.  
+**Réconciliation :** comparaison de la source et de la destination pour identifier omissions, doublons ou divergences.  
+**Replay :** nouvelle lecture contrôlée d’événements déjà reçus ou archivés.  
+**Clé de partition :** attribut utilisé pour répartir les messages entre partitions.  
+**Contrat de données :** accord explicite sur schéma, sémantique, garanties et évolution d’un flux.  
+**Event time :** heure à laquelle l’événement s’est produit dans le domaine métier.  
+**Processing time :** heure à laquelle le moteur traite l’événement.
+
+## 21. Références techniques officielles
+
+- **Apache Kafka — Documentation.** Concepts des consommateurs, sémantique de livraison, transactions, partitions et configuration : https://kafka.apache.org/documentation/
+- **Apache Flink — Documentation.** Traitement d’état, checkpoints, temps événementiel et gestion des retards : https://nightlies.apache.org/flink/flink-docs-stable/
+- **Debezium — Documentation.** Connecteurs CDC, snapshots, offsets et événements de changement : https://debezium.io/documentation/
+- **Apache Airflow — Documentation.** Orchestration, dépendances, retries, planification et exploitation des DAG : https://airflow.apache.org/docs/
+- **OpenLineage.** Métadonnées ouvertes d’exécution et lignage : https://openlineage.io/
+- **CloudEvents.** Spécification d’enveloppe d’événement interopérable : https://cloudevents.io/
+- **OWASP — Secrets Management Cheat Sheet.** Gestion des secrets et réduction des risques liés aux identifiants : https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html
+- **Documentation de la base de destination.** Vérifier les garanties transactionnelles, contraintes uniques, niveaux d’isolation et méthodes de reprise pour la version réellement utilisée.
+
+Les garanties exactes varient selon les versions, configurations et limites des systèmes. Pour toute décision de production, vérifiez la documentation de la version déployée et testez le comportement aux frontières de panne.
