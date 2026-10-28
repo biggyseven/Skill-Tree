@@ -119,3 +119,38 @@ button { -webkit-tap-highlight-color: transparent; }
   .react-flow__node.selected { animation: none; }
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
 }
+
+/* Polish UI/UX — palette Graphite, transitions et boutons lumineux */
+[data-theme="graphite"] {
+  --s0: #0d1117;
+  --s1: #161b22;
+  --s2: #30363d;
+  --s3: #484f58;
+  --s4: #21262d;
+  --amber-300: #e3b341;
+  --amber-400: #d29922;
+}
+button, a, [role="button"], input, select, textarea, summary, .react-flow__controls-button {
+  transition: all 300ms cubic-bezier(.4, 0, .2, 1);
+}
+.transition-all { transition-property: all; transition-timing-function: cubic-bezier(.4, 0, .2, 1); }
+.duration-300 { transition-duration: 300ms; }
+.btn-glow { transition: all 300ms cubic-bezier(.4, 0, .2, 1); }
+.btn-glow:hover:not(:disabled):not([aria-disabled="true"]) {
+  box-shadow: 0 0 0 1px rgb(56 189 248 / .4), 0 0 22px -5px rgb(56 189 248 / .48), 0 8px 24px -14px rgb(16 185 129 / .65);
+  transform: translateY(-1px);
+}
+.btn-glow:focus-visible { outline: 2px solid var(--cyan-400); outline-offset: 3px; }
+.st-polish-toast {
+  position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 10000;
+  max-width: min(26rem, calc(100vw - 2rem)); border: 1px solid rgb(56 189 248 / .35);
+  border-radius: 1rem; padding: .8rem 1rem; color: var(--text-primary); background: var(--s1);
+  box-shadow: 0 14px 38px -18px rgba(0,0,0,.9), 0 0 22px -16px rgb(56 189 248 / .8);
+  font-size: .85rem; font-weight: 650; opacity: 0; transform: translateY(.35rem);
+  pointer-events: none; transition: opacity 300ms ease, transform 300ms ease;
+}
+.st-polish-toast.is-visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  button, a, [role="button"], input, select, textarea, summary, .react-flow__controls-button,
+  .btn-glow, .transition-all, .st-polish-toast { transition-duration: .01ms !important; }
+}

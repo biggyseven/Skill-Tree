@@ -221,7 +221,7 @@ export function TopologyToolbar({ onOpenPostMortem }) {
               : lab?.id === 'demo'
                 ? 'La démonstration ne peut pas être vérifiée.'
                 : 'Vérifier les règles du scénario'}
-          className="rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
+          className="btn-glow transition-all duration-300 rounded-lg bg-gradient-to-r from-[var(--emerald-400)] to-[var(--cyan-400)] px-3.5 py-1.5 text-xs font-semibold text-[var(--on-accent)] disabled:opacity-50">
           {persistenceAction === 'resolve' ? 'Vérification…' : ticket?.status === 'failed' ? '❌ Ticket échoué' : ticket?.status === 'resolved' ? '✅ Ticket résolu' : ticket ? '📝 Résoudre le ticket' : loading ? '…' : lab?.courseLocked === true ? '✓ Vérifier en entraînement' : '✓ Vérifier'}
         </button>
         {!ticket && (
@@ -235,7 +235,7 @@ export function TopologyToolbar({ onOpenPostMortem }) {
               : submitDisabled
                 ? 'Vérifiez la configuration avant de soumettre'
                 : 'Enregistrer cette tentative et son résultat côté serveur'}
-          className="rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)] disabled:cursor-not-allowed disabled:opacity-40">
+          className="btn-glow transition-all duration-300 rounded-lg border border-[var(--s2)] bg-[var(--s2)] px-3.5 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:border-[var(--s3)] disabled:cursor-not-allowed disabled:opacity-40">
           ↑ Soumettre
         </button>
       )}
