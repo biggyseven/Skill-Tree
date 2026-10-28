@@ -1,0 +1,52 @@
+name: Build main Skill Tree stylesheet
+
+on:
+  push:
+    branches:
+      - feature/lab-workspace
+      - perf/compiled-tailwind-main-20261028
+    paths:
+      - "static/index.html"
+      - "static/tailwind.config.cjs"
+      - "static/tailwind.input.css"
+      - ".github/workflows/build-main-stylesheet.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build-main-stylesheet:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/lab-workspace/package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci --prefix app/lab-workspace --no-audit --no-fund
+
+      - name: Compile main app stylesheet
+        run: ./app/lab-workspace/node_modules/.bin/tailwindcss --config ./static/tailwind.config.cjs --input ./static/tailwind.input.css --output ./static/app.css --minify
+
+      - name: Commit compiled stylesheet when it changed
+        shell: bash
+        run: |
+          git add -A static/app.css
+          if git diff --cached --quiet -- static/app.css; then
+            echo "MAIN_STYLESHEET=unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "build(frontend): refresh compiled Tailwind stylesheet"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
