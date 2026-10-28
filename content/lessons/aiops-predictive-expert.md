@@ -413,6 +413,73 @@ Une mise à jour peut changer la sémantique, la granularité ou la distribution
 
 Le problème peut provenir d'un trop grand nombre d'alertes, d'explications insuffisantes, d'un manque de confiance dans les labels ou d'une absence de procédure d'action. Mesurez l'utilité des recommandations et organisez une revue avec les utilisateurs. La solution peut être de réduire le périmètre, d'améliorer la déduplication ou de changer l'interface plutôt que de complexifier le modèle.
 
+## Architecture de référence et implémentation guidée
+
+La maintenance prédictive vise une décision opérationnelle, par exemple planifier l'inspection d'un module optique avant une défaillance susceptible d'affecter un service. Le modèle n'est qu'un composant : la qualité des étiquettes, le délai réellement disponible, le coût d'une intervention et la possibilité d'agir déterminent la valeur du dispositif.
+
+### Du signal à l'intervention
+
+```mermaid
+flowchart TD
+  A["Télémétrie et historique des interventions"] --> B["Contrôle qualité et alignement temporel"]
+  B --> C["Construire la cible et l'horizon"]
+  C --> D["Découpage temporel sans fuite"]
+  D --> E["Baseline de référence"]
+  E --> F["Modèle et calibration"]
+  F --> G["Évaluer rappel, avance et coût"]
+  G --> H{"Valeur opérationnelle démontrée ?"}
+  H -- "Non" --> I["Revoir les données ou conserver la baseline"]
+  H -- "Oui" --> J["Mode shadow et revue métier"]
+  J --> K["Ordre de travail avec propriétaire"]
+  K --> L["Intervention puis confirmation"]
+```
+
+### Prédiction et décision sont deux étapes distinctes
+
+```mermaid
+flowchart LR
+  A["Risque estimé"] --> B["Fenêtre de temps utile"]
+  B --> C["Coût d'une panne"]
+  C --> D["Coût et disponibilité de l'intervention"]
+  D --> E["Décision de maintenance"]
+  E --> F["Confirmation terrain"]
+  F --> G["Réviser les étiquettes et le modèle"]
+```
+
+### Exemple de préparation de données temporelles
+
+```python
+import pandas as pd
+
+df = pd.read_csv("component_history.csv", parse_dates=["timestamp"])
+df = df.sort_values(["component_id", "timestamp"])
+df = df.drop_duplicates(["component_id", "timestamp"])
+df["temperature_previous"] = (
+    df.groupby("component_id")["temperature_c"].shift(1)
+)
+df["temperature_mean_6"] = (
+    df.groupby("component_id")["temperature_c"]
+      .transform(lambda s: s.shift(1).rolling(6, min_periods=6).mean())
+)
+
+# La cible doit représenter un événement futur défini séparément.
+# Aucune variable explicative ne doit regarder après l'instant de décision.
+df = df.dropna(subset=["temperature_previous", "temperature_mean_6"])
+assert df["timestamp"].is_monotonic_increasing
+```
+
+Le code prépare des variables retardées sans incorporer la valeur courante dans la moyenne historique. La cible prédictive n'est pas fournie ici, car elle dépend du contrat métier : événement dans les sept prochains jours, panne avant la prochaine fenêtre de maintenance ou risque de dépassement d'un indicateur physique. Elle doit être définie avant de sélectionner le modèle.
+
+### Travaux pratiques — horizon d'action
+
+Choisis une famille de composants et une cible future explicite. Sépare les périodes d'entraînement, validation et test chronologiquement. Compare une règle de seuil documentée à un modèle plus complexe. Présente le rappel à différents délais d'avance, le nombre de fausses interventions par mois, les pannes manquées et la proportion de recommandations auxquelles l'équipe peut réellement donner suite.
+
+Traite soigneusement les composants retirés avant la fin de la période d'observation : l'absence de panne enregistrée ne signifie pas automatiquement qu'ils étaient sains. Si les étiquettes sont censurées ou incomplètes, documente la limite et choisis une méthode d'évaluation adaptée. Toute intervention suggérée doit mentionner la composante, le risque estimé, la fenêtre d'avance, les signaux déterminants et la date d'expiration de la recommandation.
+
+### Critères d'acceptation
+
+Le modèle est évalué sur le futur et comparé à une baseline. Les variables ne révèlent pas l'issue après l'instant de décision. Les probabilités sont calibrées et transformées en décisions à l'aide des coûts métier. Enfin, chaque recommandation peut être suivie jusqu'à un résultat terrain qui confirme, invalide ou nuance la prédiction.
+
 ## 17. Exercices corrigés
 
 ### Exercice 1 — Définition de la cible
