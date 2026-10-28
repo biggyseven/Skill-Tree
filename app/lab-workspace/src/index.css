@@ -154,3 +154,44 @@ button, a, [role="button"], input, select, textarea, summary, .react-flow__contr
   button, a, [role="button"], input, select, textarea, summary, .react-flow__controls-button,
   .btn-glow, .transition-all, .st-polish-toast { transition-duration: .01ms !important; }
 }
+
+
+/* Tokens de thème alignés sur le système graphique Skill Tree. */
+:root,
+[data-theme="aurore"],
+[data-theme="graphite"] {
+  --lab-accent: #38bdf8;
+  --lab-accent-soft: rgb(56 189 248 / .11);
+  --lab-border: #30363d;
+  --lab-surface: #161b22;
+  --lab-surface-raised: #21262d;
+  --lab-canvas: #0d1117;
+  --lab-text: #e6edf3;
+  --lab-text-secondary: #c9d1d9;
+  --lab-text-muted: #8b949e;
+}
+[data-theme="ocean"] { --lab-accent: #22d3ee; --lab-accent-soft: rgb(34 211 238 / .11); }
+[data-theme="foret"] { --lab-accent: #a3e635; --lab-accent-soft: rgb(163 230 53 / .11); }
+[data-theme="crepuscule"] { --lab-accent: #fb923c; --lab-accent-soft: rgb(251 146 60 / .11); }
+[data-theme="lumiere"] {
+  --lab-accent: #0284c7;
+  --lab-accent-soft: rgb(2 132 199 / .09);
+  --lab-border: #d0d7de;
+  --lab-surface: #ffffff;
+  --lab-surface-raised: #eaeef2;
+  --lab-canvas: #f5f7fa;
+  --lab-text: #1f2328;
+  --lab-text-secondary: #424a53;
+  --lab-text-muted: #656d76;
+}
+[data-theme="sakura"] {
+  --lab-accent: #db2777;
+  --lab-accent-soft: rgb(219 39 119 / .09);
+  --lab-border: #ead0dc;
+  --lab-surface: #fff8fb;
+  --lab-surface-raised: #fceef4;
+  --lab-canvas: #fff5f8;
+  --lab-text: #3f2432;
+  --lab-text-secondary: #654458;
+  --lab-text-muted: #8c6b7c;
+}
