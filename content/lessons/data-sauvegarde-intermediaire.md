@@ -87,6 +87,19 @@ flowchart LR
     D --> G["Durée totale = mesure du RTO"]
 ~~~
 
+~~~mermaid
+flowchart TD
+    A["Inventaire et criticité"] --> B["Définir RPO et RTO"]
+    B --> C["Choisir méthode et fréquence"]
+    C --> D["Protéger copies et clés"]
+    D --> E["Conserver journaux si PITR requis"]
+    E --> F["Surveiller jobs et rétention"]
+    F --> G["Restaurer et vérifier régulièrement"]
+    G --> H{"Objectifs atteints ?"}
+    H -- "Non" --> B
+    H -- "Oui" --> I["Documenter la preuve et recommencer selon calendrier"]
+~~~
+
 ## 3. Définir la stratégie avant de choisir l'outil
 
 Une politique de sauvegarde commence par les besoins et les scénarios de risque. Choisir une commande ou activer une fonction automatique avant de préciser le périmètre peut conduire à une copie qui ne répond pas au besoin. Il faut savoir quelles bases, quels schémas, quels rôles, quelles extensions, quels objets et quelles dépendances doivent être récupérés.
@@ -265,6 +278,18 @@ Le moment de l'incident n'est pas toujours le moment exact où les données sont
 
 Lors d'un incident, préserver les preuves peut compter autant que la restauration. Évitez de faire des changements improvisés sur la base endommagée. Documentez l'heure et le fuseau utilisé, l'identité des opérations, l'étendue des données affectées et les critères de validation. Si le point cible est incertain, il peut être utile de restaurer plusieurs candidats dans des environnements isolés et de les comparer.
 
+~~~mermaid
+sequenceDiagram
+    participant DBA as DBA
+    participant Base as PostgreSQL
+    participant Archive as Archive WAL
+    DBA->>Base: Lancer une sauvegarde de base compatible
+    Base-->>DBA: Référence de sauvegarde et métadonnées
+    Base->>Archive: Archiver les segments WAL terminés
+    Archive-->>DBA: État d'archivage à surveiller
+    Note over DBA,Archive: Sauvegarde et chaîne de journaux doivent rester compatibles
+~~~
+
 ## 8. PITR PostgreSQL avec WAL et archivage
 
 PostgreSQL utilise le Write-Ahead Log (WAL). Une stratégie PITR physique nécessite une sauvegarde de base obtenue par une méthode compatible et la conservation continue des segments WAL qui permettent de rejouer les changements nécessaires après cette sauvegarde. Les paramètres et procédures exacts doivent suivre la documentation de la version.
@@ -303,6 +328,18 @@ Une procédure générale PostgreSQL de PITR comprend :
 9. décider de la façon de réintégrer les données récupérées dans le service.
 
 PostgreSQL a modifié certains paramètres de configuration de récupération au fil des versions. Utilisez les paramètres documentés pour la version en service et évitez les instructions copiées d'un guide ancien sans validation. Un test PITR doit faire partie du plan de restauration périodique.
+
+~~~mermaid
+sequenceDiagram
+    participant DBA as DBA
+    participant MySQL as MySQL
+    participant Binlog as Stockage binlog
+    DBA->>MySQL: Prendre une sauvegarde cohérente
+    MySQL-->>DBA: Sauvegarde de base
+    MySQL->>Binlog: Conserver les événements binlog
+    DBA->>Binlog: Sélectionner la chaîne nécessaire au point cible
+    Note over DBA,Binlog: Le rejeu s'arrête avant l'opération erronée
+~~~
 
 ## 9. PITR MySQL avec journaux binaires
 
@@ -431,6 +468,19 @@ Un test peut restaurer une sauvegarde complète périodiquement, puis un test pl
 Restaurez d'abord dans une instance ou base de récupération distincte lorsque cela convient au scénario. Évitez d'écraser la seule copie encore exploitable avant d'avoir sécurisé les données et documenté la décision. En cas d'incident réel, préservez les journaux nécessaires à l'analyse et coordonnez les opérations avec les responsables du service.
 
 Il faut aussi éviter les conflits d'identité réseau. Une base restaurée peut se présenter avec le même nom, la même adresse ou les mêmes comptes que l'instance d'origine. Si l'application ou les tâches planifiées se connectent automatiquement à cette copie, elles risquent de modifier l'environnement de récupération de façon imprévue. Isolez la restauration et désactivez les intégrations actives lorsque cela est nécessaire et autorisé.
+
+~~~mermaid
+flowchart TD
+    A["Détecter et qualifier l'incident"] --> B["Préserver les preuves et choisir le point cible"]
+    B --> C{"Sauvegarde et journaux disponibles ?"}
+    C -- "Non" --> D["Déterminer le dernier point récupérable et escalader"]
+    C -- "Oui" --> E["Restaurer sur une cible isolée"]
+    E --> F["Contrôles techniques et métier"]
+    F --> G{"Critères passés ?"}
+    G -- "Non" --> H["Analyser l'écart, ne pas basculer"]
+    G -- "Oui" --> I["Décision de reprise et surveillance"]
+    I --> J["Compte rendu et actions correctives"]
+~~~
 
 ## 14. Runbook de restauration
 
