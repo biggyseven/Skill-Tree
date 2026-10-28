@@ -250,7 +250,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("const nodeId = String(data.lab_id || (this.detail && this.detail.id) || '');", validation_method)
         self.assertIn("if (!data || !data.passed || data.sandbox === true || data.stale === true || data.attempt_recorded === false) return;", validation_method)
 
-    def test_daily_focus_timer_tracks_active_time_and_persists_the_daily_goal(self):
+    def test_daily_focus_timer_logic_remains_available_without_dashboard_card(self):
         self.assertIn("function skilltreeStudySession()", DASHBOARD_HTML)
         self.assertIn("const storageKey = 'skilltree-study-session-v1';", DASHBOARD_HTML)
         self.assertIn("const goals = [15, 25, 45, 60];", DASHBOARD_HTML)
@@ -260,16 +260,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("this._interval = window.setInterval(() =>", DASHBOARD_HTML)
         self.assertIn("if (this.goalReached)", DASHBOARD_HTML)
         self.assertIn("this.elapsedSeconds % 5 === 0", DASHBOARD_HTML)
-        self.assertIn('x-data="skilltreeStudySession()" class="mb-5 rounded-2xl', DASHBOARD_HTML)
-        self.assertIn('role="group" aria-label="Durée cible de la session"', DASHBOARD_HTML)
-        self.assertIn('@click="setTarget(minutes)"', DASHBOARD_HTML)
-        self.assertIn(':aria-pressed="targetMinutes === minutes"', DASHBOARD_HTML)
-        self.assertIn('x-text="elapsedLabel()"', DASHBOARD_HTML)
-        self.assertIn('x-text="statusLabel"', DASHBOARD_HTML)
-        self.assertIn('@click="toggle()"', DASHBOARD_HTML)
-        self.assertIn('@click="reset()"', DASHBOARD_HTML)
-        self.assertIn(':aria-valuenow="progressPercent"', DASHBOARD_HTML)
-        self.assertIn("Le temps est compté pendant que la page est active.", DASHBOARD_HTML)
+        # The timer implementation is retained, but its redundant daily-session card is no longer rendered.
+        self.assertNotIn('x-data="skilltreeStudySession()" class="mb-5 rounded-2xl', DASHBOARD_HTML)
+        self.assertNotIn('role="group" aria-label="Durée cible de la session"', DASHBOARD_HTML)
+        self.assertNotIn("Le temps est compté pendant que la page est active.", DASHBOARD_HTML)
 
     def test_daily_review_action_opens_a_course_scoped_flashcard_session(self):
         action_start = DASHBOARD_HTML.index("        async openPlanAction(action) {")
@@ -369,35 +363,32 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("@media (prefers-reduced-motion: reduce)", DASHBOARD_HTML)
 
     def test_daily_plan_routes_each_action_to_the_matching_workspace(self):
-        self.assertIn('@click="openPlanAction(action)"', DASHBOARD_HTML)
-        self.assertIn("if (action.action === 'challenge')", DASHBOARD_HTML)
-        self.assertIn("await this.setTab('challenges')", DASHBOARD_HTML)
-        self.assertIn("await this.startChallenge(nodeId)", DASHBOARD_HTML)
-        self.assertIn("if (action.action === 'lab')", DASHBOARD_HTML)
-        self.assertIn("await this.openLab(nodeId, true)", DASHBOARD_HTML)
-        self.assertIn('data-lab-card="plan"', DASHBOARD_HTML)
-        self.assertIn(":href=\"'/?openLab=' + encodeURIComponent(action.node_id)\"", DASHBOARD_HTML)
-        self.assertIn("lab: status === 'available'", DASHBOARD_HTML)
+        action_start = DASHBOARD_HTML.index("        async openPlanAction(action) {")
+        action_end = DASHBOARD_HTML.index("        renderSpiderChart() {", action_start)
+        action_method = DASHBOARD_HTML[action_start:action_end]
+        self.assertIn("if (action.action === 'challenge')", action_method)
+        self.assertIn("await this.setTab('challenges');", action_method)
+        self.assertIn("await this.startChallenge(nodeId);", action_method)
+        self.assertIn("if (action.action === 'lab')", action_method)
+        self.assertIn("await this.openLab(nodeId, true);", action_method)
         self.assertIn("label: 'Lab à lancer'", DASHBOARD_HTML)
         self.assertIn("label: 'Lab à poursuivre'", DASHBOARD_HTML)
         self.assertIn("label: 'Révision'", DASHBOARD_HTML)
         self.assertIn("label: 'Défi à poursuivre'", DASHBOARD_HTML)
+        # Daily-plan cards are intentionally absent from the redesigned dashboard.
+        self.assertNotIn('@click="openPlanAction(action)"', DASHBOARD_HTML)
+        self.assertNotIn('data-lab-card="plan"', DASHBOARD_HTML)
 
-    def test_daily_plan_highlights_server_priority_and_supports_keyboard_navigation(self):
-        self.assertIn('x-for="(action, actionIndex) in planActions"', DASHBOARD_HTML)
-        self.assertIn(
-            "actionIndex === 0 && dailyPlan.length > 0 ? '!border-emerald-400/35 shadow-lg' : ''",
-            DASHBOARD_HTML,
-        )
-        self.assertIn('x-show="actionIndex === 0 && dailyPlan.length > 0"', DASHBOARD_HTML)
-        self.assertIn(">Priorité du jour</span>", DASHBOARD_HTML)
-        self.assertIn(
-            ":aria-label=\"action.label + '. ' + (action.reason || 'Action du parcours') + '. Ouvrir cette activité.'\"",
-            DASHBOARD_HTML,
-        )
-        self.assertIn("min-h-[164px]", DASHBOARD_HTML)
-        self.assertIn("focus-visible:ring-emerald-400/70", DASHBOARD_HTML)
-        self.assertIn("Ouvrir l’activité", DASHBOARD_HTML)
+    def test_dashboard_removes_redundant_daily_plan_and_five_step_cards(self):
+        self.assertNotIn('x-for="(action, actionIndex) in planActions"', DASHBOARD_HTML)
+        self.assertNotIn(">Priorité du jour</span>", DASHBOARD_HTML)
+        self.assertNotIn("Ta session d'aujourd'hui", DASHBOARD_HTML)
+        self.assertNotIn('aria-label="Étapes du parcours"', DASHBOARD_HTML)
+        self.assertIn("get planActions()", DASHBOARD_HTML)
+        self.assertIn("get resumeNode()", DASHBOARD_HTML)
+        self.assertIn('aria-label="Indicateurs de progression"', DASHBOARD_HTML)
+        self.assertIn('aria-labelledby="resume-learning-title"', DASHBOARD_HTML)
+        self.assertIn('id="module-overview-title"', DASHBOARD_HTML)
 
     def test_daily_plan_avoids_duplicating_the_resume_and_current_path_nodes(self):
         start = DASHBOARD_HTML.index("        get planActions() {")
@@ -419,7 +410,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
             "Les priorités du jour sont déjà mises en évidence dans les cartes de reprise et du parcours.",
             plan_getters,
         )
-        self.assertIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
+        self.assertNotIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
 
     def test_daily_plan_continuation_opens_the_backend_selected_exercise_kind(self):
         self.assertIn("next_requirement_kind=target_kind.value if target_kind is not None else None", (ROOT / "app" / "engine.py").read_text(encoding="utf-8"))
@@ -751,7 +742,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('@click="refreshAll()"', DASHBOARD_HTML)
         self.assertIn("get planEmptyMessage()", DASHBOARD_HTML)
         self.assertIn("this.treeError && !this.nodes.length", DASHBOARD_HTML)
-        self.assertIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
+        self.assertNotIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
         self.assertIn("Aucun cours disponible", DASHBOARD_HTML)
 
     def test_desktop_mobile_and_header_navigation_controls_are_consistent(self):
