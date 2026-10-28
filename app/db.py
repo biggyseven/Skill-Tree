@@ -99,7 +99,11 @@ CREATE TABLE IF NOT EXISTS exam_sessions (
     correct      INTEGER,
     total        INTEGER,
     submitted_at INTEGER,
-    time_expired INTEGER NOT NULL DEFAULT 0
+    time_expired INTEGER NOT NULL DEFAULT 0,
+    answers_json TEXT NOT NULL DEFAULT '[]',
+    details_json TEXT NOT NULL DEFAULT '[]',
+    result_json TEXT NOT NULL DEFAULT '',
+    passing_score INTEGER NOT NULL DEFAULT 80
 );
 
 CREATE INDEX IF NOT EXISTS idx_exam_sessions_expires ON exam_sessions(expires_at);
@@ -231,7 +235,17 @@ def _migrate(conn: sqlite3.Connection) -> None:
             "CREATE INDEX IF NOT EXISTS idx_questions_node ON questions(node_id, scope, position)"
         )
 
-    terminal_columns = {row["name"] for row in conn.execute("PRAGMA table_info(terminal_specs)")}
+    exam_columns = {row["name"] for row in conn.execute("PRAGMA table_info(exam_sessions)")}
+    for column, definition in (
+        ("answers_json", "TEXT NOT NULL DEFAULT '[]'"),
+        ("details_json", "TEXT NOT NULL DEFAULT '[]'"),
+        ("result_json", "TEXT NOT NULL DEFAULT ''"),
+        ("passing_score", "INTEGER NOT NULL DEFAULT 80"),
+    ):
+        if column not in exam_columns:
+            conn.execute(f"ALTER TABLE exam_sessions ADD COLUMN {column} {definition}")
+
+        terminal_columns = {row["name"] for row in conn.execute("PRAGMA table_info(terminal_specs)")}
     if "explanation" not in terminal_columns:
         conn.execute(
             "ALTER TABLE terminal_specs ADD COLUMN explanation TEXT NOT NULL DEFAULT ''"
