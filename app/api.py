@@ -517,10 +517,16 @@ def _exam_question_pool(tree: SkillTree, nodes: list[Node]) -> list[Question]:
     pool: list[Question] = []
     seen: set[int] = set()
     for node in nodes:
-        dedicated = tree.questions(node.id, ProofKind.EXAM)
-        questions = dedicated if dedicated else tree.questions(node.id, ProofKind.QUIZ)
+        dedicated = [
+            question for question in tree.questions(node.id, ProofKind.EXAM)
+            if not _exam_is_placeholder(question)
+        ]
+        questions = dedicated or [
+            question for question in tree.questions(node.id, ProofKind.QUIZ)
+            if not _exam_is_placeholder(question)
+        ]
         for question in questions:
-            if _exam_is_placeholder(question) or question.id in seen:
+            if question.id in seen:
                 continue
             seen.add(question.id)
             pool.append(question)
