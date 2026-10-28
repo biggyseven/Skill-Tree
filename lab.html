@@ -57,7 +57,7 @@
         const rawUrl = typeof input === 'string' ? input : input && input.url;
         const url = new URL(rawUrl, window.location.href);
         const method = String((args[1] && args[1].method) || (input && input.method) || 'GET').toUpperCase();
-        const match = url.pathname.match(/^\\/api\\/tickets\\/([^/]+)\\/(resolve|post-mortem)$/);
+        const match = url.pathname.match(/^\/api\/tickets\/([^/]+)\/(resolve|post-mortem)$/);
         if (method === 'POST' && match) {
           response.clone().json().then(payload => {
             if (!response.ok || !payload || payload.passed !== true) return;
@@ -85,8 +85,8 @@
       elements.push(...root.querySelectorAll(selector));
       elements.forEach(element => {
         element.classList.add('transition-all', 'duration-300');
-        const label = String(element.innerText || element.getAttribute('aria-label') || element.value || '').replace(/\\s+/g, ' ').trim().toLocaleLowerCase('fr');
-        if (/\\b(vérifier|soumettre|valider)\\b/.test(label) || /ouvrir (le )?lab/.test(label)) element.classList.add('btn-glow');
+        const label = String(element.innerText || element.getAttribute('aria-label') || element.value || '').replace(/\s+/g, ' ').trim().toLocaleLowerCase('fr');
+        if (/\b(vérifier|soumettre|valider)\b/.test(label) || /ouvrir (le )?lab/.test(label)) element.classList.add('btn-glow');
       });
     }
     const api = async (path, options = {}) => {
