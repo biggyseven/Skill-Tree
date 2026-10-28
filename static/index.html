@@ -19,8 +19,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="preconnect" href="https://cdn.tailwindcss.com">
-  <link rel="preconnect" href="https://esm.sh" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet"></noscript>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -45,15 +45,7 @@
     };
   </script>
 
-  <script type="module">
-    import typography from 'https://esm.sh/@tailwindcss/typography@0.5.16?deps=tailwindcss@3.4.17';
-    if (window.tailwind) {
-      window.tailwind.config = {
-        ...window.tailwind.config,
-        plugins: [...(window.tailwind.config.plugins ?? []), typography],
-      };
-    }
-  </script>
+
 
 
   <script>
