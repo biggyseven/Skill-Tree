@@ -4,27 +4,27 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est le principal bénéfice du lignage des données ?",
+      "prompt": "Un changement de calcul fait passer le chiffre d'affaires quotidien de 12,4 à 13,1 millions sans modification du schéma. Quel usage du lignage est le plus pertinent pour investiguer ?",
       "choices": [
-        "Augmenter automatiquement la capacité CPU",
-        "Retracer les sources, transformations et usages afin d’analyser l’impact d’un changement ou d’une anomalie",
-        "Remplacer les contrôles de qualité",
-        "Garantir que toutes les données sont exactes"
+        "Consulter uniquement le nombre de lignes dans le catalogue",
+        "Augmenter le seuil d'alerte afin que le tableau de bord reste vert",
+        "Tracer les sources, transformations et définitions métier jusqu'à l'indicateur, puis comparer la version et les dépendances modifiées",
+        "Supprimer les snapshots historiques pour éviter les confusions"
       ],
-      "answer": 1,
-      "explanation": "Le lignage relie sources, étapes de transformation et consommateurs. Il aide à analyser l’impact, diagnostiquer les erreurs et démontrer la provenance."
+      "answer": 2,
+      "explanation": "Un changement sémantique peut survenir sans changement de type ou de schéma. Le lignage combiné à la version des transformations et à la définition métier aide à isoler la modification responsable."
     },
     {
       "type": "qcm",
-      "prompt": "Quel rôle joue un catalogue de données bien maintenu ?",
+      "prompt": "Le catalogue marque une table comme « certifiée », mais son propriétaire a quitté l'équipe, sa définition date de deux ans et son dernier chargement est ancien. Quelle action de gouvernance est la plus utile ?",
       "choices": [
-        "Exécuter seul toutes les transformations",
-        "Remplacer les ACL et politiques de sécurité",
-        "Documenter jeux de données, schémas, propriétaires, définitions métier et métadonnées utiles",
-        "Garantir la conformité sans contrôles supplémentaires"
+        "Retirer ou suspendre le statut certifié jusqu'à réassignation du propriétaire, révalidation de la définition et contrôle de fraîcheur",
+        "Conserver le badge parce que le catalogue est automatisé",
+        "Donner à tous les utilisateurs les droits de modification",
+        "Déplacer la table sans avertir les consommateurs"
       ],
-      "answer": 2,
-      "explanation": "Le catalogue aide les utilisateurs à découvrir et comprendre les données. Il ne dispense pas des contrôles d’accès ni de la validation des usages."
+      "answer": 0,
+      "explanation": "La certification doit rester liée à un propriétaire, une définition à jour, des preuves de qualité et une fraîcheur mesurée. Un statut historique sans responsable n'est pas une garantie."
     },
     {
       "type": "qcm",
@@ -40,39 +40,39 @@
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert un data steward dans une gouvernance ?",
+      "prompt": "Deux domaines utilisent tous les deux le champ « client actif », mais l'un compte une connexion sur 30 jours et l'autre un abonnement payé. Quel correctif évite le mieux des indicateurs incompatibles ?",
       "choices": [
-        "À administrer seul le système d’exploitation",
-        "À garantir que les analystes ne posent aucune question",
-        "À remplacer le propriétaire de chaque processus métier",
-        "À coordonner les définitions, règles qualité et responsabilités métier des données"
-      ],
-      "answer": 3,
-      "explanation": "Le data steward accompagne les règles et métadonnées métier. La responsabilité doit être partagée avec des propriétaires clairement désignés."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Pourquoi classifier les données avant de définir leur rétention ?",
-      "choices": [
-        "La classification rend toute donnée publique",
-        "La sensibilité et les obligations de conservation influencent les accès, protections et délais de suppression",
-        "La classification supprime toutes les erreurs de saisie",
-        "La rétention doit être identique pour tous les jeux de données"
+        "Renommer arbitrairement les colonnes sans prévenir les équipes",
+        "Définir la sémantique métier, le périmètre, la fenêtre temporelle et le propriétaire, puis versionner le contrat et migrer les consommateurs",
+        "Moyenner les deux indicateurs pour obtenir un seul chiffre",
+        "Supprimer les métadonnées métier et conserver seulement le type SQL"
       ],
       "answer": 1,
-      "explanation": "La classification permet d’associer des exigences de sécurité et de conservation cohérentes avec la sensibilité, la finalité et les obligations applicables."
+      "explanation": "Un nom et un type identiques ne garantissent pas la même signification. La gouvernance doit rendre la définition explicite, avec un propriétaire et une stratégie de migration des consommateurs."
     },
     {
       "type": "qcm",
-      "prompt": "Quel problème la gestion des données de référence (MDM) cherche-t-elle à réduire ?",
+      "prompt": "Un produit de données est utilisé pour la facturation et aussi pour un tableau exploratoire. Le taux de lignes invalides atteint 0,2 %. Quelle décision est la plus mature ?",
       "choices": [
-        "La nécessité de faire des sauvegardes",
-        "Le stockage des logs techniques",
-        "Les divergences d’entités communes comme clients, produits ou fournisseurs entre plusieurs systèmes",
-        "La présence de clés primaires"
+        "Appliquer la même tolérance à tous les usages, sans mesurer l'impact",
+        "Masquer le taux dans le catalogue",
+        "Remplacer le test par une validation manuelle annuelle",
+        "Définir des seuils et conséquences par criticité d'usage, bloquer la facturation si la règle critique échoue et documenter les limites pour l'exploration"
       ],
-      "answer": 2,
-      "explanation": "La gestion des données de référence cherche à harmoniser les identifiants, attributs et règles d’entités partagées afin de limiter les divergences entre systèmes."
+      "answer": 3,
+      "explanation": "La qualité dépend de l'usage et du risque. Un défaut peut être tolérable pour une exploration mais inacceptable pour une facturation ; les règles et actions doivent être explicites."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Trois systèmes possèdent des fiches produit avec des identifiants différents et des prix divergents. Avant de consolider ces fiches, quel travail MDM est prioritaire ?",
+      "choices": [
+        "Définir une stratégie d'identité, de rapprochement, de survivorship et d'historisation avec un responsable de domaine",
+        "Choisir la ligne la plus récente par timestamp sans examiner la source",
+        "Supprimer toutes les fiches du système le moins récent",
+        "Concaténer les fiches et compter chaque valeur comme exacte"
+      ],
+      "answer": 0,
+      "explanation": "Le MDM nécessite des règles explicites pour reconnaître les entités, arbitrer les attributs contradictoires, tracer l'origine et conserver l'historique. La date seule ne détermine pas toujours la valeur de référence."
     },
     {
       "type": "qcm",
@@ -148,15 +148,15 @@
     },
     {
       "type": "qcm",
-      "prompt": "Quel est l'objectif principal du lignage en aval ?",
+      "prompt": "Une colonne source change de type et alimente 14 produits aval. Quelle séquence de changement est la plus sûre ?",
       "choices": [
-        "Augmenter la vitesse de calcul du moteur SQL",
-        "Déterminer la couleur des graphiques",
-        "Identifier les jeux, indicateurs et consommateurs susceptibles d'être affectés par un changement ou une anomalie",
-        "Remplacer les contrats de données"
+        "Déployer immédiatement la nouvelle colonne en supprimant l'ancienne",
+        "Modifier le catalogue après le déploiement si des erreurs apparaissent",
+        "Utiliser le lignage aval pour identifier les consommateurs, tester la compatibilité, planifier la migration et surveiller une période de coexistence",
+        "Prévenir uniquement le propriétaire de la table source"
       ],
       "answer": 2,
-      "explanation": "Le lignage en aval permet d'évaluer l'impact d'une source ou transformation sur les actifs et consommateurs dépendants, ce qui améliore les changements et la réponse aux incidents."
+      "explanation": "Le lignage aval permet d'établir la portée de la rupture. Le changement doit être coordonné avec les consommateurs, testé et suivi jusqu'à la fin de migration."
     },
     {
       "type": "qcm",
