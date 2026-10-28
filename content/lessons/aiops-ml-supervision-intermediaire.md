@@ -462,6 +462,67 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — anticiper une congestion WAN sans fuite temporelle
+
+### Énoncé
+
+Les liens WAN présentent un pic quotidien autour de 09 h et parfois une congestion exceptionnelle avant une maintenance. Tu disposes de métriques horodatées : débit entrant/sortant, pertes, latence, état du lien et calendrier de changements. Construis une démarche qui estime le risque de congestion dans les quinze prochaines minutes. La cible est un avertissement utile à l'astreinte, pas un score de laboratoire flatteur.
+
+### Pipeline temporel
+
+```mermaid
+flowchart TD
+  A["Métriques horodatées"] --> B["Contrôle qualité et unités"]
+  B --> C["Agrégation en fenêtres passées"]
+  C --> D["Variables disponibles au moment de la prédiction"]
+  D --> E["Découpage chronologique train / validation / test"]
+  E --> F["Baseline saisonnière"]
+  F --> G["Modèle ML et calibration"]
+  G --> H["Évaluation coûts faux positifs / faux négatifs"]
+  H --> I{"Gain opérationnel démontré ?"}
+  I -- "Non" --> J["Garder la baseline"]
+  I -- "Oui" --> K["Mode shadow et suivi de dérive"]
+```
+
+### Exemple de séparation temporelle
+
+```python
+import pandas as pd
+
+df = pd.read_csv("wan_metrics.csv", parse_dates=["timestamp"])
+df = df.sort_values("timestamp").dropna(subset=["timestamp", "utilization"])
+df = df.drop_duplicates(subset=["device", "interface", "timestamp"])
+df["hour"] = df["timestamp"].dt.hour
+df["weekday"] = df["timestamp"].dt.dayofweek
+df["utilization_lag_1"] = df.groupby(["device", "interface"])["utilization"].shift(1)
+df["utilization_mean_5"] = (
+    df.groupby(["device", "interface"])["utilization"]
+      .transform(lambda s: s.shift(1).rolling(5, min_periods=5).mean())
+)
+df = df.dropna(subset=["utilization_lag_1", "utilization_mean_5"])
+
+cutoff = df["timestamp"].quantile(0.8)
+train = df[df["timestamp"] < cutoff]
+test = df[df["timestamp"] >= cutoff]
+assert train["timestamp"].max() < test["timestamp"].min()
+```
+
+Le code illustre la préparation des variables ; la colonne cible doit être définie à partir d'une fenêtre future, sans réutiliser cette fenêtre dans les variables explicatives. Pour une validation rigoureuse, réserve aussi une période distincte à la sélection du modèle et documente les changements de collecte.
+
+### Proposition de correction
+
+Définis d'abord la congestion : par exemple, utilisation supérieure à un seuil pendant plusieurs intervalles, accompagnée d'une dégradation de latence ou de pertes. Évite d'utiliser seulement un pic d'utilisation si certains liens peuvent fonctionner normalement à forte charge. Le choix de l'horizon de quinze minutes doit correspondre au temps réellement nécessaire pour agir.
+
+La baseline saisonnière peut prédire la charge habituelle du même lien à la même heure et le même jour. Le modèle ML n'est utile que s'il apporte un gain reproductible sur les périodes futures et sur plusieurs types de liens. Évalue le rappel des incidents importants, le nombre de fausses alertes par semaine, le délai d'anticipation et la calibration des probabilités. Les prédictions doivent d'abord être observées en mode shadow sans déclencher d'action.
+
+### Barème d'autoévaluation
+
+- La cible est définie avec un horizon clair.
+- Les variables n'utilisent que les informations disponibles à l'instant de prédiction.
+- Le test est chronologique et séparé de l'entraînement.
+- Le modèle est comparé à une baseline saisonnière.
+- Le résultat est mesuré en coût opérationnel, puis observé en mode shadow.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
