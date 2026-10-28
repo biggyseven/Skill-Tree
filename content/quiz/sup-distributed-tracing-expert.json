@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Tracing distribué (Jaeger, OpenTelemetry) ».",
+      "prompt": "Dans quel cas un échantillonnage de fin de trace apporte-t-il un avantage par rapport à un échantillonnage de tête simple ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Il garantit une collecte sans aucune perte même lorsque le backend est indisponible.",
+        "Il élimine toute consommation de mémoire sur les collecteurs en supprimant les spans avant leur arrivée.",
+        "Il peut choisir de conserver une trace après avoir observé sa latence ou son statut final, à condition de disposer d’un tampon et d’une architecture adaptés.",
+        "Il remplace la propagation de contexte et permet à chaque service de créer des traces indépendantes."
+      ],
+      "answer": 2,
+      "explanation": "Le sampling en fin de trace peut utiliser des informations disponibles après réception des spans, telles que l’erreur ou la durée, pour favoriser les traces importantes. En contrepartie, les spans doivent être regroupés avant la décision, ce qui exige une fenêtre de conservation, de la mémoire, un routage cohérent et une capacité de collecte dimensionnée. Il ne garantit pas une absence totale de pertes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les liens de spans peuvent-ils être préférables à une relation parent-enfant unique pour un consommateur qui traite un lot de messages ?",
+      "choices": [
+        "Parce qu’un lot peut dépendre de plusieurs contextes producteurs et qu’un parent unique donnerait une représentation causale trompeuse.",
+        "Parce que les liens suppriment le besoin de trace IDs et de span IDs.",
+        "Parce que les liens rendent les traces indépendantes de toute instrumentation.",
+        "Parce qu’un span ne peut jamais contenir d’attributs lorsqu’il a un parent."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Un consommateur qui agrège plusieurs messages peut être lié à plusieurs opérations productrices sans qu’une seule constitue un parent naturel. Les liens expriment cette corrélation sans forcer le graphe en une hiérarchie artificielle. Ils ne remplacent ni les identifiants ni l’instrumentation et doivent être utilisés conformément au modèle de travail réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’OpenTelemetry Collector dans une architecture de tracing ?",
+      "choices": [
+        "Remplacer les SDK et créer automatiquement toutes les règles métier de l’application.",
+        "Recevoir la télémétrie, appliquer des traitements configurés comme l’enrichissement ou le filtrage, puis l’exporter vers une ou plusieurs destinations.",
+        "Garantir que chaque trace sera stockée pour toujours, même en cas de perte de réseau.",
+        "Fournir à lui seul un identifiant d’authentification pour chaque utilisateur final."
+      ],
+      "answer": 1,
+      "explanation": "Le Collector assemble des récepteurs, processeurs et exporteurs dans des pipelines. Il peut centraliser la réception, enrichir des ressources, filtrer certains attributs, regrouper les données et les envoyer au backend. Il ne garantit pas une conservation éternelle et doit lui-même être sécurisé, surveillé et dimensionné pour les pertes, files et interruptions possibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une trace montre un span de base de données très long, mais il est difficile d’identifier la cause. Quelle démarche est la plus rigoureuse ?",
+      "choices": [
+        "Conclure immédiatement que la requête SQL est mal optimisée et la réécrire sans autre vérification.",
+        "Additionner toutes les durées de spans enfants pour déterminer le temps CPU consommé.",
+        "Supprimer les spans de la base pour rendre la trace plus lisible.",
+        "Vérifier si le span inclut une attente de connexion ou de verrou, puis corréler avec les logs, métriques du pool et indicateurs de la base."
+      ],
+      "answer": 3,
+      "explanation": "La durée d’un span représente du temps écoulé, qui peut inclure l’attente d’un pool, une file, un verrou ou un délai réseau autant que l’exécution SQL. Les traces localisent le segment suspect, mais les métriques de base, les logs et les données du pool sont nécessaires pour distinguer les causes. Le correctif doit être lié à une hypothèse confirmée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle règle de sécurité faut-il appliquer au contexte de tracing transmis par une requête externe ?",
+      "choices": [
+        "Traiter les trace IDs comme des identifiants de connexion et leur donner accès aux ressources protégées.",
+        "Accepter tout attribut de baggage et le propager à tous les services, car il sert uniquement à l’observabilité.",
+        "Considérer le contexte comme une métadonnée de corrélation, valider les frontières de confiance et ne jamais y placer d’informations personnelles ou de secrets.",
+        "Insérer un jeton d’authentification dans tracestate pour le retrouver dans les outils de diagnostic."
+      ],
+      "answer": 2,
+      "explanation": "Le contexte de trace facilite la corrélation, mais ne prouve pas l’identité et ne doit pas influencer une décision d’autorisation. Des en-têtes externes doivent être traités selon la politique de confiance ; le baggage et les autres attributs doivent rester minimaux et sans données sensibles. Les secrets et informations personnelles ne doivent jamais être transportés dans traceparent ou tracestate."
     }
   ]
 }
