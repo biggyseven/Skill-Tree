@@ -22,6 +22,20 @@ Le cas « Le budget d’un portail numérique » sert de fil rouge. Il permet de
 
 **Valeur.** La valeur décrit le bénéfice recherché pour un utilisateur ou l’organisation. Elle doit être reliée à une situation initiale, à un changement attendu et à une mesure raisonnable. Sans cette relation, l’équipe risque d’optimiser l’outil ou le processus sans résoudre le problème métier.
 
+```mermaid
+flowchart TD
+    A["Résultat et périmètre"] --> B["Décomposer le travail et les achats"]
+    B --> C["Estimer effort, prix et coûts indirects"]
+    C --> D["Analyser incertitudes et risques"]
+    D --> E["Construire estimation documentée"]
+    E --> F["Ajouter les réserves autorisées"]
+    F --> G["Faire approuver le budget de référence"]
+    G --> H["Comparer engagés, réels et prévisions"]
+    H --> I["Arbitrer et actualiser la prévision"]
+```
+
+Le budget n’est pas un chiffre isolé : il résulte du périmètre, des hypothèses d’estimation, des coûts internes et externes, des risques et des règles de gouvernance. Une référence approuvée sert ensuite de point de comparaison. Les dépenses observées et les nouvelles informations doivent alimenter une prévision actualisée sans effacer l’historique des engagements.
+
 **Périmètre et qualité.** Le périmètre fixe les limites du travail ; la qualité précise les caractéristiques et critères qui permettront d’accepter les livrables. Les ajouts doivent être analysés au lieu d’être acceptés implicitement. Une date ou un budget ne justifie jamais de prétendre qu’un critère obligatoire est satisfait sans preuve.
 
 **Prévision et référence.** La référence approuvée permet d’étudier les écarts, tandis que la prévision décrit l’issue la plus probable à partir des données actuelles. On peut réviser une prévision et conserver une référence historique. La distinction préserve la transparence et aide à décider sans maquiller les évolutions.
@@ -61,6 +75,22 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », coût total de possession constitue une pratique qui doit répondre à une intention précise. Le coût total de possession inclut l’acquisition, l’intégration, l’exploitation, la maintenance, les licences, les compétences et la sortie de service. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Coût total de possession"] --> B["Acquisition et licences"]
+    A --> C["Conception, intégration et migration"]
+    A --> D["Infrastructure et exploitation"]
+    A --> E["Support, formation et renouvellement"]
+    A --> F["Sortie, réversibilité et fin de vie"]
+    B --> G["Comparer le coût sur un horizon défini"]
+    C --> G
+    D --> G
+    E --> G
+    F --> G
+```
+
+Comparer deux solutions uniquement sur leur prix d’achat peut masquer les coûts récurrents, les efforts d’intégration, le support, la montée en compétence et la sortie de solution. Le coût total de possession doit donc préciser un horizon temporel, un volume d’usage, les hypothèses de renouvellement et les coûts de fin de vie. Les bénéfices attendus peuvent être comparés séparément ou dans une analyse économique plus large.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une licence SaaS semble économique jusqu’à ce que l’on chiffre les environnements, les connecteurs, le support et les coûts de sortie. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -76,6 +106,18 @@ I --> F
 ### 2. Estimation paramétrique
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », estimation paramétrique constitue une pratique qui doit répondre à une intention précise. Une estimation paramétrique utilise une relation mesurable, par exemple coût par interface ou coût par environnement, à condition que la comparaison soit pertinente. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Choisir un facteur mesurable"] --> B["Collecter des données comparables"]
+    B --> C["Définir le coût unitaire"]
+    C --> D["Multiplier par la quantité estimée"]
+    D --> E["Ajuster pour contexte, complexité et date"]
+    E --> F["Documenter la formule et ses limites"]
+    F --> G["Comparer aux résultats réels"]
+```
+
+Exemple : si une migration a historiquement coûté en moyenne 180 unités monétaires par poste et que 120 postes sont concernés, une première estimation paramétrique vaut 21 600 unités. Ce chiffre ne devient crédible qu’après vérification de la comparabilité des postes, des licences, des déplacements, du volume de données et des exigences de sécurité. Un coût unitaire moyen ne doit pas être traité comme une constante universelle.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -93,6 +135,18 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », estimation analogique constitue une pratique qui doit répondre à une intention précise. L’estimation analogique compare avec un projet similaire et corrige les différences de taille, de technologie, de risque et de contexte. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Identifier un projet historique"] --> B["Vérifier sa comparabilité"]
+    B --> C["Lister les différences de périmètre"]
+    C --> D["Ajuster durée, complexité et tarifs"]
+    D --> E["Présenter une fourchette"]
+    E --> F["Valider avec les spécialistes"]
+    F --> G["Documenter les incertitudes restantes"]
+```
+
+L’analogie est utile au début, lorsque le détail du travail est encore limité. Elle ne consiste pas à recopier le budget précédent : il faut tenir compte des différences de taille, de technologie, de maturité de l’équipe, de conditions contractuelles et de taux de change éventuels. Conserver le projet de référence et les ajustements permet de discuter la pertinence de l’estimation.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Un précédent déploiement donne un ordre de grandeur, mais l’équipe ajuste l’estimation car ce projet comporte des données plus sensibles. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -108,6 +162,18 @@ I --> F
 ### 4. Estimation bottom-up
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », estimation bottom-up constitue une pratique qui doit répondre à une intention précise. L’estimation ascendante décompose le travail en éléments détaillés puis agrège coûts et efforts, avec un coût de coordination explicite. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Décomposer le périmètre en lots"] --> B["Estimer chaque tâche et achat"]
+    B --> C["Ajouter coûts de support et de coordination"]
+    C --> D["Vérifier interfaces et éléments oubliés"]
+    D --> E["Additionner par lot et par période"]
+    E --> F["Revue indépendante des hypothèses"]
+    F --> G["Consolider l'estimation"]
+```
+
+Une estimation ascendante est plus détaillée, mais elle n’est pas automatiquement exacte. Son risque classique est l’omission : coordination, environnement de test, migration, sécurité, formation, support au démarrage ou travaux de fournisseur peuvent manquer. La revue doit rechercher les dépendances, doubles comptes et coûts laissés hors périmètre avant de consolider les lots.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -125,6 +191,19 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », effort et coût constitue une pratique qui doit répondre à une intention précise. L’effort en jours-personnes n’est pas le coût complet : il faut considérer tarifs, coûts employeur, fournisseurs et frais de coordination. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Estimer l'effort en jours-personnes"] --> C["Coût de main-d'oeuvre"]
+    B["Appliquer des taux de coût adaptés"] --> C
+    D["Ajouter achats et sous-traitance"] --> E["Coût direct estimé"]
+    C --> E
+    F["Ajouter les coûts indirects imputables"] --> G["Coût complet selon les règles retenues"]
+    E --> G
+    G --> H["Comparer périmètre, hypothèses et horizon"]
+```
+
+Une formule de travail peut être : coût de main-d’œuvre = effort estimé × taux journalier pertinent, auquel s’ajoutent les achats, les frais imputables et les coûts indirects selon la méthode de l’organisation. Le taux doit préciser ce qu’il inclut : salaire, charges, frais de structure ou seulement une base tarifaire. Il faut éviter d’ajouter deux fois une charge déjà comprise dans un tarif complet.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Quatre jours d’un consultant externe et quatre jours d’un salarié peuvent représenter des montants très différents. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -140,6 +219,18 @@ I --> F
 ### 6. Coûts fixes et variables
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », coûts fixes et variables constitue une pratique qui doit répondre à une intention précise. Les coûts fixes ne varient pas directement avec le volume dans une plage donnée ; les coûts variables évoluent avec l’usage ou la quantité. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart LR
+    A["Volume d'usage"] --> B{"Quel coût varie avec le volume ?"}
+    B -->|"Peu ou pas"| C["Composante fixe"]
+    B -->|"Oui, directement ou par palier"| D["Composante variable"]
+    C --> E["Scénario de coût total"]
+    D --> E
+    E --> F["Tester différents niveaux d'activité"]
+```
+
+Un coût fixe reste relativement stable sur une plage d’activité et un horizon donnés ; un coût variable évolue avec le volume ou l’usage. Un abonnement peut être fixe jusqu’à un seuil puis changer par palier, et un coût réputé fixe peut augmenter lorsqu’il faut ajouter une capacité. L’analyse doit décrire les seuils, unités de facturation et conditions contractuelles.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -157,6 +248,18 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », capex et opex constitue une pratique qui doit répondre à une intention précise. La classification comptable dépend des règles applicables et du contexte ; le chef de projet fournit les informations sans décider seul du traitement comptable. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Nature de la dépense"] --> B["Analyser le bien ou service reçu"]
+    B --> C["Vérifier les règles comptables applicables"]
+    C --> D["CAPEX : traitement d'investissement si critères remplis"]
+    C --> E["OPEX : charge d'exploitation selon les règles applicables"]
+    D --> F["Validation finance et traçabilité"]
+    E --> F
+```
+
+CAPEX et OPEX sont des catégories de gestion et de comptabilisation dont l’application dépend du référentiel comptable, de la juridiction, du contrat et de la nature des dépenses. Il ne faut pas affirmer que toute dépense de développement est automatiquement un investissement, ni que tout abonnement est traité de la même façon dans chaque organisation. Le responsable projet fournit les faits et hypothèses ; la fonction finance valide le traitement.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le développement interne ou l’abonnement ne doit pas être classé automatiquement : finance doit examiner les critères propres à l’organisation. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -172,6 +275,19 @@ I --> F
 ### 8. Réserve pour risques
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », réserve pour risques constitue une pratique qui doit répondre à une intention précise. Une réserve de contingence répond à des risques identifiés ; la réserve de management couvre des incertitudes relevant de la gouvernance selon la politique retenue. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Identifier les risques et leurs réponses"] --> B["Estimer probabilité et impact"]
+    B --> C["Déterminer une réserve liée aux risques identifiés"]
+    C --> D["Définir règles d'utilisation et autorité"]
+    D --> E["Suivre le risque et la consommation"]
+    E --> F{"Risque réalisé ou hypothèse changée ?"}
+    F -->|"Oui"| G["Traiter, justifier et mettre à jour la prévision"]
+    F -->|"Non"| H["Maintenir la surveillance"]
+```
+
+La réserve de contingence vise les risques identifiés et doit avoir une justification ainsi qu’une règle d’utilisation. Elle ne doit pas devenir une enveloppe disponible sans contrôle. Certaines organisations gèrent aussi une réserve de management pour les imprévus non spécifiés, sous une autorité distincte : les deux réserves ne doivent pas être confondues ni ajoutées sans expliquer comment elles s’articulent avec le budget de référence.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -189,6 +305,20 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », budget de référence constitue une pratique qui doit répondre à une intention précise. Le budget de référence est approuvé et sert au suivi ; sa modification doit être tracée et autorisée selon la gouvernance. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Estimation par lot et par période"] --> B["Ajouter les réserves autorisées"]
+    B --> C["Réconcilier avec le financement disponible"]
+    C --> D["Revue métier, projet et finance"]
+    D --> E{"Budget et périmètre approuvés ?"}
+    E -->|"Oui"| F["Établir la référence de suivi"]
+    E -->|"Non"| G["Réviser l'option ou demander un arbitrage"]
+    G --> A
+    F --> H["Tracer séparément les changements approuvés"]
+```
+
+Le budget de référence correspond à une version approuvée utilisée pour comparer les performances et expliquer les écarts. Si le périmètre change, la procédure de changement doit préciser qui peut autoriser la modification, les impacts et la date d’effet. Modifier discrètement la référence pour faire disparaître un dépassement détruit la capacité d’apprentissage et la transparence de pilotage.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une nouvelle exigence n’entraîne pas une réécriture silencieuse du budget initial mais un dossier de changement. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -204,6 +334,19 @@ I --> F
 ### 10. Coûts engagés et réels
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », coûts engagés et réels constitue une pratique qui doit répondre à une intention précise. Les coûts engagés correspondent à des obligations contractées, les coûts réels aux dépenses constatées, et les prévisions aux dépenses attendues. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["Commande ou contrat signé"] --> B["Coût engagé"]
+    B --> C["Facture reçue ou charge constatée"]
+    C --> D["Coût réel comptabilisé selon règles finance"]
+    A --> E["Solde contractuel restant"]
+    D --> F["Prévision de fin de projet"]
+    E --> F
+    G["Travail restant et risques"] --> F
+```
+
+Le coût engagé indique une obligation ou un engagement, alors que le coût réel correspond à une dépense enregistrée selon les règles financières de l’organisation. Une commande peut être engagée sans être entièrement facturée ; l’absence de facture ne signifie donc pas que le budget est encore libre. Une prévision à terminaison doit considérer les dépenses réelles, les engagements restants et le coût du travail qui reste à accomplir.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -221,6 +364,18 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », écarts et prévision à terminaison constitue une pratique qui doit répondre à une intention précise. Le suivi doit expliquer la cause des écarts et prévoir le coût final, plutôt que comparer seulement le montant facturé au budget consommé. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Comparer réel et référence"] --> B["Séparer prix, volume, périmètre et calendrier"]
+    B --> C["Évaluer les engagements restants"]
+    C --> D["Réestimer le travail à terminer"]
+    D --> E["Calculer la prévision à terminaison"]
+    E --> F["Présenter causes, fourchette et options"]
+    F --> G["Décision et actions avec responsable"]
+```
+
+Un écart budgétaire est un signal à expliquer, pas seulement un feu rouge. Il peut venir d’un prix fournisseur, d’une quantité plus élevée, d’un changement de périmètre, d’un retard, d’un défaut qualité ou d’une hypothèse irréaliste. La prévision à terminaison doit être reconstruite à partir des coûts observés et du reste à faire, et non simplement reprendre le budget initial.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Une consommation faible peut signaler une activité en retard et non une économie durable. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -236,6 +391,23 @@ I --> F
 ### 12. Valeur acquise
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », valeur acquise constitue une pratique qui doit répondre à une intention précise. La valeur acquise compare valeur planifiée, valeur du travail réalisé selon des règles et coût réel ; elle est utile seulement si les mesures sont fiables. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
+
+```mermaid
+flowchart TD
+    A["PV : valeur planifiée"] --> D["Comparer plan, travail réalisé et coût réel"]
+    B["EV : valeur acquise selon le travail achevé"] --> D
+    C["AC : coût réel"] --> D
+    D --> E["CV = EV - AC"]
+    D --> F["SV = EV - PV"]
+    D --> G["CPI = EV / AC"]
+    D --> H["SPI = EV / PV"]
+    E --> I["Analyser les causes et recalculer la prévision"]
+    F --> I
+    G --> I
+    H --> I
+```
+
+La méthode de la valeur acquise met en relation trois quantités : PV, valeur planifiée du travail prévu à date ; EV, valeur budgétée du travail réellement achevé ; AC, coût réel de ce travail. Par exemple, EV = 40 000 et AC = 50 000 donnent CV = -10 000 et CPI = 0,8 : le travail achevé a coûté plus que sa valeur budgétée. Les conclusions doivent tenir compte de la qualité des mesures et du contexte ; les indicateurs ne disent pas à eux seuls pourquoi un écart existe.
 
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
@@ -253,6 +425,22 @@ I --> F
 
 **Comprendre le concept.** Dans « Estimation des coûts et budget », scénarios et arbitrages constitue une pratique qui doit répondre à une intention précise. Les scénarios présentent les effets d’un changement de périmètre, de délai, de capacité ou de risque sur le coût total. Le responsable doit commencer par définir le résultat attendu, l’autorité concernée et les informations qui manquent encore. Une méthode ne doit pas être appliquée uniquement parce qu’elle figure dans un guide ou qu’elle est proposée par un outil. Sa valeur dépend du contexte, des personnes qui l’utilisent et de la qualité des décisions qu’elle permet de prendre.
 
+```mermaid
+flowchart TD
+    A["Dépassement ou contrainte de financement"] --> B["Construire plusieurs scénarios"]
+    B --> C["Réduire ou différer un périmètre non essentiel"]
+    B --> D["Livrer par étapes"]
+    B --> E["Revoir la solution ou le fournisseur"]
+    B --> F["Replanifier avec une justification"]
+    C --> G["Comparer valeur, coûts complets et risques"]
+    D --> G
+    E --> G
+    F --> G
+    G --> H["Décision par l'autorité compétente"]
+```
+
+Un arbitrage budgétaire compare des options complètes et non des économies apparentes. Réduire une dépense peut déplacer le coût vers le support, augmenter le risque, réduire la valeur ou retarder les bénéfices. Toute option doit expliciter les éléments abandonnés, les impacts sur la qualité et la sécurité, les coûts ultérieurs, les risques résiduels et la personne habilitée à décider.
+
 **Articuler avec les autres dimensions.** La décision peut affecter le périmètre, la capacité, les coûts, le calendrier, la sécurité et l’exploitation. Il est nécessaire de repérer les dépendances en amont, les conséquences pour les bénéficiaires et les coûts de réversibilité. Une optimisation locale peut transférer le coût vers une autre équipe ou reporter un risque après la mise en service. Une analyse complète rend explicite le compromis, indique ce qui est protégé et précise quelles limites ne peuvent pas être négociées.
 
 **Illustration opérationnelle.** Le sponsor compare une livraison limitée dans les temps, un renfort externe et un report, en tenant compte du coût d’exploitation. Pour traiter ce type de situation, consigner les faits, distinguer les hypothèses, fixer une responsabilité et définir une preuve vérifiable. Lorsque plusieurs solutions sont possibles, les comparer avec des critères communs. Si les données sont incomplètes, organiser une courte investigation avec une échéance au lieu de présenter une estimation fragile comme un engagement ferme. La décision doit pouvoir être comprise par une personne qui n’a pas assisté à la discussion d’origine.
@@ -269,6 +457,20 @@ I --> F
 
 Une entreprise prévoit un portail de service avec licences, intégration, migration, sécurité, formation et support. Le sponsor exige une enveloppe stable, mais les intégrations sont encore mal connues et plusieurs coûts récurrents restent à identifier.
 
+```mermaid
+flowchart TD
+    A["Définir le périmètre du portail"] --> B["Lister travail interne et achats"]
+    B --> C["Estimer licences, intégration, migration et sécurité"]
+    C --> D["Ajouter formation, support et exploitation"]
+    D --> E["Analyser risques et dépendances"]
+    E --> F["Comparer scénario complet et livraison par étapes"]
+    F --> G["Finance et sponsor examinent l'enveloppe"]
+    G --> H["Approuver référence ou réviser le scénario"]
+    H --> I["Suivre engagements, factures et reste à faire"]
+```
+
+Dans le cas du portail, l’équipe doit éviter de budgéter uniquement la configuration logicielle. La migration des données, les tests de sécurité, la recette, la formation, l’assistance au démarrage et l’exploitation ont aussi un coût. Les estimations doivent montrer les hypothèses et les éléments encore incertains afin que le sponsor puisse choisir entre plusieurs scénarios sur la base d’un coût complet.
+
 ### Cadrage et données de départ
 
 Les acteurs commencent par décrire le problème avec des faits vérifiables, puis identifient les bénéficiaires, les exigences et les contraintes. Ils séparent les obligations impératives des préférences, écrivent les hypothèses et demandent une confirmation lorsque celles-ci conditionnent fortement le coût ou la date. Le responsable du projet désigne un propriétaire pour chaque décision majeure, fixe un mécanisme d’escalade et conserve une trace des validations. La première sortie attendue est une compréhension commune du travail, et non une liste exhaustive de tâches écrite avant d’avoir compris le besoin.
@@ -281,9 +483,37 @@ L’équipe compare au moins deux options réalistes, dont une option limitée o
 
 Le plan est découpé en livrables que l’on peut vérifier. Les travaux critiques sont associés à des critères de sortie, des responsables et des preuves. Les prévisions sont actualisées en fonction du travail restant, pas uniquement par décalage des dates précédentes. Les changements sont analysés pour leurs impacts croisés. Lorsqu’un indicateur devient rouge, l’équipe expose la cause et propose une action plutôt que de modifier la définition de l’indicateur. La communication est adaptée à chaque public et les décisions qui dépassent les délégations remontent à la gouvernance.
 
+```mermaid
+flowchart TD
+    A["Référence et règles d'engagement approuvées"] --> B["Enregistrer commande et contrat"]
+    B --> C["Réconcilier factures et dépenses réelles"]
+    C --> D["Actualiser le coût restant à engager"]
+    D --> E["Comparer au budget de référence"]
+    E --> F{"Écart ou risque hors tolérance ?"}
+    F -->|"Non"| G["Continuer le suivi périodique"]
+    F -->|"Oui"| H["Analyser options et escalader"]
+    H --> I["Décision tracée et prévision mise à jour"]
+    G --> C
+    I --> C
+```
+
+Le suivi régulier associe le responsable projet, les acheteurs et la fonction finance selon les pratiques internes. Il faut concilier commandes, factures, charges constatées, paiements lorsque pertinents, prévisions de consommation et travail restant. Le rapport explique les écarts et les actions décidées ; il ne se contente pas de montrer le solde restant au budget.
+
 ### Acceptation et apprentissage
 
 Avant la clôture, les livrables sont comparés aux critères convenus, les défauts et risques résiduels sont documentés, les responsabilités d’exploitation sont transférées et le support est préparé. Les mesures de bénéfices ont un propriétaire et une échéance de suivi. La rétrospective décrit les faits, la cause des écarts, les adaptations utiles et les pratiques à conserver. Elle ne doit pas désigner des coupables : elle cherche à rendre le système de travail plus fiable et l’organisation plus apte à apprendre.
+
+```mermaid
+flowchart TD
+    A["Clôturer les commandes et factures ouvertes"] --> B["Expliquer les écarts finaux"]
+    B --> C["Comparer estimation initiale et coût réel"]
+    C --> D["Identifier hypothèses justes ou erronées"]
+    D --> E["Documenter coûts récurrents et engagements futurs"]
+    E --> F["Transférer le suivi des coûts d'exploitation"]
+    F --> G["Améliorer les estimations pour les prochains projets"]
+```
+
+À la clôture, le coût final doit être expliqué avec ses écarts, ses réserves consommées et les coûts qui se poursuivront après le projet. Les contrats non terminés, garanties, licences, opérations de support et obligations de conservation peuvent générer des coûts futurs. La comparaison entre estimation et résultat sert à améliorer les modèles d’estimation et les hypothèses de risque.
 
 ## Atelier pratique
 
