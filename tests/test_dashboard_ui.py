@@ -1113,9 +1113,14 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_startup_prioritizes_interactive_ui_and_avoids_duplicate_tree_scans(self):
         alpine_script = DASHBOARD_HTML.index('defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"')
-        drawflow_script = DASHBOARD_HTML.index('defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"')
-        self.assertLess(alpine_script, drawflow_script)
-        self.assertIn('defer src="https://cdn.jsdelivr.net/npm/chart.js"', DASHBOARD_HTML)
+        lazy_loader = DASHBOARD_HTML.index("window.skillTreeLoadScript = function (src, globalName)")
+        self.assertLess(lazy_loader, alpine_script)
+        # Les bibliothèques spécialisées ne doivent pas bloquer le chargement initial.
+        self.assertNotIn('defer src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"', DASHBOARD_HTML)
+        self.assertNotIn('defer src="https://cdn.jsdelivr.net/npm/chart.js"', DASHBOARD_HTML)
+        self.assertIn("window.skillTreeLoadScript('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js', 'Drawflow')", DASHBOARD_HTML)
+        self.assertIn("window.skillTreeLoadStyle('https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.css')", DASHBOARD_HTML)
+        self.assertIn("window.skillTreeLoadScript('https://cdn.jsdelivr.net/npm/chart.js', 'Chart')", DASHBOARD_HTML)
         self.assertIn("const refreshTask = this.refreshAll()", DASHBOARD_HTML)
         init_start = DASHBOARD_HTML.index("async init() {", DASHBOARD_HTML.index("function skilltreeBase()"))
         init_end = DASHBOARD_HTML.index("// --- Préférences d'affichage", init_start)
