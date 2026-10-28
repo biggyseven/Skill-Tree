@@ -6,6 +6,7 @@ on:
       - feature/lab-workspace
       - fix/lab-workspace-library-mobile-header-20261027
       - feat/lab-workspace-expanded-catalog-20261027
+      - perf/compiled-tailwind-main-20261028
     paths:
       - "app/lab-workspace/src/**"
       - "app/lab-workspace/index.html"
@@ -13,6 +14,9 @@ on:
       - "app/lab-workspace/package-lock.json"
       - "app/lab-workspace/vite.config.js"
       - ".github/workflows/build-lab-workspace-static.yml"
+      - "static/index.html"
+      - "static/tailwind.config.cjs"
+      - "static/tailwind.input.css"
 
 permissions:
   contents: write
@@ -42,15 +46,18 @@ jobs:
       - name: Run Lab Workspace unit tests
         run: npm --prefix app/lab-workspace test
 
+      - name: Build the main Skill Tree stylesheet
+        run: ./app/lab-workspace/node_modules/.bin/tailwindcss --config ./static/tailwind.config.cjs --input ./static/tailwind.input.css --output ./static/app.css --minify
+
       - name: Build the production assets served from /lab/
         run: npm --prefix app/lab-workspace run build
 
       - name: Commit rebuilt static assets when they changed
         shell: bash
         run: |
-          git add -A static/lab
-          if git diff --cached --quiet -- static/lab; then
-            echo "STATIC_LAB_ASSETS=unchanged"
+          git add -A static/lab static/app.css
+          if git diff --cached --quiet -- static/lab static/app.css; then
+            echo "STATIC_ASSETS=unchanged"
             exit 0
           fi
           git config user.name "github-actions[bot]"
