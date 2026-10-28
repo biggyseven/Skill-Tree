@@ -1575,11 +1575,11 @@ def _lesson_reading_target_seconds(source_id: str) -> int:
 
     # Les exemples de code et dessins SVG ne doivent pas gonfler artificiellement
     # l'estimation de lecture.
-    content = re.sub(r"```[\\s\\S]*?```", " ", content)
-    content = re.sub(r"<svg\\b[\\s\\S]*?</svg>", " ", content, flags=re.IGNORECASE)
+    content = re.sub(r"```[\s\S]*?```", " ", content)
+    content = re.sub(r"<svg\b[\s\S]*?</svg>", " ", content, flags=re.IGNORECASE)
     content = re.sub(r"<[^>]+>", " ", content)
-    content = re.sub(r"!\\[[^\\]]*\\]\\([^)]*\\)", " ", content)
-    words = re.findall(r"[\\wÀ-ÿ]+(?:[’'-][\\wÀ-ÿ]+)*", content, flags=re.UNICODE)
+    content = re.sub(r"!\[[^\]]*\]\([^)]*\)", " ", content)
+    words = re.findall(r"[\wÀ-ÿ]+(?:[’'-][\wÀ-ÿ]+)*", content, flags=re.UNICODE)
     if len(words) < 80:
         return 0
     # Au moins 35 % du temps de lecture estimé, avec un plancher de 30 s
