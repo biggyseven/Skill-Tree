@@ -502,7 +502,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
 
     def test_level_and_favorites_filters_announce_selection_accessibly(self):
         start = DASHBOARD_HTML.index('<div class="mb-8 flex flex-wrap gap-3">')
-        end = DASHBOARD_HTML.index('<div id="tree-grid"', start)
+        end = DASHBOARD_HTML.index('<!-- Sous-modules', start)
         filter_controls = DASHBOARD_HTML[start:end]
 
         for filter_id in ("all", "beginner", "intermediaire", "expert", "favorites"):
