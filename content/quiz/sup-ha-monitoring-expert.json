@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Monitoring de la haute disponibilité ».",
+      "prompt": "Pourquoi faut-il surveiller la plateforme de monitoring avec une voie de contrôle en partie indépendante ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Parce que Prometheus ne peut pas collecter d’exporters pendant la nuit.",
+        "Parce que deux dashboards identiques garantissent que les notifications seront livrées.",
+        "Parce qu’une panne du système de supervision peut aussi empêcher celui-ci de détecter ou signaler sa propre panne.",
+        "Parce qu’une sonde externe doit remplacer toutes les métriques d’application."
+      ],
+      "answer": 2,
+      "explanation": "Si le système qui détecte les pannes dépend entièrement de la plateforme devenue indisponible, il peut perdre sa capacité de détection et de notification au moment où elle est la plus nécessaire. Une sonde extérieure ou une sentinelle située dans un autre domaine de panne peut vérifier des fonctions critiques et utiliser une voie de notification indépendante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le fait que deux instances Prometheus collectent les mêmes cibles ?",
+      "choices": [
+        "Le stockage local est automatiquement synchronisé entre les deux serveurs.",
+        "La collecte peut être redondante, mais le stockage et la déduplication doivent être traités séparément.",
+        "Toutes les séries seront forcément comptées une seule fois dans n’importe quel outil.",
+        "Aucune configuration des règles n’est nécessaire sur le deuxième serveur."
+      ],
+      "answer": 1,
+      "explanation": "Deux Prometheus indépendants peuvent continuer la collecte lorsque l’un est en panne, mais ils stockent leurs données localement. Si leurs séries doivent être agrégées, une couche compatible doit reconnaître les réplicas et dédupliquer les données. Les règles et la configuration des deux instances doivent également rester cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une architecture Alertmanager en haute disponibilité peut-elle produire des notifications en double ?",
+      "choices": [
+        "Parce que les clusters ne prennent jamais en charge les silences.",
+        "Parce que chaque réplica est obligé d’envoyer toutes les notifications par e-mail.",
+        "Parce que la déduplication transforme toujours une alerte unique en plusieurs alertes distinctes.",
+        "Parce que des partitions réseau ou des retards de synchronisation peuvent rendre l’état partagé temporairement incomplet, la livraison étant privilégiée par rapport au risque de perdre l’alerte."
+      ],
+      "answer": 3,
+      "explanation": "Les instances Alertmanager partagent leur état, mais la synchronisation peut être imparfaite pendant une partition ou une période de dégradation réseau. Le système peut privilégier la continuité de notification plutôt qu’une garantie stricte d’envoi exactement une fois. Le regroupement et les procédures doivent tolérer des doublons raisonnables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle combinaison offre la meilleure couverture pour détecter une dégradation du service et un défaut de collecte ?",
+      "choices": [
+        "Sondes actives depuis un point de vue indépendant et métriques passives du trafic réel, avec un contrôle de fraîcheur des données.",
+        "Un dashboard dont la page d’accueil répond en HTTP 200.",
+        "Une seule métrique CPU de l’instance Grafana.",
+        "Un test manuel après chaque incident, sans vérification périodique."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Les sondes actives vérifient un parcours depuis un point contrôlé, même lorsque le trafic est faible. Les métriques passives et les traces décrivent les usages réels et aident au diagnostic. La fraîcheur permet de détecter les données anciennes ou absentes. Ces signaux sont complémentaires : un dashboard accessible ne garantit pas que les données sont actuelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle preuve est la plus convaincante qu’un plan de haute disponibilité fonctionne réellement ?",
+      "choices": [
+        "L’inventaire indique trois serveurs installés.",
+        "Tous les processus ont répondu pendant un contrôle de démarrage.",
+        "Des exercices de panne mesurent la continuité de collecte, l’évaluation des règles, la livraison finale, la disponibilité des données et le retour à la redondance.",
+        "La page Grafana s’ouvre depuis le réseau interne."
+      ],
+      "answer": 2,
+      "explanation": "La haute disponibilité se démontre par le comportement en cas de défaillance. Les tests doivent provoquer des pannes contrôlées et mesurer les fonctions essentielles, les délais, la perte de données acceptable et la restauration de la redondance. Le nombre de serveurs et leur état au démarrage ne prouvent pas que les dépendances communes ni les chemins d’alerte sont protégés."
     }
   ]
 }
