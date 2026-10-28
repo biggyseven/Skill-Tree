@@ -59,6 +59,7 @@ def _fix_acl_missing(device: dict[str, Any], port: dict[str, Any]) -> bool:
 
 
 def _apply_trunk_missing(device: dict[str, Any], port: dict[str, Any]) -> None:
+    port["mode"] = "access"
     _interface_config(device, port)["mode"] = "access"
 
 
