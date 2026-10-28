@@ -2982,7 +2982,7 @@
           this.loadFavorites();
           this.loadWarOpenCount();
           if (this._warOpenCountTimer) clearInterval(this._warOpenCountTimer);
-          this._warOpenCountTimer = window.setInterval(() => this.loadWarOpenCount(), 5000);
+          this._warOpenCountTimer = window.setInterval(() => { if (this.tab === 'war') this.loadWarOpenCount(); }, 5000);
           window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return;
             const message = event.data;
