@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « APM (Datadog, New Relic) ».",
+      "prompt": "Une API présente un p95 qui augmente fortement, alors que l’utilisation CPU reste modérée. Quelle démarche est la plus appropriée pour rechercher la cause ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Augmenter immédiatement le nombre de processeurs, car une latence élevée prouve un manque de CPU.",
+        "Inspecter des traces lentes, localiser les spans coûteux, puis corréler ces observations avec les logs et les métriques des dépendances.",
+        "Désactiver l’instrumentation APM pour que les mesures ne soient plus perturbées, puis considérer l’incident résolu.",
+        "Utiliser uniquement la moyenne de latence et ignorer les percentiles, car ils ne sont pas utiles pour les services web."
+      ],
+      "answer": 1,
+      "explanation": "Une hausse du p95 peut être provoquée par une dépendance lente, une attente de pool, un verrou ou une régression touchant seulement une partie des requêtes. Les traces localisent les segments coûteux, tandis que les logs et métriques apportent des preuves complémentaires. Une hausse de latence ne prouve donc pas, à elle seule, une saturation CPU."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle description distingue correctement un span d’une trace distribuée ?",
+      "choices": [
+        "Un span est une métrique agrégée sur cinq minutes et une trace est un journal contenant uniquement les erreurs.",
+        "Une trace est une opération unique sur un seul serveur et un span est l’ensemble des services traversés par une requête.",
+        "Un span représente une opération mesurée avec une durée et des attributs ; une trace relie les spans d’un parcours logique à travers un ou plusieurs composants.",
+        "Un span contient nécessairement le corps complet de la requête et une trace sert uniquement à stocker les paramètres HTTP."
+      ],
+      "answer": 2,
+      "explanation": "Un span décrit une opération précise, comme le traitement HTTP ou un appel SQL, et porte un début, une fin, un nom et des attributs. Une trace rassemble les spans associés à une opération logique, généralement reliés par des relations parent-enfant ou d’autres liens adaptés. Les corps de requête ne sont ni nécessaires ni souhaitables par défaut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi est-il recommandé de normaliser les noms des ressources, par exemple en utilisant /orders/{order_id} ?",
+      "choices": [
+        "Pour regrouper les opérations comparables et éviter de créer des groupes et dimensions uniques pour chaque identifiant de commande.",
+        "Pour remplacer le trace ID par le numéro de commande et supprimer le besoin de propager le contexte.",
+        "Pour garantir que toutes les requêtes aient la même durée, indépendamment du traitement métier.",
+        "Pour faire en sorte que les appels vers la base de données ne produisent plus de spans enfants."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Une ressource normalisée permet de comparer toutes les requêtes correspondant à une route donnée. Un nom contenant un identifiant concret peut produire une très grande cardinalité, rendre l’analyse moins lisible et augmenter certains coûts de stockage ou d’indexation. La normalisation ne remplace ni les identifiants de trace ni l’instrumentation des dépendances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est un risque important lorsque le contexte de traçage n’est pas propagé entre deux services ?",
+      "choices": [
+        "Toutes les requêtes du second service sont automatiquement rejetées par le protocole HTTP.",
+        "La base de données arrête nécessairement d’exécuter les requêtes SQL.",
+        "Les métriques CPU des deux services ne peuvent plus être collectées.",
+        "Les spans peuvent apparaître dans des traces séparées, rendant difficile la reconstitution du parcours de bout en bout."
+      ],
+      "answer": 3,
+      "explanation": "La propagation du contexte relie l’opération appelante au traitement du service appelé. Si les en-têtes ou le contexte ne traversent pas la frontière, le second service peut créer une trace indépendante : les deux services restent observables, mais la causalité entre leurs spans est perdue. Il faut vérifier les clients, middlewares, proxies et frontières asynchrones."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie est la plus saine pour maîtriser le volume, les coûts et les risques de confidentialité de l’APM ?",
+      "choices": [
+        "Collecter systématiquement tous les corps HTTP, cookies, mots de passe et requêtes SQL complètes afin de ne manquer aucun détail.",
+        "Définir les données nécessaires, normaliser les ressources, configurer un échantillonnage cohérent, limiter les champs sensibles et mesurer le volume réel.",
+        "Supprimer toutes les traces comportant une erreur et conserver uniquement les appels les plus rapides.",
+        "Augmenter sans contrôle la cardinalité des attributs pour que chaque événement soit plus facile à distinguer."
+      ],
+      "answer": 1,
+      "explanation": "Une collecte efficace est intentionnelle : elle sélectionne les attributs utiles, protège les secrets et les données personnelles, normalise les dimensions, ajuste l’échantillonnage et mesure le volume réellement produit. Tout collecter peut accroître le coût et l’exposition de données sensibles, tandis que supprimer toutes les erreurs empêcherait le diagnostic des incidents."
     }
   ]
 }
