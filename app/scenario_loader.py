@@ -110,7 +110,7 @@ def _base_topologies() -> dict[str, dict[str, Any]]:
         "schema_version": 2,
         "nodes": [
             _router("R1", 100, 170),
-            _switch("SW1", 390, 170, {"Fa0/1": 1, "Fa0/7": 20, "Fa0/8": 20}),
+            _switch("SW1", 390, 170, {"Fa0/1": 20, "Fa0/7": 20, "Fa0/8": 20}),
             _pc("PC1", 650, 300),
         ],
         "links": [
@@ -124,7 +124,7 @@ def _base_topologies() -> dict[str, dict[str, Any]]:
         "schema_version": 2,
         "nodes": [
             _router("R1", 100, 170),
-            _switch("SW1", 365, 170, {"Fa0/1": 1, "Fa0/7": 20, "Fa0/8": 20}, {"Fa0/1"}),
+            _switch("SW1", 365, 170, {"Fa0/1": 20, "Fa0/7": 20, "Fa0/8": 20}),
             _pc("PC1", 365, 360),
             _router("R2", 680, 170, "192.168.10.2", "172.16.0.1"),
             _pc("PC2", 880, 360, "172.16.0.10", "172.16.0.1"),
@@ -141,17 +141,18 @@ def _base_topologies() -> dict[str, dict[str, Any]]:
     vlan_multiple = {
         "schema_version": 2,
         "nodes": [
-            _router("R1", 390, 70),
-            _switch("SW1", 100, 210, {"Fa0/1": 1, "Fa0/2": 1, "Fa0/7": 20, "Fa0/8": 30}, {"Fa0/1", "Fa0/2"}),
+            _router("R1", 390, 70, "10.20.0.1", "10.30.0.1"),
+            _switch("SW1", 100, 210, {"Fa0/1": 20, "Fa0/2": 30, "Fa0/3": 1, "Fa0/7": 20, "Fa0/8": 30}, {"Fa0/3"}),
             _switch("SW2", 650, 210, {"Fa0/1": 1, "Fa0/2": 20, "Fa0/3": 30}, {"Fa0/1"}),
             _pc("PC1", 100, 410, "10.20.0.11", "10.20.0.1"),
             _pc("PC2", 650, 410, "10.30.0.11", "10.30.0.1"),
         ],
         "links": [
             _link("L1", "R1", "Fa0/0", "SW1", "Fa0/1"),
-            _link("L2", "SW1", "Fa0/2", "SW2", "Fa0/1"),
-            _link("L3", "SW1", "Fa0/7", "PC1", "eth0"),
-            _link("L4", "SW2", "Fa0/2", "PC2", "eth0"),
+            _link("L2", "R1", "Fa0/1", "SW1", "Fa0/2"),
+            _link("L3", "SW1", "Fa0/3", "SW2", "Fa0/1"),
+            _link("L4", "SW1", "Fa0/7", "PC1", "eth0"),
+            _link("L5", "SW2", "Fa0/3", "PC2", "eth0"),
         ],
     }
     return {
