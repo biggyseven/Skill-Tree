@@ -74,7 +74,11 @@ DIAGNOSTICS_DIR = CONTENT_DIR / "diagnostics"
 TTS_VOICES = {"fr-FR-DeniseNeural", "fr-FR-HenriNeural"}
 EXAM_QUESTION_COUNT = 20
 EXAM_DURATION_SECONDS = 30 * 60
-EXAM_PASS_SCORE = 85
+EXAM_PASS_SCORE = 80
+EXAM_MAX_QUESTION_COUNT = 500
+EXAM_MIN_DURATION_SECONDS = 60
+EXAM_MAX_DURATION_SECONDS = 8 * 60 * 60
+EXAM_SUBMIT_GRACE_SECONDS = 15
 EXAM_SUBMIT_GRACE_SECONDS = 15
 GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile"
 GROQ_FALLBACK_MODEL = "openai/gpt-oss-20b"
@@ -472,23 +476,426 @@ def validate_lab_route(payload: dict = Body(...), tree: SkillTree = Depends(get_
 # ALIAS POUR L'INTERFACE HTML
 # ---------------------------------------------------------
 
-@app.post("/api/exam/start")
-def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
-    category = payload.get("category")
-    nodes = [node for node in tree.nodes() if node.category == category]
-    pool = [(node, q) for node in nodes for q in tree.questions(node.id, ProofKind.QUIZ)]
-    selected = random.sample(pool, min(EXAM_QUESTION_COUNT, len(pool)))
-    
+
+def _exam_bounded_integer(value, name: str, default: int, minimum: int, maximum: int) -> int:
+    if value is None:
+        value = default
+    if isinstance(value, bool):
+        raise HTTPException(422, f"Le paramètre {name} doit être un entier.")
+    try:
+        number = int(value)
+    except (TypeError, ValueError) as error:
+        raise HTTPException(422, f"Le paramètre {name} doit être un entier.") from error
+    if number < minimum or number > maximum:
+        raise HTTPException(422, f"Le paramètre {name} doit être compris entre {minimum} et {maximum}.")
+    return number
+
+
+def _exam_level(node_id: str, title: str = "") -> str:
+    suffix = str(node_id or "").strip().lower().replace("_", "-").rsplit("-", 1)[-1]
+    if suffix in {"debutant", "intermediaire", "expert"}:
+        return suffix
+    lowered_title = str(title or "").casefold().rstrip()
+    if lowered_title.endswith("expert"):
+        return "expert"
+    if lowered_title.endswith(("intermédiaire", "intermediaire")):
+        return "intermediaire"
+    if lowered_title.endswith("débutant"):
+        return "debutant"
+    return ""
+
+
+def _exam_is_placeholder(question: Question) -> bool:
+    return re.search(
+        r"question temporaire|réponse provisoire|option temporaire",
+        str(question.prompt or ""),
+        flags=re.IGNORECASE,
+    ) is not None
+
+
+def _exam_question_pool(tree: SkillTree, nodes: list[Node]) -> list[Question]:
+    pool: list[Question] = []
+    seen: set[int] = set()
+    for node in nodes:
+        dedicated = [
+            question for question in tree.questions(node.id, ProofKind.EXAM)
+            if not _exam_is_placeholder(question)
+        ]
+        questions = dedicated or [
+            question for question in tree.questions(node.id, ProofKind.QUIZ)
+            if not _exam_is_placeholder(question)
+        ]
+        for question in questions:
+            if question.id in seen:
+                continue
+            seen.add(question.id)
+            pool.append(question)
+    return pool
+
+
+def _exam_public_question(question: Question, nodes_by_id: dict[str, Node] | None = None) -> dict:
+    node = (nodes_by_id or {}).get(question.node_id)
+    return {
+        "id": question.id,
+        "node_id": question.node_id,
+        "level": _exam_level(question.node_id, node.title if node else ""),
+        "type": question.question_type,
+        "prompt": question.prompt,
+        "choices": list(question.choices),
+    }
+
+
+def _exam_load_questions(tree: SkillTree, raw_ids: list) -> list[Question]:
+    if not isinstance(raw_ids, list) or not raw_ids or len(raw_ids) > EXAM_MAX_QUESTION_COUNT:
+        raise HTTPException(409, "Cette session ne contient pas une liste valide de questions.")
+    try:
+        ids = [int(value) for value in raw_ids]
+    except (TypeError, ValueError) as error:
+        raise HTTPException(409, "La liste des questions de cette session est invalide.") from error
+    if any(question_id <= 0 for question_id in ids) or len(set(ids)) != len(ids):
+        raise HTTPException(409, "La liste des questions de cette session est invalide.")
+
+    placeholders = ",".join("?" for _ in ids)
+    rows = tree.conn.execute(
+        f"SELECT * FROM questions WHERE id IN ({placeholders})",
+        ids,
+    ).fetchall()
+    by_id: dict[int, Question] = {}
+    for row in rows:
+        try:
+            choices = tuple(json.loads(row["choices"] or "[]"))
+        except (TypeError, ValueError, json.JSONDecodeError) as error:
+            raise HTTPException(500, "Une question de l'examen possède des choix invalides.") from error
+        question_type = str(row["question_type"] or "qcm")
+        answer = row["answer_text"] if question_type in {"input", "terminal"} else row["answer"]
+        by_id[int(row["id"])] = Question(
+            id=int(row["id"]),
+            node_id=str(row["node_id"]),
+            scope=ProofKind(row["scope"]),
+            prompt=str(row["prompt"]),
+            choices=choices,
+            answer=answer,
+            explanation=str(row["explanation"] or ""),
+            question_type=question_type,
+            answer_regex=row["answer_regex"],
+        )
+    if any(question_id not in by_id for question_id in ids):
+        raise HTTPException(409, "La banque de questions a changé depuis le début de cet examen.")
+    return [by_id[question_id] for question_id in ids]
+
+
+def _exam_sanitize_answer(question: Question, value) -> int | str | None:
+    if question.question_type == "qcm":
+        if isinstance(value, int) and not isinstance(value, bool) and 0 <= value < len(question.choices):
+            return value
+        return None
+    if isinstance(value, str):
+        return value[:2000].strip()
+    return None
+
+
+def _exam_grade_question(question: Question, answer: int | str | None) -> dict:
+    if question.question_type == "qcm":
+        correct = isinstance(answer, int) and not isinstance(answer, bool) and answer == question.answer
+    else:
+        submitted = answer if isinstance(answer, str) else ""
+        expected = str(question.answer or "")
+        if not submitted:
+            correct = False
+        elif question.answer_regex:
+            try:
+                correct = re.fullmatch(
+                    question.answer_regex, submitted, flags=re.IGNORECASE | re.MULTILINE
+                ) is not None
+            except re.error:
+                correct = False
+        else:
+            correct = re.sub(r"\s+", " ", submitted).strip().casefold() == re.sub(
+                r"\s+", " ", expected
+            ).strip().casefold()
+    return {
+        "question_id": question.id,
+        "node_id": question.node_id,
+        "correct": bool(correct),
+        "answer": question.answer,
+        "explanation": question.explanation,
+    }
+
+
+def _exam_saved_result(row) -> dict:
+    try:
+        saved = json.loads(row["result_json"] or "")
+        if isinstance(saved, dict) and saved:
+            return saved
+    except (TypeError, ValueError, json.JSONDecodeError):
+        pass
+    try:
+        answers = json.loads(row["answers_json"] or "[]")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        answers = []
+    try:
+        details = json.loads(row["details_json"] or "[]")
+    except (TypeError, ValueError, json.JSONDecodeError):
+        details = []
+    score = int(row["score"] or 0)
+    total = int(row["total"] or 0)
+    passing_score = int(row["passing_score"] or EXAM_PASS_SCORE)
+    return {
+        "success": bool(row["submitted"]),
+        "session_id": str(row["session_id"]),
+        "score": score,
+        "passed": bool(row["passed"]),
+        "correct": int(row["correct"] or 0),
+        "total": total,
+        "duration": max(0, int(row["submitted_at"] or row["started_at"]) - int(row["started_at"])),
+        "time_expired": bool(row["time_expired"]),
+        "answers": answers,
+        "details": details,
+        "pass_score": passing_score,
+        "passing_score": passing_score,
+        "node_id": None,
+        "exam_type": "category",
+        "submitted": bool(row["submitted"]),
+        "offline": False,
+    }
+
+
+@app.post("/api/exam/build")
+def exam_build(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    all_nodes = tree.nodes()
+    nodes_by_id = {node.id: node for node in all_nodes}
+    raw_ids = payload.get("node_ids")
+    if raw_ids is not None:
+        if not isinstance(raw_ids, list) or not raw_ids:
+            raise HTTPException(422, "La sélection de cours est vide ou invalide.")
+        if len(raw_ids) > 1000:
+            raise HTTPException(422, "La sélection dépasse 1 000 cours.")
+        selected_ids: list[str] = []
+        for value in raw_ids:
+            if not isinstance(value, str) or not value.strip():
+                raise HTTPException(422, "Un identifiant de cours est invalide.")
+            node_id = value.strip()
+            if node_id not in nodes_by_id:
+                raise HTTPException(422, f"Cours inconnu dans la sélection : {node_id}.")
+            if node_id not in selected_ids:
+                selected_ids.append(node_id)
+        nodes = [nodes_by_id[node_id] for node_id in selected_ids]
+    else:
+        category = str(payload.get("category") or "").strip()
+        module = str(payload.get("module") or "").strip().lower()
+        if category and category.lower() != "all":
+            nodes = [node for node in all_nodes if node.category == category]
+        elif module in {"", "all", "*"}:
+            nodes = list(all_nodes)
+        else:
+            raise HTTPException(
+                422,
+                "La sélection de cours est requise pour un examen par module. Recharge le centre d'examens.",
+            )
+
+    raw_levels = payload.get("levels")
+    if isinstance(raw_levels, list) and raw_levels and "all" not in [
+        str(level).strip().lower() for level in raw_levels
+    ]:
+        levels = {str(level).strip().lower() for level in raw_levels}
+        nodes = [node for node in nodes if _exam_level(node.id, node.title) in levels]
+    if not nodes:
+        raise HTTPException(422, "Aucun cours ne correspond au périmètre demandé.")
+
+    count = _exam_bounded_integer(
+        payload.get("count"), "count", EXAM_QUESTION_COUNT, 1, EXAM_MAX_QUESTION_COUNT
+    )
+    if payload.get("time_limit") is not None:
+        time_limit = _exam_bounded_integer(
+            payload.get("time_limit"), "time_limit", EXAM_DURATION_SECONDS,
+            EXAM_MIN_DURATION_SECONDS, EXAM_MAX_DURATION_SECONDS,
+        )
+    else:
+        minutes = _exam_bounded_integer(
+            payload.get("minutes"), "minutes", EXAM_DURATION_SECONDS // 60,
+            1, EXAM_MAX_DURATION_SECONDS // 60,
+        )
+        time_limit = minutes * 60
+
+    pool = _exam_question_pool(tree, nodes)
+    if not pool:
+        raise HTTPException(
+            422,
+            "Aucune question exploitable dans ce périmètre. Vérifie les banques de quiz et d'examen de ces cours.",
+        )
+    selected = random.sample(pool, min(count, len(pool)))
     now = int(time.time())
     session_id = uuid.uuid4().hex
+    category = str(
+        payload.get("category") or payload.get("module") or
+        ("Tous modules" if len(nodes) > 1 else nodes[0].category)
+    ).strip() or "Examen personnalisé"
     tree.conn.execute(
-        "INSERT INTO exam_sessions (session_id, category, question_ids, started_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-        (session_id, category, json.dumps([q.id for _, q in selected]), now, now + EXAM_DURATION_SECONDS)
+        "INSERT INTO exam_sessions "
+        "(session_id, category, question_ids, started_at, expires_at, submitted, "
+        "score, passed, correct, total, submitted_at, time_expired, answers_json, "
+        "details_json, result_json, passing_score) "
+        "VALUES (?, ?, ?, ?, ?, 0, NULL, NULL, NULL, ?, NULL, 0, '[]', '[]', '', ?)",
+        (
+            session_id, category, json.dumps([question.id for question in selected]),
+            now, now + time_limit, len(selected), EXAM_PASS_SCORE,
+        ),
     )
     tree.conn.commit()
     return {
-        "id": session_id, "category": category, "duration_seconds": EXAM_DURATION_SECONDS,
-        "questions": [{"id": q.id, "type": q.question_type, "prompt": q.prompt, "choices": list(q.choices)} for _, q in selected]
+        "id": session_id,
+        "category": category,
+        "exam_type": "category",
+        "node_id": None,
+        "time_limit": time_limit,
+        "duration_seconds": time_limit,
+        "pass_score": EXAM_PASS_SCORE,
+        "passing_score": EXAM_PASS_SCORE,
+        "requested_count": count,
+        "question_count": len(selected),
+        "questions": [_exam_public_question(question, nodes_by_id) for question in selected],
+    }
+
+
+@app.post("/api/exam/submit")
+def exam_submit(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)) -> dict:
+    session_id = str(payload.get("session_id") or "").strip()
+    if not session_id or len(session_id) > 64:
+        raise HTTPException(422, "Identifiant de session manquant ou invalide.")
+    row = tree.conn.execute(
+        "SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)
+    ).fetchone()
+    if row is None:
+        raise HTTPException(404, "Session d'examen introuvable.")
+    if row["submitted"]:
+        return _exam_saved_result(row)
+
+    try:
+        raw_ids = json.loads(row["question_ids"] or "[]")
+    except (TypeError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(409, "La liste des questions de cette session est invalide.") from error
+    questions = _exam_load_questions(tree, raw_ids)
+    raw_answers = payload.get("answers", [])
+    if not isinstance(raw_answers, list):
+        raise HTTPException(422, "Les réponses doivent être envoyées sous forme de liste.")
+    if len(raw_answers) > len(questions):
+        raise HTTPException(422, "Le nombre de réponses dépasse le nombre de questions.")
+    answers = [
+        _exam_sanitize_answer(question, raw_answers[index] if index < len(raw_answers) else None)
+        for index, question in enumerate(questions)
+    ]
+
+    now = int(time.time())
+    started_at = int(row["started_at"] or now)
+    expires_at = int(row["expires_at"] or started_at)
+    too_late = now > expires_at + EXAM_SUBMIT_GRACE_SECONDS
+    timed_out = now >= expires_at or too_late
+    if too_late:
+        answers = [None] * len(questions)
+    details = [
+        _exam_grade_question(question, answers[index])
+        for index, question in enumerate(questions)
+    ]
+    correct = sum(1 for item in details if item["correct"])
+    total = len(questions)
+    score = round(100 * correct / total) if total else 0
+    passed = score >= EXAM_PASS_SCORE
+    submitted_at = min(now, expires_at) if timed_out else now
+    duration = min(max(0, submitted_at - started_at), max(0, expires_at - started_at))
+    result = {
+        "success": True,
+        "session_id": session_id,
+        "score": score,
+        "passed": passed,
+        "correct": correct,
+        "total": total,
+        "duration": duration,
+        "time_expired": bool(timed_out),
+        "answers": answers,
+        "details": details,
+        "pass_score": EXAM_PASS_SCORE,
+        "passing_score": EXAM_PASS_SCORE,
+        "node_id": None,
+        "exam_type": "category",
+        "submitted": True,
+        "offline": False,
+        "submitted_at": submitted_at,
+    }
+    update = tree.conn.execute(
+        "UPDATE exam_sessions SET submitted = 1, score = ?, passed = ?, correct = ?, "
+        "total = ?, submitted_at = ?, time_expired = ?, answers_json = ?, details_json = ?, "
+        "passing_score = ?, result_json = ? WHERE session_id = ? AND submitted = 0",
+        (
+            score, int(passed), correct, total, submitted_at, int(timed_out),
+            json.dumps(answers, ensure_ascii=False),
+            json.dumps(details, ensure_ascii=False),
+            EXAM_PASS_SCORE,
+            json.dumps(result, ensure_ascii=False),
+            session_id,
+        ),
+    )
+    if getattr(update, "rowcount", 1) == 0:
+        tree.conn.rollback()
+        latest = tree.conn.execute(
+            "SELECT * FROM exam_sessions WHERE session_id = ?", (session_id,)
+        ).fetchone()
+        if latest is not None and latest["submitted"]:
+            return _exam_saved_result(latest)
+        raise HTTPException(409, "La session d'examen ne peut plus être corrigée.")
+    tree.conn.commit()
+    return result
+
+
+@app.post("/api/exam/start")
+def exam_start_alias(payload: dict = Body(...), tree: SkillTree = Depends(get_tree)):
+    category = payload.get("category")
+    if not isinstance(category, str) or not category.strip():
+        raise HTTPException(422, "Catégorie d'examen manquante ou invalide.")
+    category = category.strip()
+    nodes = [node for node in tree.nodes() if node.category == category]
+    if not nodes:
+        raise HTTPException(404, "Catégorie d'examen introuvable.")
+    pool = [
+        (node, question)
+        for node in nodes
+        for question in (tree.questions(node.id, ProofKind.EXAM) or tree.questions(node.id, ProofKind.QUIZ))
+        if not _exam_is_placeholder(question)
+    ]
+    if not pool:
+        raise HTTPException(422, "Aucune question exploitable dans cette catégorie.")
+    requested_count = _exam_bounded_integer(
+        payload.get("count"), "count", EXAM_QUESTION_COUNT, 1, EXAM_MAX_QUESTION_COUNT
+    )
+    if payload.get("time_limit") is not None:
+        time_limit = _exam_bounded_integer(
+            payload.get("time_limit"), "time_limit", EXAM_DURATION_SECONDS,
+            EXAM_MIN_DURATION_SECONDS, EXAM_MAX_DURATION_SECONDS,
+        )
+    else:
+        time_limit = EXAM_DURATION_SECONDS
+    selected = random.sample(pool, min(requested_count, len(pool)))
+    now = int(time.time())
+    session_id = uuid.uuid4().hex
+    tree.conn.execute(
+        "INSERT INTO exam_sessions "
+        "(session_id, category, question_ids, started_at, expires_at, total, passing_score) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (
+            session_id, category, json.dumps([question.id for _, question in selected]),
+            now, now + time_limit, len(selected), EXAM_PASS_SCORE,
+        ),
+    )
+    tree.conn.commit()
+    nodes_by_id = {node.id: node for node in nodes}
+    return {
+        "id": session_id,
+        "category": category,
+        "duration_seconds": time_limit,
+        "time_limit": time_limit,
+        "pass_score": EXAM_PASS_SCORE,
+        "passing_score": EXAM_PASS_SCORE,
+        "question_count": len(selected),
+        "questions": [_exam_public_question(question, nodes_by_id) for _, question in selected],
     }
 
 @app.post("/api/tutor")
