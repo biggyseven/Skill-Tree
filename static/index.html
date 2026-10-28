@@ -2072,7 +2072,7 @@
                 <div x-show="exerciseError" x-cloak role="alert" aria-live="polite" class="mt-4 rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="exerciseError"></div>
                 <div x-show="quizResult" role="status" aria-live="polite" class="mt-6 rounded-xl border p-4" :class="quizResult?.passed ? 'border-lime-400/20 bg-lime-500/10' : 'border-rose-400/20 bg-rose-500/10'">
                   <p class="font-bold text-lg" :class="quizResult?.passed ? 'text-lime-300' : 'text-rose-300'" x-text="`${quizResult?.score}/100`"></p>
-                  <p class="mt-2 text-sm text-zinc-300" x-text="quizResult?.validated ? 'Cours validé : progression enregistrée.' : (quizResult?.passed ? 'Score suffisant, mais d’autres exigences du cours restent à valider.' : 'Score insuffisant : consulte les corrections et réessaie.')"></p>
+                  <p class="mt-2 text-sm text-zinc-300" x-text="quizResult?.reassessment ? 'Cours déjà validé : cette révision ne modifie pas la progression ni les récompenses.' : (quizResult?.validated ? 'Cours validé : progression enregistrée.' : (quizResult?.passed ? 'Score suffisant, mais d’autres exigences du cours restent à valider.' : 'Score insuffisant : consulte les corrections et réessaie.'))"></p>
                   <div x-show="quizResult?.results?.length" class="mt-4 space-y-2 border-t border-white/10 pt-3">
                     <template x-for="item in (quizResult.results || [])" :key="item.id">
                       <div class="rounded-xl bg-[color:var(--s1)] p-3">
