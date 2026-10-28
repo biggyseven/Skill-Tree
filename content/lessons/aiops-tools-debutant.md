@@ -304,7 +304,6 @@ Le laboratoire doit être exécuté dans un environnement isolé ou sur des syst
 ### Exemple de code ou de configuration
 
 ```yaml
----
 - name: Inventorier le laboratoire sans changement
   hosts: lab_switches
   gather_facts: false
