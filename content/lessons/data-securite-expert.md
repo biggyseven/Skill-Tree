@@ -761,7 +761,100 @@ Les tests se connectent avec les identités réelles de l’application et du ta
 
 Il n’existe pas une seule bonne architecture. La qualité de la proposition repose sur la cohérence entre menace, finalité, contrôles, exploitation et preuve. Toute exception doit être explicite, justifiée, attribuée et réévaluée.
 
-## 20. Checklist opérationnelle avant mise en production
+## 20. Atelier avancé : vérifier le moindre privilège et l'isolation par tenant
+
+Une configuration de sécurité doit être testée avec des identités et des requêtes réelles, pas seulement validée dans un document. Cet atelier illustre deux couches complémentaires : les privilèges SQL sur les objets et une politique de sécurité au niveau des lignes. Le dialecte utilisé est PostgreSQL. Adaptez les rôles, colonnes et migrations au schéma réel.
+
+### Modèle de contrôle
+
+```mermaid
+flowchart TD
+    A["Identité authentifiée"] --> B["Service applicatif de confiance"]
+    B --> C["Rôle SQL à privilèges réduits"]
+    C --> D["GRANT sur les seules colonnes requises"]
+    C --> E["Politique RLS par tenant"]
+    D --> F["Requête autorisée"]
+    E --> F
+    F --> G["Journal d'audit sans données sensibles"]
+```
+
+La séparation des privilèges limite les dommages possibles si une requête ou un service est mal utilisé. Les comptes applicatifs ne devraient pas être propriétaires des tables, superutilisateurs ou rôles disposant de `BYPASSRLS`. Les accès de migration et d'administration doivent être séparés des accès courants. Le chiffrement protège la confidentialité des supports ou des communications, mais ne remplace pas l'autorisation logique.
+
+### Exemple PostgreSQL : autoriser seulement les colonnes nécessaires
+
+On suppose une table `analytics.learner_progress` comprenant notamment `tenant_id`, `learner_id`, `course_id` et `progress_pct`. Le rôle ci-dessous est un rôle de groupe sans connexion directe.
+
+```sql
+CREATE ROLE analytics_progress_reader NOLOGIN;
+
+GRANT USAGE ON SCHEMA analytics TO analytics_progress_reader;
+
+GRANT SELECT (learner_id, course_id, progress_pct)
+ON analytics.learner_progress
+TO analytics_progress_reader;
+
+ALTER TABLE analytics.learner_progress
+    ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE analytics.learner_progress
+    FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY progress_by_tenant
+ON analytics.learner_progress
+FOR SELECT
+TO analytics_progress_reader
+USING (
+    tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
+);
+```
+
+La politique doit être revue avec le modèle d'identité de l'application, et pas copiée sans analyse. Dans ce modèle, le serveur détermine le tenant à partir d'une session authentifiée et établit le contexte au niveau de la transaction, avant la requête. Le client final ne doit jamais pouvoir fournir librement le tenant utilisé pour autoriser son accès. Un paramètre de session configurable par le rôle SQL n'est pas, à lui seul, une frontière de sécurité suffisante face à un acteur capable d'exécuter du SQL arbitraire.
+
+```sql
+BEGIN;
+SELECT set_config('app.tenant_id', '11111111-1111-1111-1111-111111111111', true);
+SET LOCAL ROLE analytics_progress_reader;
+
+SELECT learner_id, course_id, progress_pct
+FROM analytics.learner_progress
+ORDER BY learner_id;
+
+ROLLBACK;
+```
+
+L'identifiant de tenant utilisé ici est fictif. En application réelle, la valeur provient du contexte d'identité vérifié par le serveur, est passée avec un paramètre, et la transaction doit toujours se terminer proprement. Il faut vérifier qu'un contexte absent ne donne aucune ligne et que deux tenants ne peuvent pas lire les données de l'autre.
+
+### Tests de sécurité à automatiser
+
+| Test | Résultat attendu | Preuve à conserver |
+|---|---|---|
+| Rôle lecteur tente de lire une colonne de secret | Accès refusé | Code SQLSTATE et résultat du test |
+| Aucun tenant n'est défini | Aucune ligne inter-tenant n'est révélée | Test exécuté sans contexte |
+| Tenant A demande une ligne du tenant B | La ligne demeure invisible | Test d'accès négatif avec identités de test |
+| Rôle applicatif tente une opération DDL | Opération refusée | Test des privilèges du rôle |
+| Table accessible par son propriétaire | Comportement RLS vérifié explicitement | Test avec le rôle propriétaire et FORCE RLS |
+| Journal d'erreur | Pas de mot de passe, jeton ni payload complet | Inspection de logs sur scénario de fuite |
+
+### Procédure de rotation des clés sans interruption
+
+Pour le chiffrement enveloppe, une clé de données (DEK) chiffre les données tandis qu'une clé de chiffrement de clés (KEK) protège la DEK. Le système conserve l'identifiant de version de la KEK utilisée et l'information nécessaire au déchiffrement. La rotation doit être organisée pour que la lecture reste possible pendant la transition.
+
+1. Créer la nouvelle version de KEK dans le gestionnaire de clés et vérifier les politiques d'accès.
+2. Tester le déchiffrement d'un échantillon de contrôle avec les clés et permissions attendues.
+3. Rechiffrer les DEK avec la nouvelle KEK ou appliquer la procédure de rewrap fournie par la plateforme, sans exporter les clés en clair.
+4. Comparer le nombre de DEK migrées, les échecs, les versions de clé et les données encore dépendantes de l'ancienne clé.
+5. Maintenir l'ancienne clé disponible en lecture jusqu'à la fin des vérifications et de la fenêtre de retour arrière.
+6. Révoquer l'usage normal de l'ancienne version puis la détruire seulement après approbation et vérification des obligations de sauvegarde et de conservation.
+
+Ne stockez pas les clés dans les dépôts, journaux, variables visibles en diagnostic ou exemples copiés dans les tickets. Les secrets doivent être fournis par un gestionnaire dédié ou une identité de charge de travail. Une rotation n'est considérée comme terminée qu'après vérification du déchiffrement et inventaire des données restantes, pas seulement après création d'une nouvelle clé.
+
+### Exercices de preuve
+
+Pour chaque contrôle, enregistrez l'identifiant du test, l'identité utilisée, l'environnement, la date, le résultat et la version du schéma ou de la politique. Les preuves doivent éviter de contenir des valeurs sensibles. Si un test négatif réussit à obtenir un accès interdit, ouvrez un incident, arrêtez la promotion du changement et examinez les privilèges hérités, le propriétaire de la table, les rôles de contournement et le chemin exact de la requête.
+
+L'objectif de l'atelier est d'obtenir une politique que l'on peut auditer, des tests négatifs qui échouent correctement et un runbook qui traite rotation, révocation, récupération et preuve d'accès.
+
+## 21. Checklist opérationnelle avant mise en production
 
 - [ ] Les finalités, catégories de données et propriétaires sont documentés.
 - [ ] Chaque flux réseau sensible utilise un canal chiffré avec validation d’identité.
@@ -782,7 +875,7 @@ Il n’existe pas une seule bonne architecture. La qualité de la proposition re
 - [ ] Le processus de gestion d’incident permet d’établir rapidement les faits et d’escalader.
 - [ ] Les contrôles disposent de preuves, d’un propriétaire, d’une fréquence et de tests de régression.
 
-## 21. Glossaire essentiel
+## 22. Glossaire essentiel
 
 **Authentification :** vérification de l’identité qui se présente.  
 **Autorisation :** décision qui détermine les actions permises à une identité sur une ressource.  
@@ -807,7 +900,7 @@ Il n’existe pas une seule bonne architecture. La qualité de la proposition re
 **Violation de données personnelles :** incident de sécurité qui entraîne notamment destruction, perte, altération, divulgation ou accès non autorisé aux données personnelles, selon les circonstances.  
 **Preuve de contrôle :** élément vérifiable qui démontre qu’un contrôle défini a été exécuté et que son résultat est connu.
 
-## 22. Pour aller plus loin : références officielles et techniques
+## 23. Pour aller plus loin : références officielles et techniques
 
 - **Règlement général sur la protection des données (RGPD), règlement (UE) 2016/679.** Lire notamment les articles 5 (principes), 12 à 22 (droits), 25 (protection dès la conception et par défaut), 32 (sécurité du traitement), 33 et 34 (violations) et 35 (analyse d’impact, lorsque requise). Texte officiel : https://eur-lex.europa.eu/eli/reg/2016/679/oj
 - **CNIL — Sécurité des données personnelles.** Recommandations pratiques sur la gestion des habilitations, la journalisation, les sauvegardes, les postes, les réseaux et le chiffrement : https://www.cnil.fr/fr/securite
