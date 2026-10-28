@@ -460,6 +460,84 @@ Inspectez la distribution des entrées, la qualité des labels et les segments. 
 
 Le modèle courant n'est pas suffisamment traçable ou la transformation compatible n'est pas conservée. Cessez les promotions jusqu'à ce que les versions de modèle et de caractéristiques soient reliées, que la procédure de restauration soit testée et que les responsables connaissent les étapes nécessaires.
 
+## Architecture de référence et implémentation guidée
+
+Le MLOps appliqué à l'infrastructure réseau encadre toute la vie du modèle : données, expériences, validation, empaquetage, déploiement, surveillance, réentraînement, retrait et retour à la dernière version connue. Un déploiement réussi au sens informatique n'implique pas que le modèle est utile ou sûr sur les flux réels.
+
+### De l'expérience à un service contrôlé
+
+```mermaid
+flowchart TD
+  A["Jeu de données versionné"] --> B["Validation de schéma et qualité"]
+  B --> C["Entraînement reproductible"]
+  C --> D["Évaluation et comparaison à la baseline"]
+  D --> E{"Garde-fous qualité satisfaits ?"}
+  E -- "Non" --> F["Refuser la promotion"]
+  E -- "Oui" --> G["Artefact et registre de modèle"]
+  G --> H["Test de compatibilité et sécurité"]
+  H --> I["Déploiement shadow ou canari"]
+  I --> J["Surveiller qualité, latence et dérive"]
+  J --> K{"SLO et comportement acceptables ?"}
+  K -- "Non" --> L["Rollback et analyse"]
+  K -- "Oui" --> M["Promotion par étapes"]
+  M --> N["Revue périodique et traçabilité"]
+```
+
+### Gestion des versions et retour arrière
+
+```mermaid
+sequenceDiagram
+  participant CI as Pipeline CI
+  participant R as Registre de modèles
+  participant S as Service de prédiction
+  participant M as Monitoring
+  CI->>R: Publier artefact et manifeste validés
+  R-->>CI: Version immuable
+  CI->>S: Déployer canari avec cette version
+  S-->>M: Prédictions, latence et erreurs
+  M-->>CI: Rapport des garde-fous
+  alt Garde-fous dépassés
+    CI->>S: Revenir à la version précédente
+    S-->>M: Vérifier le retour effectif
+  else Garde-fous satisfaits
+    CI->>S: Étendre le déploiement
+  end
+```
+
+### Exemple de manifeste de modèle
+
+```yaml
+model:
+  name: wan-congestion-risk
+  version: 2026.10.3
+  artifact_sha256: "REMPLACER_PAR_LE_SHA256_REEL"
+data:
+  dataset_version: wan-metrics-2026-10-01
+  schema_version: 3
+  feature_contract: wan-risk-features-v2
+evaluation:
+  temporal_test_end: "2026-09-30T23:59:59Z"
+  baseline: seasonal-percentile-v1
+  max_p95_latency_ms: 40
+  minimum_recall_critical: 0.90
+deployment:
+  strategy: shadow
+  rollback_version: 2026.09.2
+  owner: network-reliability
+```
+
+Les seuils sont des exemples à calibrer avec les propriétaires du service. Le condensat d'artefact, le jeu de données, le schéma et le contrat de variables doivent être renseignés par la pipeline, jamais copiés manuellement sans contrôle. Un manifeste permet de répondre à la question : quel modèle, entraîné avec quelles données et évalué selon quelle politique, tourne actuellement ?
+
+### Travaux pratiques — rendre le déploiement reproductible
+
+Crée un petit modèle ou un modèle de référence et enregistre son contrat de données, ses dépendances et ses métriques. Produis deux artefacts avec des versions distinctes ; vérifie qu'un ancien nom ne peut pas être réutilisé silencieusement pour un contenu différent. Fais échouer une promotion lorsque le schéma d'entrée change, puis lorsque la performance sur la période temporelle diminue.
+
+Simule ensuite une hausse de latence et une dérive de distribution. Le monitoring doit distinguer une panne du service de prédiction d'une dégradation de qualité du modèle. Le rollback doit restaurer le code, l'artefact et les paramètres compatibles, puis confirmer par lecture de l'état déployé qu'il est réellement effectif.
+
+### Critères d'acceptation
+
+Le modèle est reproductible, versionné, comparé à une baseline et promu par étapes. Le registre donne le lignage des données et artefacts. Le service expose latence, erreurs, disponibilité et indicateurs de dérive ; enfin, un rollback est démontré par un test, et pas seulement documenté dans un README.
+
 ## 17. Exercices corrigés
 
 ### Exercice 1 — Lignage
