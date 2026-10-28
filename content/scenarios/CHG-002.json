@@ -1,0 +1,341 @@
+{
+  "id": "CHG-002",
+  "type": "change",
+  "severity": "medium",
+  "title": "Création du VLAN 30",
+  "reported_by": "Équipe Réseau — RFC-3010",
+  "impact": "Créer VLAN 30, affecter Fa0/5 et fournir sa passerelle via une sous-interface 802.1Q.",
+  "sla_minutes": 40,
+  "reward_xp": 180,
+  "story": "Le changement ajoute VLAN 30 sur SW1, affecte Fa0/5 au VLAN, met en trunk le lien vers R1 et configure Fa0/0.30 avec le tag 802.1Q 30.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 420,
+        "y": 80,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": null,
+            "mask": null
+          },
+          {
+            "id": "Fa0/0.30",
+            "name": "Fa0/0.30",
+            "state": "up",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0",
+            "encapsulation": 20
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {},
+          "subinterfaces": {
+            "VLAN30": {
+              "vlan": 30,
+              "interface_name": "Fa0/0.30",
+              "encapsulation": 20,
+              "ip": "192.168.20.1",
+              "mask": "255.255.255.0"
+            }
+          }
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 420,
+        "y": 250,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access",
+            "vlan": 10
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "mode": "access",
+            "vlan": 20
+          },
+          {
+            "id": "Fa0/5",
+            "name": "Fa0/5",
+            "state": "up",
+            "mode": "access",
+            "vlan": 10
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1,
+            10,
+            20
+          ],
+          "interfaces": {
+            "Fa0/1": {
+              "mode": "access",
+              "vlan": 1
+            },
+            "Fa0/5": {
+              "mode": "access",
+              "vlan": 10
+            }
+          }
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 710,
+        "y": 390,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.30.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "192.168.30.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.30.1"
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "x": 160,
+        "y": 390,
+        "label": "PC2",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "ip": "192.168.10.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.10.1"
+        }
+      },
+      {
+        "id": "PC3",
+        "type": "pc",
+        "x": 420,
+        "y": 430,
+        "label": "PC3",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.20.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC3",
+          "ip": "192.168.20.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.20.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/5"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC3",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "SW1",
+      "interface": "Fa0/5",
+      "expected_vlan": 30,
+      "actual_vlan": 10,
+      "detail": "Fa0/5 est resté dans le VLAN 10."
+    },
+    {
+      "id": "F2",
+      "device": "SW1",
+      "interface": "Fa0/1",
+      "expected_mode": "trunk",
+      "actual_mode": "access",
+      "detail": "Le port vers R1 n'est pas en trunk."
+    },
+    {
+      "id": "F3",
+      "device": "R1",
+      "interface": "Fa0/0.30",
+      "expected_encapsulation": 30,
+      "actual_encapsulation": 20,
+      "detail": "L'encapsulation et l'adresse de la sous-interface ne correspondent pas au VLAN cible."
+    },
+    {
+      "id": "F4",
+      "device": "SW1",
+      "area": "vlan",
+      "expected": 30,
+      "actual": "absent",
+      "detail": "Le VLAN 30 n'existe pas dans la base VLAN."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Préparer le changement",
+      "instructions": "Vérifiez le plan d'adressage : VLAN 30 utilise 192.168.30.0/24 avec passerelle 192.168.30.1.",
+      "hint": "Le port d'accès, le trunk et la sous-interface doivent s'accorder sur VLAN 30."
+    },
+    {
+      "title": "Configurer SW1",
+      "instructions": "Créez vlan 30, configurez interface Fa0/1 puis switchport mode trunk. Configurez ensuite interface Fa0/5, switchport mode access et switchport access vlan 30.",
+      "hint": "Fa0/1 relie R1 ; Fa0/5 est le port utilisateur destiné au nouveau VLAN."
+    },
+    {
+      "title": "Configurer R1",
+      "instructions": "Sur R1, ouvrez interface Fa0/0.30, puis configurez encapsulation dot1q 30, ip address 192.168.30.1 255.255.255.0 et no shutdown.",
+      "hint": "La sous-interface doit utiliser le tag VLAN attendu et la passerelle du sous-réseau."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "SW1",
+        "path": "config.vlans",
+        "operator": "contains",
+        "value": "VLAN30",
+        "description": "VLAN 30 doit exister sur SW1."
+      },
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/1.mode",
+        "operator": "equals",
+        "value": "trunk",
+        "description": "Le lien SW1 Fa0/1 vers R1 doit être en trunk."
+      },
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/5.vlan",
+        "operator": "equals",
+        "value": 30,
+        "description": "Fa0/5 doit appartenir au VLAN 30."
+      },
+      {
+        "target": "R1",
+        "path": "config.subinterfaces.VLAN30.encapsulation",
+        "operator": "equals",
+        "value": 30,
+        "description": "Fa0/0.30 doit utiliser dot1Q 30."
+      },
+      {
+        "target": "R1",
+        "path": "config.subinterfaces.VLAN30.ip",
+        "operator": "equals",
+        "value": "192.168.30.1",
+        "description": "La passerelle doit être 192.168.30.1."
+      },
+      {
+        "target": "R1",
+        "path": "config.subinterfaces.VLAN30.mask",
+        "operator": "equals",
+        "value": "255.255.255.0",
+        "description": "La sous-interface doit utiliser le masque /24."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "id": "CHG-005",
+  "type": "change",
+  "severity": "low",
+  "title": "Sauvegarde de configuration",
+  "reported_by": "Équipe Exploitation — RFC-3055",
+  "impact": "La configuration opérationnelle de R1 doit être copiée en configuration de démarrage pour survivre à un redémarrage.",
+  "sla_minutes": 10,
+  "reward_xp": 90,
+  "story": "R1 est configuré avec son hostname, ses interfaces et une route statique, mais la configuration de démarrage n'a pas été sauvegardée. Utilisez write memory ou copy running-config startup-config puis contrôlez la copie.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 350,
+        "y": 180,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "10.50.0.1",
+            "mask": "255.255.255.0"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "ip": "198.51.100.2",
+            "mask": "255.255.255.252"
+          }
+        ],
+        "config": {
+          "hostname": "R1-EDGE",
+          "interfaces": {},
+          "routes": [
+            {
+              "network": "203.0.113.0",
+              "mask": "255.255.255.0",
+              "next_hop": "198.51.100.1"
+            }
+          ],
+          "startup_config_saved": false
+        }
+      }
+    ],
+    "links": []
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "R1",
+      "area": "configuration",
+      "expected": "startup_config_saved = true",
+      "actual": "false",
+      "detail": "La configuration active n'a pas été copiée dans la configuration de démarrage."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Contrôler la configuration active",
+      "instructions": "Sur R1, utilisez show running-config et confirmez le hostname, les interfaces et la route.",
+      "hint": "Sauvegardez la configuration existante sans remplacer ses paramètres."
+    },
+    {
+      "title": "Enregistrer en NVRAM simulée",
+      "instructions": "Depuis le mode privilégié, exécutez write memory ou copy running-config startup-config.",
+      "hint": "La commande doit enregistrer l'état de démarrage."
+    },
+    {
+      "title": "Vérifier la sauvegarde",
+      "instructions": "Exécutez show startup-config et vérifiez le hostname et les routes copiées.",
+      "hint": "La configuration ne doit pas rester uniquement dans running-config."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "R1",
+        "path": "config.startup_config_saved",
+        "operator": "equals",
+        "value": true,
+        "description": "La configuration active de R1 doit avoir été sauvegardée."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

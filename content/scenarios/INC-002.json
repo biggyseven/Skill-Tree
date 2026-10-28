@@ -1,0 +1,183 @@
+{
+  "id": "INC-002",
+  "type": "incident",
+  "severity": "high",
+  "title": "Panne de résolution DNS",
+  "reported_by": "Service Desk — équipe Support",
+  "impact": "Les postes ne peuvent plus résoudre les noms internes malgré une connectivité IP locale.",
+  "sla_minutes": 20,
+  "reward_xp": 140,
+  "story": "PC1 a une IP statique et une passerelle valide, mais portail.intra.skilltree.local ne se résout pas. Le serveur DNS simulé sur R1 ne contient pas l'enregistrement A demandé.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 160,
+        "y": 170,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "10.10.10.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {},
+          "protocols": {
+            "dns": {
+              "hosts": []
+            }
+          }
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 420,
+        "y": 170,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {
+            "Fa0/1": {
+              "mode": "access",
+              "vlan": 1
+            },
+            "Fa0/2": {
+              "mode": "access",
+              "vlan": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 660,
+        "y": 320,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.10.10.10",
+            "mask": "255.255.255.0",
+            "mac": "00aa.0000.0010"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "10.10.10.10",
+          "mask": "255.255.255.0",
+          "gateway": "10.10.10.1",
+          "dns_server": "10.10.10.1",
+          "mac": "00aa.0000.0010"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "R1",
+      "area": "dns",
+      "expected": "portail.intra.skilltree.local -> 10.10.10.53",
+      "actual": "enregistrement absent",
+      "detail": "L'enregistrement A du portail interne manque dans le DNS simulé de R1."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Qualifier le défaut",
+      "instructions": "Vérifiez l'adresse IP, la passerelle et le serveur DNS de PC1. Distinguez une panne IP d'une panne de résolution de nom.",
+      "hint": "Une adresse statique correcte ne garantit pas que le DNS possède l'enregistrement demandé."
+    },
+    {
+      "title": "Inspecter le DNS simulé",
+      "instructions": "Sur R1, inspectez show running-config puis ajoutez ip host portail.intra.skilltree.local 10.10.10.53.",
+      "hint": "La commande ip host ajoute un nom et une adresse à la configuration DNS simulée."
+    },
+    {
+      "title": "Valider la correction",
+      "instructions": "Vérifiez que la base DNS de R1 contient le nom demandé puis relancez la validation du ticket.",
+      "hint": "Conservez l'adressage de PC1 ; corrigez l'enregistrement sur R1."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "R1",
+        "path": "config.protocols.dns.hosts",
+        "operator": "contains",
+        "value": "portail.intra.skilltree.local",
+        "description": "R1 doit contenir l'enregistrement DNS du portail interne."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

@@ -1,0 +1,251 @@
+{
+  "id": "INC-003",
+  "type": "incident",
+  "severity": "high",
+  "title": "Bail DHCP expiré",
+  "reported_by": "Service Desk — équipe Bureautique",
+  "impact": "Deux postes ne renouvellent plus leur adresse IP et ne peuvent plus accéder aux ressources réseau.",
+  "sla_minutes": 25,
+  "reward_xp": 150,
+  "story": "PC1 et PC2 utilisent DHCP. Le service est désactivé et le pool USERS de R1 distribue un masque, une passerelle et un DNS incorrects.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 160,
+        "y": 170,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {},
+          "dhcp_enabled": false,
+          "protocols": {
+            "dhcp": {
+              "excluded_addresses": [],
+              "pools": [
+                {
+                  "name": "USERS",
+                  "network": "192.168.20.0",
+                  "mask": "255.255.255.128",
+                  "default_router": "192.168.20.254",
+                  "dns_server": "192.168.20.254",
+                  "lease_days": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 420,
+        "y": 170,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 650,
+        "y": 300,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": null,
+            "mask": null,
+            "mac": "00aa.0000.0021"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": null,
+          "mask": null,
+          "gateway": null,
+          "ip_assignment": "dhcp"
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "x": 800,
+        "y": 390,
+        "label": "PC2",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": null,
+            "mask": null,
+            "mac": "00aa.0000.0022"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "ip": null,
+          "mask": null,
+          "gateway": null,
+          "ip_assignment": "dhcp"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "R1",
+      "area": "dhcp",
+      "expected": "USERS /24, router 192.168.20.1, DNS 192.168.20.53",
+      "actual": "service disabled; pool /25; router/DNS incorrect",
+      "detail": "Le service DHCP est désactivé et le pool distribue des paramètres incohérents."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Vérifier l'étendue",
+      "instructions": "Comparez les postes affectés puis inspectez le pool DHCP de R1 avec show running-config.",
+      "hint": "Deux postes touchés simultanément orientent vers le service DHCP partagé."
+    },
+    {
+      "title": "Réactiver et corriger le pool",
+      "instructions": "En configuration globale, exécutez service dhcp puis ip dhcp pool USERS. Configurez network 192.168.20.0 255.255.255.0, default-router 192.168.20.1 et dns-server 192.168.20.53.",
+      "hint": "Le réseau, le masque, la passerelle et le DNS doivent correspondre au plan d'adressage."
+    },
+    {
+      "title": "Contrôler la configuration",
+      "instructions": "Vérifiez les paramètres du pool USERS dans show running-config, puis relancez le contrôle du ticket.",
+      "hint": "La validation exige le service actif et les bons paramètres."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "R1",
+        "path": "config.dhcp_enabled",
+        "operator": "equals",
+        "value": true,
+        "description": "Le service DHCP de R1 doit être activé."
+      },
+      {
+        "target": "R1",
+        "path": "config.protocols.dhcp.pools",
+        "operator": "contains",
+        "value": "255.255.255.0",
+        "description": "Le pool USERS doit distribuer le masque /24."
+      },
+      {
+        "target": "R1",
+        "path": "config.protocols.dhcp.pools",
+        "operator": "contains",
+        "value": "192.168.20.1",
+        "description": "Le pool USERS doit distribuer la passerelle correcte."
+      },
+      {
+        "target": "R1",
+        "path": "config.protocols.dhcp.pools",
+        "operator": "contains",
+        "value": "192.168.20.53",
+        "description": "Le pool USERS doit distribuer le DNS correct."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

@@ -1,0 +1,347 @@
+{
+  "id": "INC-004",
+  "type": "incident",
+  "severity": "critical",
+  "title": "Boucle de commutation (STP)",
+  "reported_by": "NOC — supervision réseau",
+  "impact": "Une boucle L2 provoque une tempête de broadcast, une hausse CPU et des pertes de connectivité.",
+  "sla_minutes": 15,
+  "reward_xp": 220,
+  "story": "SW1, SW2 et SW3 sont raccordés en triangle pour la redondance. STP est désactivé sur les trois commutateurs ; aucun chemin redondant n'est neutralisé.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 150,
+        "y": 180,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1,
+            "mode": "trunk"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 1,
+            "mode": "trunk"
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "vlan": 1,
+            "mode": "access"
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {},
+          "protocols": {
+            "stp": {
+              "enabled": false,
+              "mode": "disabled",
+              "roots": []
+            }
+          }
+        }
+      },
+      {
+        "id": "SW2",
+        "type": "switch",
+        "x": 430,
+        "y": 100,
+        "label": "SW2",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1,
+            "mode": "trunk"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 1,
+            "mode": "trunk"
+          }
+        ],
+        "config": {
+          "hostname": "SW2",
+          "vlans": [
+            1
+          ],
+          "interfaces": {},
+          "protocols": {
+            "stp": {
+              "enabled": false,
+              "mode": "disabled",
+              "roots": []
+            }
+          }
+        }
+      },
+      {
+        "id": "SW3",
+        "type": "switch",
+        "x": 430,
+        "y": 300,
+        "label": "SW3",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "vlan": 1,
+            "mode": "trunk"
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "vlan": 1,
+            "mode": "trunk"
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "vlan": 1,
+            "mode": "access"
+          }
+        ],
+        "config": {
+          "hostname": "SW3",
+          "vlans": [
+            1
+          ],
+          "interfaces": {},
+          "protocols": {
+            "stp": {
+              "enabled": false,
+              "mode": "disabled",
+              "roots": []
+            }
+          }
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 60,
+        "y": 390,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.1.11",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "192.168.1.11",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.1.1"
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "x": 650,
+        "y": 390,
+        "label": "PC2",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.1.12",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "ip": "192.168.1.12",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.1.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "SW2",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW2",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SW3",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW3",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L5",
+        "from": {
+          "node": "SW3",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "SW1/SW2/SW3",
+      "area": "layer2",
+      "detail": "Le triangle L2 est actif sans STP et les broadcasts peuvent tourner en boucle."
+    },
+    {
+      "id": "F2",
+      "device": "SW1/SW2/SW3",
+      "area": "stp",
+      "expected": "rapid-pvst",
+      "actual": "STP disabled",
+      "detail": "Le spanning-tree est désactivé dans la configuration de départ."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Corréler les alertes",
+      "instructions": "Comparez les pertes de supervision, les compteurs CPU et les logs de broadcast.",
+      "hint": "Une topologie redondante n'est pas une panne en soi : le défaut est l'absence de prévention de boucle."
+    },
+    {
+      "title": "Inspecter STP",
+      "instructions": "Sur chaque commutateur, inspectez show running-config et comparez les configurations L2.",
+      "hint": "STP doit fonctionner sur tous les commutateurs du domaine de broadcast."
+    },
+    {
+      "title": "Activer STP",
+      "instructions": "Sur SW1, SW2 et SW3, entrez en configuration globale et exécutez spanning-tree mode rapid-pvst.",
+      "hint": "Appliquez la correction aux trois commutateurs sans supprimer la redondance."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "SW1",
+        "path": "config.protocols.stp.enabled",
+        "operator": "equals",
+        "value": true,
+        "description": "SW1 doit avoir STP activé."
+      },
+      {
+        "target": "SW1",
+        "path": "config.protocols.stp.mode",
+        "operator": "equals",
+        "value": "rapid-pvst",
+        "description": "SW1 doit fonctionner en Rapid PVST+."
+      },
+      {
+        "target": "SW2",
+        "path": "config.protocols.stp.enabled",
+        "operator": "equals",
+        "value": true,
+        "description": "SW2 doit avoir STP activé."
+      },
+      {
+        "target": "SW2",
+        "path": "config.protocols.stp.mode",
+        "operator": "equals",
+        "value": "rapid-pvst",
+        "description": "SW2 doit fonctionner en Rapid PVST+."
+      },
+      {
+        "target": "SW3",
+        "path": "config.protocols.stp.enabled",
+        "operator": "equals",
+        "value": true,
+        "description": "SW3 doit avoir STP activé."
+      },
+      {
+        "target": "SW3",
+        "path": "config.protocols.stp.mode",
+        "operator": "equals",
+        "value": "rapid-pvst",
+        "description": "SW3 doit fonctionner en Rapid PVST+."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

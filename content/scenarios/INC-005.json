@@ -1,0 +1,210 @@
+{
+  "id": "INC-005",
+  "type": "incident",
+  "severity": "high",
+  "title": "Mauvais masque de sous-réseau",
+  "reported_by": "Service Desk — réseau local",
+  "impact": "PC1 et PC2 ne communiquent pas correctement en raison d'un masque incohérent sur PC2.",
+  "sla_minutes": 15,
+  "reward_xp": 130,
+  "story": "PC1 utilise 192.168.50.10/24 tandis que PC2 utilise 192.168.50.200/25. Corrigez le masque de PC2 pour le faire correspondre au plan d'adressage partagé.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 160,
+        "y": 170,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "192.168.50.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 430,
+        "y": 170,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 650,
+        "y": 300,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.50.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "192.168.50.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.50.1"
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "x": 800,
+        "y": 390,
+        "label": "PC2",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.50.200",
+            "mask": "255.255.255.128"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "ip": "192.168.50.200",
+          "mask": "255.255.255.128",
+          "gateway": "192.168.50.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "PC2",
+      "interface": "eth0",
+      "expected_mask": "255.255.255.0",
+      "actual_mask": "255.255.255.128",
+      "detail": "Le masque /25 de PC2 ne correspond pas au réseau /24 partagé avec PC1 et R1."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Comparer l'adressage",
+      "instructions": "Inspectez l'adresse et le masque de PC1 et PC2 avec show ip interface brief ou show interfaces eth0.",
+      "hint": "Le masque détermine le réseau local même si les adresses semblent proches."
+    },
+    {
+      "title": "Corriger PC2",
+      "instructions": "Sur PC2, ouvrez interface eth0 et appliquez ip address 192.168.50.200 255.255.255.0.",
+      "hint": "Conservez l'adresse et la passerelle ; seul le masque est erroné."
+    },
+    {
+      "title": "Vérifier la cohérence",
+      "instructions": "Comparez à nouveau les masques des deux postes puis testez la connectivité.",
+      "hint": "Les deux postes doivent utiliser le préfixe /24."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "PC2",
+        "path": "ports.eth0.mask",
+        "operator": "equals",
+        "value": "255.255.255.0",
+        "description": "PC2 doit utiliser le masque /24 comme PC1."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

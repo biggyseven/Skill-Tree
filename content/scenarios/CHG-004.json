@@ -1,0 +1,243 @@
+{
+  "id": "CHG-004",
+  "type": "change",
+  "severity": "high",
+  "title": "Ouverture de flux pour un serveur",
+  "reported_by": "Équipe DBA — RFC-3030",
+  "impact": "Seul le trafic TCP/3306 de PC-Admin vers SRV-DB doit être autorisé ; les autres flux vers le serveur doivent être bloqués.",
+  "sla_minutes": 30,
+  "reward_xp": 170,
+  "story": "SRV-DB (10.0.0.50) héberge MySQL. Depuis PC-Admin (192.168.10.10), seul TCP/3306 doit être permis. Configurez l'ACL sur R1 puis appliquez-la en entrée côté admin.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 210,
+        "y": 180,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "10.0.0.1",
+            "mask": "255.255.255.0"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {},
+          "acls": []
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 480,
+        "y": 130,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "SRV-DB",
+        "type": "server",
+        "x": 700,
+        "y": 90,
+        "label": "SRV-DB",
+        "model": "Serveur",
+        "iconType": "server",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "10.0.0.50",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "SRV-DB",
+          "ip": "10.0.0.50",
+          "mask": "255.255.255.0",
+          "gateway": "10.0.0.1",
+          "service": "MySQL",
+          "port": 3306
+        }
+      },
+      {
+        "id": "PC-Admin",
+        "type": "pc",
+        "x": 500,
+        "y": 350,
+        "label": "PC-Admin",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC-Admin",
+          "ip": "192.168.10.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.10.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SRV-DB",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC-Admin",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "R1",
+      "area": "acl",
+      "expected": "101 permit tcp host 192.168.10.10 host 10.0.0.50 eq 3306",
+      "actual": "absent",
+      "detail": "La règle TCP/3306 de PC-Admin vers SRV-DB est absente."
+    },
+    {
+      "id": "F2",
+      "device": "R1",
+      "area": "acl",
+      "expected": "101 deny ip any host 10.0.0.50",
+      "actual": "absent",
+      "detail": "Le refus des autres flux vers SRV-DB est absent."
+    },
+    {
+      "id": "F3",
+      "device": "R1",
+      "interface": "Fa0/1",
+      "expected_acl": 101,
+      "actual_acl": null,
+      "detail": "L'ACL n'est pas appliquée en entrée sur l'interface côté PC-Admin."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Définir le périmètre",
+      "instructions": "Confirmez les adresses PC-Admin et SRV-DB. Le flux permis est TCP source 192.168.10.10, destination 10.0.0.50, port 3306.",
+      "hint": "La règle permit doit être précise, puis le trafic restant vers SRV-DB doit être bloqué."
+    },
+    {
+      "title": "Créer l'ACL",
+      "instructions": "Sur R1, ajoutez access-list 101 permit tcp host 192.168.10.10 host 10.0.0.50 eq 3306 puis access-list 101 deny ip any host 10.0.0.50.",
+      "hint": "N'utilisez pas any comme source dans la règle permit."
+    },
+    {
+      "title": "Appliquer et contrôler",
+      "instructions": "Sur R1, entrez dans interface Fa0/1 et appliquez ip access-group 101 in. Vérifiez show running-config.",
+      "hint": "L'ACL doit être appliquée à l'interface où le trafic admin entre sur R1."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "R1",
+        "path": "config.acls",
+        "operator": "contains",
+        "value": "101 permit tcp host 192.168.10.10 host 10.0.0.50 eq 3306",
+        "description": "Autoriser le flux TCP/3306 demandé."
+      },
+      {
+        "target": "R1",
+        "path": "config.acls",
+        "operator": "contains",
+        "value": "101 deny ip any host 10.0.0.50",
+        "description": "Refuser les autres flux IP vers SRV-DB."
+      },
+      {
+        "target": "R1",
+        "path": "ports.Fa0/1.access_group_in",
+        "operator": "equals",
+        "value": 101,
+        "description": "Appliquer l'ACL 101 en entrée sur Fa0/1."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

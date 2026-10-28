@@ -1,0 +1,229 @@
+{
+  "id": "PRB-003",
+  "type": "problem",
+  "severity": "high",
+  "title": "Utilisation CPU à 100 % sur le routeur",
+  "reported_by": "NOC — supervision système",
+  "impact": "Le plan de contrôle est saturé, les équipements répondent lentement et les utilisateurs signalent une dégradation généralisée.",
+  "sla_minutes": null,
+  "reward_xp": 240,
+  "story": "Les alarmes montrent une utilisation CPU élevée et des broadcasts anormaux. Une boucle locale entre deux ports de SW1 n'est pas neutralisée par STP. Lisez show processes cpu, corrigez la boucle et consignez le RCA.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 140,
+        "y": 170,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "192.168.40.1",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 420,
+        "y": 170,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "trunk",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/3",
+            "name": "Fa0/3",
+            "state": "up",
+            "mode": "trunk",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/4",
+            "name": "Fa0/4",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {},
+          "cpu_utilization": 100,
+          "logs": [
+            "CPU utilization 100%",
+            "Broadcast storm detected on Fa0/2 and Fa0/3"
+          ],
+          "protocols": {
+            "stp": {
+              "enabled": false,
+              "mode": "disabled",
+              "roots": []
+            }
+          }
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 700,
+        "y": 330,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.40.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "192.168.40.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.40.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/4"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/3"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "SW1",
+      "area": "layer2",
+      "interface": "Fa0/2-Fa0/3",
+      "detail": "Un cordon relie deux ports du même commutateur, créant une boucle L2."
+    },
+    {
+      "id": "F2",
+      "device": "SW1",
+      "area": "stp",
+      "expected": "rapid-pvst",
+      "actual": "disabled",
+      "detail": "STP est désactivé, permettant au broadcast storm de faire grimper la charge CPU."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Lire le CPU",
+      "instructions": "Sur SW1, exécutez show processes cpu puis inspectez les journaux dans show running-config.",
+      "hint": "Une charge CPU très élevée associée à une tempête de broadcast est un indice de boucle L2."
+    },
+    {
+      "title": "Identifier la boucle",
+      "instructions": "Repérez la liaison SW1 Fa0/2–Fa0/3 et vérifiez le mode STP.",
+      "hint": "La boucle doit être neutralisée sans couper le port utilisateur."
+    },
+    {
+      "title": "Rétablir la protection L2",
+      "instructions": "Sur SW1, exécutez spanning-tree mode rapid-pvst puis relancez la vérification. Consignez la cause dans le RCA.",
+      "hint": "Expliquez comment la boucle/broadcast a saturé le plan de contrôle."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "SW1",
+        "path": "config.protocols.stp.enabled",
+        "operator": "equals",
+        "value": true,
+        "description": "STP doit être activé sur SW1."
+      },
+      {
+        "target": "SW1",
+        "path": "config.protocols.stp.mode",
+        "operator": "equals",
+        "value": "rapid-pvst",
+        "description": "SW1 doit fonctionner en Rapid PVST+."
+      },
+      {
+        "type": "post_mortem_contains",
+        "field": "root_cause",
+        "any_of": [
+          "boucle",
+          "broadcast",
+          "STP"
+        ],
+        "description": "Le RCA doit expliquer la boucle L2 ou la tempête de broadcast."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "id": "PRB-002",
+  "type": "problem",
+  "severity": "high",
+  "title": "Perte de paquets intermittente",
+  "reported_by": "NOC — analyse de performance",
+  "impact": "Les échanges entre deux sites perdent environ 30 % des paquets, avec retransmissions et expérience utilisateur instable.",
+  "sla_minutes": null,
+  "reward_xp": 220,
+  "story": "Les pings entre 192.168.10.0/24 et 192.168.20.0/24 montrent des pertes intermittentes. R1 Fa0/1 est en full-duplex et R2 Fa0/1 en half-duplex. Corrigez le duplex et rédigez le RCA.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "R1",
+        "type": "router",
+        "x": 170,
+        "y": 170,
+        "label": "R1",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "192.168.10.1",
+            "mask": "255.255.255.0"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "ip": "10.255.0.1",
+            "mask": "255.255.255.252",
+            "duplex": "full"
+          }
+        ],
+        "config": {
+          "hostname": "R1",
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "R2",
+        "type": "router",
+        "x": 480,
+        "y": 170,
+        "label": "R2",
+        "model": "Cisco ISR",
+        "iconType": "router",
+        "ports": [
+          {
+            "id": "Fa0/0",
+            "name": "Fa0/0",
+            "state": "up",
+            "ip": "192.168.20.1",
+            "mask": "255.255.255.0"
+          },
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "ip": "10.255.0.2",
+            "mask": "255.255.255.252",
+            "duplex": "half"
+          }
+        ],
+        "config": {
+          "hostname": "R2",
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 170,
+        "y": 370,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          },
+          {
+            "id": "Fa0/2",
+            "name": "Fa0/2",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {}
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 80,
+        "y": 500,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.10.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "192.168.10.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.10.1"
+        }
+      },
+      {
+        "id": "PC2",
+        "type": "pc",
+        "x": 600,
+        "y": 370,
+        "label": "PC2",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.20.10",
+            "mask": "255.255.255.0"
+          }
+        ],
+        "config": {
+          "hostname": "PC2",
+          "ip": "192.168.20.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.20.1"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L2",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/2"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L3",
+        "from": {
+          "node": "R1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "R2",
+          "port": "Fa0/1"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      },
+      {
+        "id": "L4",
+        "from": {
+          "node": "R2",
+          "port": "Fa0/0"
+        },
+        "to": {
+          "node": "PC2",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "R1/R2",
+      "interface": "Fa0/1",
+      "expected": "full/full",
+      "actual": "R1 full, R2 half",
+      "detail": "Le mismatch half/full duplex peut provoquer collisions, retransmissions et pertes de paquets."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Mesurer et localiser",
+      "instructions": "Répétez les pings entre sites et inspectez les interfaces de R1 et R2.",
+      "hint": "Une perte localisée sur le lien inter-routeurs oriente vers la couche 1/2."
+    },
+    {
+      "title": "Comparer le duplex",
+      "instructions": "Utilisez show interfaces Fa0/1 sur R1 et R2 puis comparez les paramètres.",
+      "hint": "Les deux extrémités doivent utiliser un duplex cohérent."
+    },
+    {
+      "title": "Corriger et documenter",
+      "instructions": "Sur R2, configurez interface Fa0/1 puis duplex full. Vérifiez R1 et complétez le RCA en expliquant le mismatch.",
+      "hint": "Le RCA doit nommer le mismatch et la correction doit laisser les deux côtés en full-duplex."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "R1",
+        "path": "ports.Fa0/1.duplex",
+        "operator": "equals",
+        "value": "full",
+        "description": "R1 Fa0/1 doit être full-duplex."
+      },
+      {
+        "target": "R2",
+        "path": "ports.Fa0/1.duplex",
+        "operator": "equals",
+        "value": "full",
+        "description": "R2 Fa0/1 doit être full-duplex."
+      },
+      {
+        "type": "post_mortem_contains",
+        "field": "root_cause",
+        "any_of": [
+          "duplex",
+          "négociation"
+        ],
+        "description": "Le RCA doit identifier le mismatch de duplex."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}

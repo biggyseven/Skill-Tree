@@ -1,0 +1,168 @@
+{
+  "id": "CHG-003",
+  "type": "change",
+  "severity": "medium",
+  "title": "Sécurisation d'un port (Port Security)",
+  "reported_by": "Équipe Sécurité — RFC-3021",
+  "impact": "Fa0/1 doit accepter une seule MAC connue et mettre le port en shutdown en cas de violation.",
+  "sla_minutes": 20,
+  "reward_xp": 130,
+  "story": "PC1 est la station autorisée (MAC 00aa.bbcc.ddee), mais SW1 n'applique pas la politique Port Security sur Fa0/1.",
+  "initial_topology": {
+    "schema_version": 2,
+    "nodes": [
+      {
+        "id": "SW1",
+        "type": "switch",
+        "x": 260,
+        "y": 180,
+        "label": "SW1",
+        "model": "Cisco Catalyst 2960",
+        "iconType": "switch",
+        "ports": [
+          {
+            "id": "Fa0/1",
+            "name": "Fa0/1",
+            "state": "up",
+            "mode": "access",
+            "vlan": 1,
+            "port_security": {
+              "enabled": false,
+              "maximum": 2,
+              "violation": "restrict",
+              "mac_address": "00bb.ccdd.eeff"
+            }
+          }
+        ],
+        "config": {
+          "hostname": "SW1",
+          "vlans": [
+            1
+          ],
+          "interfaces": {
+            "Fa0/1": {
+              "mode": "access",
+              "vlan": 1
+            }
+          }
+        }
+      },
+      {
+        "id": "PC1",
+        "type": "pc",
+        "x": 560,
+        "y": 300,
+        "label": "PC1",
+        "model": "PC",
+        "iconType": "pc",
+        "ports": [
+          {
+            "id": "eth0",
+            "name": "eth0",
+            "state": "up",
+            "ip": "192.168.1.10",
+            "mask": "255.255.255.0",
+            "mac": "00aa.bbcc.ddee"
+          }
+        ],
+        "config": {
+          "hostname": "PC1",
+          "ip": "192.168.1.10",
+          "mask": "255.255.255.0",
+          "gateway": "192.168.1.1",
+          "mac": "00aa.bbcc.ddee"
+        }
+      }
+    ],
+    "links": [
+      {
+        "id": "L1",
+        "from": {
+          "node": "SW1",
+          "port": "Fa0/1"
+        },
+        "to": {
+          "node": "PC1",
+          "port": "eth0"
+        },
+        "cable_type": "copper_straight",
+        "state": "up"
+      }
+    ]
+  },
+  "hidden_faults": [
+    {
+      "id": "F1",
+      "device": "SW1",
+      "interface": "Fa0/1",
+      "expected": {
+        "enabled": true,
+        "maximum": 1,
+        "violation": "shutdown",
+        "mac_address": "00aa.bbcc.ddee"
+      },
+      "actual": {
+        "enabled": false,
+        "maximum": 2,
+        "violation": "restrict",
+        "mac_address": "00bb.ccdd.eeff"
+      },
+      "detail": "Port Security est désactivé et les paramètres ne correspondent pas à la MAC autorisée."
+    }
+  ],
+  "diagnostic_steps": [
+    {
+      "title": "Identifier la MAC légitime",
+      "instructions": "Relevez la MAC de PC1 et vérifiez l'état de Fa0/1 sur SW1.",
+      "hint": "La MAC de confiance doit être celle de la station raccordée."
+    },
+    {
+      "title": "Appliquer Port Security",
+      "instructions": "Sur SW1, configurez interface Fa0/1, switchport port-security, switchport port-security maximum 1, switchport port-security mac-address 00aa.bbcc.ddee et switchport port-security violation shutdown.",
+      "hint": "Configurez l'activation, la limite, la MAC et l'action de violation."
+    },
+    {
+      "title": "Vérifier la politique",
+      "instructions": "Contrôlez show running-config et confirmez les paramètres sur Fa0/1.",
+      "hint": "Le changement doit préserver le mode access."
+    }
+  ],
+  "resolution_check": {
+    "type": "config_assertions",
+    "rules": [
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/1.port_security.enabled",
+        "operator": "equals",
+        "value": true,
+        "description": "Port Security doit être activé."
+      },
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/1.port_security.maximum",
+        "operator": "equals",
+        "value": 1,
+        "description": "Une seule MAC doit être autorisée."
+      },
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/1.port_security.violation",
+        "operator": "equals",
+        "value": "shutdown",
+        "description": "L'action de violation doit être shutdown."
+      },
+      {
+        "target": "SW1",
+        "path": "ports.Fa0/1.port_security.mac_address",
+        "operator": "equals",
+        "value": "00aa.bbcc.ddee",
+        "description": "La MAC doit correspondre à PC1."
+      }
+    ]
+  },
+  "post_mortem_template": {
+    "root_cause": "",
+    "impact": "",
+    "corrective_action": ""
+  }
+}
