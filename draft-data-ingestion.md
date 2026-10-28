@@ -82,3 +82,92 @@ Ces valeurs sont fictives. L’horodatage de l’événement décrit l’action 
 Dans un journal événementiel, on évite généralement de modifier silencieusement le message déjà publié. Une correction peut être représentée par un événement compensatoire ou une nouvelle version, selon le contrat métier. Les consommateurs peuvent ainsi expliquer pourquoi un solde ou un indicateur a changé après la publication initiale.
 
 L’immutabilité ne veut pas dire conserver chaque donnée indéfiniment. Les politiques de rétention, confidentialité, suppression et archivage continuent de s’appliquer. Une conception événementielle doit prévoir comment traiter les données personnelles et les demandes d’effacement, y compris les copies dérivées et les historiques.
+
+## 3. Sémantique de livraison
+
+Les systèmes distribués ne peuvent pas se contenter d’un mot vague comme fiable. Il faut préciser les garanties réellement fournies par le broker, le consommateur, l’état local et la destination.
+
+### 3.1 Au plus une fois
+
+La livraison au plus une fois évite les duplications liées aux reprises en ne retentant pas certaines opérations. Mais un message peut être perdu lorsqu’une panne survient au mauvais moment. Cette stratégie peut convenir à une métrique non critique où une perte ponctuelle est acceptable et documentée. Elle convient mal à des écritures financières ou des actions qui ne peuvent être perdues.
+
+### 3.2 Au moins une fois
+
+La livraison au moins une fois retente l’opération jusqu’à obtenir une confirmation ou atteindre une condition d’échec contrôlée. Elle réduit le risque de perte mais autorise les doublons. Elle doit donc être associée à un identifiant d’événement stable et à un consommateur idempotent, ou à une stratégie de déduplication durable.
+
+### 3.3 Exactement une fois : frontière et pièges
+
+Le terme exactement une fois peut s’appliquer à un périmètre précis d’un moteur : par exemple, un message est traité une fois dans un état transactionnel et un offset associé est commité de manière cohérente. Il ne garantit pas que tous les effets externes sont uniques. Si le consommateur envoie un email ou appelle une API après avoir écrit l’état mais avant d’enregistrer sa progression, la reprise peut provoquer un nouvel appel.
+
+§§§mermaid
+sequenceDiagram
+    participant B as Broker
+    participant C as Consommateur
+    participant D as Destination
+    B->>C: Événement E
+    C->>D: Écriture de E
+    D-->>C: Écriture confirmée
+    Note over C: Crash avant confirmation de l'offset
+    B->>C: Livraison répétée de E
+    C->>D: Nouvelle tentative
+    Note over D: Idempotence nécessaire pour éviter l'effet en double
+§§§
+
+Le bon raisonnement consiste à identifier les opérations atomiques et les frontières qui ne le sont pas. Là où une transaction distribuée complète n’est pas réaliste, l’idempotence, l’outbox transactionnelle, les clés d’opération, la déduplication et la réconciliation rendent le processus fiable.
+
+## 4. Idempotence et déduplication
+
+Une opération est idempotente si la répéter avec la même entrée conduit au même état final que l’exécuter une fois. C’est une propriété centrale des API de paiement, des ingestions, des migrations et des tâches de reprise.
+
+La clé d’idempotence identifie l’opération logique, et non chacune de ses tentatives. Elle peut être l’identifiant d’événement, une clé de commande ou un identifiant stable produit par le système source. Il faut définir sa portée : destination, type d’opération, tenant, période ou clé métier globale. Une clé trop large peut faire disparaître des opérations légitimes ; une clé trop étroite laisse passer les doublons.
+
+Une table d’idempotence peut conserver l’identifiant, une empreinte du contenu, la première réception et l’état du traitement. L’enregistrement de l’identifiant et la mutation métier doivent être atomiques lorsqu’ils partagent la même base. Si le système marque un message traité avant l’écriture métier, une panne peut conduire à une perte. S’il écrit d’abord puis tombe avant de marquer le message, il peut le traiter de nouveau.
+
+Un même identifiant associé à un contenu différent n’est pas un doublon ordinaire. Il faut détecter le conflit, le conserver dans une trace et appliquer une politique explicite : rejet, quarantaine, correction de la source ou arbitrage métier. La durée de vie de la déduplication doit couvrir la fenêtre maximale de retard et de replay, sans croître indéfiniment sans politique de rétention.
+
+### 4.1 Exemple conceptuel de table de contrôle
+
+§§§sql
+CREATE TABLE ingestion_events (
+    event_id VARCHAR(200) PRIMARY KEY,
+    payload_hash VARCHAR(128) NOT NULL,
+    first_seen_at TIMESTAMP NOT NULL,
+    status VARCHAR(30) NOT NULL
+);
+§§§
+
+Cette table seule ne crée pas une garantie d’idempotence. Le code de traitement doit gérer les conflits, exécuter la mutation métier dans la même transaction si possible et définir comment l’offset ou l’acquittement suit la validation durable.
+
+## 5. Outbox transactionnelle et effets externes
+
+Un problème fréquent apparaît lorsqu’une application écrit dans sa base puis publie un événement. Si l’écriture en base réussit mais que la publication échoue, le flux aval ne connaît pas le changement. À l’inverse, si le message part puis que la transaction métier échoue, l’événement décrit une opération qui n’a jamais été validée.
+
+Avec une outbox transactionnelle, l’application écrit la mutation métier et un enregistrement d’outbox dans une même transaction locale. Un relais publie ensuite l’événement vers le broker. Il peut publier un événement plus d’une fois, donc les consommateurs doivent rester idempotents.
+
+§§§mermaid
+flowchart TD
+    A[Commande reçue] --> B[Transaction locale]
+    B --> C[Écriture de l'état métier]
+    B --> D[Écriture d'un événement outbox]
+    C --> E[Commit atomique]
+    D --> E
+    E --> F[Relais outbox]
+    F --> G[Broker]
+    G --> H[Consommateur idempotent]
+§§§
+
+L’outbox rend atomiques la mutation métier et l’intention de publier, pas la livraison unique à toutes les destinations. Le relais doit gérer les reprises, l’ordre si nécessaire, les erreurs permanentes, la purge des lignes publiées et la surveillance du backlog.
+
+Pour une API externe, utilisez une clé d’idempotence si le fournisseur le permet. Conservez le résultat et l’identité de l’opération pour éviter de créer un nouveau paiement, une nouvelle facture ou un nouvel ordre lors d’une reprise. Si le fournisseur ne propose pas de garantie d’idempotence, concevez une réconciliation et une recherche d’état avant de retenter une opération ambiguë. Un timeout peut signifier que le client ignore si le serveur a déjà effectué l’action.
+
+## 6. Chargement incrémental et CDC
+
+Un chargement incrémental lit uniquement les données nouvelles ou modifiées depuis une position de progression. Il peut réduire les coûts et la latence par rapport à une extraction complète. La difficulté est de définir précisément ce que signifie nouveau et comment la progression se comporte face aux retards, modifications rétroactives et suppressions.
+
+Le curseur peut être une clé croissante, un horodatage de modification, un offset, un token de page ou une position de journal transactionnel. Un timestamp seul peut poser des problèmes : plusieurs lignes ont la même valeur, les horloges peuvent différer, une modification peut être antérieure au watermark et certaines sources réécrivent des dates. Une fenêtre de recouvrement relit une période passée puis déduplique les événements par clé ; elle augmente les lectures mais peut rattraper des écritures tardives.
+
+Le Change Data Capture capte les insertions, mises à jour et suppressions à partir d’un journal ou d’un mécanisme de changement. Il réduit les scans répétés mais exige une gestion des offsets, des snapshots initiaux, des schémas, des permissions de lecture du journal et des retards du consommateur. L’initialisation doit décrire la frontière de cohérence entre le snapshot et le journal. Sans point de cohérence, des modifications peuvent être manquées ou appliquées deux fois.
+
+Les suppressions sont souvent invisibles dans une extraction qui ne lit que les lignes actuelles. Le CDC peut les représenter par un événement de suppression ; une ingestion par extraction doit disposer d’une autre stratégie, comme un journal de suppressions, un statut ou un rapprochement. Un tombstone doit porter un identifiant fiable et être appliqué par les consommateurs. Les événements anciens ne doivent pas ressusciter un état supprimé plus récemment sans règle explicite.
+
+Le checkpoint enregistre jusqu’où le consommateur considère les événements traités. Un commit anticipé peut perdre une sortie après crash ; un commit tardif peut provoquer un replay. La destination doit donc être idempotente ou participer à une transaction compatible avec la source. Une procédure de reprise doit indiquer comment vérifier la progression, choisir un offset sûr et évaluer l’impact d’un rejeu.
