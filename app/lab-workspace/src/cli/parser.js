@@ -376,6 +376,23 @@ export class CLIParser {
         if (!this.device.config.acls.includes(rule)) this.device.config.acls.push(rule);
         return { output: '' };
       }
+      if (cmd === 'ip' && tokens[1] === 'default-gateway' && tokens[2]) {
+        if (!isIPv4Address(tokens[2])) return { output: '% Invalid default gateway IPv4 address.' };
+        this.device.config.gateway = tokens[2];
+        return { output: '' };
+      }
+      if (cmd === 'no' && tokens[1] === 'ip' && tokens[2] === 'default-gateway') {
+        delete this.device.config.gateway;
+        return { output: '' };
+      }
+      if (cmd === 'service' && tokens[1] === 'dhcp') {
+        this.device.config.dhcp_enabled = true;
+        return { output: '' };
+      }
+      if (cmd === 'no' && tokens[1] === 'service' && tokens[2] === 'dhcp') {
+        this.device.config.dhcp_enabled = false;
+        return { output: '' };
+      }
       if (cmd === 'ip' && tokens[1] === 'dhcp' && tokens[2] === 'excluded-address' && tokens[3]) {
         const dhcp = this.ensureProtocolState('dhcp', { excluded_addresses: [], pools: [] });
         if (!Array.isArray(dhcp.excluded_addresses)) dhcp.excluded_addresses = [];
@@ -628,6 +645,27 @@ export class CLIParser {
         return { output: '' };
       }
 
+      if (cmd === 'ip' && tokens[1] === 'ospf' && tokens[2] && tokens[3] === 'area' && tokens[4]) {
+        if (!this.device.config.interfaces || typeof this.device.config.interfaces !== 'object') this.device.config.interfaces = {};
+        const interfaceConfig = this.device.config.interfaces[port.id] && typeof this.device.config.interfaces[port.id] === 'object'
+          ? this.device.config.interfaces[port.id] : {};
+        interfaceConfig.ospf_enabled = true;
+        interfaceConfig.ospf_process_id = String(tokens[2]);
+        interfaceConfig.ospf_area = String(tokens[4]);
+        this.device.config.interfaces[port.id] = interfaceConfig;
+        port.ospf_enabled = true;
+        return { output: '' };
+      }
+      if (cmd === 'no' && tokens[1] === 'ip' && tokens[2] === 'ospf') {
+        if (!this.device.config.interfaces || typeof this.device.config.interfaces !== 'object') this.device.config.interfaces = {};
+        const interfaceConfig = this.device.config.interfaces[port.id] && typeof this.device.config.interfaces[port.id] === 'object'
+          ? this.device.config.interfaces[port.id] : {};
+        interfaceConfig.ospf_enabled = false;
+        this.device.config.interfaces[port.id] = interfaceConfig;
+        port.ospf_enabled = false;
+        return { output: '' };
+      }
+
       if (cmd === 'ip' && tokens[1] === 'address' && tokens[2] && tokens[3]) {
         if (!isIPv4Address(tokens[2])) {
           return { output: '% Invalid IPv4 address. Use four octets between 0 and 255.' };
@@ -644,8 +682,26 @@ export class CLIParser {
       }
       if (cmd === 'no' && tokens[1] === 'shutdown') { port.state = 'up'; return { output: '' }; }
       if (cmd === 'shutdown') { port.state = 'down'; return { output: '' }; }
-      if (cmd === 'switchport' && tokens[1] === 'mode' && tokens[2]) { port.mode = tokens[2]; return { output: '' }; }
-      if (cmd === 'switchport' && tokens[1] === 'access' && tokens[2] === 'vlan' && tokens[3]) { port.vlan = parseInt(tokens[3]); return { output: '' }; }
+      if (cmd === 'switchport' && tokens[1] === 'mode' && tokens[2]) {
+        port.mode = tokens[2].toLowerCase();
+        if (!this.device.config.interfaces || typeof this.device.config.interfaces !== 'object') this.device.config.interfaces = {};
+        const interfaceConfig = this.device.config.interfaces[port.id] && typeof this.device.config.interfaces[port.id] === 'object'
+          ? this.device.config.interfaces[port.id] : {};
+        interfaceConfig.mode = port.mode;
+        this.device.config.interfaces[port.id] = interfaceConfig;
+        return { output: '' };
+      }
+      if (cmd === 'switchport' && tokens[1] === 'access' && tokens[2] === 'vlan' && tokens[3]) {
+        const vlan = Number.parseInt(tokens[3], 10);
+        if (!Number.isInteger(vlan) || vlan < 1 || vlan > 4094) return { output: '% Invalid VLAN ID.' };
+        port.vlan = vlan;
+        if (!this.device.config.interfaces || typeof this.device.config.interfaces !== 'object') this.device.config.interfaces = {};
+        const interfaceConfig = this.device.config.interfaces[port.id] && typeof this.device.config.interfaces[port.id] === 'object'
+          ? this.device.config.interfaces[port.id] : {};
+        interfaceConfig.vlan = vlan;
+        this.device.config.interfaces[port.id] = interfaceConfig;
+        return { output: '' };
+      }
       if (cmd === 'description' && tokens.length > 1) { port.description = tokens.slice(1).join(' '); return { output: '' }; }
     }
 
