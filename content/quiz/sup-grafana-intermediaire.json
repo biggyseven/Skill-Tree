@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Dashboards avec Grafana ».",
+      "prompt": "Quel est le rôle principal d'une source de données dans Grafana ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Stocker obligatoirement tous les logs et métriques dans la base interne de Grafana",
+        "Déclencher automatiquement un ticket lorsqu'un panel devient rouge",
+        "Décrire la connexion au backend interrogé par les requêtes des panels",
+        "Remplacer les variables, les panels et les permissions d'un dashboard"
+      ],
+      "answer": 2,
+      "explanation": "Une source de données décrit comment Grafana accède à un backend, par exemple Prometheus pour les métriques ou Loki pour les logs. Les panels exécutent des requêtes auprès de cette source puis présentent les résultats. Grafana n'est donc pas nécessairement le stockage primaire des données. Si une source est disponible mais qu'un panel est vide, il faut aussi inspecter la requête, les labels, la plage temporelle et les variables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi utiliser des variables dans un dashboard Grafana ?",
+      "choices": [
+        "Pour réutiliser la même définition de dashboard sur différents services, environnements ou instances sans la dupliquer",
+        "Pour rendre toutes les sources de données automatiquement publiques",
+        "Pour supprimer le besoin de comprendre le langage de requête de la source",
+        "Pour convertir les métriques en logs sans configuration supplémentaire"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Les variables servent à substituer des valeurs dans les requêtes, titres, liens et autres éléments. Elles permettent de choisir un environnement, un job, une instance ou une source sans maintenir une copie séparée du dashboard pour chaque cible. Elles doivent être cohérentes avec les labels réellement exposés et testées avec des sélections uniques, multiples ou toutes les valeurs afin d'éviter des panels vides ou excessivement larges."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche aide le plus à diagnostiquer la lenteur d'une API dans un dashboard ?",
+      "choices": [
+        "Afficher uniquement l'utilisation CPU moyenne de l'ensemble des serveurs",
+        "Remplacer les mesures de latence par une liste de couleurs sans unités",
+        "Supprimer les métriques d'erreurs afin de simplifier la vue",
+        "Présenter débit, erreurs et distribution de latence, puis permettre de ventiler par route et d'examiner les dépendances"
+      ],
+      "answer": 3,
+      "explanation": "Une vue RED — débit, erreurs et durée — montre le comportement du service du point de vue des utilisateurs. Une ventilation par route permet de détecter un problème localisé, puis les métriques des dépendances et de saturation contribuent à rechercher une cause. Le CPU peut être utile, mais il ne suffit pas à expliquer une lenteur. Les percentiles et proportions au-dessus d'une limite révèlent aussi les requêtes lentes que la moyenne peut masquer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le fait qu'un panel Grafana n'affiche aucune donnée ?",
+      "choices": [
+        "Le service est nécessairement en bonne santé et n'a aucun trafic",
+        "Cela peut venir d'une absence réelle de mesures, d'une cible non collectée, d'un filtre ou d'une requête incompatible ; il faut distinguer ces cas",
+        "Cela prouve toujours que Grafana ne peut pas joindre sa source de données",
+        "Il suffit de remplacer automatiquement les valeurs absentes par zéro"
+      ],
+      "answer": 1,
+      "explanation": "Un résultat vide n'est pas équivalent à une valeur zéro. Il peut indiquer un scrape échoué, une cible disparue, une métrique non initialisée, un label renommé, un filtre trop strict, une fenêtre temporelle inadéquate ou une source indisponible. Il faut tester la requête dans Grafana ou dans le backend, inspecter les targets et leurs labels, puis vérifier les variables. Remplacer chaque absence par zéro pourrait masquer une panne de collecte."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique améliore la maintenance des dashboards de production ?",
+      "choices": [
+        "Copier chaque dashboard et changer manuellement les valeurs de cible",
+        "Accorder le rôle éditeur à tous les utilisateurs pour faciliter les changements",
+        "Définir un propriétaire, versionner les modifications, tester les panels et limiter les copies grâce aux variables",
+        "Désactiver toutes les descriptions et supprimer les liens de diagnostic"
+      ],
+      "answer": 2,
+      "explanation": "Un dashboard important doit avoir un but clair et une équipe responsable. Le versionnement permet de revoir les changements et de revenir en arrière ; les tests permettent de détecter les requêtes cassées, les variables incorrectes ou les modifications de labels. Les variables et les modèles évitent les copies qui divergent. Les permissions doivent suivre le moindre privilège, et les descriptions ainsi que liens vers les runbooks facilitent l'usage en incident."
     }
   ]
 }
