@@ -739,6 +739,8 @@
       header.app-main-header > .app-header-actions { grid-column: 3; grid-row: 1; }
     }
 
+  @keyframes warBadgeGlow { 0%,100% { filter: drop-shadow(0 0 2px rgb(var(--emerald-500) / .08)); } 50% { filter: drop-shadow(0 0 12px rgb(var(--emerald-500) / .35)); } }
+  .war-badge-glow { animation: warBadgeGlow 2.4s ease-in-out infinite; }
 </style>
 </head>
 
@@ -2096,6 +2098,8 @@
             <p class="mt-2 text-sm text-zinc-400">File d’attente NOC · incidents, changements et problèmes de production.</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 rounded-full border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-200" role="status" aria-live="polite">🚨 <span x-text="warOpenTicketCount">0</span> tickets actifs</span>
+            <button type="button" @click="launchWarStressTest()" :disabled="warStressBusy" class="rounded-xl border border-orange-400/25 bg-orange-500/10 px-3.5 py-2.5 text-xs font-bold text-orange-100 transition hover:bg-orange-500/20 disabled:opacity-50" x-text="warStressBusy ? 'Stress test…' : '🔥 Lancer un stress test'"></button>
             <button type="button" @click="createRandomWarTicket()" :disabled="warRandomBusy" class="rounded-xl border border-amber-400/25 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-50" x-text="warRandomBusy ? 'Création…' : '🎲 Ticket surprise'"></button>
             <button type="button" @click="openScenarioCreator()" class="rounded-xl border border-cyan-400/25 bg-cyan-500/10 px-3.5 py-2.5 text-xs font-bold text-cyan-100 transition hover:bg-cyan-500/20">🛠 Créer un scénario</button>
             <button type="button" @click="$refs.warScenarioImportFile.click()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3.5 py-2.5 text-xs font-bold text-violet-100 transition hover:bg-violet-500/20">📥 Importer un scénario</button>
@@ -2105,8 +2109,9 @@
         </header>
         <nav class="flex flex-wrap gap-2 border-b border-white/[0.08] pb-3" role="tablist" aria-label="Vues War Room">
           <button type="button" role="tab" @click="warTab='inbox'; loadTickets()" :aria-selected="warTab==='inbox'" :class="warTab==='inbox' ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📥 Inbox</button>
-          <button type="button" role="tab" @click="warTab='live'; loadItSMStats()" :aria-selected="warTab==='live'" :class="warTab==='live' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📊 Live</button>
+          <button type="button" role="tab" @click="warTab='live'; loadItSMStats(); loadWarWeeklyReport()" :aria-selected="warTab==='live'" :class="warTab==='live' ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📊 Live</button>
           <button type="button" role="tab" @click="warTab='archive'; loadWarArchive()" :aria-selected="warTab==='archive'" :class="warTab==='archive' ? 'border-violet-400/30 bg-violet-400/10 text-violet-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">📁 Archive</button>
+          <button type="button" role="tab" @click="warTab='badges'; loadWarBadges()" :aria-selected="warTab==='badges'" :class="warTab==='badges' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-xl border px-4 py-2.5 text-xs font-semibold transition">🏅 Badges</button>
         </nav>
         <div x-show="warTab === 'inbox'" x-cloak class="space-y-6">
         <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrer les tickets War Room">
@@ -2117,6 +2122,7 @@
         </div>
         <div x-show="warError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warError"></div>
 <div x-show="warNotice" x-cloak role="status" class="rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-4 text-sm text-emerald-200" x-text="warNotice"></div>
+        <div x-show="warStressNotice" x-cloak role="status" aria-live="polite" class="rounded-xl border border-orange-400/25 bg-orange-500/10 p-4 text-sm font-semibold text-orange-100" x-text="warStressNotice"></div>
         <div x-show="warLoading && !warTickets.length" class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">Chargement de la file NOC…</div>
         <div x-show="!warLoading && !warError && filteredWarTickets.length === 0" class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
           <div class="text-3xl">✅</div><h2 class="mt-3 text-base font-bold text-white">Aucun ticket dans ce filtre</h2><p class="mt-1 text-sm text-zinc-500">La file NOC ne contient pas de ticket ouvert pour cette catégorie.</p>
@@ -2138,12 +2144,14 @@
                   <span>⏱</span><span x-text="formatWarSla(ticket.sla_left)"></span>
                 </span>
               </div>
+              <p x-show="ticket.status==='paused'" class="mt-3 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-200">⏸ SLA suspendu · ticket en pause</p>
               <h2 class="mt-3 text-base font-bold leading-snug text-white" x-text="ticket.title || ticket.scenario?.title || ticket.scenario_id"></h2>
               <p class="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-zinc-400" x-text="ticket.story || ticket.scenario?.story || 'Aucun résumé disponible.'"></p>
               <p x-show="ticket.status==='pending_postmortem'" class="mt-3 rounded-lg border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">Configuration validée · post-mortem à compléter</p>
               <div class="mt-5 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4">
                 <span class="text-[11px] font-semibold text-cyan-300">⚡ <span x-text="ticket.reward_xp || 0"></span> XP</span>
-                <button type="button" @click="openWarTicket(ticket)" class="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-3.5 py-2.5 text-xs font-bold text-slate-950 transition hover:brightness-110">Ouvrir le ticket →</button>
+                <button type="button" x-show="ticket.status !== 'paused'" @click="openWarTicket(ticket)" class="rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 px-3.5 py-2.5 text-xs font-bold text-slate-950 transition hover:brightness-110">Ouvrir le ticket →</button>
+                <button type="button" x-show="ticket.status === 'paused'" @click="resumeWarTicket(ticket)" :disabled="warReplayBusy === ticket.id" class="rounded-xl border border-amber-400/30 bg-amber-500/10 px-3.5 py-2.5 text-xs font-bold text-amber-100 transition hover:bg-amber-500/20 disabled:opacity-50" x-text="warReplayBusy === ticket.id ? 'Reprise…' : '▶ Reprendre'"></button>
               </div>
             </article>
           </template>
@@ -2175,6 +2183,47 @@
               <p class="mt-1 text-xs text-zinc-500">Tickets créés aujourd’hui : <span x-text="warStats.incidents_today || 0"></span></p>
             </article>
           </div>
+          <section class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-lg">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div><h3 class="text-base font-bold text-white">📈 Rapport de la semaine</h3><p class="mt-1 text-xs text-zinc-500" x-text="warWeeklyReport ? (warWeeklyReport.period_start + ' → ' + warWeeklyReport.period_end) : 'Calculé depuis les tickets de la base.'"></p></div>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" @click="loadWarWeeklyReport()" :disabled="warWeeklyLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] disabled:opacity-50">↻ Actualiser</button>
+                <button type="button" @click="exportWarWeeklyReport()" :disabled="warWeeklyLoading || !warWeeklyReport" class="rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-2 text-xs font-bold text-emerald-200 hover:bg-emerald-500/20 disabled:opacity-50">📄 Exporter le rapport (Markdown)</button>
+              </div>
+            </div>
+            <div x-show="warWeeklyError" x-cloak role="alert" class="mt-3 rounded-lg border border-rose-400/25 bg-rose-500/10 p-3 text-xs text-rose-200" x-text="warWeeklyError"></div>
+            <div x-show="warWeeklyLoading" class="mt-3 text-xs text-zinc-500">Calcul du rapport hebdomadaire…</div>
+            <div x-show="warWeeklyReport" class="mt-5 grid gap-4 lg:grid-cols-2">
+              <div class="rounded-xl border border-white/10 bg-black/10 p-4">
+                <div class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-300">Tickets résolus par jour</div>
+                <div class="flex h-32 items-end gap-2">
+                  <template x-for="day in (warWeeklyReport?.daily_breakdown || [])" :key="day.date">
+                    <div class="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1">
+                      <span class="text-[10px] font-mono text-zinc-400" x-text="day.resolved"></span>
+                      <div class="w-full rounded-t bg-emerald-400/70 transition-all duration-300" :style="{height: weeklyResolvedHeight(day) + '%'}" :title="day.date + ': ' + day.resolved + ' résolu(s)'"></div>
+                      <span class="text-[10px] text-zinc-500" x-text="formatWeeklyDay(day.date)"></span>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <div class="rounded-xl border border-white/10 bg-black/10 p-4">
+                <div class="mb-3 text-xs font-bold uppercase tracking-wider text-zinc-300">Records personnels</div>
+                <div class="space-y-3 text-xs">
+                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Plus rapide</span><strong class="text-emerald-200 text-right" x-text="warWeeklyReport.fastest_resolution_minutes == null ? '—' : warWeeklyReport.fastest_ticket_id + ' · ' + Number(warWeeklyReport.fastest_resolution_minutes).toLocaleString('fr-FR') + ' min'"></strong></div>
+                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Plus lent</span><strong class="text-rose-200 text-right" x-text="warWeeklyReport.slowest_resolution_minutes == null ? '—' : warWeeklyReport.slowest_ticket_id + ' · ' + Number(warWeeklyReport.slowest_resolution_minutes).toLocaleString('fr-FR') + ' min'"></strong></div>
+                  <div class="flex items-start justify-between gap-3"><span class="text-zinc-400">Meilleur SLA</span><strong class="text-cyan-200 text-right" x-text="warWeeklyReport.best_sla ? warWeeklyReport.best_sla.ticket_id + ' · +' + warWeeklyReport.best_sla.margin_minutes + ' min de marge' : '—'"></strong></div>
+                </div>
+              </div>
+            </div>
+            <div x-show="warWeeklyReport" class="mt-4 grid gap-3 grid-cols-2 lg:grid-cols-5">
+              <div class="rounded-lg border border-white/10 p-3"><div class="text-[10px] uppercase text-zinc-500">Ouverts</div><div class="mt-1 text-xl font-black text-white" x-text="warWeeklyReport?.tickets_opened ?? 0"></div></div>
+              <div class="rounded-lg border border-white/10 p-3"><div class="text-[10px] uppercase text-zinc-500">Résolus</div><div class="mt-1 text-xl font-black text-emerald-200" x-text="warWeeklyReport?.tickets_resolved ?? 0"></div></div>
+              <div class="rounded-lg border border-white/10 p-3"><div class="text-[10px] uppercase text-zinc-500">Échoués</div><div class="mt-1 text-xl font-black text-rose-200" x-text="warWeeklyReport?.tickets_failed ?? 0"></div></div>
+              <div class="rounded-lg border border-white/10 p-3"><div class="text-[10px] uppercase text-zinc-500">MTTR</div><div class="mt-1 text-xl font-black text-white" x-text="Number(warWeeklyReport?.mttr_minutes || 0).toLocaleString('fr-FR') + ' min'"></div></div>
+              <div class="rounded-lg border border-white/10 p-3"><div class="text-[10px] uppercase text-zinc-500">SLA</div><div class="mt-1 text-xl font-black text-white" x-text="Number(warWeeklyReport?.sla_compliance_pct || 0).toLocaleString('fr-FR') + '%'"></div></div>
+            </div>
+            <p x-show="warWeeklyReport" class="mt-3 text-xs text-zinc-500">Type le plus traité : <strong class="text-zinc-300" x-text="warWeeklyReport?.top_scenario_type || 'Aucun'"></strong></p>
+          </section>
           <div class="overflow-hidden rounded-2xl border border-white/10 bg-[color:var(--s1)] shadow-lg">
             <div class="flex items-center justify-between border-b border-white/[0.08] px-5 py-4"><div><h3 class="text-sm font-bold text-white">5 dernières résolutions</h3><p class="mt-1 text-xs text-zinc-500">Les clôtures les plus récentes.</p></div></div>
             <div class="overflow-x-auto">
@@ -2243,6 +2292,25 @@
               </article>
             </template>
           </div>
+        </div>
+        <div x-show="warTab === 'badges'" x-cloak class="space-y-5">
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div><h2 class="text-lg font-bold text-white">🏅 Badges War Room</h2><p class="mt-1 text-xs text-zinc-500">Les succès sont calculés depuis les tickets clôturés et les post-mortem enregistrés.</p></div>
+            <button type="button" @click="loadWarBadges()" :disabled="warBadgesLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-semibold text-zinc-200 hover:bg-white/[0.08] disabled:opacity-50">↻ Actualiser</button>
+          </div>
+          <div x-show="warBadgesError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warBadgesError"></div>
+          <div x-show="warBadgesLoading" class="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-xs text-zinc-500">Évaluation des badges…</div>
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <template x-for="badge in warBadges" :key="badge.id">
+              <article class="flex min-h-[155px] flex-col rounded-2xl border p-4 transition" :class="badge.unlocked ? 'war-badge-glow border-emerald-400/30 bg-emerald-500/10' : 'border-white/10 bg-white/[0.02] opacity-45 grayscale'">
+                <div class="flex items-start justify-between gap-3"><div class="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-black/10 text-2xl" x-text="badge.icon"></div><span class="rounded-full border px-2 py-1 text-[10px] font-bold" :class="badge.unlocked ? 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200' : 'border-white/10 text-zinc-500'" x-text="badge.unlocked ? 'Débloqué' : 'Verrouillé'"></span></div>
+                <h3 class="mt-4 text-sm font-bold text-white" x-text="badge.name"></h3>
+                <p class="mt-1 text-xs leading-relaxed text-zinc-400" x-text="badge.description"></p>
+              </article>
+            </template>
+          </div>
+          <div x-show="!warBadgesLoading && !warBadgesError && !warBadges.length" class="rounded-2xl border border-dashed border-white/10 p-8 text-center text-sm text-zinc-500">Aucun badge disponible.</div>
+        </div>
         </div></section>
 </main>
   </div>
@@ -2912,6 +2980,9 @@
           this.loadLessonPositions();
           this.loadUiPrefs();
           this.loadFavorites();
+          this.loadWarOpenCount();
+          if (this._warOpenCountTimer) clearInterval(this._warOpenCountTimer);
+          this._warOpenCountTimer = window.setInterval(() => this.loadWarOpenCount(), 5000);
           window.addEventListener('message', (event) => {
             if (event.origin !== window.location.origin) return;
             const message = event.data;
@@ -3453,6 +3524,110 @@
           try { const r = await fetch('/api/diagnostics/network_down'); this.diagnostic = await r.json(); this.diagnosticStep = this.diagnostic.steps[this.diagnostic.start]; } catch(e){}
         },
 
+        async loadWarOpenCount() {
+          try {
+            const response = await fetch('/api/tickets/open-count', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => ({}));
+            if (response.ok) this.warOpenTicketCount = Math.max(0, Number(payload.count) || 0);
+          } catch (_) { /* Le compteur sera retenté au prochain cycle. */ }
+        },
+        async loadWarBadges() {
+          this.warBadgesLoading = true; this.warBadgesError = '';
+          try {
+            const response = await fetch('/api/tickets/badges', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => []);
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warBadges = Array.isArray(payload) ? payload : [];
+          } catch (error) { this.warBadgesError = 'Impossible de charger les badges : ' + error.message; }
+          finally { this.warBadgesLoading = false; }
+        },
+        async loadWarWeeklyReport() {
+          this.warWeeklyLoading = true; this.warWeeklyError = '';
+          try {
+            const response = await fetch('/api/itsm/weekly-report', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warWeeklyReport = payload;
+          } catch (error) { this.warWeeklyError = 'Impossible de charger le rapport hebdomadaire : ' + error.message; }
+          finally { this.warWeeklyLoading = false; }
+        },
+        weeklyResolvedHeight(day) {
+          const days = this.warWeeklyReport?.daily_breakdown || [];
+          const maxCount = Math.max(1, ...days.map(item => Number(item.resolved) || 0));
+          const count = Math.max(0, Number(day?.resolved) || 0);
+          return count ? Math.max(8, Math.round(count / maxCount * 100)) : 2;
+        },
+        formatWeeklyDay(value) {
+          if (!value) return '—';
+          const d = new Date(String(value) + 'T12:00:00Z');
+          return Number.isNaN(d.getTime()) ? String(value).slice(5) : d.toLocaleDateString('fr-FR', { weekday: 'short', timeZone: 'UTC' });
+        },
+        exportWarWeeklyReport() {
+          const r = this.warWeeklyReport;
+          if (!r) { this.notify('Le rapport hebdomadaire n’est pas encore chargé.'); return; }
+          const lines = [
+            '# Rapport de performance hebdomadaire — War Room', '',
+            '**Période :** ' + r.period_start + ' → ' + r.period_end, '',
+            '## Indicateurs', '',
+            '- Tickets ouverts : ' + r.tickets_opened,
+            '- Tickets résolus : ' + r.tickets_resolved,
+            '- Tickets échoués : ' + r.tickets_failed,
+            '- MTTR : ' + r.mttr_minutes + ' min',
+            '- Conformité SLA : ' + r.sla_compliance_pct + ' %',
+            '- Type le plus traité : ' + (r.top_scenario_type || 'Aucun'), '',
+            '## Records personnels', '',
+            '- Résolution la plus rapide : ' + (r.fastest_ticket_id ? r.fastest_ticket_id + ' — ' + r.fastest_resolution_minutes + ' min' : 'Aucune résolution sur la période'),
+            '- Résolution la plus lente : ' + (r.slowest_ticket_id ? r.slowest_ticket_id + ' — ' + r.slowest_resolution_minutes + ' min' : 'Aucune résolution sur la période'),
+            '- Meilleur SLA : ' + (r.best_sla ? r.best_sla.ticket_id + ' — marge de ' + r.best_sla.margin_minutes + ' min' : 'Aucun ticket avec SLA respecté'), '',
+            '## Détail journalier', '',
+            '| Date | Ouverts | Résolus | Échoués |',
+            '|---|---:|---:|---:|',
+            ...(r.daily_breakdown || []).map(day => '| ' + day.date + ' | ' + day.opened + ' | ' + day.resolved + ' | ' + day.failed + ' |'), ''
+          ].join('\n');
+          this.saveFile('rapport-war-room-hebdomadaire.md', new Blob([lines], { type: 'text/markdown;charset=utf-8' }));
+        },
+        async launchWarStressTest() {
+          if (this.warStressBusy) return;
+          if (this.warStressMission?.status === 'in_progress') {
+            this.warStressNotice = 'Un stress test est déjà en cours. Termine les trois tickets actifs avant d’en lancer un autre.';
+            return;
+          }
+          this.warStressBusy = true; this.warStressNotice = ''; this.warError = '';
+          try {
+            const response = await fetch('/api/tickets/stress-test', {
+              method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}'
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warStressMission = { ...payload, status: 'in_progress' };
+            this.warStressNotice = payload.message || '3 incidents simultanés. Tu as 45 minutes pour tous les résoudre. Bon courage !';
+            this.warTab = 'inbox'; this.warFilter = 'all';
+            await this.loadTickets();
+            if (this._warStressPollTimer) clearInterval(this._warStressPollTimer);
+            this._warStressPollTimer = window.setInterval(() => this.refreshWarStressMission(), 15000);
+            await this.refreshWarStressMission();
+          } catch (error) { this.warStressNotice = 'Impossible de lancer le stress test : ' + error.message; }
+          finally { this.warStressBusy = false; }
+        },
+        async refreshWarStressMission() {
+          const mission = this.warStressMission;
+          if (!mission?.mission_id) return;
+          try {
+            const response = await fetch('/api/itsm/stress-test/' + encodeURIComponent(mission.mission_id), { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warStressMission = { ...mission, ...payload };
+            if (payload.status === 'succeeded') {
+              this.warStressNotice = '🏆 Mission Stress Test réussie : ' + payload.resolved + '/' + payload.total + ' tickets résolus. Bonus XP x2 appliqué aux clôtures faites dans le délai.';
+              if (this._warStressPollTimer) clearInterval(this._warStressPollTimer);
+              this.loadTickets(); this.loadWarOpenCount();
+            } else if (payload.status === 'failed') {
+              this.warStressNotice = '❌ Mission Stress Test échouée : ' + payload.resolved + '/' + payload.total + ' tickets résolus dans les 45 minutes.';
+              if (this._warStressPollTimer) clearInterval(this._warStressPollTimer);
+              this.loadTickets(); this.loadWarOpenCount();
+            }
+          } catch (error) { this.warStressNotice = 'Suivi du stress test indisponible : ' + error.message; }
+        },
         async loadItSMStats() {
           this.warLiveLoading = true; this.warStatsError = '';
           try {
@@ -3690,6 +3865,26 @@
           return Math.floor(minutes / 60) + ' h ' + String(minutes % 60).padStart(2, '0') + ' min';
         },
 
+        async resumeWarTicket(ticket) {
+          if (!ticket?.id || this.warReplayBusy) return;
+          const target = window.open('about:blank', '_blank');
+          this.warReplayBusy = ticket.id; this.warError = '';
+          try {
+            const response = await fetch('/api/tickets/' + encodeURIComponent(ticket.id) + '/resume', {
+              method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}'
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            await this.loadTickets(); this.loadWarOpenCount();
+            this.warNotice = 'Ticket repris : ' + ticket.id + ' · le temps SLA restant a été restauré.';
+            const url = '/lab.html?ticket=' + encodeURIComponent(ticket.id);
+            if (target) target.location.href = url;
+            else window.location.assign(url);
+          } catch (error) {
+            this.warError = 'Impossible de reprendre le ticket : ' + error.message;
+            try { if (target) target.close(); } catch (_) {}
+          } finally { this.warReplayBusy = null; }
+        },
         async loadTickets() {
           this.warLoading = true; this.warError = '';
           try {
@@ -3697,6 +3892,7 @@
             const payload = await response.json().catch(() => []);
             if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
             this.warTickets = Array.isArray(payload) ? payload : [];
+            this.loadWarOpenCount();
             if (this._warTicketTimer) clearInterval(this._warTicketTimer);
             this._warTicketTimer = setInterval(() => {
               this.warTickets.forEach(ticket => {
@@ -6391,6 +6587,10 @@
         // ---------- état commun ----------
         navItems: NAV_ITEMS, modules: MODULES, levels: LEVELS,
         warTickets: [], warFilter: 'all', warTab: 'inbox', warLoading: false, warError: '', warNotice: '', _warTicketTimer: null,
+        warOpenTicketCount: 0, _warOpenCountTimer: null,
+        warBadges: [], warBadgesLoading: false, warBadgesError: '',
+        warWeeklyReport: null, warWeeklyLoading: false, warWeeklyError: '',
+        warStressBusy: false, warStressMission: null, warStressNotice: '', _warStressPollTimer: null,
         warStats: { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [] }, warLiveLoading: false, warStatsError: '',
         warArchive: [], warArchiveLoading: false, warArchiveError: '', warReplayBusy: null,
         warScenarios: [], warScenariosLoading: false, warScenarioError: '', warScenarioNotice: '', warScenarioFilter: 'all', warScenarioSearch: '',
