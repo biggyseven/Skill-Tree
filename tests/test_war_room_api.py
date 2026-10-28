@@ -296,6 +296,11 @@ class WarRoomApiTests(unittest.TestCase):
             self.assertLessEqual(scenario["sla_minutes"], 45)
             self.assertGreaterEqual(scenario["reward_xp"], 100)
             self.assertLessEqual(scenario["reward_xp"], 200)
+            self.assertEqual(len(scenario["diagnostic_steps"]), 3)
+            self.assertEqual(
+                set(scenario["post_mortem_template"]),
+                {"root_cause", "impact", "corrective_action"},
+            )
             self.assertFalse((self.scenario_dir / f"{ticket_id}.json").exists())
 
             with sqlite3.connect(self.db_path) as conn:
@@ -384,6 +389,20 @@ class WarRoomApiTests(unittest.TestCase):
                 next(target for target in options["targets"]["lan_simple"]["port_shutdown"] if target["id"] == "SW1")["ports"],
             )
 
+
+    def test_base_topologies_do_not_reuse_a_physical_port_for_multiple_links(self) -> None:
+        from app.scenario_loader import BASE_TOPOLOGIES
+
+        for topology_id, model in BASE_TOPOLOGIES.items():
+            used_ports = []
+            for link in model["topology"]["links"]:
+                used_ports.append((link["from"]["node"], link["from"]["port"]))
+                used_ports.append((link["to"]["node"], link["to"]["port"]))
+            self.assertEqual(
+                len(used_ports),
+                len(set(used_ports)),
+                f"La topologie {topology_id} réutilise un port physique sur plusieurs liaisons.",
+            )
 
     def test_all_eight_faults_start_broken_and_have_a_repairable_rule(self) -> None:
         from app.scenario_faults import SCENARIO_FAULTS
