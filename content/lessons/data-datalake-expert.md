@@ -584,7 +584,129 @@ SkillMarket reçoit des événements Kafka, des exports transactionnels et des f
 
 **Tests.** Simuler des doublons, des événements tardifs, deux writers concurrents, un échec de commit, un nettoyage de fichiers, une évolution de schéma, une disparition de catalogue et une restauration. Valider la cohérence finale, l'absence de doublons, la traçabilité et le temps de reprise. Une architecture n'est approuvée que lorsque ces tests sont reproductibles.
 
-## 20. Checklist de révision
+## 20. Atelier avancé : publier une table Lakehouse sans exposer un lot incomplet
+
+Le Lakehouse ne se résume pas à déposer des fichiers Parquet dans un stockage objet. La couche de table doit fournir des règles explicites de commit, de concurrence, d'évolution de schéma et de lecture d'un état cohérent. Cet atelier utilise la syntaxe SQL de Delta Lake sur Spark comme exemple concret. Les commandes ne sont pas portables telles quelles vers Iceberg ou Hudi ; adaptez-les au format et au catalogue utilisés.
+
+### Cycle de publication
+
+```mermaid
+flowchart TD
+    A["Arrivee du lot brut"] --> B["Validation schema et valeurs"]
+    B --> C{"Lot conforme ?"}
+    C -->|Non| D["Quarantaine et incident"]
+    C -->|Oui| E["Déduplication par clé et version"]
+    E --> F["MERGE dans la table"]
+    F --> G["Contrôles post-écriture"]
+    G --> H{"Réconciliation OK ?"}
+    H -->|Non| I["Bloquer la publication et diagnostiquer"]
+    H -->|Oui| J["Mettre à disposition le snapshot validé"]
+```
+
+La table ne doit pas devenir visible comme référence métier uniquement parce qu'un job a terminé. Les contrôles après écriture doivent confirmer l'unicité des identifiants, la plage des valeurs, la fraîcheur, les volumes attendus et la correspondance avec la plage source. Si des consommateurs lisent directement la table, définissez leur contrat d'accès et une stratégie de publication qui évite de mélanger un lot incomplet avec un lot certifié.
+
+### Créer une table et appliquer un upsert versionné
+
+Exemple SQL pour un environnement Spark SQL équipé de Delta Lake. Le catalogue, les chemins et les droits doivent être préparés par l'administrateur de la plateforme.
+
+```sql
+CREATE TABLE IF NOT EXISTS analytics.progress_events (
+    event_id STRING NOT NULL,
+    event_version BIGINT NOT NULL,
+    learner_id STRING NOT NULL,
+    course_id STRING NOT NULL,
+    event_time TIMESTAMP NOT NULL,
+    event_date DATE NOT NULL,
+    progress_pct DOUBLE,
+    ingested_at TIMESTAMP NOT NULL
+)
+USING DELTA
+PARTITIONED BY (event_date);
+```
+
+Le staging doit contenir au plus une version gagnante par `event_id`. La règle de priorité est explicite : la version métier la plus élevée gagne. Si deux lignes de la même version possèdent des contenus différents, le lot doit être mis en quarantaine avant le `MERGE` plutôt que de choisir un résultat non déterministe.
+
+```sql
+MERGE INTO analytics.progress_events AS target
+USING staging.progress_events_deduplicated AS source
+ON target.event_id = source.event_id
+WHEN MATCHED AND source.event_version > target.event_version THEN
+  UPDATE SET
+    event_version = source.event_version,
+    learner_id = source.learner_id,
+    course_id = source.course_id,
+    event_time = source.event_time,
+    event_date = source.event_date,
+    progress_pct = source.progress_pct,
+    ingested_at = source.ingested_at
+WHEN NOT MATCHED THEN
+  INSERT (
+    event_id, event_version, learner_id, course_id,
+    event_time, event_date, progress_pct, ingested_at
+  )
+  VALUES (
+    source.event_id, source.event_version, source.learner_id,
+    source.course_id, source.event_time, source.event_date,
+    source.progress_pct, source.ingested_at
+  );
+```
+
+Un événement plus ancien ne doit pas écraser une version déjà appliquée. Pour les lignes de même version mais de contenu différent, la stratégie de conflit est un contrôle de contrat, pas une mise à jour silencieuse.
+
+### Contrôles après le commit
+
+```sql
+-- Toute ligne doit respecter le domaine métier.
+SELECT COUNT(*) AS invalid_progress_rows
+FROM analytics.progress_events
+WHERE progress_pct IS NULL
+   OR progress_pct < 0
+   OR progress_pct > 100;
+
+-- Un event_id ne doit désigner qu'une ligne courante.
+SELECT event_id, COUNT(*) AS row_count
+FROM analytics.progress_events
+GROUP BY event_id
+HAVING COUNT(*) > 1;
+
+-- Examiner la fraîcheur observée de la table.
+SELECT
+    MAX(ingested_at) AS latest_ingestion,
+    current_timestamp() AS check_time
+FROM analytics.progress_events;
+```
+
+Ces requêtes donnent des signaux de validation ; un pipeline automatisé doit convertir les violations en échec explicite et bloquer la publication selon les seuils convenus. Le nombre total de lignes n'est pas une preuve suffisante : des doublons peuvent compenser des omissions. Comparez les identifiants source et destination, les bornes temporelles, les suppressions attendues et les agrégats métier.
+
+### Historique, retour arrière et limites du time travel
+
+Pour diagnostiquer une modification inattendue, consultez l'historique de table et comparez le résultat courant à un snapshot précédent, selon les capacités de la version de Delta Lake utilisée.
+
+```sql
+DESCRIBE HISTORY analytics.progress_events;
+
+-- Exemple illustratif : versionner explicitement le snapshot analysé.
+SELECT event_date, COUNT(*) AS event_count
+FROM analytics.progress_events VERSION AS OF 12
+GROUP BY event_date
+ORDER BY event_date;
+```
+
+La version 12 est un exemple : remplacez-la par une version réellement disponible. Le time travel facilite l'analyse mais ne remplace ni une sauvegarde indépendante ni une politique de rétention adaptée. Une purge d'anciens fichiers peut rendre des versions historiques inaccessibles. Les exigences de restauration doivent donc être testées selon les règles de conservation, de confidentialité et de reprise après sinistre.
+
+### Tests à réaliser avant la mise en production
+
+- Exécuter deux fois le même lot : le résultat métier doit rester identique.
+- Injecter une version ancienne après une version récente : elle ne doit pas faire régresser la ligne.
+- Fournir le même identifiant et la même version avec un contenu contradictoire : le contrat doit échouer ou mettre l'enregistrement en quarantaine.
+- Interrompre le job avant le commit puis après le commit : vérifier les snapshots visibles et la reprise.
+- Rendre la destination indisponible : aucun lot partiellement validé ne doit être annoncé comme certifié.
+- Vérifier le coût des petits fichiers, de la compaction et des scans sur les filtres dominants.
+- Tester une restauration réelle et confirmer les volumes, les droits, la rétention et les contrôles de qualité après restauration.
+
+La décision experte ne consiste pas à choisir le format le plus populaire. Elle consiste à préciser les garanties de table, la compatibilité des moteurs, les opérations concurrentes et le processus de publication, puis à les démontrer par des tests.
+
+## 21. Checklist de révision
 
 - [ ] Je distingue Data Lake, Data Warehouse et Lakehouse.
 - [ ] Je sais définir les responsabilités des zones brute, préparée et publiée.
@@ -600,7 +722,7 @@ SkillMarket reçoit des événements Kafka, des exports transactionnels et des f
 - [ ] Je distingue time travel et sauvegarde indépendante.
 - [ ] Je peux démontrer une restauration et un rejeu sans doublons.
 
-## 21. Documentation officielle
+## 22. Documentation officielle
 
 Les fonctions exactes varient selon les versions, les moteurs et les catalogues. Vérifiez la matrice de compatibilité et les limites documentées avant de concevoir une dépendance de production.
 
