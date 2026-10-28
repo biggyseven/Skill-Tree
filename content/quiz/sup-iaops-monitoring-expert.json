@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « IA appliquée au monitoring ».",
+      "prompt": "Quelle différence faut-il faire entre une anomalie détectée par un modèle et un incident opérationnel ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Une anomalie est toujours une panne critique qui doit automatiquement déclencher un rollback.",
+        "Une anomalie est un écart par rapport à une référence ; l’impact, le contexte et les SLO permettent de déterminer s’il s’agit d’un incident.",
+        "Un incident est uniquement une valeur élevée de CPU et ne dépend jamais du contexte utilisateur.",
+        "Une anomalie ne peut être détectée qu’avec un modèle supervisé et des données étiquetées."
+      ],
+      "answer": 1,
+      "explanation": "Une anomalie est une observation inhabituelle par rapport à une référence, mais elle peut provenir d’une variation normale, d’un lancement ou d’une activité planifiée. L’existence d’un incident dépend aussi de l’impact utilisateur, des objectifs de service et du contexte. L’anomalie doit donc déclencher une vérification, et non automatiquement une action risquée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il conserver les règles déterministes de SLO et de sécurité après avoir ajouté de l’AIOps ?",
+      "choices": [
+        "Parce qu’un modèle peut manquer un incident, dériver ou être indisponible, tandis que les règles explicites protègent des limites connues.",
+        "Parce que les modèles d’apprentissage ne peuvent jamais analyser des séries temporelles.",
+        "Parce que l’AIOps doit remplacer les métriques par des alertes manuelles.",
+        "Parce que les règles déterministes garantissent que tous les incidents ont une cause unique."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Les règles déterministes protègent des contraintes explicites et vérifiables, comme un SLO ou une limite de sécurité. Un modèle statistique peut produire des faux positifs, des faux négatifs ou devenir indisponible lorsque les données changent. Les deux mécanismes sont complémentaires ; une détection d’anomalies ne doit pas neutraliser les garde-fous critiques."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels indicateurs permettent le mieux d’évaluer la qualité d’un détecteur d’anomalies ?",
+      "choices": [
+        "Le nombre de modèles déployés et le nombre de dashboards créés.",
+        "La taille du serveur d’inférence et le nombre de paramètres du modèle.",
+        "La précision, le rappel, les faux positifs et faux négatifs, le délai de détection et l’effet sur le travail des opérateurs.",
+        "Le nombre d’anomalies signalées, sans vérifier si elles correspondent à un problème réel."
+      ],
+      "answer": 2,
+      "explanation": "La précision mesure la part des alertes positives qui correspondent aux cas recherchés, tandis que le rappel mesure la part des cas positifs détectés. Les faux positifs et faux négatifs décrivent les erreurs complémentaires. Le délai de détection et la charge de triage montrent si le modèle améliore réellement les opérations plutôt que d’augmenter simplement le volume d’alertes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Lorsqu’un système AIOps corrèle une hausse de latence avec un déploiement récent, quelle interprétation est la plus rigoureuse ?",
+      "choices": [
+        "Le déploiement est forcément la cause racine puisque les événements sont proches dans le temps.",
+        "La corrélation doit être ignorée car les événements temporels n’ont aucune valeur.",
+        "Le modèle doit automatiquement annuler le déploiement pour valider son hypothèse.",
+        "Le déploiement constitue une hypothèse à vérifier avec les traces, les erreurs, la topologie, le volume et les autres changements."
+      ],
+      "answer": 3,
+      "explanation": "La proximité temporelle est un indice utile, mais ne prouve pas la causalité. Une hausse de charge ou une dépendance commune peut expliquer les mêmes symptômes. L’équipe doit comparer les versions, examiner les traces et journaux, vérifier la topologie et chercher des éléments qui confirment ou contredisent l’hypothèse avant de décider d’une mitigation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est la plus sûre pour introduire une remédiation pilotée par l’IA dans un environnement critique ?",
+      "choices": [
+        "Donner immédiatement au modèle des droits administrateur et lui permettre d’exécuter n’importe quelle commande.",
+        "Commencer par une observation ou recommandation, puis limiter les actions à des scénarios testés, réversibles, audités et soumis à des garde-fous proportionnés au risque.",
+        "Désactiver les alertes classiques pour éviter les conflits avec la sortie du modèle.",
+        "Réentraîner automatiquement le modèle sur tous les événements, y compris les incidents non résolus, sans validation."
+      ],
+      "answer": 1,
+      "explanation": "Une introduction progressive permet de mesurer les performances avant de donner une capacité d’action. Les scénarios automatisés doivent avoir des préconditions, des limites, un audit, un mécanisme d’arrêt et une récupération testée. Les droits doivent suivre le principe du moindre privilège, et les règles classiques de SLO et de sécurité doivent continuer à fonctionner indépendamment."
     }
   ]
 }
