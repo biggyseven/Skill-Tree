@@ -629,7 +629,7 @@ Expliquez pourquoi le document du cours Redis non publié n'est pas comptabilis�
 ### Étape C — Créer un cache Redis
 
 ~~~redis
-SET skillmarket:cache:course:mongo-indexes "{\\"slug\\":\\"mongo-indexes\\",\\"title\\":\\"Index MongoDB\\"}" EX 300
+SET skillmarket:cache:course:mongo-indexes "{\"slug\":\"mongo-indexes\",\"title\":\"Index MongoDB\"}" EX 300
 GET skillmarket:cache:course:mongo-indexes
 TTL skillmarket:cache:course:mongo-indexes
 DEL skillmarket:cache:course:mongo-indexes
