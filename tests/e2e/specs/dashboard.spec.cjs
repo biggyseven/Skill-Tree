@@ -20,6 +20,24 @@ test('le tableau de bord charge le parcours et la navigation principale', async 
   await expect(page.locator('html')).toHaveAttribute('data-theme', /.+/);
 });
 
+test('le bouton Examens affiche le centre de préparation', async ({ page }) => {
+  await openDashboard(page);
+
+  const navigation = page.getByRole('navigation', { name: 'Navigation principale' });
+  const examsButton = navigation.getByRole('button', { name: 'Examens', exact: true });
+
+  await examsButton.click();
+  await expect.poll(() => page.evaluate(() => window.Alpine.$data(document.body).tab)).toBe('exam');
+  await expect(examsButton).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('#exam-center')).toBeVisible();
+  await expect(page.getByRole('heading', { name: "Centre d'examens" })).toBeVisible();
+
+  // Un clic répété doit garder le centre visible.
+  await examsButton.click();
+  await expect(page.locator('#exam-center')).toBeVisible();
+  await expect(page.getByRole('heading', { name: "Centre d'examens" })).toBeVisible();
+});
+
 test('recliquer sur l’onglet Radar actif ne relance pas inutilement son chargement', async ({ page }) => {
   await openDashboard(page);
 
