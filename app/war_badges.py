@@ -120,7 +120,6 @@ def build_war_badges(conn: Any) -> list[dict[str, Any]]:
         if len(group) != 3:
             continue
         times = [_parse_time(ticket.get("resolved_at")) for ticket in group]
-        seconds = [durations.get(str(ticket.get("id"))) for ticket in group]
         if all(times) and (times[-1] - times[0]).total_seconds() <= 1800:
             stress_test = True
             break
