@@ -643,4 +643,26 @@
   html[data-theme="graphite"] .modal-panel,
   html[data-theme="graphite"] .app-header-action-items { background-color: #161b22; }
   .toast-notification { z-index: 9998; border: 1px solid rgb(var(--cyan-400) / .28); background: #161b22; color: #e6edf3; box-shadow: 0 14px 38px -18px rgba(0,0,0,.9), 0 0 22px -16px rgb(var(--cyan-400) / .8); }
-  @media (prefers-reduced-motion: reduce) { .btn-glow, .transition-all, .war-badge-glow { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+  .war-ticket-severity-critical {
+    background-color: rgba(127, 29, 29, .13) !important;
+    background-image: linear-gradient(145deg, rgba(127, 29, 29, .2), transparent 64%);
+  }
+  .war-ticket-severity-high {
+    background-color: rgba(124, 45, 18, .11) !important;
+    background-image: linear-gradient(145deg, rgba(154, 52, 18, .17), transparent 64%);
+  }
+  .war-ticket-sla-critical {
+    animation: warTicketSlaPulse 1.2s ease-in-out infinite;
+    border-color: rgba(248, 113, 113, .92) !important;
+  }
+  @keyframes warTicketSlaPulse {
+    0%, 100% {
+      border-color: rgba(248, 113, 113, .42);
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, .07);
+    }
+    50% {
+      border-color: rgba(248, 113, 113, .98);
+      box-shadow: 0 0 0 2px rgba(239, 68, 68, .18), 0 0 20px -8px rgba(239, 68, 68, .72);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn-glow, .transition-all, .war-badge-glow, .war-ticket-sla-critical { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }

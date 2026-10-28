@@ -661,6 +661,12 @@
           const count = Math.max(0, Number(day?.resolved) || 0);
           return count ? Math.max(8, Math.round(count / maxCount * 100)) : 2;
         },
+        weeklyTicketHeight(day, metric) {
+          const days = this.warWeeklyReport?.daily_breakdown || [];
+          const maxCount = Math.max(1, ...days.flatMap(item => [Number(item.opened) || 0, Number(item.resolved) || 0]));
+          const count = Math.max(0, Number(day?.[metric]) || 0);
+          return count ? Math.max(8, Math.round(count / maxCount * 100)) : 2;
+        },
         formatWeeklyDay(value) {
           if (!value) return '—';
           const d = new Date(String(value) + 'T12:00:00Z');

@@ -1124,6 +1124,17 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("validated_count = sum(1 for node in nodes if is_validated(node))", stats_route)
         self.assertNotIn("statuses = tree.statuses()", stats_route)
 
+    def test_war_room_noc_clock_sla_and_weekly_sparklines(self):
+        self.assertIn('x-data="{ warClock: new Date() }"', DASHBOARD_HTML)
+        self.assertIn("setInterval(() => warClock = new Date(), 1000)", DASHBOARD_HTML)
+        self.assertIn("war-ticket-sla-critical", DASHBOARD_HTML)
+        self.assertIn("@keyframes warTicketSlaPulse", DASHBOARD_HTML)
+        self.assertIn("war-ticket-severity-critical", DASHBOARD_HTML)
+        self.assertIn("war-ticket-severity-high", DASHBOARD_HTML)
+        self.assertIn("weeklyTicketHeight(day, 'opened')", DASHBOARD_HTML)
+        self.assertIn("weeklyTicketHeight(day, 'resolved')", DASHBOARD_HTML)
+        self.assertIn("daily_breakdown", DASHBOARD_HTML)
+
     def test_mobile_header_keeps_title_and_actions_on_one_row(self):
         self.assertIn('class="mobile-header-menu-trigger', DASHBOARD_HTML)
         self.assertIn('aria-controls="mobile-header-action-items"', DASHBOARD_HTML)

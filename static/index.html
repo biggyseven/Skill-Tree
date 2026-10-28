@@ -1405,6 +1405,10 @@
             <button type="button" @click="$refs.warScenarioImportFile.click()" class="rounded-xl border border-violet-400/25 bg-violet-500/10 px-3.5 py-2.5 text-xs font-bold text-violet-100 transition hover:bg-violet-500/20">📥 Importer un scénario</button>
             <input x-ref="warScenarioImportFile" type="file" accept=".json,application/json" class="hidden" @change="importWarScenario($event)">
             <button type="button" @click="loadTickets()" :disabled="warLoading" class="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-semibold text-zinc-200 transition hover:bg-white/[0.08] disabled:opacity-50"><span x-show="!warLoading">↻ Actualiser</span><span x-show="warLoading">Chargement…</span></button>
+            <div x-data="{ warClock: new Date() }" x-init="setInterval(() => warClock = new Date(), 1000)" class="ml-auto flex min-w-[128px] flex-col items-end justify-center rounded-xl border border-cyan-400/20 bg-cyan-500/[0.06] px-3 py-2" aria-label="Horloge locale du centre de supervision">
+              <span class="text-[9px] font-bold uppercase tracking-[0.16em] text-cyan-200/70">Heure locale</span>
+              <time role="timer" class="font-mono text-lg font-bold tabular-nums tracking-wider text-cyan-100" x-text="warClock.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })">--:--:--</time>
+            </div>
           </div>
         </header>
         <nav class="flex flex-wrap gap-2 border-b border-white/[0.08] pb-3" role="tablist" aria-label="Vues War Room">
@@ -1430,11 +1434,11 @@
         <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
           <template x-for="ticket in filteredWarTickets" :key="ticket.id">
             <article class="flex min-w-0 flex-col rounded-2xl border bg-[color:var(--s1)] p-5 shadow-lg transition hover:-translate-y-0.5 hover:border-white/20"
-              :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/25' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/20' : 'border-white/10'">
+              :class="(ticket.severity==='critical' ? 'border-rose-400/35 war-ticket-severity-critical' : ticket.severity==='high' ? 'border-orange-400/35 war-ticket-severity-high' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/20' : 'border-white/10') + (ticket.status !== 'paused' && ticket.sla_left !== null && ticket.sla_left <= 300 ? ' war-ticket-sla-critical' : '')">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <span class="font-mono text-xs font-bold tracking-wide text-zinc-200" x-text="ticket.id"></span>
                 <span class="rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
-                  :class="ticket.severity==='critical' || ticket.severity==='high' ? 'border-rose-400/30 bg-rose-500/10 text-rose-200' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-sky-400/30 bg-sky-500/10 text-sky-200'"
+                  :class="ticket.severity==='critical' ? 'border-rose-400/35 bg-rose-500/15 text-rose-200' : ticket.severity==='high' ? 'border-orange-400/35 bg-orange-500/15 text-orange-200' : (ticket.severity==='medium' || ticket.severity==='normal') ? 'border-amber-400/30 bg-amber-500/10 text-amber-200' : 'border-sky-400/30 bg-sky-500/10 text-sky-200'"
                   x-text="ticket.severity==='high' ? 'Haute' : ticket.severity==='critical' ? 'Critique' : ticket.severity==='medium' ? 'Moyenne' : ticket.severity==='normal' ? 'Normale' : 'Basse'"></span>
               </div>
               <div class="mt-4 flex items-center justify-between gap-3">
@@ -1465,7 +1469,7 @@
           </div>
           <div x-show="warStatsError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warStatsError"></div>
           <div x-show="warLiveLoading" class="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs text-zinc-500">Mise à jour des KPI…</div>
-          <div class="grid gap-4 md:grid-cols-3">
+          <div class="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
             <article class="rounded-2xl border border-cyan-400/20 bg-[color:var(--s1)] p-5 shadow-lg">
               <div class="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">⏱ MTTR</div>
               <div class="mt-3 text-3xl font-black tracking-tight text-white"><span x-text="Number(warStats.mttr_minutes || 0).toLocaleString('fr-FR', {maximumFractionDigits: 1})"></span><span class="ml-2 text-sm font-semibold text-zinc-400">min</span></div>
@@ -1481,6 +1485,37 @@
               <div class="mt-3 text-3xl font-black tracking-tight text-white" x-text="warStats.total_resolved || 0"></div>
               <p class="mt-2 text-xs font-semibold text-rose-300">Échoués : <span x-text="warStats.total_failed || 0"></span></p>
               <p class="mt-1 text-xs text-zinc-500">Tickets créés aujourd’hui : <span x-text="warStats.incidents_today || 0"></span></p>
+            </article>
+            <article class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-lg">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">📊 Flux des tickets</div>
+                  <p class="mt-1 text-[11px] text-zinc-500">7 derniers jours</p>
+                </div>
+                <div class="flex flex-col gap-1.5 text-[10px]">
+                  <span class="inline-flex items-center gap-1.5 text-cyan-200"><i class="h-2 w-2 rounded-sm bg-cyan-400" aria-hidden="true"></i>Ouverts</span>
+                  <span class="inline-flex items-center gap-1.5 text-emerald-200"><i class="h-2 w-2 rounded-sm bg-emerald-400" aria-hidden="true"></i>Résolus</span>
+                </div>
+              </div>
+              <div x-show="warWeeklyLoading && !warWeeklyReport" class="mt-5 text-xs text-zinc-500">Chargement des 7 derniers jours…</div>
+              <div x-show="warWeeklyReport" class="mt-4">
+                <div class="flex h-24 items-stretch justify-between gap-1" role="img" :aria-label="'Tickets ouverts et résolus du ' + (warWeeklyReport?.period_start || '') + ' au ' + (warWeeklyReport?.period_end || '')">
+                  <template x-for="day in (warWeeklyReport?.daily_breakdown || [])" :key="day.date">
+                    <div class="flex min-w-0 flex-1 flex-col items-center justify-end gap-1">
+                      <div class="flex h-16 w-full items-end justify-center gap-0.5">
+                        <div class="w-2 rounded-t-sm bg-cyan-400/80 transition-all duration-300" :style="{ height: weeklyTicketHeight(day, 'opened') + '%' }" :title="day.date + ' : ' + day.opened + ' ticket(s) ouvert(s)'"></div>
+                        <div class="w-2 rounded-t-sm bg-emerald-400/80 transition-all duration-300" :style="{ height: weeklyTicketHeight(day, 'resolved') + '%' }" :title="day.date + ' : ' + day.resolved + ' ticket(s) résolu(s)'"></div>
+                      </div>
+                      <span class="text-[9px] font-mono text-zinc-500" x-text="formatWeeklyDay(day.date).slice(0, 2)">—</span>
+                    </div>
+                  </template>
+                </div>
+                <div class="mt-3 flex items-center justify-between gap-2 border-t border-white/[0.07] pt-3 text-[10px]">
+                  <span class="text-cyan-200">Ouverts : <strong x-text="warWeeklyReport?.tickets_opened ?? 0"></strong></span>
+                  <span class="text-emerald-200">Résolus : <strong x-text="warWeeklyReport?.tickets_resolved ?? 0"></strong></span>
+                </div>
+              </div>
+              <p x-show="!warWeeklyLoading && !warWeeklyReport" class="mt-5 text-xs leading-relaxed text-zinc-500">Les données des sept derniers jours ne sont pas disponibles.</p>
             </article>
           </div>
           <section class="rounded-2xl border border-white/10 bg-[color:var(--s1)] p-5 shadow-lg">
