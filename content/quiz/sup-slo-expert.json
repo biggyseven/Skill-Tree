@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « SLI, SLO, SLA et error budgets ».",
+      "prompt": "Quelle proposition décrit correctement la différence entre un SLI et un SLO ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Le SLI est une mesure observable du niveau de service ; le SLO est la cible définie sur cette mesure pour une fenêtre donnée.",
+        "Le SLI est un contrat légal avec compensation ; le SLO est la liste des serveurs en production.",
+        "Le SLI est toujours une métrique CPU ; le SLO est toujours un seuil mémoire.",
+        "Le SLI mesure uniquement les interruptions complètes ; le SLO mesure uniquement la latence moyenne."
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Un SLI indique ce que l'on mesure, par exemple la proportion de requêtes réussies. Un SLO définit la valeur cible attendue, le périmètre et la fenêtre de mesure. Cette distinction permet de séparer l'observation du niveau de service de la décision sur le niveau jugé acceptable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un service vise un SLO de réussite de 99,9 %. Quel est son taux d'erreur autorisé et, sur un million d'événements éligibles, son budget théorique ?",
+      "choices": [
+        "1 % et 10 000 événements mauvais.",
+        "0,1 % et 1 000 événements mauvais.",
+        "0,01 % et 100 événements mauvais.",
+        "99,9 % et 999 000 événements mauvais."
+      ],
+      "answer": 1,
+      "explanation": "La fraction de budget est égale à 1 moins la cible de réussite : 1 − 0,999 = 0,001, soit 0,1 %. En multipliant 1 000 000 événements éligibles par 0,001, on obtient un budget théorique de 1 000 événements mauvais, à condition que le SLI soit calculé sur les événements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le taux d'erreur autorisé par le SLO est de 0,1 % et le taux d'erreur observé atteint 1 %. Quel est le burn rate approximatif ?",
+      "choices": [
+        "0,1, donc le budget se consomme dix fois plus lentement.",
+        "1, donc le rythme est exactement celui prévu.",
+        "10, donc le taux observé est dix fois le taux d'erreur autorisé.",
+        "100, car il faut multiplier le taux d'erreur autorisé par le SLO."
+      ],
+      "answer": 2,
+      "explanation": "Le burn rate est le taux d'erreur observé divisé par le taux d'erreur autorisé. Ici, 1 % / 0,1 % = 10. Si ce niveau persistait et si les mesures sont comparables, le budget serait consommé environ dix fois plus vite que le rythme de référence compatible avec le SLO."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un SLO de disponibilité construit uniquement à partir des réponses HTTP 200 peut-il donner une image trompeuse ?",
+      "choices": [
+        "Parce que les réponses HTTP 200 ne peuvent jamais être enregistrées dans Prometheus.",
+        "Parce qu'une réponse 200 prouve toujours que la transaction métier a été correctement persistée.",
+        "Parce qu'un ratio d'événements ne peut être utilisé que pour les applications mobiles.",
+        "Parce qu'une réponse 200 peut être vide, incorrecte ou trop lente et ne révèle pas nécessairement les timeouts ou erreurs vus côté client."
+      ],
+      "answer": 3,
+      "explanation": "Un code HTTP décrit le résultat du protocole, mais ne garantit pas à lui seul la réussite fonctionnelle du parcours. Un service peut retourner 200 avec des données invalides ou mettre beaucoup trop de temps à répondre. La définition du SLI doit donc refléter le résultat et le délai importants pour l'utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle stratégie est la plus pertinente lorsque plusieurs microservices respectent chacun leur SLO mais que le parcours complet échoue régulièrement ?",
+      "choices": [
+        "Supprimer les SLO des composants sans autre mesure.",
+        "Ajouter ou améliorer un SLI/SLO de bout en bout, tout en conservant les objectifs des composants pour le diagnostic.",
+        "Additionner simplement les pourcentages de disponibilité de chaque composant.",
+        "Exclure les erreurs du parcours dès qu'elles semblent provenir d'une dépendance."
+      ],
+      "answer": 1,
+      "explanation": "Le parcours dépend de l'intégration, de l'ordre des appels, du frontend et du résultat fonctionnel complet. Des SLO individuels conformes ne garantissent pas l'expérience de bout en bout, notamment en présence de dépendances ou de causes d'échec corrélées. Un objectif de parcours mesure l'impact tandis que les SLO des composants aident à diagnostiquer."
     }
   ]
 }
