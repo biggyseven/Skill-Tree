@@ -3185,6 +3185,50 @@
           try { const r = await fetch('/api/diagnostics/network_down'); this.diagnostic = await r.json(); this.diagnosticStep = this.diagnostic.steps[this.diagnostic.start]; } catch(e){}
         },
 
+        async loadItSMStats() {
+          this.warLiveLoading = true; this.warStatsError = '';
+          try {
+            const response = await fetch('/api/itsm/stats', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warStats = { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [], ...payload };
+          } catch (error) { this.warStatsError = 'Impossible de charger les KPI ITSM : ' + error.message; }
+          finally { this.warLiveLoading = false; }
+        },
+        async loadWarArchive() {
+          this.warArchiveLoading = true; this.warArchiveError = '';
+          try {
+            const response = await fetch('/api/tickets/archive', { credentials: 'same-origin', cache: 'no-store' });
+            const payload = await response.json().catch(() => []);
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warArchive = Array.isArray(payload) ? payload : [];
+          } catch (error) { this.warArchiveError = 'Impossible de charger les archives : ' + error.message; }
+          finally { this.warArchiveLoading = false; }
+        },
+        async replayWarTicket(ticket) {
+          if (!ticket || !ticket.id || this.warReplayBusy) return;
+          this.warReplayBusy = ticket.id; this.warArchiveError = '';
+          try {
+            const response = await fetch('/api/tickets/' + encodeURIComponent(ticket.id) + '/replay', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: '{}'
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
+            this.warTab = 'inbox';
+            await this.loadTickets();
+            this.warError = 'Ticket rejoué : ' + payload.new_ticket_id + ' · nouveau délai SLA démarré.';
+          } catch (error) { this.warArchiveError = 'Impossible de rejouer le ticket : ' + error.message; }
+          finally { this.warReplayBusy = null; }
+        },
+        formatWarDuration(seconds) {
+          if (seconds === null || seconds === undefined || !Number.isFinite(Number(seconds))) return '—';
+          const total = Math.max(0, Math.floor(Number(seconds)));
+          if (total < 60) return total + ' s';
+          const minutes = Math.floor(total / 60), secs = total % 60;
+          if (minutes < 60) return minutes + ' min ' + String(secs).padStart(2, '0') + ' s';
+          return Math.floor(minutes / 60) + ' h ' + String(minutes % 60).padStart(2, '0') + ' min';
+        },
+
         async loadTickets() {
           this.warLoading = true; this.warError = '';
           try {
@@ -5849,7 +5893,9 @@
       return {
         // ---------- état commun ----------
         navItems: NAV_ITEMS, modules: MODULES, levels: LEVELS,
-        warTickets: [], warFilter: 'all', warLoading: false, warError: '', _warTicketTimer: null,
+        warTickets: [], warFilter: 'all', warTab: 'inbox', warLoading: false, warError: '', _warTicketTimer: null,
+        warStats: { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [] }, warLiveLoading: false, warStatsError: '',
+        warArchive: [], warArchiveLoading: false, warArchiveError: '', warReplayBusy: null,
         sidebarContextMenu: { open: false, x: 8, y: 8, id: '', label: '' },
         moduleFilter: 'all',
         moduleNextCourseId: null,
