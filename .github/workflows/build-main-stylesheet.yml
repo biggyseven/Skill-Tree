@@ -48,9 +48,9 @@ jobs:
           npm pack alpinejs@3.17.5 --pack-destination "$package_dir" >/dev/null
           tar -xzf "$package_dir/alpinejs-3.17.5.tgz" -C "$package_dir"
           install -D "$package_dir/package/dist/cdn.min.js" static/assets/alpine-3.17.5.min.js
-          license_file="$(find "$package_dir/package" -maxdepth 1 -type f -iname 'license*' -print -quit)"
-          test -n "$license_file"
-          install -D "$license_file" static/assets/alpinejs-LICENSE.md
+          curl --fail --silent --show-error --retry 3 \
+            "https://raw.githubusercontent.com/alpinejs/alpine/v3.17.5/LICENSE.md" \
+            -o static/assets/alpinejs-LICENSE.md
           asset_hash="$(sha256sum static/assets/alpine-3.17.5.min.js | cut -c1-12)"
           if grep -q 'ALPINE_VENDOR_HASH' static/index.html; then
             sed -i "s/ALPINE_VENDOR_HASH/$asset_hash/g" static/index.html
