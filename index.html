@@ -586,6 +586,7 @@
           <button type="button" @click="warFilter='problem'" :aria-pressed="warFilter==='problem'" :class="warFilter==='problem' ? 'border-amber-400/30 bg-amber-400/10 text-amber-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:text-white'" class="rounded-full border px-4 py-2 text-xs font-semibold transition">Problems</button>
         </div>
         <div x-show="warError" x-cloak role="alert" class="rounded-xl border border-rose-400/25 bg-rose-500/10 p-4 text-sm text-rose-200" x-text="warError"></div>
+<div x-show="warNotice" x-cloak role="status" class="rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-4 text-sm text-emerald-200" x-text="warNotice"></div>
         <div x-show="warLoading && !warTickets.length" class="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-zinc-400">Chargement de la file NOC…</div>
         <div x-show="!warLoading && !warError && filteredWarTickets.length === 0" class="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center">
           <div class="text-3xl">✅</div><h2 class="mt-3 text-base font-bold text-white">Aucun ticket dans ce filtre</h2><p class="mt-1 text-sm text-zinc-500">La file NOC ne contient pas de ticket ouvert pour cette catégorie.</p>
@@ -672,6 +673,7 @@
               </div>
             </div>
             <div x-show="warScenarioError" x-cloak role="alert" class="mt-3 rounded-xl border border-rose-400/25 bg-rose-500/10 p-3 text-xs text-rose-200" x-text="warScenarioError"></div>
+<div x-show="warScenarioNotice" x-cloak role="status" class="mt-3 rounded-xl border border-emerald-400/25 bg-emerald-500/10 p-3 text-xs text-emerald-200" x-text="warScenarioNotice"></div>
             <div x-show="warScenariosLoading && !warScenarios.length" class="py-6 text-center text-xs text-zinc-500">Chargement de la bibliothèque…</div>
             <div x-show="!warScenariosLoading && !filteredWarScenarios().length" class="py-6 text-center text-xs text-zinc-500">Aucun scénario dans ce filtre.</div>
             <div class="mt-4 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
@@ -1058,10 +1060,10 @@
         dailyPlan: [], stats: null, statsLoading: false, flashcards: [], flashcardQueue: [], flashcardsLoading: false, flashcardFlipped: false,
 
         diagnostic: null, diagnosticStep: null,
-        warTickets: [], warFilter: 'all', warTab: 'inbox', warLoading: false, warError: '', _warTicketTimer: null,
+        warTickets: [], warFilter: 'all', warTab: 'inbox', warLoading: false, warError: '', warNotice: '', _warTicketTimer: null,
         warStats: { mttr_minutes: 0, sla_compliance_pct: 0, total_resolved: 0, total_failed: 0, incidents_today: 0, recent_resolved: [] }, warLiveLoading: false, warStatsError: '',
         warArchive: [], warArchiveLoading: false, warArchiveError: '', warReplayBusy: null,
-        warScenarios: [], warScenariosLoading: false, warScenarioError: '', warScenarioFilter: 'all',
+        warScenarios: [], warScenariosLoading: false, warScenarioError: '', warScenarioNotice: '', warScenarioFilter: 'all',
         warRandomBusy: false, warScenarioOptions: null, createScenarioOpen: false, createScenarioBusy: false,
         createScenarioError: '', createScenarioSuccess: '', createScenarioSavedId: '',
         createScenario: { name: '', type: 'incident', severity: 'normal', topology: 'lan_simple', fault_id: 'port_shutdown', target_device: 'SW1', target_port: 'Fa0/7', sla_minutes: 30 },
@@ -1233,7 +1235,7 @@
           if (this.warRandomBusy) return;
           // Ouvre la fenêtre dans le geste utilisateur, avant les appels réseau, pour éviter le blocage des pop-ups.
           const target = window.open('about:blank', '_blank');
-          this.warRandomBusy = true; this.warError = '';
+          this.warRandomBusy = true; this.warError = ''; this.warNotice = '';
           try {
             const response = await fetch('/api/tickets/random', {
               method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: '{}'
@@ -1243,7 +1245,7 @@
             this.warTab = 'inbox'; this.warFilter = 'all';
             await this.loadTickets();
             const ticketId = payload.ticket_id;
-            this.warError = 'Ticket surprise créé : ' + ticketId + ' · ' + (payload.scenario?.title || 'scénario aléatoire');
+            this.warNotice = 'Ticket surprise créé : ' + ticketId + ' · ' + (payload.scenario?.title || 'scénario aléatoire');
             const url = '/lab.html?ticket=' + encodeURIComponent(ticketId);
             if (target) target.location.href = url;
             else window.location.assign(url);
@@ -1253,7 +1255,7 @@
           } finally { this.warRandomBusy = false; }
         },
         async loadWarScenarios() {
-          this.warScenariosLoading = true; this.warScenarioError = '';
+          this.warScenariosLoading = true; this.warScenarioError = ''; this.warScenarioNotice = '';
           try {
             const response = await fetch('/api/scenarios/list', { credentials: 'same-origin', cache: 'no-store' });
             const payload = await response.json().catch(() => []);
@@ -1360,7 +1362,8 @@
             const link = document.createElement('a');
             link.href = url; link.download = scenarioId + '.json'; document.body.appendChild(link); link.click(); link.remove();
             URL.revokeObjectURL(url);
-            this.createScenarioSuccess = 'Export téléchargé : ' + scenarioId + '.json';
+            if (this.createScenarioOpen) this.createScenarioSuccess = 'Export téléchargé : ' + scenarioId + '.json';
+            else this.warScenarioNotice = 'Export téléchargé : ' + scenarioId + '.json';
           } catch (error) {
             const message = 'Impossible d’exporter le scénario : ' + error.message;
             if (this.createScenarioOpen) this.createScenarioError = message; else this.warScenarioError = message;
@@ -1386,7 +1389,7 @@
             if (!response.ok) throw new Error(payload.detail || 'HTTP ' + response.status);
             this.warTab = 'archive'; this.warScenarioFilter = 'user';
             await this.loadWarScenarios(); await this.loadTickets(); await this.loadWarArchive();
-            this.warScenarioError = 'Scénario importé sous ' + payload.scenario_id + '.';
+            this.warScenarioNotice = 'Scénario importé sous ' + payload.scenario_id + '.';
           } catch (error) { this.warScenarioError = 'Import impossible : ' + error.message; }
           finally { if (input) input.value = ''; }
         },
