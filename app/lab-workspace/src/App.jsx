@@ -52,37 +52,37 @@ function WorkspaceHeader({ lab, topology }) {
   }
 
   return (
-    <header className="relative z-20 flex h-[64px] shrink-0 items-center justify-between gap-3 border-b border-[#30363d] bg-[#161b22] px-3 shadow-[0_4px_14px_rgba(0,0,0,0.22)] sm:px-4">
+    <header className="relative z-20 flex h-[64px] shrink-0 items-center justify-between gap-3 border-b border-[var(--lab-border)] bg-[var(--lab-surface)] px-3 shadow-[0_4px_14px_rgba(0,0,0,0.22)] sm:px-4">
       <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
-        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/10 font-black tracking-tight text-[#38bdf8]">
+        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[var(--lab-accent)]/40 bg-[var(--lab-accent)]/10 font-black tracking-tight text-[var(--lab-accent)]">
           ST
         </div>
         <div className="block min-w-0">
-          <div className="text-[9px] font-bold uppercase tracking-[0.13em] text-[#8b949e] sm:text-[10px] sm:tracking-[0.17em]">
-            Skill Tree <span className="mx-1 text-[#30363d]">/</span> Network Lab
+          <div className="text-[9px] font-bold uppercase tracking-[0.13em] text-[var(--lab-text-muted)] sm:text-[10px] sm:tracking-[0.17em]">
+            Skill Tree <span className="mx-1 text-[var(--lab-border)]">/</span> Network Lab
           </div>
-          <div className="mt-0.5 max-w-[42vw] truncate text-xs font-semibold text-[#e6edf3] sm:max-w-[380px] sm:text-sm" title={lab.title}>
+          <div className="mt-0.5 max-w-[42vw] truncate text-xs font-semibold text-[var(--lab-text)] sm:max-w-[380px] sm:text-sm" title={lab.title}>
             {lab.title || 'Lab Workspace'}
           </div>
         </div>
-        <span className="hidden h-7 w-px bg-[#30363d] lg:block" />
+        <span className="hidden h-7 w-px bg-[var(--lab-border)] lg:block" />
         <div className="hidden min-w-0 lg:block">
-          <div className="text-[9px] uppercase tracking-[0.15em] text-[#6e7681]">Topologie</div>
-          <div className="mt-0.5 font-mono text-[11px] text-[#c9d1d9]">
-            {(topology?.nodes || []).length} équipements <span className="text-[#484f58]">/</span> {(topology?.links || []).length} liaisons
+          <div className="text-[9px] uppercase tracking-[0.15em] text-[var(--lab-text-muted)]">Topologie</div>
+          <div className="mt-0.5 font-mono text-[11px] text-[var(--lab-text-secondary)]">
+            {(topology?.nodes || []).length} équipements <span className="text-[var(--lab-text-muted)]">/</span> {(topology?.links || []).length} liaisons
           </div>
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
-        <span className="hidden rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[#c9d1d9] md:inline-flex">
+        <span className="hidden rounded-md border border-[var(--lab-border)] bg-[var(--lab-canvas)] px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-[var(--lab-text-secondary)] md:inline-flex">
           {level}
         </span>
         <a
           href="/"
           title="Retourner au tableau de bord Skill Tree"
           aria-label="Retour au tableau de bord"
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 text-[11px] font-semibold text-[#c9d1d9] transition hover:border-[#0ea5e9]/70 hover:bg-[#0ea5e9]/10 hover:text-white sm:px-3 sm:text-xs"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[var(--lab-border)] bg-[var(--lab-canvas)] px-2.5 text-[11px] font-semibold text-[var(--lab-text-secondary)] transition hover:border-[var(--lab-accent)]/70 hover:bg-[var(--lab-accent)]/10 hover:text-white sm:px-3 sm:text-xs"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="m3 10 9-7 9 7" /><path d="M5 9v12h14V9" /><path d="M9 21v-7h6v7" />
@@ -94,7 +94,7 @@ function WorkspaceHeader({ lab, topology }) {
           onClick={toggleFullscreen}
           title={isFullscreen ? 'Quitter le plein écran' : 'Passer en plein écran'}
           aria-label={isFullscreen ? 'Quitter le plein écran' : 'Passer en plein écran'}
-          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[#30363d] bg-[#0d1117] px-2.5 text-[11px] font-semibold text-[#c9d1d9] transition hover:border-[#0ea5e9]/70 hover:bg-[#0ea5e9]/10 hover:text-white sm:px-3 sm:text-xs"
+          className="inline-flex h-9 items-center gap-1.5 rounded-md border border-[var(--lab-border)] bg-[var(--lab-canvas)] px-2.5 text-[11px] font-semibold text-[var(--lab-text-secondary)] transition hover:border-[var(--lab-accent)]/70 hover:bg-[var(--lab-accent)]/10 hover:text-white sm:px-3 sm:text-xs"
         >
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             {isFullscreen
@@ -103,8 +103,8 @@ function WorkspaceHeader({ lab, topology }) {
           </svg>
           <span className="hidden sm:inline">{isFullscreen ? 'Quitter plein écran' : 'Plein écran'}</span>
         </button>
-        <span className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#10b981]/25 bg-[#10b981]/[0.07] px-2 text-[9px] font-semibold text-[#10b981] sm:h-9 sm:px-2.5 sm:text-[10px]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#10b981] shadow-[0_0_6px_rgba(16,185,129,0.65)]" />
+        <span className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--st-success,#10b981)]/25 bg-[var(--st-success,#10b981)]/[0.07] px-2 text-[9px] font-semibold text-[var(--st-success,#10b981)] sm:h-9 sm:px-2.5 sm:text-[10px]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--st-success,#10b981)] shadow-[0_0_6px_rgba(16,185,129,0.65)]" />
           <span className="hidden sm:inline">Lab actif</span>
         </span>
       </div>
@@ -114,12 +114,12 @@ function WorkspaceHeader({ lab, topology }) {
 
 function PanelHeader({ eyebrow, title, detail }) {
   return (
-    <header className="flex min-h-[54px] shrink-0 items-center justify-between gap-3 border-b border-[#30363d] bg-[#161b22] px-4 py-3">
+    <header className="flex min-h-[54px] shrink-0 items-center justify-between gap-3 border-b border-[var(--lab-border)] bg-[var(--lab-surface)] px-4 py-3">
       <div className="min-w-0">
-        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#6e7681]">{eyebrow}</div>
-        <h2 className="mt-1 truncate text-xs font-semibold text-[#e6edf3]">{title}</h2>
+        <div className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--lab-text-muted)]">{eyebrow}</div>
+        <h2 className="mt-1 truncate text-xs font-semibold text-[var(--lab-text)]">{title}</h2>
       </div>
-      {detail && <span className="shrink-0 font-mono text-[10px] text-[#8b949e]">{detail}</span>}
+      {detail && <span className="shrink-0 font-mono text-[10px] text-[var(--lab-text-muted)]">{detail}</span>}
     </header>
   );
 }
@@ -291,11 +291,11 @@ export default function App() {
 
   if (error) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center bg-[#0d1117] p-8 text-[#e6edf3]">
-        <div className="w-full max-w-2xl rounded-xl border border-[#f85149]/30 bg-[#161b22] p-6">
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f85149]">Erreur de chargement</div>
+      <div className="flex h-screen flex-col items-center justify-center bg-[var(--lab-canvas)] p-8 text-[var(--lab-text)]">
+        <div className="w-full max-w-2xl rounded-xl border border-[var(--lab-danger,#f85149)]/30 bg-[var(--lab-surface)] p-6">
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--lab-danger,#f85149)]">Erreur de chargement</div>
           <h1 className="mb-3 text-lg font-semibold">Le Lab Workspace n'a pas pu s'ouvrir</h1>
-          <pre className="whitespace-pre-wrap text-sm leading-relaxed text-[#c9d1d9]">{error}</pre>
+          <pre className="whitespace-pre-wrap text-sm leading-relaxed text-[var(--lab-text-secondary)]">{error}</pre>
         </div>
       </div>
     );
@@ -303,25 +303,25 @@ export default function App() {
 
   if (loading || !lab) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-[#0d1117] text-sm text-[#8b949e]">
-        <span className="h-7 w-7 animate-spin rounded-full border-2 border-[#30363d] border-t-[#0ea5e9]" />
+      <div className="flex h-screen flex-col items-center justify-center gap-3 bg-[var(--lab-canvas)] text-sm text-[var(--lab-text-muted)]">
+        <span className="h-7 w-7 animate-spin rounded-full border-2 border-[var(--lab-border)] border-t-[#0ea5e9]" />
         Chargement du Lab Workspace…
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-[#0d1117] text-[#e6edf3]">
+    <div className="flex h-screen min-h-0 flex-col overflow-hidden bg-[var(--lab-canvas)] text-[var(--lab-text)]">
       <WorkspaceHeader lab={lab} topology={topology} />
 
-      <nav className="grid grid-cols-3 gap-1 border-b border-[#30363d] bg-[#0d1117] p-1.5 xl:hidden" aria-label="Panneaux du laboratoire">
+      <nav className="grid grid-cols-3 gap-1 border-b border-[var(--lab-border)] bg-[var(--lab-canvas)] p-1.5 xl:hidden" aria-label="Panneaux du laboratoire">
         <button
           type="button"
           onClick={() => setMobilePane('brief')}
           aria-current={mobilePane === 'brief' ? 'page' : undefined}
           className={mobilePane === 'brief'
-            ? 'min-h-11 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 py-2 text-xs font-semibold text-[#7dd3fc]'
-            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[#8b949e] hover:bg-[#161b22] hover:text-[#e6edf3]'}
+            ? 'min-h-11 rounded-lg border border-[var(--lab-accent)]/40 bg-[var(--lab-accent)]/15 px-2 py-2 text-xs font-semibold text-[var(--lab-accent)]'
+            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[var(--lab-text-muted)] hover:bg-[var(--lab-surface)] hover:text-[var(--lab-text)]'}
         >
           <span className="mr-1.5 font-mono text-[10px]">01</span>Mission
         </button>
@@ -330,8 +330,8 @@ export default function App() {
           onClick={() => setMobilePane('canvas')}
           aria-current={mobilePane === 'canvas' ? 'page' : undefined}
           className={mobilePane === 'canvas'
-            ? 'min-h-11 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 py-2 text-xs font-semibold text-[#7dd3fc]'
-            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[#8b949e] hover:bg-[#161b22] hover:text-[#e6edf3]'}
+            ? 'min-h-11 rounded-lg border border-[var(--lab-accent)]/40 bg-[var(--lab-accent)]/15 px-2 py-2 text-xs font-semibold text-[var(--lab-accent)]'
+            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[var(--lab-text-muted)] hover:bg-[var(--lab-surface)] hover:text-[var(--lab-text)]'}
         >
           <span className="mr-1.5 font-mono text-[10px]">02</span>Topologie
         </button>
@@ -340,8 +340,8 @@ export default function App() {
           onClick={() => setMobilePane('inspector')}
           aria-current={mobilePane === 'inspector' ? 'page' : undefined}
           className={mobilePane === 'inspector'
-            ? 'min-h-11 rounded-lg border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 py-2 text-xs font-semibold text-[#7dd3fc]'
-            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[#8b949e] hover:bg-[#161b22] hover:text-[#e6edf3]'}
+            ? 'min-h-11 rounded-lg border border-[var(--lab-accent)]/40 bg-[var(--lab-accent)]/15 px-2 py-2 text-xs font-semibold text-[var(--lab-accent)]'
+            : 'min-h-11 rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[var(--lab-text-muted)] hover:bg-[var(--lab-surface)] hover:text-[var(--lab-text)]'}
         >
           <span className="mr-1.5 font-mono text-[10px]">03</span>Console
         </button>
@@ -356,7 +356,7 @@ export default function App() {
         }}
       >
         {/* Panneau gauche : mission pédagogique et bibliothèque matérielle */}
-        <aside data-testid="lab-left-panel" className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[#30363d] bg-[#161b22] xl:w-[var(--lab-left-width)] xl:shrink-0`}>
+        <aside data-testid="lab-left-panel" className={`${mobilePane === 'brief' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-r border-[var(--lab-border)] bg-[var(--lab-surface)] xl:w-[var(--lab-left-width)] xl:shrink-0`}>
           <section className="flex min-h-0 flex-1 flex-col">
             <PanelHeader eyebrow={ticket ? "01 / War Room" : "01 / Lab brief"} title={ticket ? "Ticket ITSM" : "Mission & objectifs"} />
             <div className="lab-scrollbar min-h-0 flex-1 overflow-y-auto">
@@ -372,12 +372,12 @@ export default function App() {
             tabIndex={0}
             onPointerDown={event => beginResize(event, 'equipment')}
             onKeyDown={event => resizeWithKeyboard(event, 'equipment')}
-            className="hidden h-2 shrink-0 cursor-row-resize touch-none items-center justify-center bg-[#30363d] transition-colors hover:bg-[#0ea5e9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0ea5e9] xl:flex"
+            className="hidden h-2 shrink-0 cursor-row-resize touch-none items-center justify-center bg-[var(--lab-border)] transition-colors hover:bg-[var(--lab-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--lab-accent)] xl:flex"
           >
-            <span className="h-0.5 w-10 rounded-full bg-[#8b949e]" />
+            <span className="h-0.5 w-10 rounded-full bg-[var(--lab-text-muted)]" />
           </div>
-          <section data-testid="equipment-palette-panel" className="flex h-[var(--lab-equipment-height)] shrink-0 flex-col overflow-hidden border-t border-[#30363d] bg-[#0d1117]/50">
-            <div data-library-tabs role="tablist" aria-label="Bibliothèques du laboratoire" className="grid shrink-0 grid-cols-2 gap-1 border-b border-[#30363d] bg-[#161b22] p-1.5">
+          <section data-testid="equipment-palette-panel" className="flex h-[var(--lab-equipment-height)] shrink-0 flex-col overflow-hidden border-t border-[var(--lab-border)] bg-[var(--lab-canvas)]/50">
+            <div data-library-tabs role="tablist" aria-label="Bibliothèques du laboratoire" className="grid shrink-0 grid-cols-2 gap-1 border-b border-[var(--lab-border)] bg-[var(--lab-surface)] p-1.5">
               <button
                 id="lab-equipment-tab"
                 type="button"
@@ -387,8 +387,8 @@ export default function App() {
                 aria-selected={libraryTab === 'equipment'}
                 onClick={() => setLibraryTab('equipment')}
                 className={libraryTab === 'equipment'
-                  ? 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 text-[11px] font-semibold text-[#7dd3fc]'
-                  : 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-transparent px-2 text-[11px] font-medium text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]'}
+                  ? 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-[var(--lab-accent)]/40 bg-[var(--lab-accent)]/15 px-2 text-[11px] font-semibold text-[var(--lab-accent)]'
+                  : 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-transparent px-2 text-[11px] font-medium text-[var(--lab-text-muted)] hover:bg-[var(--lab-canvas)] hover:text-[var(--lab-text)]'}
               >
                 <span aria-hidden="true">▦</span>
                 Équipements
@@ -403,8 +403,8 @@ export default function App() {
                 aria-selected={libraryTab === 'cables'}
                 onClick={() => setLibraryTab('cables')}
                 className={libraryTab === 'cables'
-                  ? 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-[#0ea5e9]/40 bg-[#0ea5e9]/15 px-2 text-[11px] font-semibold text-[#7dd3fc]'
-                  : 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-transparent px-2 text-[11px] font-medium text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]'}
+                  ? 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-[var(--lab-accent)]/40 bg-[var(--lab-accent)]/15 px-2 text-[11px] font-semibold text-[var(--lab-accent)]'
+                  : 'flex min-h-10 items-center justify-center gap-2 rounded-md border border-transparent px-2 text-[11px] font-medium text-[var(--lab-text-muted)] hover:bg-[var(--lab-canvas)] hover:text-[var(--lab-text)]'}
               >
                 <span aria-hidden="true">⟷</span>
                 Câbles
@@ -425,13 +425,13 @@ export default function App() {
           tabIndex={0}
           onPointerDown={event => beginResize(event, 'left')}
           onKeyDown={event => resizeWithKeyboard(event, 'left')}
-          className="hidden w-2 shrink-0 cursor-col-resize touch-none items-center justify-center bg-[#30363d] transition-colors hover:bg-[#0ea5e9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0ea5e9] xl:flex"
+          className="hidden w-2 shrink-0 cursor-col-resize touch-none items-center justify-center bg-[var(--lab-border)] transition-colors hover:bg-[var(--lab-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--lab-accent)] xl:flex"
         >
-          <span className="h-10 w-0.5 rounded-full bg-[#8b949e]" />
+          <span className="h-10 w-0.5 rounded-full bg-[var(--lab-text-muted)]" />
         </div>
 
         {/* Canvas central : la zone de travail principale */}
-        <main className={`${mobilePane === 'canvas' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-1 flex-col overflow-hidden bg-[#0d1117] xl:w-auto`}>
+        <main className={`${mobilePane === 'canvas' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-1 flex-col overflow-hidden bg-[var(--lab-canvas)] xl:w-auto`}>
           {ticket && <SLABar />}
           <TopologyToolbar onOpenPostMortem={() => setPostMortemOpen(true)} />
           <LabCanvas />
@@ -445,13 +445,13 @@ export default function App() {
           tabIndex={0}
           onPointerDown={event => beginResize(event, 'right')}
           onKeyDown={event => resizeWithKeyboard(event, 'right')}
-          className="hidden w-2 shrink-0 cursor-col-resize touch-none items-center justify-center bg-[#30363d] transition-colors hover:bg-[#0ea5e9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#0ea5e9] xl:flex"
+          className="hidden w-2 shrink-0 cursor-col-resize touch-none items-center justify-center bg-[var(--lab-border)] transition-colors hover:bg-[var(--lab-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--lab-accent)] xl:flex"
         >
-          <span className="h-10 w-0.5 rounded-full bg-[#8b949e]" />
+          <span className="h-10 w-0.5 rounded-full bg-[var(--lab-text-muted)]" />
         </div>
 
         {/* Panneau droit : console CLI et inspection matérielle */}
-        <aside data-testid="lab-right-panel" className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[#30363d] bg-[#161b22] xl:w-[var(--lab-right-width)] xl:shrink-0`}>
+        <aside data-testid="lab-right-panel" className={`${mobilePane === 'inspector' ? 'flex' : 'hidden xl:flex'} w-full min-w-0 flex-col overflow-hidden border-l border-[var(--lab-border)] bg-[var(--lab-surface)] xl:w-[var(--lab-right-width)] xl:shrink-0`}>
           <InspectorPanel />
         </aside>
       </div>
