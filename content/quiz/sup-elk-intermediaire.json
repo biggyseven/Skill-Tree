@@ -4,15 +4,63 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire à remplacer lors de la rédaction du cours « Stack ELK (Elasticsearch, Logstash, Kibana) ».",
+      "prompt": "Quel rôle correspond le mieux à Logstash dans une architecture ELK ?",
       "choices": [
-        "Réponse provisoire, à remplacer pendant la rédaction.",
-        "Option temporaire incorrecte numéro 1.",
-        "Option temporaire incorrecte numéro 2.",
-        "Option temporaire incorrecte numéro 3."
+        "Afficher uniquement des dashboards et panels pour les utilisateurs finaux",
+        "Collecter, transformer et router les événements à travers des pipelines input-filter-output",
+        "Remplacer Elasticsearch comme moteur de recherche des documents",
+        "Générer automatiquement les logs de toutes les applications sans agent ni source"
+      ],
+      "answer": 1,
+      "explanation": "Logstash est un moteur d'ingestion et de transformation. Ses pipelines comprennent des entrées qui reçoivent des événements, des filtres qui les pars ent ou les enrichissent, puis des sorties qui les acheminent vers Elasticsearch ou d'autres destinations. Il est utile lorsque les formats sont hétérogènes ou que le traitement nécessite des règles conditionnelles. Il n'est cependant pas obligatoire dans tous les déploiements : certains agents peuvent envoyer directement des événements structurés à Elasticsearch."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il normaliser le champ temporel des logs avant de les analyser dans Kibana ?",
+      "choices": [
+        "Parce que Kibana ne peut afficher que les logs sans timestamp",
+        "Pour supprimer toute notion de fuseau horaire dans les événements",
+        "Pour garantir que chaque événement soit indexé dans un index distinct",
+        "Parce que la recherche temporelle et la corrélation dépendent d'un timestamp correctement interprété"
+      ],
+      "answer": 3,
+      "explanation": "Le champ temporel, souvent @timestamp, détermine où l'événement apparaît dans les recherches, les timelines et les dashboards Kibana. Si le parseur ignore le fuseau ou si l'horloge source est décalée, les événements peuvent sembler se produire avant ou après la cause. Il faut distinguer l'heure de l'événement de l'heure d'ingestion, interpréter correctement les formats et synchroniser les systèmes pour permettre une chronologie fiable entre services."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'intérêt principal d'un mapping cohérent dans Elasticsearch ?",
+      "choices": [
+        "Garantir que les champs ont des types adaptés aux filtres, recherches et agrégations, et limiter les conflits entre documents",
+        "Forcer Kibana à conserver les documents sans aucune règle de rétention",
+        "Remplacer les identifiants d'accès par des labels de dashboard",
+        "Empêcher tout besoin de parser les événements avant l'indexation"
       ],
       "answer": 0,
-      "explanation": "Question provisoire : elle devra être remplacée par une question pertinente et sa correction lors de la rédaction du cours."
+      "explanation": "Les mappings définissent comment Elasticsearch interprète les champs. Un champ numérique permet des calculs, un champ date sert aux filtres temporels, et un champ keyword facilite les filtres exacts et agrégations. Si un producteur envoie parfois un champ comme chaîne et parfois comme nombre, des conflits ou des erreurs d'indexation peuvent apparaître. La normalisation à l'ingestion, les templates et les tests de schéma permettent de prévenir ces incidents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire si Logstash reçoit les événements mais que sa file d'attente grossit continuellement ?",
+      "choices": [
+        "Désactiver tous les filtres sans analyser les erreurs",
+        "Supprimer les événements en attente afin que la taille de la file revienne à zéro",
+        "Comparer les débits entrant et sortant, mesurer les filtres, examiner les erreurs de sortie et vérifier la capacité d'Elasticsearch",
+        "Augmenter automatiquement la rétention Elasticsearch pour libérer la file Logstash"
+      ],
+      "answer": 2,
+      "explanation": "Une file qui augmente indique que le pipeline n'absorbe plus le débit entrant ou que la destination n'accepte pas les événements assez rapidement. Il faut mesurer le débit, le temps des filtres, les rejets, les erreurs de sortie, les ressources et la capacité du cluster. Une règle de parsing coûteuse ou un mapping incompatible peut bloquer l'ingestion. Ajouter des ressources sans localiser le goulot peut déplacer le problème plutôt que le résoudre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche est la plus sûre pour éviter la fuite de mots de passe dans la plateforme de logs ?",
+      "choices": [
+        "Conserver les mots de passe en clair mais limiter la taille des dashboards",
+        "Éviter de journaliser les secrets à la source, ajouter si nécessaire un filtrage en ingestion et protéger les buffers, accès et rétentions",
+        "Compter sur une suppression manuelle après chaque incident",
+        "Autoriser tous les utilisateurs à rechercher les logs, mais masquer seulement les mots de passe dans Kibana"
+      ],
+      "answer": 1,
+      "explanation": "Un secret peut être écrit dans le fichier source, lu par l'agent, conservé dans une file ou apparaître dans des erreurs avant le traitement Logstash. La meilleure protection est de ne pas générer ce secret dans les logs, puis d'ajouter des filtres d'ingestion comme défense complémentaire. Il faut également sécuriser le transport, limiter les identifiants et permissions, réduire les accès aux données sensibles et appliquer une politique de rétention appropriée."
     }
   ]
 }
