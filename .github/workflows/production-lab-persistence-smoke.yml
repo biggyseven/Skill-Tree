@@ -1,4 +1,4 @@
-name: Production Lab Workspace read-only audit
+name: Production Lab Workspace authenticated read-only audit
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
       - .github/workflows/production-lab-persistence-smoke.yml
       - labs_v2/**
       - app/lab_routes.py
+      - content/nodes.json
   workflow_dispatch:
 
 permissions:
@@ -16,111 +17,77 @@ permissions:
 jobs:
   production-lab-read-only-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
-      - name: Wait for production API (read-only)
+      - name: Wait for production API and confirm private mode
         shell: bash
         run: |
           python - <<'PY'
+          import json
           import time
+          import urllib.error
           import urllib.request
 
           base = "https://skill-tree-vjon.onrender.com"
           last_error = "production API did not become ready"
-          for _ in range(18):
+          for attempt in range(1, 19):
               try:
                   with urllib.request.urlopen(base + "/openapi.json", timeout=15) as response:
-                      if response.status == 200:
-                          print("Production API is responding.")
-                          break
-                      last_error = f"HTTP {response.status}"
+                      if response.status != 200:
+                          raise RuntimeError(f"OpenAPI returned HTTP {response.status}")
+                  with urllib.request.urlopen(base + "/api/auth/status", timeout=15) as response:
+                      status = json.loads(response.read().decode("utf-8"))
+                  if status.get("required") is not True or status.get("configured") is not True:
+                      raise RuntimeError("production authentication is not configured as expected")
+                  print("PRODUCTION_API_READY=true")
+                  print("PRODUCTION_AUTH_REQUIRED=true")
+                  break
               except Exception as error:
                   last_error = str(error)
-              time.sleep(5)
+                  if attempt < 18:
+                      time.sleep(5)
           else:
-              raise SystemExit(f"Production API unavailable: {last_error}")
+              raise SystemExit("Production API readiness failed: " + last_error)
           PY
 
-      - name: Checkout catalogue for production lab coverage audit
+      - name: Checkout catalogue
         uses: actions/checkout@v7
 
-      - name: Audit all catalogue courses that require a Lab Workspace scenario
+      - name: Authenticate and audit production labs without changing user data
         shell: bash
+        env:
+          SKILLTREE_RUN_AUTHENTICATED_SMOKE: ${{ vars.SKILLTREE_RUN_AUTHENTICATED_SMOKE }}
+          SKILLTREE_PRODUCTION_TEST_PASSWORD: ${{ secrets.SKILLTREE_PRODUCTION_TEST_PASSWORD }}
         run: |
           python - <<'PY'
+          import http.cookiejar
           import json
+          import os
           import time
           import urllib.error
           import urllib.request
           from pathlib import Path
+          from urllib.parse import quote
 
-          base = "https://skill-tree-vjon.onrender.com"
-          nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
-          required = {
-              item["id"]: item
-              for item in nodes
-              if isinstance(item, dict)
-              and isinstance(item.get("id"), str)
-              and any(
-                  isinstance(requirement, dict) and requirement.get("kind") == "lab"
-                  for requirement in (item.get("requirements") or [])
+          BASE = "https://skill-tree-vjon.onrender.com"
+          TRANSIENT_CODES = {408, 425, 429, 500, 502, 503, 504}
+          RUN_AUTHENTICATED = os.environ.get(
+              "SKILLTREE_RUN_AUTHENTICATED_SMOKE", ""
+          ).strip().lower() == "true"
+          PASSWORD = os.environ.get("SKILLTREE_PRODUCTION_TEST_PASSWORD", "")
+
+          if not RUN_AUTHENTICATED:
+              raise SystemExit(
+                  "Authenticated lab audit is disabled. Set the existing repository "
+                  "variable SKILLTREE_RUN_AUTHENTICATED_SMOKE to true."
               )
-          }
-          last_error = "catalog endpoint did not become available"
-          for _ in range(24):
-              try:
-                  request = urllib.request.Request(base + "/api/lab/v2", headers={"Accept": "application/json"})
-                  with urllib.request.urlopen(request, timeout=30) as response:
-                      playable = json.loads(response.read().decode("utf-8"))
-                  if isinstance(playable, list):
-                      break
-                  last_error = "unexpected JSON shape from /api/lab/v2"
-              except Exception as error:
-                  last_error = str(error)
-                  time.sleep(5)
-          else:
-              raise SystemExit("Cannot audit production lab catalog: " + last_error)
-
-          available = {
-              item.get("id"): item
-              for item in playable
-              if isinstance(item, dict) and isinstance(item.get("id"), str)
-          }
-          missing = sorted(set(required) - set(available))
-          print("PRODUCTION_LAB_CATALOG_AUDIT_BEGIN")
-          print("COURSES_TOTAL=" + str(len(nodes)))
-          print("COURSES_REQUIRING_LAB=" + str(len(required)))
-          print("PLAYABLE_V2_LABS_API=" + str(len(available)))
-          print("REQUIRED_LABS_MISSING_FROM_PLAYABLE_CATALOG=" + str(len(missing)))
-          for lab_id in missing:
-              node = required[lab_id]
-              print(
-                  "MISSING_LAB="
-                  + json.dumps(
-                      {
-                          "id": lab_id,
-                          "title": node.get("title", ""),
-                          "module": node.get("module", ""),
-                          "category": node.get("category", ""),
-                      },
-                      ensure_ascii=False,
-                      separators=(",", ":"),
-                  )
+          if not PASSWORD:
+              raise SystemExit(
+                  "Missing repository secret SKILLTREE_PRODUCTION_TEST_PASSWORD; "
+                  "the audit will not attempt anonymous access to protected lab APIs."
               )
-          print("PRODUCTION_LAB_CATALOG_AUDIT_END")
-          PY
 
-      - name: Verify new network and security labs are playable after deployment
-        shell: bash
-        run: |
-          python - <<'PY'
-          import json
-          import time
-          import urllib.error
-          import urllib.request
-
-          base = "https://skill-tree-vjon.onrender.com"
-          expected = [
+          EXPECTED_NEW_LABS = {
               "nat-debutant",
               "ipv6-intermediaire",
               "stp-intermediaire",
@@ -134,63 +101,209 @@ jobs:
               "secu-l2-expert",
               "zero-trust-intermediaire",
               "zero-trust-expert",
-          ]
+          }
 
-          def get_json(path):
-              request = urllib.request.Request(base + path, headers={"Accept": "application/json"})
-              with urllib.request.urlopen(request, timeout=25) as response:
-                  return json.loads(response.read().decode("utf-8"))
-
-          last_error = "the latest scenario files are not in the live API yet"
-          for _ in range(36):
-              try:
-                  catalog = get_json("/api/lab/v2")
-                  available = {
-                      item.get("id"): item
-                      for item in catalog
-                      if isinstance(item, dict) and isinstance(item.get("id"), str)
-                  }
-                  missing = sorted(set(expected) - set(available))
-                  if not missing:
-                      break
-                  last_error = "labs not yet exposed: " + ", ".join(missing)
-              except Exception as error:
-                  last_error = str(error)
-              time.sleep(5)
-          else:
-              raise SystemExit("Lab Workspace catalog has not caught up with deployment: " + last_error)
-
-          for lab_id in expected:
-              try:
-                  payload = get_json("/api/lab/v2/" + lab_id)
-              except Exception as error:
-                  raise SystemExit(f"{lab_id}: GET failed: {error}") from error
-              topology = payload.get("initial_topology") or {}
-              definition = payload.get("definition") or {}
-              check = definition.get("check") or {}
-              rules = check.get("rules") or []
-              nodes = topology.get("nodes") or []
-              links = topology.get("links") or []
-              if (
-                  payload.get("id") != lab_id
-                  or payload.get("sandbox") is True
-                  or len(nodes) < 2
-                  or len(links) < 1
-                  or check.get("type") != "config_assertions"
-                  or len(rules) < 3
-              ):
-                  raise SystemExit(
-                      f"{lab_id}: not a playable, gradeable lab; "
-                      + json.dumps(
-                          {"sandbox": payload.get("sandbox"), "nodes": len(nodes),
-                           "links": len(links), "check_type": check.get("type"),
-                           "rules": len(rules)}, ensure_ascii=False
-                      )
-                  )
-              print(
-                  f"PLAYABLE_LAB={lab_id} EQUIPMENT={len(nodes)} "
-                  f"CABLES={len(links)} RULES={len(rules)}"
+          def fetch(opener, path, *, method="GET", body=None, retries=3):
+              headers = {
+                  "Accept": "application/json",
+                  "User-Agent": "Skill-Tree-Lab-Workspace-production-audit",
+              }
+              data = None
+              if body is not None:
+                  data = json.dumps(body).encode("utf-8")
+                  headers["Content-Type"] = "application/json"
+              if method in {"POST", "PUT", "PATCH", "DELETE"}:
+                  headers["Origin"] = BASE
+              request = urllib.request.Request(
+                  BASE + path, data=data, headers=headers, method=method
               )
-          print("NEW_LAB_BATCH_PRODUCTION_CHECK=passed")
-          PY
+              last_error = "no response"
+              for attempt in range(1, retries + 1):
+                  try:
+                      with opener.open(request, timeout=20) as response:
+                          status = response.status
+                          text = response.read().decode("utf-8", errors="replace")
+                  except urllib.error.HTTPError as error:
+                      status = error.code
+                      text = error.read().decode("utf-8", errors="replace")
+                  except (urllib.error.URLError, TimeoutError, OSError) as error:
+                      last_error = f"{type(error).__name__}: {error}"
+                      if attempt < retries:
+                          time.sleep(2)
+                          continue
+                      raise RuntimeError(
+                          f"{method} {path} failed after {retries} request(s): {last_error}"
+                      ) from error
 
+                  if status not in TRANSIENT_CODES or attempt == retries:
+                      return status, text
+                  last_error = f"HTTP {status}"
+                  time.sleep(2)
+              raise RuntimeError(f"{method} {path} failed: {last_error}")
+
+          def parse_json(text, label):
+              try:
+                  return json.loads(text)
+              except json.JSONDecodeError as error:
+                  raise SystemExit(f"{label}: response is not valid JSON") from error
+
+          # Verify the public readiness contract before any password attempt.
+          anonymous = urllib.request.build_opener()
+          status_code, status_text = fetch(anonymous, "/api/auth/status")
+          if status_code != 200:
+              raise SystemExit(f"Authentication status returned HTTP {status_code}")
+          auth_status = parse_json(status_text, "Authentication status")
+          if auth_status.get("required") is not True or auth_status.get("authenticated") is not False:
+              raise SystemExit("Production authentication boundary is not in the expected state")
+
+          # Login is intentionally attempted only once to avoid triggering rate limits.
+          jar = http.cookiejar.CookieJar()
+          authenticated = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
+          login_code, login_text = fetch(
+              authenticated,
+              "/api/auth/login",
+              method="POST",
+              body={"password": PASSWORD},
+              retries=1,
+          )
+          login_payload = parse_json(login_text, "Production login")
+          if login_code != 200 or login_payload.get("authenticated") is not True:
+              raise SystemExit(
+                  "Production test credential was rejected or login failed; "
+                  "the password was not retried."
+              )
+
+          session_code, session_text = fetch(authenticated, "/api/auth/status")
+          session_status = parse_json(session_text, "Authenticated session status")
+          if session_code != 200 or session_status.get("authenticated") is not True:
+              raise SystemExit("The production session cookie was not retained after login")
+          print("PRODUCTION_AUTHENTICATED_SESSION=passed")
+
+          # Read the checked-out course catalogue and compare it with the live API.
+          nodes = json.loads(Path("content/nodes.json").read_text(encoding="utf-8-sig"))
+          required = {
+              item["id"]: item
+              for item in nodes
+              if isinstance(item, dict)
+              and isinstance(item.get("id"), str)
+              and any(
+                  isinstance(requirement, dict) and requirement.get("kind") == "lab"
+                  for requirement in (item.get("requirements") or [])
+              )
+          }
+          if not required:
+              raise SystemExit("No courses requiring a Lab Workspace were found in content/nodes.json")
+
+          catalog_code, catalog_text = fetch(authenticated, "/api/lab/v2")
+          if catalog_code != 200:
+              raise SystemExit(f"Authenticated lab catalogue returned HTTP {catalog_code}: {catalog_text[:300]}")
+          catalog = parse_json(catalog_text, "Production lab catalogue")
+          if not isinstance(catalog, list):
+              raise SystemExit("Production lab catalogue did not return a JSON list")
+          available = {
+              item.get("id"): item
+              for item in catalog
+              if isinstance(item, dict) and isinstance(item.get("id"), str)
+          }
+          missing = sorted(set(required) - set(available))
+          print("COURSES_TOTAL=" + str(len(nodes)))
+          print("COURSES_REQUIRING_LAB=" + str(len(required)))
+          print("PLAYABLE_V2_LABS_API=" + str(len(available)))
+          print("REQUIRED_LABS_MISSING_FROM_PLAYABLE_CATALOG=" + str(len(missing)))
+          if missing:
+              for lab_id in missing:
+                  node = required[lab_id]
+                  print("MISSING_LAB=" + json.dumps({
+                      "id": lab_id,
+                      "title": node.get("title", ""),
+                      "module": node.get("module", ""),
+                      "category": node.get("category", ""),
+                  }, ensure_ascii=False, separators=(",", ":")))
+              raise SystemExit("One or more required labs are missing from the live catalogue")
+
+          # Fetch every required scenario. Prefer the default scenario definition over
+          # the optional saved topology so another user's work is never mistaken for
+          # the canonical content during this read-only audit.
+          for lab_id in sorted(required):
+              code, body = fetch(authenticated, "/api/lab/v2/" + quote(lab_id, safe=""))
+              if code != 200:
+                  raise SystemExit(f"{lab_id}: authenticated detail endpoint returned HTTP {code}: {body[:300]}")
+              payload = parse_json(body, f"{lab_id} detail")
+              definition = payload.get("definition") or {}
+              topology = definition.get("initial_topology") or payload.get("initial_topology") or {}
+              equipment = topology.get("nodes") or []
+              links = topology.get("links") or []
+              if payload.get("id") != lab_id or len(equipment) < 2 or len(links) < 1:
+                  raise SystemExit(
+                      f"{lab_id}: unusable scenario "
+                      + json.dumps({
+                          "returned_id": payload.get("id"),
+                          "equipment": len(equipment),
+                          "links": len(links),
+                      }, ensure_ascii=False)
+                  )
+
+              if lab_id in EXPECTED_NEW_LABS:
+                  check = definition.get("check") or {}
+                  rules = check.get("rules") or []
+                  if (
+                      payload.get("sandbox") is True
+                      or check.get("type") != "config_assertions"
+                      or len(rules) < 3
+                  ):
+                      raise SystemExit(
+                          f"{lab_id}: new scenario isn't gradeable: "
+                          + json.dumps({
+                              "sandbox": payload.get("sandbox"),
+                              "check_type": check.get("type"),
+                              "rules": len(rules),
+                          }, ensure_ascii=False)
+                      )
+                  if len(equipment) < 9 or len(links) < 8:
+                      raise SystemExit(
+                          f"{lab_id}: expected a complete advanced topology; "
+                          f"equipment={len(equipment)} links={len(links)}"
+                      )
+
+          print("PRODUCTION_REQUIRED_LAB_DETAILS=passed count=" + str(len(required)))
+          print("PRODUCTION_NEW_LAB_BATCH=passed count=" + str(len(EXPECTED_NEW_LABS)))
+
+          # Open the actual workspace entry point through the authenticated session.
+          page_code, page_text = fetch(authenticated, "/lab.html?id=nat-debutant")
+          if page_code != 200 or '/lab/main.js' not in page_text or '/lab/main.css' not in page_text:
+              raise SystemExit(
+                  f"Authenticated /lab.html entry point failed: HTTP {page_code} or workspace assets absent"
+              )
+          print("PRODUCTION_LAB_WORKSPACE_ENTRYPOINT=passed")
+
+          # Exercise one real server-side check with the lab's initial topology.
+          # /check does not create an attempt or award XP; this workflow never calls
+          # /save, /load mutation paths, or /submit.
+          sample = "nat-debutant"
+          code, detail_text = fetch(authenticated, "/api/lab/v2/" + sample)
+          if code != 200:
+              raise SystemExit(f"{sample}: detail request returned HTTP {code}")
+          detail = parse_json(detail_text, f"{sample} detail")
+          definition = detail.get("definition") or {}
+          topology = definition.get("initial_topology") or detail.get("initial_topology")
+          if not isinstance(topology, dict):
+              raise SystemExit(f"{sample}: initial topology is missing")
+          check_code, check_text = fetch(
+              authenticated,
+              "/api/lab/v2/" + sample + "/check",
+              method="POST",
+              body={"topology": topology},
+          )
+          if check_code != 200:
+              raise SystemExit(f"{sample}: verification endpoint returned HTTP {check_code}: {check_text[:300]}")
+          check_result = parse_json(check_text, f"{sample} check")
+          if not isinstance(check_result.get("passed"), bool) or not isinstance(check_result.get("results"), list):
+              raise SystemExit(f"{sample}: verification response does not match the expected contract")
+          print(
+              "PRODUCTION_LAB_CHECK_ENDPOINT=passed "
+              f"rules_reported={len(check_result.get('results') or [])} "
+              f"initial_configuration_passed={str(check_result.get('passed')).lower()}"
+          )
+          print("PRODUCTION_LAB_MUTATIONS=none")
+          print("PRODUCTION_LAB_WORKSPACE_AUDIT=passed")
+          PY
