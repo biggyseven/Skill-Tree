@@ -935,12 +935,14 @@ def sync_content_additions(
     conn: sqlite3.Connection,
     directory: str | Path = CONTENT_DIR,
 ) -> dict[str, int]:
-    """Réconcilie le catalogue sans réinitialiser les données de progression.
+    """Réconcilie le catalogue et les quiz sans réinitialiser la progression.
 
-    Contrairement à load_content(), cette fonction ne supprime ni nœud, ni tentative,
-    ni session. Elle ajoute les nouveaux nœuds, leurs prérequis et leurs banques absentes.
-    Elle remplace également un quiz de cours uniquement lorsque ses questions stockées
-    sont manifestement temporaires, afin de ne pas écraser un quiz déjà renseigné.
+    Cette fonction conserve les nœuds, tentatives, statistiques et sessions. Les fichiers
+    content/quiz sont la source de vérité des banques complètes : une banque en base est
+    rafraîchie lorsqu'elle diffère du contenu non temporaire du dépôt. En revanche, un
+    fichier source encore temporaire ne remplace jamais une banque déjà présente.
+    Les banques d'examen existantes ne sont pas remplacées ici, car des sessions actives
+    peuvent référencer les identifiants des lignes de questions.
     """
     directory = Path(directory)
     if not directory.is_dir():
@@ -1101,8 +1103,9 @@ def sync_content_additions(
                 if node_id not in ready_node_ids or not questions:
                     continue
                 stored = conn.execute(
-                    "SELECT prompt, choices, explanation FROM questions"
-                    " WHERE node_id = ? AND scope = ? ORDER BY position",
+                    "SELECT prompt, choices, answer, question_type, answer_text, answer_regex, "
+                    "explanation, position FROM questions"
+                    " WHERE node_id = ? AND scope = ? ORDER BY position, id",
                     (node_id, scope),
                 ).fetchall()
                 if not stored:
@@ -1113,8 +1116,6 @@ def sync_content_additions(
                         report["exam_banks_added"] += 1
                     continue
 
-                # Ne remplace que les quiz de cours clairement restés à l'état de squelette.
-                # Les réponses déjà enregistrées restent dans attempts, indépendante de questions.
                 stored_text = " ".join(
                     " ".join(
                         str(row[field] or "")
@@ -1139,7 +1140,40 @@ def sync_content_additions(
                 incoming_is_temporary = any(
                     marker in incoming_text for marker in temporary_question_markers
                 )
-                if scope == "quiz" and stored_is_temporary and not incoming_is_temporary:
+
+                stored_rows = [
+                    tuple(
+                        row[field]
+                        for field in (
+                            "prompt", "choices", "answer", "question_type",
+                            "answer_text", "answer_regex", "explanation", "position",
+                        )
+                    )
+                    for row in stored
+                ]
+                incoming_rows = [
+                    (
+                        question.prompt,
+                        json.dumps(question.choices, ensure_ascii=False),
+                        question.answer if question.question_type == "qcm" else 0,
+                        question.question_type,
+                        question.answer if question.question_type in {"input", "terminal"} else None,
+                        question.answer_regex,
+                        question.explanation,
+                        position,
+                    )
+                    for position, question in enumerate(questions)
+                ]
+                bank_changed = stored_rows != incoming_rows
+
+                # Un quiz complet du dépôt reste la référence si ses questions évoluent.
+                # On ne rétrograde jamais une banque existante vers un fichier temporaire.
+                # Les tentatives et sessions historiques ne dépendent pas de ces lignes.
+                if (
+                    scope == "quiz"
+                    and not incoming_is_temporary
+                    and (stored_is_temporary or bank_changed)
+                ):
                     conn.execute(
                         "DELETE FROM questions WHERE node_id = ? AND scope = ?",
                         (node_id, scope),
