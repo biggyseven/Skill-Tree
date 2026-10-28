@@ -465,6 +465,78 @@ Rechercher dérive, changement de capacité, topologie, population ou version et
 
 **Pourquoi les raccourcis échouent.** Un résultat favorable sur un exemple ne démontre pas une performance durable. Un score moyen peut masquer les catégories vulnérables ; une absence d'erreur visible peut provenir d'une télémétrie incomplète. Conserver les cas difficiles, les conditions de test et les versions utilisées rend possible une revue indépendante. L'exercice est réussi lorsque le choix, ses limites et le mécanisme de retrait sont compris par une autre personne.
 
+## Défi final corrigé — traduire une intention métier en contrôles réseau
+
+### Énoncé
+
+Une entreprise souhaite que les postes du réseau invité accèdent à Internet mais jamais aux serveurs de paiement. Le parc mélange des équipements de plusieurs fournisseurs. Rédige une intention lisible par l'équipe, définis comment la traduire en configuration et décris comment vérifier que l'état réellement observé satisfait l'objectif. Ne suppose pas que tous les équipements offrent les mêmes capacités.
+
+### Boucle de conformité
+
+```mermaid
+flowchart TD
+  A["Intention métier versionnée"] --> B["Contraintes et exceptions explicites"]
+  B --> C["Traduction selon capacités des équipements"]
+  C --> D["Plan proposé et différences"]
+  D --> E{"Tests et approbation réussis ?"}
+  E -- "Non" --> F["Refuser et expliquer l'écart"]
+  E -- "Oui" --> G["Appliquer de façon limitée"]
+  G --> H["Relire l'état réel"]
+  H --> I{"Objectif satisfait ?"}
+  I -- "Non" --> J["Rollback ou escalade"]
+  I -- "Oui" --> K["Enregistrer conformité et preuves"]
+```
+
+### Exemple d'intention déclarative
+
+```yaml
+intent_id: segmentation-invites-v1
+scope:
+  source_zone: guest
+  destination_zone: payment
+policy:
+  default: deny
+  allowed_services:
+    - name: dns
+      destination: approved-dns
+      protocol: udp
+      port: 53
+    - name: web
+      destination: internet
+      protocol: tcp
+      ports: [80, 443]
+forbidden:
+  - source_zone: guest
+    destination_zone: payment
+exceptions: []
+verification:
+  require_config_readback: true
+  require_connectivity_tests: true
+  require_owner_approval: true
+```
+
+### Proposition de correction
+
+L'intention énonce une propriété observable, pas une commande fournisseur. Elle doit préciser le périmètre, les flux permis, les flux interdits, les exceptions approuvées, la portée temporelle et le propriétaire métier. Le traducteur vérifie ensuite les capacités de chaque équipement et produit un plan comprenant les changements prévus, les dépendances et le retour arrière.
+
+Ne confonds pas « la configuration a été envoyée » avec « l'intention est satisfaite ». La vérification doit relire l'état réel et tester les chemins représentatifs, notamment un flux autorisé et un flux interdit. Si l'équipement ne permet pas d'exprimer la politique ou si l'inventaire est incomplet, le système signale l'écart au lieu de fabriquer une fausse conformité.
+
+### Essais pratiques
+
+1. Vérifie qu'un accès HTTPS vers Internet est autorisé.
+2. Vérifie qu'un flux d'un poste invité vers un serveur de paiement est bloqué.
+3. Supprime volontairement une règle du plan de test et vérifie que la comparaison d'état détecte le drift.
+4. Introduis un équipement sans la capacité nécessaire et vérifie que le déploiement est arrêté.
+5. Ajoute une exception temporaire avec propriétaire, justification et date d'expiration ; vérifie qu'elle cesse d'être valide après l'échéance.
+
+### Barème d'autoévaluation
+
+- L'intention exprime une propriété métier mesurable.
+- Les exceptions sont explicites, limitées et traçables.
+- Le plan est validé avant modification.
+- L'état réel est relu après action.
+- L'écart de capacité conduit à une alerte, jamais à une réussite fictive.
+
 ## 11. Checklist et à retenir
 
 - [ ] L'objectif métier et le service concerné sont explicites et mesurables.
