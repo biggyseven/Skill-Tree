@@ -171,3 +171,83 @@ Le Change Data Capture capte les insertions, mises à jour et suppressions à pa
 Les suppressions sont souvent invisibles dans une extraction qui ne lit que les lignes actuelles. Le CDC peut les représenter par un événement de suppression ; une ingestion par extraction doit disposer d’une autre stratégie, comme un journal de suppressions, un statut ou un rapprochement. Un tombstone doit porter un identifiant fiable et être appliqué par les consommateurs. Les événements anciens ne doivent pas ressusciter un état supprimé plus récemment sans règle explicite.
 
 Le checkpoint enregistre jusqu’où le consommateur considère les événements traités. Un commit anticipé peut perdre une sortie après crash ; un commit tardif peut provoquer un replay. La destination doit donc être idempotente ou participer à une transaction compatible avec la source. Une procédure de reprise doit indiquer comment vérifier la progression, choisir un offset sûr et évaluer l’impact d’un rejeu.
+
+## 7. Orchestration et dépendances
+
+L’orchestration coordonne les tâches, dépendances, calendriers, tentatives, ressources et états d’exécution. Un rapport ne devrait pas démarrer uniquement parce qu’une heure est passée si sa table source n’est pas prête. Les tâches indépendantes peuvent être parallélisées, mais la concurrence doit respecter la capacité des sources et les contraintes de cohérence.
+
+§§§mermaid
+flowchart TD
+    A[Arrivée source ventes] --> D[Contrôles de staging]
+    B[Arrivée source paiements] --> D
+    C[Référence produits actualisée] --> E[Enrichissement]
+    D --> E
+    E --> F[Test métier]
+    F --> G{Conforme et frais ?}
+    G -->|Oui| H[Publication du produit]
+    G -->|Non| I[Quarantaine et incident]
+    H --> J[Actualisation BI]
+§§§
+
+Le pipeline doit préciser ce qui arrive lorsqu’une branche échoue. Il peut attendre, publier un produit partiel avec statut dégradé ou bloquer la publication. Les comportements doivent être décidés avec les consommateurs. Les dépendances optionnelles ne doivent pas être implicitement traitées comme obligatoires.
+
+Un retry aide face aux erreurs transitoires : timeout réseau, limitation de débit temporaire ou service momentanément indisponible. Il ne corrige pas une donnée invalide, une authentification rejetée ou un schéma incompatible. Les tentatives doivent être limitées, espacées avec un backoff exponentiel et éventuellement un jitter. Des retries illimités peuvent créer une tempête, épuiser les ressources et prolonger une panne.
+
+Définissez des timeouts sur les appels externes et opérations longues. La concurrence maximale doit tenir compte des quotas de la source, de la capacité de destination et de la nature du traitement. Lors d’un rattrapage après panne, le volume en attente peut dépasser la capacité nominale. Il faut limiter les tâches simultanées, prioriser les flux critiques et mesurer le temps de backlog.
+
+Un backfill recharge une période passée. Il doit avoir un périmètre, une estimation de volume, un plan de validation et une stratégie de reprise. Décidez si l’histoire est reconstruite avec les règles d’aujourd’hui ou celles qui étaient en vigueur. Le backfill doit être idempotent, isoler les partitions concernées et ne pas écraser silencieusement des données plus récentes.
+
+## 8. Retry, dead-letter queue et relecture contrôlée
+
+Un message qui échoue temporairement peut être réessayé. Un message qui échoue durablement — schéma invalide, champ obligatoire manquant, conflit d’identifiant ou donnée incohérente — doit être isolé sans bloquer éternellement le flux.
+
+Classez les erreurs en catégories : transitoires, permanentes, de contrat, métier, de dépendance et inconnues. Chaque catégorie doit avoir une politique. Un timeout peut être réessayé. Un identifiant manquant peut exiger une correction de la source. Un échec d’autorisation peut signaler une configuration ou une compromission et ne doit pas être caché derrière des tentatives sans fin.
+
+Une dead-letter queue (DLQ) permet d’isoler les messages impossibles à traiter après la politique de reprise. Elle protège le flux normal et fournit un espace de diagnostic. Elle ne doit pas devenir un stockage indéfini d’erreurs sans responsable. Un tableau de bord doit indiquer le volume, l’âge, la classe d’erreur et le propriétaire des messages en attente.
+
+Le replay doit conserver l’identité originale de l’événement, ajouter un identifiant de tentative et enregistrer son résultat. Avant de rejouer un message, corrigez la cause ou choisissez une procédure qui peut traiter l’erreur. Les payloads sensibles doivent être minimisés et protégés. La personne qui inspecte la DLQ n’a pas nécessairement besoin de pouvoir rejouer les messages en production.
+
+Le rejet peut convenir à un message mal formé qui ne peut pas être conservé en sécurité. La quarantaine est utile lorsqu’une correction ou un examen est possible. Les politiques doivent définir la différence, la durée de conservation et le comportement de la source. Pour un événement financier, abandonner un message sans trace est inacceptable. Pour une donnée sensible, conserver le payload complet dans une DLQ largement accessible peut être encore plus dangereux.
+
+## 9. Évolution de schéma et contrats
+
+Les systèmes distribués se déploient rarement tous au même instant. Un producteur peut commencer à publier un champ pendant qu’un ancien consommateur s’attend à un schéma strict. Le contrat doit définir la compatibilité, les versions supportées, les règles de dépréciation, le délai de migration et les tests obligatoires.
+
+Ajouter un champ facultatif peut être compatible si les consommateurs tolèrent les champs inconnus. Ajouter un champ obligatoire peut nécessiter une migration coordonnée. Supprimer ou renommer un champ casse souvent les consommateurs. Changer le sens d’un champ sans modifier son type est une rupture sémantique. Testez les combinaisons réelles de versions et pas seulement le changement isolé.
+
+Validez le message à l’ingestion, contrôlez les règles métier avant publication et vérifiez les contrats au déploiement. Un schéma valide n’est pas forcément un événement correct : les valeurs peuvent respecter les types mais enfreindre le domaine métier. Les tests doivent couvrir l’interface technique et la sémantique.
+
+Pour un changement incompatible, publiez éventuellement une nouvelle version en maintenant temporairement l’ancienne, ou déployez d’abord des consommateurs capables de lire les deux formats. La migration se termine par une preuve : les consommateurs nécessaires ont basculé, les erreurs ne révèlent plus d’anciens usages, le format retiré n’est plus nécessaire et la documentation est à jour.
+
+## 10. Temps d’événement, fenêtres et événements tardifs
+
+En streaming, le temps d’événement et le temps de traitement peuvent diverger. Un message peut arriver tard à cause d’une interruption réseau, d’un appareil hors ligne ou d’un rattrapage. Une agrégation basée uniquement sur l’heure d’arrivée risque de classer une action dans la mauvaise période.
+
+L’event time représente le moment métier où l’action a eu lieu. Le processing time représente le moment où le moteur traite l’événement. Le temps d’ingestion peut être distinct des deux. Les analyses temporelles doivent préciser quelle horloge guide les fenêtres et les décisions.
+
+Les fenêtres regroupent les événements en intervalles fixes, glissants ou par session. Un watermark représente généralement une estimation de la progression du temps d’événement au-delà de laquelle la majorité des données attendues est considérée comme arrivée. Il ne garantit pas qu’aucun événement tardif ne surviendra.
+
+Le moteur doit définir ce qu’il fait après la fermeture d’une fenêtre : ignorer les événements tardifs, les envoyer vers un flux de correction, réviser l’agrégat ou conserver un état qui permet une mise à jour. Une métrique temps réel peut privilégier la faible latence, tandis qu’un rapport financier peut nécessiter des rapprochements plus complets.
+
+§§§mermaid
+timeline
+    title Exemple conceptuel de gestion du temps
+    09:00 : Événement A se produit
+    09:01 : Événement B se produit
+    09:04 : A et B sont traités
+    09:06 : Watermark avance
+    09:08 : Événement C arrive en retard
+    09:09 : Correction ou quarantaine selon le contrat
+§§§
+
+Utilisez un horodatage sans ambiguïté, généralement stocké en UTC avec un fuseau indiqué lors de la présentation métier. Gardez l’heure source et l’heure d’ingestion lorsqu’elles servent au diagnostic. Les fenêtres de fermeture, changements d’heure et jours fériés doivent être traités explicitement, car une journée métier n’est pas toujours une journée UTC.
+
+## 11. Backpressure, capacité et stabilité
+
+La backpressure apparaît quand le rythme d’arrivée dépasse la capacité de traitement ou quand la destination devient plus lente que la source. Le flux accumule un backlog, la latence augmente et la rétention du broker peut finir par être dépassée.
+
+Surveillez le nombre de messages en attente, l’âge du plus ancien message, le débit entrant et sortant, les erreurs, le temps de traitement et la capacité de destination. Un backlog de dix mille événements peut être insignifiant si le débit sortant est élevé mais critique si les événements ont dépassé leur délai contractuel.
+
+Le partitionnement distribue les données et parallélise les consommateurs. Une clé stable peut préserver l’ordre relatif d’une entité, mais une mauvaise clé crée une partition chaude. Augmenter le nombre de partitions peut modifier l’ordre et l’affectation des consommateurs ; analysez la distribution des clés, le volume par clé et les invariants métier.
+
+Après une panne prolongée, le système doit traiter la production normale et le backlog. Si sa capacité disponible est égale au débit entrant, le backlog ne diminue pas. Le temps de rattrapage peut être estimé par le volume en attente divisé par la différence entre débit de traitement disponible et débit entrant, à condition que cette différence soit positive. Cette estimation simplifiée doit être vérifiée par des tests de charge et des mesures réelles.
