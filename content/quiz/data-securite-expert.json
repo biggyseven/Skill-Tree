@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "Les secrets doivent être gérés hors du code, avec permissions limitées et rotation. Si un secret a été commité, il faut le révoquer, pas seulement supprimer la ligne."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans quel cas le chiffrement au repos ne suffit-il généralement pas à empêcher la lecture d’une donnée ?",
+      "choices": [
+        "Lorsqu’un fichier chiffré est volé sans la clé",
+        "Lorsqu’un utilisateur autorisé interroge le moteur et reçoit la valeur déchiffrée",
+        "Lorsqu’une sauvegarde est protégée par une clé séparée",
+        "Lorsqu’un objet chiffré est copié sans contexte d’accès"
+      ],
+      "answer": 1,
+      "explanation": "Le moteur déchiffre les données pour servir les requêtes autorisées. Il faut donc également contrôler les identités, les rôles et l’exposition des données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle principal d’une KEK dans une architecture de chiffrement enveloppe ?",
+      "choices": [
+        "Remplacer tous les contrôles d’accès aux tables",
+        "Calculer le hachage des mots de passe des utilisateurs",
+        "Protéger ou envelopper une clé de chiffrement des données (DEK)",
+        "Conserver les mots de passe applicatifs en clair"
+      ],
+      "answer": 2,
+      "explanation": "La KEK protège la DEK, qui chiffre les données. La séparation permet notamment de gérer les clés et de limiter leurs usages de manière centralisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il intégrer la gestion des clés au plan de reprise après sinistre ?",
+      "choices": [
+        "Parce que les clés ne sont utiles qu’en développement",
+        "Parce que les sauvegardes sont toujours en clair",
+        "Parce que le chiffrement supprime le besoin de tester les restaurations",
+        "Parce que des données chiffrées peuvent devenir irrécupérables si les clés nécessaires sont perdues"
+      ],
+      "answer": 3,
+      "explanation": "La disponibilité et la récupération des clés sont des dépendances critiques. Une sauvegarde chiffrée ne suffit pas si l’organisation ne peut plus déchiffrer légitimement les données."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique correspond au principe du moindre privilège pour un tableau de bord BI ?",
+      "choices": [
+        "Lui accorder uniquement la lecture des vues agrégées nécessaires",
+        "Lui donner le rôle DBA pour éviter des erreurs de permission",
+        "Partager le compte administrateur avec l’équipe analytique",
+        "Autoriser la lecture de toute nouvelle table automatiquement"
+      ],
+      "answer": 0,
+      "explanation": "Le tableau de bord doit disposer des seules permissions requises. Les vues agrégées peuvent réduire l’exposition, à condition que les accès sous-jacents ne permettent pas de les contourner."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une requête SQL paramétrée protège principalement contre quel risque, sans remplacer quel autre contrôle ?",
+      "choices": [
+        "Elle remplace toutes les autorisations métier",
+        "Elle réduit le risque d’injection SQL, mais l’autorisation d’accéder à l’enregistrement doit encore être vérifiée",
+        "Elle chiffre automatiquement la base de données",
+        "Elle anonymise toutes les valeurs sélectionnées"
+      ],
+      "answer": 1,
+      "explanation": "Les paramètres empêchent les valeurs de devenir du code SQL exécutable. Ils ne prouvent pas que l’utilisateur a le droit de lire la ligne ciblée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contenu faut-il éviter dans les journaux d’audit ?",
+      "choices": [
+        "L’horodatage de l’action",
+        "Le résultat autorisé ou refusé",
+        "Les mots de passe, clés privées et jetons complets",
+        "L’identifiant technique de l’événement"
+      ],
+      "answer": 2,
+      "explanation": "Les journaux doivent aider à établir qui a fait quoi et quand sans devenir une nouvelle source de secrets ou de données personnelles inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle démarche exprime le mieux le principe de minimisation des données ?",
+      "choices": [
+        "Conserver tous les champs pour d’éventuels usages futurs",
+        "Dupliquer les données détaillées dans chaque outil métier",
+        "Garder les données indéfiniment au cas où un audit survient",
+        "Ne collecter et ne transmettre que les données nécessaires à la finalité définie"
+      ],
+      "answer": 3,
+      "explanation": "La minimisation réduit la quantité de données traitées aux informations adéquates et pertinentes qui sont nécessaires à la finalité. Elle diminue également l’exposition en cas d’incident."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une ligne est supprimée de la base source mais demeure dans des snapshots et fichiers dérivés. Quelle conclusion est la plus exacte ?",
+      "choices": [
+        "La suppression est forcément terminée car la source ne contient plus la ligne",
+        "Il faut vérifier et traiter les dérivés, snapshots, exports et sauvegardes selon les règles applicables",
+        "Le chiffrement au repos efface automatiquement toutes les anciennes versions",
+        "Un fichier Parquet n’est jamais concerné par les demandes d’effacement"
+      ],
+      "answer": 1,
+      "explanation": "Les systèmes distribués conservent souvent des copies et versions historiques. Le processus doit cartographier les destinations, vérifier la propagation et empêcher la réapparition après restauration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À propos d’une violation de données personnelles, quelle affirmation sur le délai de 72 heures est correcte ?",
+      "choices": [
+        "Il s’applique uniquement après que l’enquête technique soit entièrement terminée",
+        "Il exige de notifier publiquement chaque panne de base de données",
+        "Le RGPD prévoit, lorsque la notification à l’autorité est requise, un délai maximal de 72 heures lorsque cela est possible, après en avoir pris connaissance",
+        "Il signifie que tout incident informatique est automatiquement une violation notifiable"
+      ],
+      "answer": 2,
+      "explanation": "L’article 33 prévoit une notification à l’autorité sans retard injustifié et, lorsque possible, dans les 72 heures après la prise de connaissance, sauf notamment si la violation n’est pas susceptible d’engendrer un risque pour les droits et libertés. La qualification dépend des circonstances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un jeton d’accès réel a été commité dans Git puis supprimé au commit suivant. Quelle action est prioritaire ?",
+      "choices": [
+        "Révoquer ou faire tourner le jeton et examiner ses usages, car le supprimer du fichier ne supprime pas les copies historiques",
+        "Ne rien faire si le dépôt est privé",
+        "Renommer la variable et considérer l’incident clos",
+        "Placer le même jeton dans un fichier chiffré du dépôt"
+      ],
+      "answer": 0,
+      "explanation": "Le secret doit être considéré comme exposé. La suppression d’une ligne ne révoque pas les copies ni les usages possibles ; il faut révoquer ou faire tourner, enquêter et traiter les dépendances."
     }
   ]
 }
