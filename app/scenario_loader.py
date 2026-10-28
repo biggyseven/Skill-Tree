@@ -46,7 +46,10 @@ def _port(identifier: str, *, state: str = "up", vlan: int | None = None, ip: st
 def _switch(identifier: str, x: int, y: int, port_vlans: dict[str, int],
             trunks: set[str] | None = None) -> dict[str, Any]:
     trunks = trunks or set()
-    ports = [_port(port_id, vlan=vlan) for port_id, vlan in port_vlans.items()]
+    ports = [
+        {**_port(port_id, vlan=vlan), "mode": "trunk" if port_id in trunks else "access"}
+        for port_id, vlan in port_vlans.items()
+    ]
     interfaces: dict[str, Any] = {}
     for port_id, vlan in port_vlans.items():
         if port_id in trunks:
