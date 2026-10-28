@@ -97,6 +97,126 @@
       ],
       "answer": 3,
       "explanation": "Un pipeline peut réussir à traiter zéro enregistrement. La fraîcheur doit être mesurée par rapport aux attentes métier, avec alertes et procédures de résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément est indispensable pour qu'une règle de qualité soit réellement exploitable ?",
+      "choices": [
+        "Un nom court sans définition",
+        "Un score global identique pour tous les domaines",
+        "Un périmètre, une mesure, un seuil, un propriétaire et une action en cas d'échec",
+        "Une capture d'écran mensuelle seulement"
+      ],
+      "answer": 2,
+      "explanation": "Une règle opérationnelle précise la population visée, la manière de mesurer, les attentes, la responsabilité et le traitement des écarts. Sans cela, deux équipes peuvent interpréter le même résultat différemment."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un score global de qualité peut-il être trompeur ?",
+      "choices": [
+        "Parce qu'une moyenne peut masquer une violation critique dans une dimension particulière",
+        "Parce qu'il est impossible de compter les lignes d'une table",
+        "Parce qu'une règle ne peut jamais être automatisée",
+        "Parce qu'un catalogue interdit les indicateurs"
+      ],
+      "answer": 0,
+      "explanation": "Une moyenne élevée peut cacher un défaut grave, par exemple une fraîcheur insuffisante pour un flux antifraude. Il faut présenter les dimensions, volumes, seuils critiques et exceptions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence essentielle entre un schéma et un contrat de données ?",
+      "choices": [
+        "Un contrat ne contient jamais de champs",
+        "Un schéma remplace toutes les responsabilités métier",
+        "Un contrat interdit les tests automatisés",
+        "Un contrat peut aussi préciser sémantique, qualité, fraîcheur, compatibilité et gestion des changements"
+      ],
+      "answer": 3,
+      "explanation": "Le schéma décrit principalement la structure et les types. Le contrat explicite aussi les attentes d’usage et les garanties opérationnelles entre producteur et consommateurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un changement de définition métier est-il potentiellement une rupture même si le type de colonne ne change pas ?",
+      "choices": [
+        "Parce qu'une colonne décimale ne peut pas être versionnée",
+        "Parce que les consommateurs peuvent interpréter différemment les mêmes valeurs et produire des indicateurs incompatibles",
+        "Parce que les bases SQL ne prennent pas en charge les nombres",
+        "Parce que le catalogue doit être supprimé à chaque déploiement"
+      ],
+      "answer": 1,
+      "explanation": "Changer par exemple un montant TTC en montant HT modifie le sens métier sans nécessairement modifier le schéma. Le contrat et les consommateurs doivent être évalués."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal du lignage en aval ?",
+      "choices": [
+        "Augmenter la vitesse de calcul du moteur SQL",
+        "Déterminer la couleur des graphiques",
+        "Identifier les jeux, indicateurs et consommateurs susceptibles d'être affectés par un changement ou une anomalie",
+        "Remplacer les contrats de données"
+      ],
+      "answer": 2,
+      "explanation": "Le lignage en aval permet d'évaluer l'impact d'une source ou transformation sur les actifs et consommateurs dépendants, ce qui améliore les changements et la réponse aux incidents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation à propos d'un catalogue automatisé est la plus exacte ?",
+      "choices": [
+        "Il peut automatiser des métadonnées techniques, mais les définitions métier et certaines décisions demandent une validation appropriée",
+        "Il décide automatiquement si un indicateur est juste pour le métier",
+        "Il remplace les permissions réelles de la base",
+        "Il rend inutile l'identification des propriétaires"
+      ],
+      "answer": 0,
+      "explanation": "L'automatisation facilite la collecte du schéma, de la fraîcheur et de certains lignages. La signification métier, les usages et les décisions de gouvernance nécessitent des responsables et une validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la détection de doublons doit-elle s'appuyer sur une clé et une granularité explicites ?",
+      "choices": [
+        "Parce que tous les champs texte sont forcément uniques",
+        "Parce que deux lignes avec le même nom appartiennent toujours à la même personne",
+        "Parce qu'une requête GROUP BY ne peut pas compter les occurrences",
+        "Parce que des valeurs identiques sur un attribut ne signifient pas nécessairement que les enregistrements sont des doublons métier"
+      ],
+      "answer": 3,
+      "explanation": "Un nom partagé ou plusieurs lignes d'événements pour une même commande peuvent être légitimes. La règle doit identifier l'entité, la granularité et le critère de duplication."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une matrice RACI, quel rôle doit être clairement identifié pour trancher une décision métier ?",
+      "choices": [
+        "Une personne seulement informée",
+        "Le rôle Accountable, qui porte la responsabilité finale de la décision",
+        "Tous les rôles sans distinction",
+        "Un consommateur choisi au hasard"
+      ],
+      "answer": 1,
+      "explanation": "RACI distingue l'exécution, la responsabilité finale, la consultation et l'information. Une décision sans responsable final explicite risque de rester bloquée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal distingue le mieux une panne de fraîcheur d'un pipeline techniquement en échec ?",
+      "choices": [
+        "La couleur du tableau de bord",
+        "Le nombre de développeurs dans l'équipe",
+        "La mesure du dernier événement ou de la dernière partition attendue, comparée à l'objectif de fraîcheur",
+        "La taille du fichier README"
+      ],
+      "answer": 2,
+      "explanation": "Un job peut réussir tout en traitant zéro donnée. Mesurer la dernière donnée métier disponible permet de repérer un produit en retard même quand le processus est techniquement vert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique correspond à une gouvernance fédérée dans une architecture data mesh ?",
+      "choices": [
+        "Chaque domaine peut changer ses données sans aucun contrat ni préavis",
+        "Une seule équipe centrale réalise toutes les transformations et toutes les définitions",
+        "Les équipes partagent tous leurs comptes administrateurs",
+        "Des domaines possèdent leurs produits, tandis que des standards communs, une plateforme et un mécanisme d'arbitrage assurent la cohérence"
+      ],
+      "answer": 3,
+      "explanation": "La gouvernance fédérée combine l'autonomie des domaines avec des standards communs exécutables, une plateforme en libre-service et un processus d'arbitrage."
     }
   ]
 }
