@@ -103,7 +103,7 @@ def build_war_badges(conn: Any) -> list[dict[str, Any]]:
         if payload.get("source") != "replay" or not replayed_id or new_id not in resolved_ids:
             continue
         prior = tickets_by_id.get(replayed_id)
-        if prior and prior.get("status") == "failed":
+        if payload.get("replayed_status") == "failed" or (prior and prior.get("status") == "failed"):
             comeback_kid = True
             break
 
