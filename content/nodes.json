@@ -9183,5 +9183,413 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "sup-bases-debutant",
+    "module": "Supervision & Monitoring",
+    "title": "Les fondamentaux du monitoring",
+    "category": "Fondamentaux du monitoring",
+    "order": 4394,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-snmp-debutant",
+    "module": "Supervision & Monitoring",
+    "title": "SNMP v1/v2c/v3 et MIB",
+    "category": "Fondamentaux du monitoring",
+    "order": 4395,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-syslog-debutant",
+    "module": "Supervision & Monitoring",
+    "title": "Centralisation des logs (Syslog)",
+    "category": "Fondamentaux du monitoring",
+    "order": 4396,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-snmp-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-icmp-debutant",
+    "module": "Supervision & Monitoring",
+    "title": "Surveillance par ICMP (ping, uptime)",
+    "category": "Fondamentaux du monitoring",
+    "order": 4397,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-syslog-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-metrics-debutant",
+    "module": "Supervision & Monitoring",
+    "title": "Métriques vs Logs vs Traces",
+    "category": "Fondamentaux du monitoring",
+    "order": 4398,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-icmp-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-alerting-debutant",
+    "module": "Supervision & Monitoring",
+    "title": "Notions d'alerting et de seuils",
+    "category": "Fondamentaux du monitoring",
+    "order": 4399,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-metrics-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-zabbix-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Supervision avec Zabbix",
+    "category": "Outils de supervision",
+    "order": 4400,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-alerting-debutant",
+      "maint-monitoring-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-nagios-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Supervision avec Nagios/Centreon",
+    "category": "Outils de supervision",
+    "order": 4401,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-zabbix-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-prometheus-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Métriques avec Prometheus",
+    "category": "Outils de supervision",
+    "order": 4402,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-nagios-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-grafana-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Dashboards avec Grafana",
+    "category": "Outils de supervision",
+    "order": 4403,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-prometheus-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-netflow-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "NetFlow, sFlow, IPFIX",
+    "category": "Outils de supervision",
+    "order": 4404,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-grafana-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-elk-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Stack ELK (Elasticsearch, Logstash, Kibana)",
+    "category": "Outils de supervision",
+    "order": 4405,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-netflow-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-loki-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Loki et Grafana pour les logs",
+    "category": "Outils de supervision",
+    "order": 4406,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-elk-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-apm-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "APM (Datadog, New Relic)",
+    "category": "Outils de supervision",
+    "order": 4407,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-loki-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-synthetic-intermediaire",
+    "module": "Supervision & Monitoring",
+    "title": "Monitoring synthétique (Selenium, Playwright)",
+    "category": "Outils de supervision",
+    "order": 4408,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-apm-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-sre-expert",
+    "module": "Supervision & Monitoring",
+    "title": "SRE et culture de la fiabilité",
+    "category": "Fiabilité & observabilité",
+    "order": 4409,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-synthetic-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-slo-expert",
+    "module": "Supervision & Monitoring",
+    "title": "SLI, SLO, SLA et error budgets",
+    "category": "Fiabilité & observabilité",
+    "order": 4410,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-sre-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-observability-expert",
+    "module": "Supervision & Monitoring",
+    "title": "Observabilité complète (3 piliers)",
+    "category": "Fiabilité & observabilité",
+    "order": 4411,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-slo-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-distributed-tracing-expert",
+    "module": "Supervision & Monitoring",
+    "title": "Tracing distribué (Jaeger, OpenTelemetry)",
+    "category": "Fiabilité & observabilité",
+    "order": 4412,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-observability-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-otel-expert",
+    "module": "Supervision & Monitoring",
+    "title": "OpenTelemetry en production",
+    "category": "Fiabilité & observabilité",
+    "order": 4413,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-distributed-tracing-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-iaops-monitoring-expert",
+    "module": "Supervision & Monitoring",
+    "title": "IA appliquée au monitoring",
+    "category": "Fiabilité & observabilité",
+    "order": 4414,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-otel-expert",
+      "aiops-bases-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-oncall-expert",
+    "module": "Supervision & Monitoring",
+    "title": "On-call, runbooks et post-mortems",
+    "category": "Fiabilité & observabilité",
+    "order": 4415,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-iaops-monitoring-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-cost-monitoring-expert",
+    "module": "Supervision & Monitoring",
+    "title": "FinOps et monitoring des coûts",
+    "category": "Fiabilité & observabilité",
+    "order": 4416,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-oncall-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "sup-ha-monitoring-expert",
+    "module": "Supervision & Monitoring",
+    "title": "Monitoring de la haute disponibilité",
+    "category": "Fiabilité & observabilité",
+    "order": 4417,
+    "description": "Cours provisoire — contenu détaillé à rédiger.",
+    "prereqs": [
+      "sup-cost-monitoring-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
   }
 ]
