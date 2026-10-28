@@ -4,99 +4,219 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel bénéfice apporte une CTE (`WITH`) dans une requête SQL complexe ?",
+      "prompt": "Dans quel cas une sous-requête scalaire est-elle appropriée ?",
       "choices": [
-        "Elle désactive automatiquement les contrôles d’accès",
-        "Elle peut nommer une étape logique pour améliorer la lisibilité et la composition de la requête",
-        "Elle garantit toujours une exécution plus rapide qu’une sous-requête",
-        "Elle rend les résultats persistants après la fin de la session"
-      ],
-      "answer": 1,
-      "explanation": "Une CTE donne un nom à un résultat intermédiaire dans une instruction. Son impact sur le plan et la matérialisation dépend du SGBD et de la requête."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quand une sous-requête corrélée est-elle dite corrélée ?",
-      "choices": [
-        "Lorsqu’elle ne contient aucun filtre",
-        "Lorsqu’elle ne s’exécute que pendant une sauvegarde",
-        "Lorsqu’elle fait référence à une colonne de la requête externe",
-        "Lorsqu’elle retourne nécessairement plusieurs lignes"
-      ],
-      "answer": 2,
-      "explanation": "La sous-requête dépend de valeurs de la ligne externe. L’optimiseur peut parfois la transformer, mais sa logique dépend bien de cette référence."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel problème les fonctions de fenêtre (`ROW_NUMBER`, `SUM OVER`) résolvent-elles bien ?",
-      "choices": [
-        "Calculer un classement ou un cumul par groupe sans réduire toutes les lignes en une seule ligne par groupe",
-        "Créer un utilisateur du SGBD",
-        "Chiffrer les données au repos",
-        "Remplacer les clés étrangères"
+        "Quand le résultat doit être une seule valeur, avec au plus une ligne et une colonne",
+        "Quand il faut renvoyer un nombre arbitraire de lignes",
+        "Quand il faut créer une table permanente",
+        "Quand il faut effectuer une sauvegarde"
       ],
       "answer": 0,
-      "explanation": "Les fonctions de fenêtre calculent classement, cumul ou valeur précédente sur un ensemble ordonné tout en gardant les lignes individuelles dans le résultat."
+      "explanation": "Une sous-requête scalaire est utilisée dans un contexte qui attend une valeur unique. Plusieurs lignes indiquent généralement que l'opérateur ou la logique doit être revu."
     },
     {
       "type": "qcm",
-      "prompt": "Quelle pratique rend une procédure stockée plus robuste lorsqu’elle réalise plusieurs écritures liées ?",
+      "prompt": "Que se passe-t-il généralement si une sous-requête scalaire renvoie plusieurs lignes ?",
       "choices": [
-        "Ignorer toutes les exceptions",
-        "Exécuter chaque écriture sans transaction même si l’ensemble doit être atomique",
-        "Afficher les erreurs uniquement dans un commentaire",
-        "Définir la frontière transactionnelle et traiter les erreurs afin d’éviter un état partiellement appliqué"
-      ],
-      "answer": 3,
-      "explanation": "Si les écritures forment une unité logique, la transaction et la gestion des erreurs doivent garantir le commit complet ou le rollback approprié."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Comment transmettre une valeur utilisateur dans une requête SQL ?",
-      "choices": [
-        "Concaténer la valeur directement dans la chaîne SQL",
-        "Utiliser des paramètres liés avec le pilote de base de données",
-        "Remplacer les apostrophes sans autre contrôle et construire la requête",
-        "Donner au compte applicatif les droits DBA"
+        "Le moteur choisit toujours une ligne au hasard",
+        "La requête échoue car le contexte attend une valeur unique",
+        "Toutes les lignes sont automatiquement agrégées",
+        "La sous-requête devient automatiquement une CTE"
       ],
       "answer": 1,
-      "explanation": "Les paramètres liés séparent les valeurs des instructions SQL et réduisent le risque d’injection. Les noms de colonnes dynamiques nécessitent une liste blanche distincte."
+      "explanation": "Une sous-requête scalaire doit fournir au plus une valeur. Il faut choisir un opérateur ensembliste, un agrégat ou clarifier la règle d'unicité plutôt que masquer le problème."
     },
     {
       "type": "qcm",
-      "prompt": "Quel usage est approprié pour une CTE récursive ?",
+      "prompt": "Que teste l'opérateur IN lorsqu'il est associé à une sous-requête ?",
       "choices": [
-        "Calculer le hash d’un mot de passe",
-        "Désactiver les index",
-        "Parcourir une hiérarchie comme une arborescence ou un graphe de dépendances encadré",
-        "Garantir le chiffrement du réseau"
+        "Que la valeur est égale à toutes les valeurs du résultat",
+        "Que la valeur appartient à l'ensemble des valeurs renvoyées",
+        "Qu'aucune ligne ne correspond",
+        "Que la sous-requête est récursive"
       ],
-      "answer": 2,
-      "explanation": "Une CTE récursive exprime un point de départ et une étape récursive, utiles pour parcourir des structures hiérarchiques. Il faut prévoir une condition d’arrêt."
+      "answer": 1,
+      "explanation": "IN teste l'appartenance à un ensemble de valeurs. Il convient lorsque la sous-requête peut renvoyer plusieurs lignes."
     },
     {
       "type": "qcm",
-      "prompt": "Que signifie `IS NULL` en SQL ?",
+      "prompt": "Pourquoi NOT IN peut-il donner un résultat inattendu si la sous-requête contient NULL ?",
       "choices": [
-        "Tester si une valeur est absente ou inconnue selon la sémantique SQL",
-        "Comparer deux nombres à zéro",
-        "Tester l’égalité de deux chaînes vides",
-        "Vérifier automatiquement une contrainte unique"
+        "Parce que NULL devient automatiquement zéro",
+        "Parce que la comparaison peut évaluer UNKNOWN et ne pas passer le filtre WHERE",
+        "Parce que NOT IN désactive les index",
+        "Parce que la requête est toujours récursive"
+      ],
+      "answer": 1,
+      "explanation": "Les comparaisons avec NULL suivent la logique à trois valeurs de SQL. Quand la question porte sur l'absence de correspondance, NOT EXISTS est souvent plus robuste."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel opérateur répond directement à la question « existe-t-il au moins une ligne liée ? » ?",
+      "choices": [
+        "EXISTS",
+        "ALL",
+        "BETWEEN",
+        "COALESCE"
       ],
       "answer": 0,
-      "explanation": "NULL représente une valeur inconnue ou absente. On utilise IS NULL ou IS NOT NULL, car une comparaison ordinaire avec NULL ne renvoie pas TRUE."
+      "explanation": "EXISTS vérifie si la sous-requête renvoie au moins une ligne. Le contenu de la liste SELECT est sans importance pour ce test logique."
     },
     {
       "type": "qcm",
-      "prompt": "Une procédure stockée reçoit un identifiant de table à choisir dynamiquement. Quelle défense est adaptée ?",
+      "prompt": "Quel est l'avantage courant de NOT EXISTS par rapport à NOT IN pour trouver les lignes sans correspondance ?",
       "choices": [
-        "Considérer le paramètre comme une valeur liée même s’il s’agit d’un identifiant SQL",
-        "Accepter tout texte provenant du client",
-        "Désactiver les journaux d’audit",
-        "Valider l’identifiant avec une liste blanche et utiliser le mécanisme sûr du SGBD pour les identifiants"
+        "Il garantit que la requête est toujours plus rapide",
+        "Il teste l'absence d'une ligne liée sans le piège classique d'une liste de valeurs contenant NULL",
+        "Il supprime les contraintes de clé étrangère",
+        "Il transforme la sous-requête en procédure"
       ],
-      "answer": 3,
-      "explanation": "Les paramètres SQL protègent les valeurs, pas tous les éléments syntaxiques comme les noms de table. Une liste blanche et les fonctions de quoting du SGBD sont requises."
+      "answer": 1,
+      "explanation": "NOT EXISTS exprime le test d'absence d'une ligne satisfaisant une condition de liaison et évite le comportement délicat de NOT IN lorsque la liste contient NULL."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand une sous-requête est-elle corrélée ?",
+      "choices": [
+        "Lorsqu'elle référence une colonne de la requête externe",
+        "Lorsqu'elle n'utilise aucune table",
+        "Lorsqu'elle est exécutée uniquement sur une sauvegarde",
+        "Lorsqu'elle possède toujours une CTE récursive"
+      ],
+      "answer": 0,
+      "explanation": "Une sous-requête corrélée référence la ligne ou une valeur de la requête externe. L'optimiseur peut néanmoins transformer son exécution physique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle phrase décrit correctement ANY et ALL ?",
+      "choices": [
+        "ANY exige que la condition soit vraie pour toutes les valeurs et ALL pour une seule",
+        "ANY demande une correspondance pour au moins une valeur, ALL exige la condition pour toutes les valeurs",
+        "ANY et ALL sont toujours synonymes de EXISTS",
+        "ANY et ALL sont réservés aux procédures stockées"
+      ],
+      "answer": 1,
+      "explanation": "ANY exprime une condition vraie pour au moins une valeur, ALL une condition vraie pour toutes. Il faut aussi considérer les NULL et les ensembles vides."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la portée normale d'une CTE définie avec WITH ?",
+      "choices": [
+        "Toute la base de données pour toujours",
+        "Une seule instruction SQL qui peut référencer le résultat nommé",
+        "Toutes les sessions du serveur jusqu'au redémarrage",
+        "Uniquement les procédures stockées"
+      ],
+      "answer": 1,
+      "explanation": "Une CTE nomme un résultat logique pendant une instruction. Elle ne crée pas une table permanente et son résultat ne persiste pas après la requête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel avantage principal les CTE apportent-elles à une requête analytique ?",
+      "choices": [
+        "Elles rendent automatiquement toute requête plus rapide",
+        "Elles nomment les étapes du calcul et peuvent améliorer la lisibilité et la composition",
+        "Elles désactivent les contraintes",
+        "Elles remplacent les clés primaires"
+      ],
+      "answer": 1,
+      "explanation": "Les CTE rendent le raisonnement SQL visible par étapes. Leur performance dépend du plan, du moteur, des statistiques et de la requête."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas affirmer qu'une CTE est toujours plus rapide qu'une sous-requête équivalente ?",
+      "choices": [
+        "Parce que WITH n'est pas une instruction SQL",
+        "Parce que la stratégie physique, l'intégration au plan ou la matérialisation dépendent du moteur, de sa version et de la requête",
+        "Parce que les CTE ne peuvent pas être interrogées",
+        "Parce que les CTE créent toujours des tables permanentes"
+      ],
+      "answer": 1,
+      "explanation": "La CTE est surtout une abstraction logique. Les moteurs peuvent intégrer ou matérialiser certains résultats ; EXPLAIN et des mesures représentatives permettent d'évaluer les performances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quels éléments structurent une CTE récursive typique ?",
+      "choices": [
+        "Une ancre et une partie récursive qui ajoute des lignes jusqu'à atteindre une condition d'arrêt",
+        "Une commande CREATE USER et un COMMIT",
+        "Une procédure de sauvegarde et une fonction d'agrégation",
+        "Une table sans clé et une boucle infinie"
+      ],
+      "answer": 0,
+      "explanation": "La partie initiale établit le point de départ ; la partie récursive explore les lignes reliées. La récursion doit pouvoir se terminer et gérer les cycles possibles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel danger présente une CTE récursive sur une structure qui contient un cycle ?",
+      "choices": [
+        "Elle remplace automatiquement chaque cycle par NULL",
+        "Elle peut continuer à revisiter les mêmes nœuds jusqu'à une limite ou une erreur",
+        "Elle supprime les lignes du cycle",
+        "Elle convertit le graphe en table temporaire permanente"
+      ],
+      "answer": 1,
+      "explanation": "Le modèle doit prévenir ou détecter les cycles, et la requête doit prévoir une terminaison sûre. Une limite de profondeur aide à contenir le parcours mais ne prouve pas l'absence de cycle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit le mieux une procédure stockée ?",
+      "choices": [
+        "Un résultat nommé temporaire dans une seule instruction",
+        "Un objet exécutable enregistré dans la base, qui peut organiser plusieurs instructions et utiliser des paramètres",
+        "Un index destiné à accélérer les jointures",
+        "Une sauvegarde physique de toutes les tables"
+      ],
+      "answer": 1,
+      "explanation": "Une procédure encapsule une action avec des paramètres et de la logique de contrôle. Elle demande un contrat, des tests et des droits bien définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les définitions de procédures PostgreSQL et MySQL ne sont-elles pas directement interchangeables ?",
+      "choices": [
+        "Il n'existe aucune procédure en MySQL",
+        "Les langages de routine, les blocs, les erreurs et certaines règles transactionnelles sont propres au moteur",
+        "Les clés étrangères n'existent que dans PostgreSQL",
+        "MySQL n'accepte pas les paramètres"
+      ],
+      "answer": 1,
+      "explanation": "PostgreSQL utilise notamment PL/pgSQL et sa syntaxe de routine, tandis que MySQL utilise sa propre syntaxe, ses modes de paramètres et ses gestionnaires. Il faut tester la variante ciblée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le client mysql, à quoi sert la commande DELIMITER lors de la définition d'une procédure ?",
+      "choices": [
+        "À changer le séparateur utilisé par le client pour reconnaître la fin de la définition",
+        "À renommer le serveur",
+        "À valider la transaction",
+        "À activer la réplication"
+      ],
+      "answer": 0,
+      "explanation": "DELIMITER est une commande du client mysql, utile lorsqu'un corps de routine contient lui-même des points-virgules. Elle n'est pas envoyée au serveur comme une instruction SQL ordinaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique protège le mieux une procédure qui reçoit des valeurs externes ?",
+      "choices": [
+        "Concaténer les entrées arbitraires dans une instruction SQL dynamique",
+        "Utiliser des paramètres typés, des contrôles adaptés et une liste blanche si des noms d'objets doivent varier",
+        "Donner à la procédure tous les privilèges administrateur",
+        "Supprimer les contraintes pour éviter les erreurs"
+      ],
+      "answer": 1,
+      "explanation": "Les valeurs doivent rester des données, et non du code construit depuis des entrées non fiables. Les privilèges et le contexte de sécurité de la routine doivent également être contrôlés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de valider une optimisation qui remplace une sous-requête corrélée par une CTE, quelle démarche est la plus solide ?",
+      "choices": [
+        "Garder la version qui a l'air la plus courte sans exécuter de test",
+        "Comparer les résultats et les cas limites, examiner EXPLAIN et mesurer sur des données représentatives",
+        "Ajouter un index à chaque colonne",
+        "Supposer que la CTE sera matérialisée"
+      ],
+      "answer": 1,
+      "explanation": "Il faut d'abord établir l'équivalence fonctionnelle puis comparer les plans et les mesures dans un contexte représentatif. Un petit jeu de test ne prouve pas la performance en production."
     }
   ]
 }

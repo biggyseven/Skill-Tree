@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-mlops-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble permet le mieux de retracer une version de modèle en production ?",
+      "choices": [
+        "Le nom de fichier 'final-model' uniquement.",
+        "La version du modèle, le code, les données, les paramètres, l'environnement et le rapport d'évaluation.",
+        "Un screenshot du notebook sans métadonnées.",
+        "Le nombre de requêtes reçues."
+      ],
+      "answer": 1,
+      "explanation": "Le lignage relie les artefacts à leurs entrées et à leur méthode de production. Les noms de fichiers seuls ne suffisent pas à la reproduction."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire la CI si une variable obligatoire est absente du dataset ?",
+      "choices": [
+        "Remplacer silencieusement la variable par zéro.",
+        "Promouvoir le modèle si le job d'entraînement termine.",
+        "Faire échouer ou bloquer le pipeline avec une explication explicite selon le contrat de données.",
+        "Ignorer les données et déclarer une validation réussie."
+      ],
+      "answer": 2,
+      "explanation": "Le contrat de données définit les conditions requises. Une variable déterminante absente doit être signalée, pas convertie silencieusement en valeur trompeuse."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi garder une baseline et des critères de promotion fixés avant l'évaluation ?",
+      "choices": [
+        "Pour comparer le candidat de façon crédible et éviter de modifier les règles après avoir vu les résultats.",
+        "Pour forcer tous les candidats à être acceptés.",
+        "Pour éviter de mesurer les segments critiques.",
+        "Parce que la baseline est toujours le meilleur modèle."
+      ],
+      "answer": 0,
+      "explanation": "La baseline donne un repère et des portes définies à l'avance limitent les décisions opportunistes sur les résultats."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une dérive de distribution apparaît juste après une mise à jour de collecteur. Quelle est la première étape ?",
+      "choices": [
+        "Réentraîner immédiatement sur les données de production.",
+        "Ignorer le changement si l'API répond.",
+        "Supprimer les variables qui gênent.",
+        "Inspecter les unités, le schéma, la cadence, les valeurs manquantes et les transformations du pipeline."
+      ],
+      "answer": 3,
+      "explanation": "La dérive peut provenir d'une rupture de données. Il faut établir le sens des entrées avant de décider d'un réentraînement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le mode fantôme dans le déploiement d'un modèle ?",
+      "choices": [
+        "Le modèle tourne sans journalisation.",
+        "Le candidat produit des résultats sans influer sur les décisions de production, afin de comparer son comportement.",
+        "Le modèle remplace la version courante sans surveillance.",
+        "Le pipeline ne lance aucun test."
+      ],
+      "answer": 1,
+      "explanation": "Le mode fantôme permet d'évaluer le volume, les écarts et la qualité d'un candidat sans exposer immédiatement l'exploitation à ses décisions."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un rollback restaure seulement le fichier du modèle, mais le schéma des caractéristiques a changé. Quel risque existe ?",
+      "choices": [
+        "Aucun, les modèles acceptent toujours tous les schémas.",
+        "La version précédente s'adaptera forcément automatiquement.",
+        "Le modèle peut recevoir des entrées incompatibles ; il faut restaurer ou fournir un ensemble modèle-transformations compatible.",
+        "Le registre devient inutile."
+      ],
+      "answer": 2,
+      "explanation": "Le rollback doit considérer le modèle et son pipeline de caractéristiques, pas seulement un artefact isolé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction entre dérive de données et dérive de concept est correcte ?",
+      "choices": [
+        "La dérive de données concerne la distribution des entrées ; la dérive de concept concerne l'évolution de la relation entre entrées et cible.",
+        "Ce sont toujours des synonymes.",
+        "La dérive de concept signifie uniquement une panne du serveur.",
+        "La dérive de données prouve que le modèle doit être supprimé."
+      ],
+      "answer": 0,
+      "explanation": "Les deux phénomènes peuvent avoir des causes et des réponses différentes. Une modification de source doit être diagnostiquée avant toute action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle de sécurité est le plus important pour un workflow de CI qui publie des modèles ?",
+      "choices": [
+        "Partager tous les secrets de production avec chaque étape.",
+        "Accepter tout artefact si son nom est correct.",
+        "Autoriser les mises à jour de modèle depuis n'importe quel acteur.",
+        "Limiter les permissions, protéger les secrets et vérifier la provenance et l'intégrité des artefacts."
+      ],
+      "answer": 3,
+      "explanation": "Un acteur qui peut modifier le pipeline ou remplacer un modèle peut altérer le comportement de production. Les permissions et la provenance sont essentielles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle mesure de surveillance est insuffisante si elle est utilisée seule ?",
+      "choices": [
+        "La latence du service d'inférence.",
+        "Le taux de requêtes en erreur.",
+        "La CPU et la mémoire, sans suivre la qualité des entrées, la dérive et la performance du modèle.",
+        "L'identifiant de version retourné avec chaque prédiction."
+      ],
+      "answer": 2,
+      "explanation": "La santé technique ne prouve pas la qualité statistique. Il faut superviser le service et le comportement du modèle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le bon motif pour promouvoir un candidat ?",
+      "choices": [
+        "Le pipeline a terminé sans exception, quelle que soit la qualité du modèle.",
+        "Les critères préétablis, les contrôles de données et de sécurité passent, les segments sont acceptables et la restauration est prévue.",
+        "Le candidat a plus de paramètres que la version courante.",
+        "Un seul score global s'est amélioré même si les cas critiques régressent."
+      ],
+      "answer": 1,
+      "explanation": "La promotion doit respecter des critères opérationnels, statistiques et techniques définis à l'avance. La fin du job n'est pas une approbation."
+    }
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-digital-twin-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un jumeau numérique réseau ?",
+      "choices": [
+        "À remplacer définitivement tout équipement physique.",
+        "À représenter un système et ses dépendances afin d'analyser ou simuler des scénarios, en comparant le modèle aux observations réelles.",
+        "À garantir qu'une simulation prédit chaque panne.",
+        "À stocker uniquement des cours Markdown."
+      ],
+      "answer": 1,
+      "explanation": "Le jumeau permet l'expérimentation et l'évaluation de scénarios, mais sa valeur dépend de la fidélité de son modèle et de sa validation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit être actualisé pour garder un jumeau réseau pertinent ?",
+      "choices": [
+        "Uniquement le nom du projet.",
+        "Seulement la couleur des équipements.",
+        "L'inventaire, la topologie, les versions et les configurations qui influencent le comportement étudié.",
+        "Les réponses des quiz."
+      ],
+      "answer": 2,
+      "explanation": "Un modèle qui ne suit pas les changements réels peut produire des conclusions valides uniquement pour un état passé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi comparer la simulation aux mesures réelles ?",
+      "choices": [
+        "Pour mesurer l'écart du modèle, identifier les hypothèses invalides et connaître son domaine de validité.",
+        "Pour cacher les écarts entre jumeau et réseau.",
+        "Pour remplacer les tests de validation.",
+        "Pour autoriser automatiquement toutes les modifications simulées."
+      ],
+      "answer": 0,
+      "explanation": "La calibration et la validation donnent une idée de la fidélité du jumeau ; sans elles, les résultats ne doivent pas être traités comme des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une simulation indique qu'un changement ne provoque aucun impact, mais la topologie du jumeau date de trois mois. Quelle conclusion est appropriée ?",
+      "choices": [
+        "Le changement est définitivement sûr.",
+        "Il faut déployer immédiatement à grande échelle.",
+        "Le jumeau a toujours raison si le diagramme est complet.",
+        "Le résultat est insuffisant ; actualiser les données et valider le scénario avant toute décision."
+      ],
+      "answer": 3,
+      "explanation": "La qualité de la simulation dépend de la version des données et des hypothèses. Un modèle obsolète ne peut pas valider un changement actuel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel scénario est adapté à une première utilisation de jumeau numérique ?",
+      "choices": [
+        "Tester une modification contrôlée sur une topologie représentative sans affecter le réseau de production.",
+        "Faire des essais destructifs sur le réseau réel.",
+        "Laisser le jumeau modifier les équipements sans politique.",
+        "Ignorer les différences entre modèles de routeur."
+      ],
+      "answer": 0,
+      "explanation": "Un jumeau peut fournir un environnement d'expérimentation moins risqué pour comparer des options et des scénarios."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle information faut-il conserver avec le résultat d'une simulation ?",
+      "choices": [
+        "Seulement le graphique final.",
+        "La version du modèle et de la topologie, les paramètres, les hypothèses et les métriques obtenues.",
+        "Le mot de passe de tous les routeurs.",
+        "Uniquement la date de consultation du navigateur."
+      ],
+      "answer": 1,
+      "explanation": "La traçabilité permet de reproduire le résultat et de comprendre pourquoi deux simulations diffèrent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une limite fondamentale d'un jumeau numérique ?",
+      "choices": [
+        "Il ne peut pas représenter des réseaux.",
+        "Il ne sert qu'à apprendre Python.",
+        "Il peut omettre des comportements réels ou des dépendances si les données et les hypothèses sont incomplètes.",
+        "Il garantit la causalité grâce à la visualisation."
+      ],
+      "answer": 2,
+      "explanation": "La simulation reste une abstraction et peut manquer les conditions réelles, les bugs, les comportements de fournisseurs ou les défaillances non modélisées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment intégrer une simulation à un pipeline de changement réseau ?",
+      "choices": [
+        "Accepter toute sortie marquée réussite.",
+        "Utiliser un jumeau qui ne partage aucune version avec l'inventaire.",
+        "Ne pas effectuer de tests post-déploiement.",
+        "Exiger les préconditions, enregistrer le scénario, vérifier les critères de sortie et conserver un plan de retour arrière indépendant."
+      ],
+      "answer": 3,
+      "explanation": "La simulation enrichit la validation mais ne remplace ni la gouvernance du changement ni la vérification après déploiement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle différence existe entre un jumeau et un diagramme statique ?",
+      "choices": [
+        "Le jumeau représente un état et un comportement modélisés qui peuvent être comparés à la télémétrie et utilisés pour tester des scénarios.",
+        "Le jumeau est nécessairement un dessin sans données.",
+        "Le diagramme statique prévoit toutes les pannes.",
+        "Il n'existe aucune différence en contexte opérationnel."
+      ],
+      "answer": 0,
+      "explanation": "Un diagramme peut montrer une topologie ; un jumeau va plus loin en associant un modèle et, souvent, des données ou des capacités de simulation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire si la simulation et le réseau réel divergent fortement ?",
+      "choices": [
+        "Masquer l'écart pour préserver le score.",
+        "Analyser les hypothèses, données et comportements manquants, puis réduire la portée des conclusions jusqu'à validation.",
+        "Choisir automatiquement la simulation comme source de vérité.",
+        "Déclencher une correction sur tous les équipements."
+      ],
+      "answer": 1,
+      "explanation": "La divergence signale que le jumeau n'explique pas encore correctement le système étudié. Elle doit déclencher une revue et une recalibration."
+    }
+  ]
+}

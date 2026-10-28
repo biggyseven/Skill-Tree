@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-telemetry-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quel bénéfice principal apporte la streaming telemetry par rapport à un polling peu fréquent ?",
+      "choices": [
+        "Elle supprime tout besoin d'observabilité.",
+        "Elle garantit l'absence de perte de données.",
+        "Elle fournit des mises à jour plus fréquentes ou événementielles sans attendre le prochain cycle de sondage.",
+        "Elle rend inutile la synchronisation temporelle."
+      ],
+      "answer": 2,
+      "explanation": "Le flux de télémétrie peut réduire la latence de visibilité, mais il reste nécessaire de contrôler cadence, perte et qualité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle général de gNMI ?",
+      "choices": [
+        "Définir un protocole pour lire et modifier des données de gestion modélisées, avec des opérations de type Get, Set et Subscribe.",
+        "Remplacer IP et BGP.",
+        "Compresser les logs applicatifs uniquement.",
+        "Définir les règles de validation des quiz."
+      ],
+      "answer": 0,
+      "explanation": "gNMI expose des opérations de gestion sur des données modélisées et peut soutenir des souscriptions de télémétrie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel rôle joue gRPC dans beaucoup d'architectures de télémétrie ?",
+      "choices": [
+        "Il fournit nécessairement la topologie réseau complète.",
+        "Il transforme toutes les mesures en probabilités.",
+        "Il remplace les certificats TLS.",
+        "Il fournit un cadre de communication RPC, souvent avec des messages sérialisés selon un contrat défini."
+      ],
+      "answer": 3,
+      "explanation": "gRPC est un framework RPC souvent utilisé avec Protocol Buffers et HTTP/2 ; la structure dépend du service exposé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi les unités et les timestamps doivent-ils être normalisés ?",
+      "choices": [
+        "Pour simplifier les graphiques même si les valeurs deviennent ambiguës.",
+        "Pour éviter de comparer des mesures non équivalentes et reconstruire une chronologie cohérente.",
+        "Pour supprimer les événements en retard sans trace.",
+        "Pour permettre au collecteur de modifier les routeurs."
+      ],
+      "answer": 1,
+      "explanation": "Des unités incompatibles ou des horloges décalées peuvent produire de faux diagnostics et des alertes trompeuses."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur est particulièrement utile pour suivre la santé d'un flux de télémétrie ?",
+      "choices": [
+        "Le nombre de couleurs du tableau de bord.",
+        "Le nombre total de nœuds dans le catalogue pédagogique.",
+        "Le retard des échantillons, les interruptions, le taux de données manquantes et le débit observé.",
+        "La taille du prompt LLM."
+      ],
+      "answer": 2,
+      "explanation": "La fraîcheur et la complétude du flux déterminent si les données peuvent être utilisées pour la supervision et l'automatisation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une souscription se reconnecte après une coupure. Quelle précaution faut-il prendre ?",
+      "choices": [
+        "Détecter le trou temporel, réconcilier l'état si nécessaire et ne pas supposer que tous les événements intermédiaires ont été reçus.",
+        "Considérer les valeurs absentes comme zéro.",
+        "Déclarer que le réseau est resté normal.",
+        "Réexécuter des changements de configuration pour compenser la coupure."
+      ],
+      "answer": 0,
+      "explanation": "Une reconnexion ne prouve pas que le flux n'a perdu aucune donnée. Il faut mesurer le trou et récupérer un état de référence si le protocole le permet."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi préférer des données modélisées et un schéma versionné ?",
+      "choices": [
+        "Pour permettre des champs arbitraires sans validation.",
+        "Pour rendre impossible toute évolution de l'équipement.",
+        "Pour éviter les contrôles de types.",
+        "Pour rendre les chemins, les types et les unités plus explicites et détecter les changements de contrat."
+      ],
+      "answer": 3,
+      "explanation": "Le schéma facilite validation et compatibilité, à condition de versionner et tester les changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement doit adopter le pipeline si la fraîcheur dépasse le seuil autorisé ?",
+      "choices": [
+        "Remplacer les mesures par la dernière valeur sans la marquer.",
+        "Signaler la donnée comme périmée et bloquer les décisions qui dépendent de cette fraîcheur.",
+        "Déclarer l'absence de mesure comme absence d'incident.",
+        "Augmenter automatiquement l'autonomie de remédiation."
+      ],
+      "answer": 1,
+      "explanation": "Les données périmées doivent rester explicitement périmées ; elles ne peuvent pas servir silencieusement à autoriser une action."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est utile lors de l'exploitation d'une API gNMI ?",
+      "choices": [
+        "Autoriser tous les clients anonymes.",
+        "Stocker les mots de passe dans les logs.",
+        "Limiter les identités et les chemins accessibles, protéger le transport et auditer les accès.",
+        "Désactiver la gestion des certificats."
+      ],
+      "answer": 2,
+      "explanation": "Les permissions, le transport sécurisé et l'audit restent essentiels pour des interfaces de gestion réseau."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment tester une chaîne de streaming telemetry avant production ?",
+      "choices": [
+        "Rejouer un flux représentatif et simuler retard, coupure, doublons, valeurs absentes et changements de schéma.",
+        "Tester uniquement un message sans interruption.",
+        "Connecter immédiatement le collecteur à tous les équipements critiques.",
+        "Se contenter de vérifier que le processus démarre."
+      ],
+      "answer": 0,
+      "explanation": "Les scénarios de défaillance révèlent des problèmes de fraîcheur, de résilience et de compatibilité qui ne sont pas visibles au démarrage."
+    }
+  ]
+}

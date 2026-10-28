@@ -4,99 +4,219 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Quel est le rôle principal d’un DBA dans un système de production ?",
+      "prompt": "Quel objectif décrit le mieux le rôle opérationnel du DBA ?",
       "choices": [
-        "Écrire seul toutes les fonctionnalités métier",
-        "Garantir disponibilité, sécurité, performance et restaurabilité des bases",
-        "Remplacer les tests applicatifs par des sauvegardes",
-        "Donner les droits administrateur à tous les développeurs"
+        "Écrire seul toutes les fonctionnalités de l'application",
+        "Contribuer à la disponibilité, à la cohérence, à la sécurité, à la performance et à la restaurabilité des données",
+        "Remplacer les tests fonctionnels par des sauvegardes",
+        "Accorder des privilèges administrateur à tous les développeurs"
       ],
       "answer": 1,
-      "explanation": "Le DBA exploite et fiabilise le SGBD : capacité, sécurité, sauvegarde, restauration, disponibilité et diagnostic. Il collabore avec les développeurs sans se substituer à eux."
+      "explanation": "Le DBA fiabilise le service de données sur tout son cycle de vie et collabore avec les équipes de développement, de plateforme, de sécurité et métier."
     },
     {
       "type": "qcm",
-      "prompt": "À quoi sert un pool de connexions entre l’application et le SGBD ?",
+      "prompt": "Dans un service de base de données managé, quelle affirmation est la plus juste ?",
       "choices": [
-        "À supprimer le besoin de gérer les transactions",
-        "À conserver toutes les requêtes en mémoire indéfiniment",
-        "À réutiliser un nombre borné de connexions et limiter leur coût d’ouverture",
-        "À répliquer automatiquement les données sur un autre site"
-      ],
-      "answer": 2,
-      "explanation": "Le pool réutilise des connexions et impose une limite de concurrence. Il doit être dimensionné selon les capacités du SGBD et libérer les connexions après usage."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel indicateur aide le plus à détecter une saturation des connexions ?",
-      "choices": [
-        "Le nombre de connexions actives et en attente comparé aux limites du serveur",
-        "La taille du logo de l’application",
-        "Le nombre de commentaires dans le code source",
-        "La date de création de la base, prise isolément"
-      ],
-      "answer": 0,
-      "explanation": "Les connexions utilisées, disponibles, en attente et les limites configurées montrent si le pool ou le SGBD est saturé. Il faut les corréler aux temps de réponse et aux erreurs."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Dans une architecture primaire-réplique, quel énoncé est correct ?",
-      "choices": [
-        "La réplique remplace nécessairement une sauvegarde hors ligne",
-        "La réplication garantit toujours zéro perte de données",
-        "Toutes les écritures doivent être envoyées à n’importe quelle réplique",
-        "La réplication améliore certains usages de disponibilité ou de lecture, mais ne remplace pas les sauvegardes"
-      ],
-      "answer": 3,
-      "explanation": "Une suppression ou une corruption peut se propager aux répliques. La sauvegarde indépendante et les essais de restauration restent indispensables."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est l’objectif d’une politique de moindre privilège pour les comptes techniques ?",
-      "choices": [
-        "Autoriser chaque compte à modifier le schéma et les données",
-        "N’accorder que les opérations nécessaires à la fonction du compte",
-        "Partager un compte DBA entre toutes les applications",
-        "Désactiver les journaux pour éviter les traces"
+        "Le client n'a plus aucune responsabilité sur les données",
+        "Le fournisseur prend généralement certaines responsabilités techniques, tandis que le client conserve notamment les responsabilités métier, les accès et la validation de restauration selon le service",
+        "Toutes les sauvegardes peuvent être restaurées immédiatement sans test",
+        "Les performances ne dépendent plus des requêtes"
       ],
       "answer": 1,
-      "explanation": "Séparer les identités et limiter leurs permissions réduit l’impact d’une erreur ou d’un compte compromis. Les accès privilégiés doivent être justifiés et audités."
+      "explanation": "Le service managé déplace certaines responsabilités, mais il ne supprime pas la gestion du modèle, des droits, des requêtes ni la validation des besoins de reprise."
     },
     {
       "type": "qcm",
-      "prompt": "Un pic de latence apparaît chaque jour à 10 h. Quelle démarche de diagnostic est la plus utile ?",
+      "prompt": "Quel parcours décrit le mieux le traitement conceptuel d'une requête SQL par le SGBD ?",
       "choices": [
-        "Redémarrer systématiquement le serveur sans relever de métriques",
-        "Ajouter de la mémoire sans mesurer la charge",
-        "Corréler latence, requêtes lentes, verrous, connexions et tâches planifiées à cette heure",
-        "Désactiver les contraintes d’intégrité"
+        "Le client écrit directement sur les fichiers de tables sans contrôle",
+        "Connexion et authentification, analyse SQL, choix du plan, exécution et interaction avec les données et journaux",
+        "Sauvegarde, restauration, puis suppression de la requête",
+        "Création d'un index obligatoire avant toute instruction"
       ],
-      "answer": 2,
-      "explanation": "La corrélation temporelle entre métriques, plans d’exécution, verrous et traitements batch aide à identifier la cause avant de choisir une correction."
+      "answer": 1,
+      "explanation": "Le moteur contrôle la session et la requête, détermine comment l'exécuter puis utilise ses composants transactionnels et de stockage. Les détails varient selon le moteur."
     },
     {
       "type": "qcm",
-      "prompt": "Quel est l’intérêt d’une procédure de changement pour une migration de schéma ?",
+      "prompt": "Pourquoi une application peut-elle bénéficier d'un pool de connexions ?",
       "choices": [
-        "Documenter le risque, les étapes, la validation et le retour arrière",
-        "Garantir qu’aucun test n’est nécessaire",
-        "Remplacer les sauvegardes par un message de validation",
-        "Autoriser l’application à ignorer les erreurs"
+        "Il réutilise un ensemble de connexions et limite les ouvertures concurrentes",
+        "Il remplace les clés étrangères",
+        "Il garantit que toutes les requêtes seront instantanées",
+        "Il désactive l'authentification"
       ],
       "answer": 0,
-      "explanation": "Une migration contrôlée explicite les dépendances, les mesures de vérification, le responsable, la fenêtre d’exécution et les possibilités de restauration ou de retour arrière."
+      "explanation": "Le pool réutilise les connexions, mais doit être dimensionné. Trop de connexions peuvent accroître la contention ; trop peu peuvent créer une file d'attente côté application."
     },
     {
       "type": "qcm",
-      "prompt": "Quel dispositif vérifie réellement la capacité de reprise après incident ?",
+      "prompt": "Une requête devient lente après une croissance importante des données. Quel est le meilleur premier réflexe ?",
       "choices": [
-        "Un fichier de sauvegarde dont le nom contient la date",
-        "Une promesse du fournisseur sans test interne",
-        "Le fait que la réplication affiche un état vert",
-        "Un exercice de restauration documenté avec mesure du temps et contrôle de cohérence"
+        "Créer immédiatement un index sur chaque colonne",
+        "Analyser une requête représentative, son plan, les statistiques, les attentes et les ressources avant de formuler une hypothèse",
+        "Augmenter toutes les limites de mémoire au maximum",
+        "Redémarrer le serveur à chaque ralentissement"
       ],
-      "answer": 3,
-      "explanation": "Seule une restauration contrôlée démontre que les sauvegardes sont lisibles et que le service peut revenir dans les objectifs de reprise."
+      "answer": 1,
+      "explanation": "Une démarche mesurée permet de distinguer plan inadapté, statistiques, contention, latence de stockage ou saturation. Les changements aveugles peuvent aggraver le service."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la présence d'un index ne garantit-elle pas que le planificateur l'utilisera ?",
+      "choices": [
+        "Parce que les index ne peuvent servir qu'aux sauvegardes",
+        "Parce qu'un autre plan peut être moins coûteux selon la sélectivité, les statistiques et le volume à lire",
+        "Parce que l'optimiseur ignore toujours les statistiques",
+        "Parce qu'un index désactive les jointures"
+      ],
+      "answer": 1,
+      "explanation": "Si une requête lit une grande partie de la table, un parcours plus large peut être plus économique. Le plan dépend des données, des statistiques et des coûts estimés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle du journal de récupération tel que le WAL de PostgreSQL ou le redo log d'InnoDB ?",
+      "choices": [
+        "Remplacer systématiquement toutes les sauvegardes",
+        "Participer à la durabilité et à la récupération des modifications selon le moteur et sa configuration",
+        "Conserver uniquement des noms d'utilisateurs",
+        "Accélérer toutes les requêtes en supprimant les contraintes"
+      ],
+      "answer": 1,
+      "explanation": "Les journaux contribuent à la récupération après incident et peuvent participer à une restauration ponctuelle lorsqu'ils sont combinés aux sauvegardes et à la chaîne nécessaire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation distingue correctement sauvegarde et réplication ?",
+      "choices": [
+        "La réplication est toujours une sauvegarde indépendante",
+        "Une réplication peut propager une suppression ou une corruption logique ; une stratégie de sauvegarde permet de disposer d'un état antérieur selon sa rétention",
+        "Une sauvegarde n'a jamais besoin d'être testée",
+        "La réplication garantit toujours un RPO nul"
+      ],
+      "answer": 1,
+      "explanation": "La réplication sert notamment à la disponibilité et à la propagation des changements. Elle ne protège pas automatiquement contre toutes les erreurs logiques, qui peuvent aussi être répliquées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie le RPO ?",
+      "choices": [
+        "Le temps maximal acceptable pour rétablir le service",
+        "La perte de données maximale acceptable exprimée en temps",
+        "Le nombre maximal de connexions",
+        "La durée d'une requête SQL"
+      ],
+      "answer": 1,
+      "explanation": "Le Recovery Point Objective décrit la fenêtre de perte de données acceptable. Le RTO correspond plutôt à la durée cible de rétablissement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que mesure le RTO ?",
+      "choices": [
+        "La durée cible pour rétablir le service selon la définition convenue",
+        "La quantité totale de données stockées",
+        "Le retard de statistiques de l'optimiseur uniquement",
+        "Le nombre de sauvegardes conservées"
+      ],
+      "answer": 0,
+      "explanation": "Le Recovery Time Objective est l'objectif de temps de reprise. Il doit être défini avec le besoin métier puis vérifié par des exercices réalistes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi effectuer des tests de restauration alors qu'un job de sauvegarde affiche un succès ?",
+      "choices": [
+        "Le succès du job prouve déjà que toutes les restaurations fonctionneront",
+        "Le fichier, les clés, les droits, la version ou les journaux requis peuvent manquer ; seul un test contrôlé valide la chaîne de reprise",
+        "Les tests de restauration ne concernent que les développeurs",
+        "Une restauration ne peut jamais échouer si le fichier existe"
+      ],
+      "answer": 1,
+      "explanation": "Une sauvegarde est utile seulement si elle permet de retrouver les données et le service souhaités dans les délais prévus. Le test vérifie les dépendances et les procédures."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe devrait guider les privilèges du compte d'une application ?",
+      "choices": [
+        "Lui donner des droits d'administration pour éviter les erreurs d'accès",
+        "Appliquer le moindre privilège et séparer les comptes applicatifs, de migration et d'administration",
+        "Partage de compte administrateur entre tous les utilisateurs",
+        "Désactiver les journaux d'audit"
+      ],
+      "answer": 1,
+      "explanation": "Des comptes distincts et des droits limités réduisent l'impact d'une erreur ou d'une compromission et facilitent la traçabilité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal est le plus utile pour diagnostiquer une dégradation du service ?",
+      "choices": [
+        "Un graphique isolé sans contexte",
+        "Des métriques contextualisées : latence, erreurs, connexions, attentes, ressources, capacité et état de sauvegarde",
+        "La taille du logo de l'application",
+        "Le seul nombre de tables dans le schéma"
+      ],
+      "answer": 1,
+      "explanation": "Les indicateurs doivent aider à localiser la cause et conduire à une action. Un seul chiffre, sans contexte ni seuil exploitable, est rarement suffisant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la moyenne des temps de réponse peut-elle être trompeuse ?",
+      "choices": [
+        "Elle ignore forcément toutes les requêtes réussies",
+        "Elle peut masquer une minorité de requêtes très lentes ; les percentiles et une fenêtre d'observation appropriée complètent l'analyse",
+        "Elle est uniquement calculée par le DBA",
+        "Elle indique directement le nombre de verrous"
+      ],
+      "answer": 1,
+      "explanation": "Des percentiles comme P95 ou P99 aident à décrire la queue de distribution et l'expérience des requêtes lentes, avec un volume d'observations suffisant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une hausse du CPU est signalée, mais la latence reste stable et le traitement est planifié. Quelle réaction est la plus raisonnable ?",
+      "choices": [
+        "Arrêter immédiatement la base",
+        "Examiner la durée, la charge attendue et les indicateurs associés avant d'intervenir",
+        "Augmenter tous les paramètres au maximum",
+        "Désactiver la supervision"
+      ],
+      "answer": 1,
+      "explanation": "Une alerte doit être interprétée dans son contexte. Il faut déterminer si le signal est un pic attendu, une évolution de charge ou le début d'une dégradation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une transaction longue peut-elle devenir un problème opérationnel ?",
+      "choices": [
+        "Elle peut retenir des verrous ou des ressources et faire attendre d'autres sessions",
+        "Elle supprime automatiquement les index",
+        "Elle garantit une réplication synchrone",
+        "Elle n'a aucun effet sur les autres connexions"
+      ],
+      "answer": 0,
+      "explanation": "Des transactions longues peuvent prolonger les attentes et compliquer la concurrence. Il faut identifier leur cause avant de décider de les annuler."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit figurer dans un plan de migration de base ?",
+      "choices": [
+        "Uniquement la commande SQL finale",
+        "Préconditions, données affectées, compatibilité applicative, critères de validation, risques et stratégie de retour",
+        "Le mot de passe administrateur en clair",
+        "Une promesse que la migration ne peut pas échouer"
+      ],
+      "answer": 1,
+      "explanation": "Une migration fiable est évaluée, testée et assortie de contrôles et d'une stratégie de retour réaliste qui tient compte du moteur et des changements déjà commis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après une bascule vers un nœud secondaire, quand peut-on considérer la reprise comme terminée ?",
+      "choices": [
+        "Dès que le port SQL répond",
+        "Quand les vérifications techniques et les parcours métier essentiels confirment que le service est fonctionnel et cohérent",
+        "Dès que l'ancien primaire est éteint",
+        "Dès que le nom DNS a été modifié, sans autre contrôle"
+      ],
+      "answer": 1,
+      "explanation": "La disponibilité de connexion est nécessaire mais ne suffit pas. Il faut valider les lectures, écritures, droits, données, tâches différées et supervision."
     }
   ]
 }

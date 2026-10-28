@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-ethique-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Un modèle performe moins bien sur les petits sites car leurs métriques sont souvent absentes. Quel problème faut-il examiner en premier ?",
+      "choices": [
+        "Uniquement la couleur du tableau de bord.",
+        "Le nombre de paramètres du modèle, sans examiner les données.",
+        "La qualité de mesure et la représentation des sites, ainsi que l'effet de la politique de priorité.",
+        "La suppression des petits sites de toute analyse."
+      ],
+      "answer": 2,
+      "explanation": "Les écarts peuvent provenir de données manquantes ou d'un biais de représentation. Il faut auditer le pipeline et les conséquences par groupe."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi retirer uniquement les noms des clients n'assure-t-il pas l'anonymisation ?",
+      "choices": [
+        "Les adresses, noms de sites et détails combinés peuvent encore permettre la réidentification.",
+        "Les données anonymisées ne peuvent jamais être utilisées.",
+        "Tous les identifiants techniques sont sans risque.",
+        "La pseudonymisation garantit l'anonymat par définition."
+      ],
+      "answer": 0,
+      "explanation": "Les données indirectes et les combinaisons d'attributs peuvent permettre de réidentifier une personne ou une organisation. La minimisation et l'évaluation restent nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une explication indique que la température contribue fortement au score. Quelle conclusion est justifiée ?",
+      "choices": [
+        "La température est prouvée comme cause racine.",
+        "Il faut immédiatement modifier les seuils matériels.",
+        "Le modèle est nécessairement équitable.",
+        "La variable a contribué à la prédiction, mais cela ne prouve ni la causalité ni l'efficacité d'une action sur cette variable."
+      ],
+      "answer": 3,
+      "explanation": "L'explicabilité décrit le rôle d'une variable dans le résultat du modèle ; elle ne démontre pas un lien causal."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie une supervision humaine réellement efficace ?",
+      "choices": [
+        "Un bouton d'approbation est visible même si l'opérateur ne voit aucune preuve.",
+        "L'opérateur possède le temps, les preuves, les droits et la capacité réelle de contester ou d'interrompre.",
+        "L'opérateur doit accepter toutes les recommandations.",
+        "La responsabilité est transférée entièrement au modèle."
+      ],
+      "answer": 1,
+      "explanation": "La supervision doit être concrète. Une validation symbolique sous pression, sans information ni capacité d'interruption, n'est pas un contrôle suffisant."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un système de triage est ensuite utilisé pour évaluer la productivité individuelle sans nouvelle étude. Quelle réponse convient ?",
+      "choices": [
+        "L'utilisation est acceptable puisque le modèle n'a pas changé.",
+        "Il faut cacher le changement de finalité aux utilisateurs.",
+        "C'est un nouvel usage avec des impacts distincts, qui exige une nouvelle évaluation et une autorisation adaptée.",
+        "Il suffit de renommer les scores."
+      ],
+      "answer": 2,
+      "explanation": "Un changement de finalité modifie les personnes touchées et les risques. Les performances et les données d'un cas d'usage ne valident pas automatiquement un autre."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter un biais de label ?",
+      "choices": [
+        "Examiner la définition, les sources et les règles qui produisent les étiquettes ; conserver les cas incertains au lieu de les forcer.",
+        "Ajouter des paramètres au modèle sans inspecter les labels.",
+        "Considérer le ticket fermé comme toujours équivalent à une panne réparée.",
+        "Supprimer les résultats qui contredisent le modèle."
+      ],
+      "answer": 0,
+      "explanation": "Un label peut refléter une procédure historique plutôt que la vérité recherchée. La qualité de la cible doit être auditée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique est la plus appropriée pour mesurer l'équité ?",
+      "choices": [
+        "Ne calculer qu'une métrique globale.",
+        "Comparer seulement les nombres absolus d'alertes sans tenir compte des volumes.",
+        "Déclarer l'équité si tous les scores ont la même moyenne.",
+        "Examiner les résultats par groupes pertinents, avec effectifs, incertitude et conséquences métier."
+      ],
+      "answer": 3,
+      "explanation": "Les moyennes cachent des disparités. L'analyse doit être segmentée et rapporter l'incertitude ainsi que les effets opérationnels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ticket contient une instruction malveillante destinée à convaincre un LLM d'afficher des secrets. Comment la traiter ?",
+      "choices": [
+        "Comme une directive supérieure aux règles applicatives.",
+        "Comme un contenu non fiable ; protéger les secrets, contraindre les outils et valider les sorties.",
+        "En donnant au LLM les identifiants pour vérifier la demande.",
+        "En permettant au modèle de modifier sa politique de sécurité."
+      ],
+      "answer": 1,
+      "explanation": "Les données récupérées ne doivent pas modifier les instructions de sécurité ou les permissions. Le système doit séparer contenu non fiable et contrôle d'exécution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit fournir un mécanisme de recours ?",
+      "choices": [
+        "Une adresse de formulaire sans responsable ni suivi.",
+        "Une possibilité de modifier librement toutes les prédictions.",
+        "Un processus accessible avec responsable, revue, délai et conservation des motifs et résultats.",
+        "Une interdiction de contester les décisions algorithmiques."
+      ],
+      "answer": 2,
+      "explanation": "Le recours doit permettre une revue concrète et une correction, et les retours répétés peuvent révéler un problème systématique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand est-il justifié de restreindre ou de retirer un système d'IA ?",
+      "choices": [
+        "Lorsque les risques ne peuvent pas être réduits suffisamment, que les données ne sont plus fiables ou que l'usage sort de la finalité autorisée.",
+        "Jamais si le modèle a déjà été mis en production.",
+        "Uniquement lorsque l'API est hors ligne.",
+        "Seulement si tous les utilisateurs le demandent en même temps."
+      ],
+      "answer": 0,
+      "explanation": "La restriction ou le retrait fait partie de la gouvernance du cycle de vie lorsque le risque résiduel n'est plus acceptable."
+    }
+  ]
+}

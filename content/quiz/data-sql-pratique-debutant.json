@@ -4,63 +4,207 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Dans le cadre de « Travaux pratiques (MySQL/PostgreSQL) », quelle démarche fournit la meilleure preuve de maîtrise ?",
+      "prompt": "Avant de modifier des données dans un laboratoire SQL, quelle vérification est la plus importante ?",
       "choices": [
-        "Exécuter le seul cas normal et conclure si aucune erreur n'apparaît",
-        "Définir préconditions et postconditions, tester cas normal et limite puis vérifier l'état réellement obtenu",
-        "Augmenter les privilèges jusqu'à ce que tout passe",
-        "Conserver une capture sans noter version ni données"
-      ],
-      "answer": 1,
-      "explanation": "La preuve doit relier une règle à un résultat observé et reproductible. Elle précise préconditions, cas limites et postcondition ; une capture ou une absence d'erreur ne démontre pas à elle seule l'intégrité."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Une opération liée à « Travaux pratiques (MySQL/PostgreSQL) » fonctionne sur un petit échantillon mais échoue ailleurs. Quelle première démarche est la plus rigoureuse ?",
-      "choices": [
-        "Réécrire tout le composant sans recueillir d'indices",
-        "Désactiver les contraintes pour laisser passer les lignes",
-        "Réduire le cas, comparer données, versions et hypothèses puis isoler une cause",
-        "Tout réexécuter jusqu'au résultat souhaité"
-      ],
-      "answer": 2,
-      "explanation": "La reproduction et la réduction du cas distinguent problèmes de données, règles, configuration, droits et concurrence. La répétition aveugle peut aggraver l'état ; désactiver les contrôles masque le défaut."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quel est le risque d'une règle importante présente uniquement dans l'interface ?",
-      "choices": [
-        "Un autre chemin d'écriture peut la contourner et persister des données incohérentes",
-        "Les index sont automatiquement désactivés",
-        "La sauvegarde devient impossible",
-        "La clé primaire perd nécessairement son unicité"
+        "Confirmer le serveur, la base, le compte et l'environnement ciblés",
+        "Lancer directement un DELETE pour vérifier les droits",
+        "Se connecter avec le compte administrateur dans tous les cas",
+        "Désactiver les clés étrangères"
       ],
       "answer": 0,
-      "explanation": "Une base peut recevoir des écritures d'une API, d'un import ou d'une tâche planifiée. Les invariants essentiels doivent être garantis par des contraintes ou mécanismes centraux adaptés, avec validation applicative complémentaire."
+      "explanation": "Une connexion réussie ne garantit pas que la bonne base est ciblée. Vérifier le contexte évite d'appliquer une commande au mauvais environnement."
     },
     {
       "type": "qcm",
-      "prompt": "Le test principal passe, mais le nombre d'éléments touchés est le double de celui prévu. Quelle conclusion est correcte ?",
+      "prompt": "Quel outil en ligne de commande est couramment utilisé pour PostgreSQL ?",
       "choices": [
-        "La modification réussit puisque le code de retour est positif",
-        "Il suffit d'effacer des éléments sans rechercher la cause",
-        "Le volume n'a pas d'importance si l'affichage semble correct",
-        "La postcondition échoue : il faut expliquer le périmètre et la multiplication avant de poursuivre"
-      ],
-      "answer": 3,
-      "explanation": "Le volume touché fait partie du contrat et peut révéler filtre, jointure ou reprise incorrecte. La correction doit viser la cause et se vérifier par un test de non-régression, pas par un nettoyage manuel inexpliqué."
-    },
-    {
-      "type": "qcm",
-      "prompt": "Quelle combinaison améliore le plus la maintenabilité d'une opération récurrente ?",
-      "choices": [
-        "Dépendre de la mémoire de l'opérateur",
-        "Versionner la procédure, documenter prérequis, vérifier le résultat, journaliser sans secrets et tester la reprise",
-        "Supprimer les journaux",
-        "Laisser les paramètres implicites"
+        "mysql",
+        "psql",
+        "mongosh",
+        "redis-cli"
       ],
       "answer": 1,
-      "explanation": "Une procédure maintenable est reproductible, observable et récupérable. Versionnement, préconditions, journaux sans secrets et tests de reprise réduisent la dépendance aux connaissances individuelles."
+      "explanation": "psql est le client interactif habituel de PostgreSQL. MySQL possède son propre client en ligne de commande."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un script SQL de laboratoire doit-il être versionné dans un fichier plutôt que rester seulement dans l'historique du terminal ?",
+      "choices": [
+        "Pour garantir une exécution sans aucune erreur",
+        "Pour rendre les opérations reproductibles, révisables et documentées",
+        "Pour rendre inutile toute sauvegarde",
+        "Pour autoriser l'exécution en production sans test"
+      ],
+      "answer": 1,
+      "explanation": "Des scripts versionnés facilitent la reproduction, la revue par les pairs et la traçabilité des hypothèses et changements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le schéma de l'atelier, pourquoi créer FORMATEURS avant COURS ?",
+      "choices": [
+        "Parce qu'une clé étrangère de COURS référence FORMATEURS",
+        "Parce que SQL impose toujours l'ordre alphabétique",
+        "Parce que COURS ne peut pas avoir de clé primaire",
+        "Parce que les formateurs doivent être des utilisateurs administrateurs"
+      ],
+      "answer": 0,
+      "explanation": "La table référencée doit exister lorsque la contrainte de clé étrangère est définie, et les formateurs doivent être présents avant d'insérer les cours qui les référencent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que garantit une clé étrangère d'INSCRIPTIONS vers COURS ?",
+      "choices": [
+        "Que le cours est toujours ouvert aux inscriptions",
+        "Que toute référence non nulle vise un cours existant selon la contrainte",
+        "Que chaque apprenant a un score supérieur à zéro",
+        "Que la requête ne peut jamais échouer"
+      ],
+      "answer": 1,
+      "explanation": "La clé étrangère protège l'intégrité référentielle. Les règles plus riches, comme la période d'inscription, doivent être contrôlées séparément."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la différence entre COUNT(*) et COUNT(score) sur un groupe d'inscriptions dont un score est NULL ?",
+      "choices": [
+        "COUNT(*) compte les lignes, COUNT(score) compte les scores non NULL",
+        "Les deux comptent uniquement les scores non NULL",
+        "COUNT(score) compte uniquement les lignes NULL",
+        "COUNT(*) additionne les scores"
+      ],
+      "answer": 0,
+      "explanation": "COUNT(*) compte toutes les lignes du groupe. COUNT(expression) compte les valeurs non NULL de l'expression."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle condition permet de retrouver les inscriptions sans score ?",
+      "choices": [
+        "score = NULL",
+        "score == NULL",
+        "score IS NULL",
+        "score = 0"
+      ],
+      "answer": 2,
+      "explanation": "Les valeurs NULL doivent être testées avec IS NULL ou IS NOT NULL. Zéro est une valeur, différente de l'absence de score."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque principal d'exécuter UPDATE apprenants SET nom_apprenant = 'X' sans WHERE ?",
+      "choices": [
+        "La commande ne peut modifier aucune ligne",
+        "Toutes les lignes de la table peuvent être modifiées",
+        "La base supprime automatiquement la table",
+        "La clé primaire devient une clé étrangère"
+      ],
+      "answer": 1,
+      "explanation": "Sans condition WHERE, UPDATE s'applique à toutes les lignes. Prévisualisez les lignes ciblées et contrôlez le périmètre avant d'exécuter."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi un DELETE d'un apprenant peut-il être rejeté par une clé étrangère ?",
+      "choices": [
+        "Parce que DELETE est interdit en SQL relationnel",
+        "Parce que des inscriptions peuvent encore référencer cet apprenant",
+        "Parce que les tables ne peuvent pas contenir de dates",
+        "Parce que la clé étrangère bloque toutes les lectures"
+      ],
+      "answer": 1,
+      "explanation": "La contrainte peut empêcher la suppression du parent si des lignes enfants le référencent, afin d'éviter des inscriptions orphelines."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que permet LEFT JOIN par rapport à INNER JOIN ?",
+      "choices": [
+        "Conserver les lignes de gauche même sans correspondance à droite",
+        "Supprimer automatiquement les lignes en double",
+        "Désactiver les contraintes de clé étrangère",
+        "Toujours accélérer la requête"
+      ],
+      "answer": 0,
+      "explanation": "LEFT JOIN conserve chaque ligne de gauche et met à NULL les colonnes de droite lorsqu'il n'existe aucune correspondance."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans une requête d'agrégation, quel rôle remplit HAVING ?",
+      "choices": [
+        "Filtrer les groupes après l'agrégation",
+        "Remplacer toutes les jointures",
+        "Créer une clé étrangère",
+        "Filtrer uniquement les colonnes avant leur lecture"
+      ],
+      "answer": 0,
+      "explanation": "WHERE filtre les lignes avant le regroupement, tandis que HAVING permet de filtrer les groupes à partir des agrégats."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal d'une transaction dans un scénario où plusieurs opérations doivent réussir ensemble ?",
+      "choices": [
+        "Accélérer toutes les requêtes quelles que soient les données",
+        "Traiter un ensemble d'opérations comme une unité logique et cohérente",
+        "Remplacer les sauvegardes",
+        "Permettre d'ignorer toute contrainte"
+      ],
+      "answer": 1,
+      "explanation": "La transaction regroupe des opérations liées. Selon l'état et le moteur, COMMIT valide l'unité logique et ROLLBACK annule les changements non validés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Après un ROLLBACK, comment prouver que la valeur a retrouvé son état attendu ?",
+      "choices": [
+        "Se fier seulement au texte affiché par le client",
+        "Relire la ligne ciblée et comparer la valeur à la postcondition attendue",
+        "Supprimer toute la table",
+        "Fermer le terminal sans vérifier"
+      ],
+      "answer": 1,
+      "explanation": "Une postcondition observée est une preuve plus solide qu'un simple message. Relisez la ligne et vérifiez l'état réel du laboratoire."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique réduit le risque d'injection SQL dans une application ?",
+      "choices": [
+        "Concaténer directement chaque entrée utilisateur dans la requête",
+        "Utiliser les paramètres fournis par le pilote et transmettre les valeurs séparément",
+        "Donner des privilèges d'administration à chaque utilisateur",
+        "Désactiver le journal des erreurs"
+      ],
+      "answer": 1,
+      "explanation": "Les paramètres séparent le code SQL des valeurs de données. Cette pratique doit être combinée à des privilèges limités et à une validation appropriée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation à propos de PostgreSQL et MySQL est correcte ?",
+      "choices": [
+        "Leurs outils, mécanismes d'identifiants et certains comportements DDL peuvent différer",
+        "Ils ont une syntaxe et un comportement identiques pour toutes les instructions",
+        "AUTO_INCREMENT est la syntaxe commune garantie par les deux moteurs",
+        "Les clés étrangères n'existent que dans PostgreSQL"
+      ],
+      "answer": 0,
+      "explanation": "Les deux moteurs partagent beaucoup de SQL, mais les clients, les identifiants automatiques et plusieurs détails transactionnels ou DDL diffèrent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert EXPLAIN dans un diagnostic de performance ?",
+      "choices": [
+        "À examiner le plan de requête du moteur",
+        "À sauvegarder automatiquement toute la base",
+        "À ajouter une clé primaire à chaque table",
+        "À corriger les données manquantes"
+      ],
+      "answer": 0,
+      "explanation": "EXPLAIN expose des informations sur le plan de requête. Les variantes qui exécutent réellement la requête doivent être utilisées en comprenant leurs effets."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un script d'insertion échoue lorsqu'il est rejoué, parce qu'un email existe déjà. Que faut-il faire en premier ?",
+      "choices": [
+        "Désactiver UNIQUE définitivement",
+        "Inspecter l'état actuel et déterminer quelles instructions ont déjà réussi avant de relancer",
+        "Supprimer toutes les contraintes",
+        "Recommencer la commande plusieurs fois sans lire le résultat"
+      ],
+      "answer": 1,
+      "explanation": "Un script peut être partiellement appliqué ou des données peuvent déjà exister. Inspectez l'état et la transaction avant de rejouer ou de réinitialiser le laboratoire."
     }
   ]
 }

@@ -1,0 +1,126 @@
+{
+  "node_id": "aiops-correlation-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Trois applications échouent presque simultanément. Quelle est la meilleure première piste de corrélation ?",
+      "choices": [
+        "Rechercher les dépendances communes et tester les hypothèses avant de conclure à une cause unique.",
+        "Redémarrer simultanément tous les serveurs.",
+        "Déclarer automatiquement le routeur le plus central responsable.",
+        "Fusionner toutes les alertes sans conserver leur source."
+      ],
+      "answer": 0,
+      "explanation": "Les dépendances partagées sont des candidates utiles, mais leur présence ne prouve pas qu'elles sont défaillantes. Il faut corréler puis vérifier par des tests."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un changement est survenu cinq minutes avant une panne. Que démontre cette proximité ?",
+      "choices": [
+        "La causalité est certaine.",
+        "Le changement a nécessairement cassé le réseau.",
+        "La panne est sans rapport avec tout changement.",
+        "C'est un indice temporel qui doit être vérifié avec le périmètre, le mécanisme et des hypothèses alternatives."
+      ],
+      "answer": 3,
+      "explanation": "Une succession temporelle ne suffit pas à établir la causalité. Le changement doit être relié à la ressource affectée et corroboré par des preuves."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi conserver l'heure source et l'heure de réception d'un événement ?",
+      "choices": [
+        "Pour afficher deux dates inutiles.",
+        "Pour reconstruire la chronologie tout en mesurant le retard de collecte et en évaluant la fiabilité des horloges.",
+        "Pour supprimer les événements tardifs sans examen.",
+        "Pour conclure que l'heure de réception est toujours exacte."
+      ],
+      "answer": 1,
+      "explanation": "Les files d'attente et les interruptions peuvent retarder la réception. Les deux timestamps servent à comprendre le temps d'événement et celui d'observation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle faiblesse peut résulter d'une déduplication uniquement basée sur le nom d'équipement ?",
+      "choices": [
+        "Elle garantit que deux pannes sont séparées.",
+        "Elle garantit une cause racine unique.",
+        "Elle peut fusionner plusieurs épisodes distincts sur le même équipement ou masquer une récidive après rétablissement.",
+        "Elle valide automatiquement les timestamps."
+      ],
+      "answer": 2,
+      "explanation": "L'identité d'un actif ne suffit pas à définir un incident. Il faut considérer la condition, la fenêtre, l'état de rétablissement et les occurrences."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle de la topologie dans une RCA automatisée ?",
+      "choices": [
+        "Aider à identifier des dépendances partagées et des chemins pertinents, sans considérer le graphe comme une preuve causale en soi.",
+        "Remplacer toutes les mesures de télémétrie.",
+        "Garantir que le nœud le plus central est la cause.",
+        "Éviter de conserver les versions historiques du graphe."
+      ],
+      "answer": 0,
+      "explanation": "La topologie réduit les hypothèses à examiner, mais les relations doivent être datées et confirmées par des observations pertinentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelles preuves faut-il compter avec prudence comme indépendantes ?",
+      "choices": [
+        "Des mesures confirmées par deux collecteurs indépendants.",
+        "Un événement physique et une transaction applicative mesurés séparément.",
+        "Un changement vérifié et un test de service indépendant.",
+        "Dix alertes dérivées du même compteur et émises par le même collecteur."
+      ],
+      "answer": 3,
+      "explanation": "Plusieurs alarmes dérivées de la même mesure ne représentent pas plusieurs confirmations indépendantes. Les surpondérer fausse le classement."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le système classe un candidat en tête mais les tests disponibles le contredisent. Que doit-il faire ?",
+      "choices": [
+        "Cacher les contre-indices afin de maintenir le classement.",
+        "Conserver les preuves contradictoires, réduire la priorité si nécessaire et rechercher un test discriminant.",
+        "Déclarer cette cause confirmée à cause du score.",
+        "Passer directement à un changement disruptif."
+      ],
+      "answer": 1,
+      "explanation": "Une RCA fiable traite les contre-indices et permet à l'hypothèse d'être révisée. Le classement doit soutenir l'investigation, pas imposer une conclusion."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment évaluer utilement un classement de causes candidates ?",
+      "choices": [
+        "Seulement en mesurant le nombre total de logs traités.",
+        "En comptant toutes les causes non confirmées comme correctes.",
+        "Mesurer le rang de la cause confirmée, les faux regroupements, les incidents fractionnés et l'utilité des preuves.",
+        "En considérant que chaque incident possède obligatoirement une cause unique."
+      ],
+      "answer": 2,
+      "explanation": "L'évaluation doit porter sur le regroupement, le diagnostic et le processus opérationnel, avec une catégorie non concluante lorsque la preuve manque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un LLM rédige une RCA avec des identifiants d'événements inexistants. Quel contrôle convient ?",
+      "choices": [
+        "Valider les références dans le stockage source et rejeter ou reconstruire la synthèse si elles sont introuvables.",
+        "Accepter le récit s'il est bien rédigé.",
+        "Exécuter la commande suggérée pour vérifier si elle fonctionne.",
+        "Supprimer le journal d'audit."
+      ],
+      "answer": 0,
+      "explanation": "Les références doivent être vérifiables par l'application. Une synthèse convaincante sans source réelle ne constitue pas une preuve."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle caractéristique doit posséder une bonne recommandation du prochain test ?",
+      "choices": [
+        "Elle doit toujours être disruptive.",
+        "Elle doit confirmer uniquement l'hypothèse préférée.",
+        "Elle doit être choisie selon sa popularité dans les tickets.",
+        "Elle doit aider à distinguer les hypothèses tout en tenant compte du coût, du risque et de la disponibilité du test."
+      ],
+      "answer": 3,
+      "explanation": "Un test discriminant réduit l'incertitude. Il faut privilégier les tests peu invasifs lorsqu'ils apportent une information suffisante."
+    }
+  ]
+}
