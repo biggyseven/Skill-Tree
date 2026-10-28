@@ -1405,3 +1405,134 @@ test('le retour au Radar et aux Révisions réutilise les données déjà charg�
   expect(flashcardRequests).toBe(1);
 });
 
+test('une erreur serveur pendant la correction conserve les réponses sans créer de résultat', async ({ page }) => {
+  await openDashboard(page);
+  await page.route('**/api/exam/submit', route => route.fulfill({
+    status: 503,
+    contentType: 'application/json',
+    body: JSON.stringify({ detail: 'Correction indisponible pour le test.' })
+  }));
+
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Examens', exact: true }).click();
+  await page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    app.exam = {
+      id: 'exam-session-network-error',
+      category: 'Test',
+      passing_score: 80,
+      pass_score: 80,
+      cfg: { module: 'admin-reseaux', levels: ['debutant'], count: 1, minutes: 30 },
+      questions: [{
+        id: 901,
+        node_id: 'intro-reseau-debutant',
+        level: 'debutant',
+        type: 'qcm',
+        prompt: 'Question test pour la correction serveur',
+        choices: ['Réponse A', 'Réponse B', 'Réponse C', 'Réponse D']
+      }]
+    };
+    app.examAnswers = [null];
+    app.examFlags = {};
+    app.examIdx = 0;
+    app.examResult = null;
+    app.examLeft = 1800;
+    app.examStarted = Date.now();
+    app.examPaused = false;
+    app.examConfirm = false;
+    app.examErr = '';
+    app.examBusy = false;
+  });
+
+  await expect(page.getByText('Question test pour la correction serveur')).toBeVisible();
+  await page.getByRole('button', { name: /Réponse A/ }).click();
+  const historyBefore = await page.evaluate(() => window.Alpine.$data(document.body).examHistory.length);
+
+  await page.getByRole('button', { name: 'Terminer', exact: true }).click();
+  await page.getByRole('button', { name: 'Oui', exact: true }).click();
+
+  await expect(page.getByRole('alert')).toContainText('Correction indisponible pour le test.');
+  await expect(page.getByText(/Examen non validé/)).toHaveCount(0);
+  await expect(page.getByText('Question test pour la correction serveur')).toBeVisible();
+  const state = await page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    return { answer: app.examAnswers[0], result: app.examResult, historyLength: app.examHistory.length };
+  });
+  expect(state.answer).toBe(0);
+  expect(state.result).toBeNull();
+  expect(state.historyLength).toBe(historyBefore);
+});
+
+test('un résultat incomplet du serveur ne devient pas une note officielle', async ({ page }) => {
+  await openDashboard(page);
+  await page.route('**/api/exam/submit', route => route.fulfill({
+    status: 200,
+    contentType: 'application/json',
+    body: JSON.stringify({
+      success: true,
+      session_id: 'exam-session-invalid-result',
+      score: 80,
+      correct: 8,
+      total: 10,
+      duration: 60,
+      time_expired: false,
+      answers: [0],
+      details: [],
+      pass_score: 80,
+      passing_score: 80,
+      exam_type: 'category',
+      submitted: true,
+      offline: false
+    })
+  }));
+
+  const nav = page.getByRole('navigation', { name: 'Navigation principale' });
+  await nav.getByRole('button', { name: 'Examens', exact: true }).click();
+  await page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    app.exam = {
+      id: 'exam-session-invalid-result',
+      category: 'Test',
+      passing_score: 80,
+      pass_score: 80,
+      cfg: { module: 'admin-reseaux', levels: ['debutant'], count: 1, minutes: 30 },
+      questions: [{
+        id: 903,
+        node_id: 'intro-reseau-debutant',
+        level: 'debutant',
+        type: 'qcm',
+        prompt: 'Question test résultat incomplet',
+        choices: ['Option A', 'Option B', 'Option C', 'Option D']
+      }]
+    };
+    app.examAnswers = [null];
+    app.examFlags = {};
+    app.examIdx = 0;
+    app.examResult = null;
+    app.examLeft = 1800;
+    app.examStarted = Date.now();
+    app.examPaused = false;
+    app.examConfirm = false;
+    app.examErr = '';
+    app.examBusy = false;
+  });
+
+  await expect(page.getByText('Question test résultat incomplet')).toBeVisible();
+  await page.getByRole('button', { name: /Option A/ }).click();
+  const historyBefore = await page.evaluate(() => window.Alpine.$data(document.body).examHistory.length);
+
+  await page.getByRole('button', { name: 'Terminer', exact: true }).click();
+  await page.getByRole('button', { name: 'Oui', exact: true }).click();
+
+  await expect(page.getByRole('alert')).toContainText('résultat de correction valide');
+  await expect(page.getByText(/Examen non validé/)).toHaveCount(0);
+  await expect(page.getByText('Question test résultat incomplet')).toBeVisible();
+  const state = await page.evaluate(() => {
+    const app = window.Alpine.$data(document.body);
+    return { answer: app.examAnswers[0], result: app.examResult, historyLength: app.examHistory.length };
+  });
+  expect(state.answer).toBe(0);
+  expect(state.result).toBeNull();
+  expect(state.historyLength).toBe(historyBefore);
+});
+

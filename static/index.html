@@ -6157,18 +6157,76 @@
         },
         async submitExam(auto) {
           if (!this.exam || this.examResult || this.examBusy) return;
-          this.examBusy = true; this.stopExamTimer(); this.examConfirm = false;
-          const duration = Math.round((Date.now() - this.examStarted) / 1000); let res = null;
-          try { const r = await fetch('/api/exam/submit', { method: 'POST', headers: H, body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers }) }); if (r.ok) res = await r.json(); } catch (e) { }
-          const local = this.gradeLocally();
-          if (!res || res.score === undefined) res = local || { score: 0, correct: 0, total: this.exam.questions.length, offline: true };
-          else if (local && !res.details) res.details = local.details;
-          const score = Math.round(Number(res.score) || 0); const passed = res.passed !== undefined ? !!res.passed : score >= PASS_SCORE;
-          this.examResult = { ...res, score, passed, auto: !!auto, duration };
-          this.examHistory = [{ id: Date.now(), date: new Date().toISOString(), module: this.exam.cfg.module, levels: this.exam.cfg.levels, score, passed, correct: res.correct, total: res.total, duration }, ...this.examHistory].slice(0, 50);
+          this.examBusy = true;
+          this.stopExamTimer();
+          this.examConfirm = false;
+          this.examErr = '';
+          const clientDuration = Math.max(0, Math.round((Date.now() - this.examStarted) / 1000));
+          let result;
+
+          try {
+            const response = await fetch('/api/exam/submit', {
+              method: 'POST',
+              headers: H,
+              body: JSON.stringify({ session_id: this.exam.id, answers: this.examAnswers })
+            });
+            const raw = await response.text();
+            try {
+              result = raw ? JSON.parse(raw) : {};
+            } catch (_) {
+              throw new Error('Le serveur a renvoyé une réponse illisible.');
+            }
+            if (!response.ok) {
+              throw new Error(result.detail || result.message || ('Erreur HTTP ' + response.status));
+            }
+            if (
+              !result
+              || result.success !== true
+              || typeof result.score !== 'number'
+              || !Number.isFinite(result.score)
+              || result.score < 0
+              || result.score > 100
+              || typeof result.passed !== 'boolean'
+            ) {
+              throw new Error('Le serveur n’a pas renvoyé un résultat de correction valide.');
+            }
+          } catch (error) {
+            this.examErr = 'Impossible de corriger l’examen côté serveur : '
+              + (error.message || 'erreur réseau')
+              + '. Les réponses sont conservées ; réessaie sans quitter cet écran.';
+            if (!auto && this.examLeft > 0 && !this.examResult) this.startExamTimer();
+            this.examBusy = false;
+            return;
+          }
+
+          const score = Math.max(0, Math.min(100, Math.round(result.score)));
+          const duration = Number.isFinite(Number(result.duration))
+            ? Math.max(0, Math.round(Number(result.duration)))
+            : clientDuration;
+          const passed = result.passed;
+
+          this.examResult = { ...result, score, passed, auto: !!auto, duration };
+          this.examHistory = [{
+            id: Date.now(),
+            date: new Date().toISOString(),
+            module: this.exam.cfg.module,
+            levels: this.exam.cfg.levels,
+            score,
+            passed,
+            correct: result.correct,
+            total: result.total,
+            duration
+          }, ...this.examHistory].slice(0, 50);
           LS.set('exam-history', this.examHistory);
-          this.examBusy = false; if (passed) this.celebrate();
-          await this.refreshAll();
+          this.examBusy = false;
+          if (passed) this.celebrate();
+
+          try {
+            await this.refreshAll();
+          } catch (_) {
+            // La note est déjà enregistrée côté serveur : un rafraîchissement secondaire ne l'annule pas.
+            this.notify('Examen enregistré ; certaines données du tableau de bord n’ont pas pu être actualisées.');
+          }
         },
         resetExam() { this.stopExamTimer(); this.exam = null; this.examResult = null; this.examConfirm = false; },
 
