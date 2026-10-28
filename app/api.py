@@ -176,6 +176,7 @@ async def lifespan(_app: FastAPI):
 from urllib.parse import quote, urlsplit
 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 
 
 def _cors_origins_from_environment(value: str | None = None) -> list[str]:
@@ -210,6 +211,10 @@ def _cors_origins_from_environment(value: str | None = None) -> list[str]:
 
 
 app = FastAPI(title="Skilltree API", lifespan=lifespan)
+
+# Compresse les réponses textuelles volumineuses (HTML, JavaScript, CSS et JSON).
+# Le navigateur reçoit moins de données sur le réseau, sans changer les payloads API.
+app.add_middleware(GZipMiddleware, minimum_size=1024, compresslevel=6)
 
 # Le frontend est servi depuis la même origine. Les intégrations cross-origin
 # doivent être explicitement déclarées dans SKILLTREE_CORS_ORIGINS.
@@ -320,6 +325,25 @@ async def enforce_site_authentication(request: Request, call_next):
                 )
 
     return await call_next(request)
+
+
+
+@app.middleware("http")
+async def cache_static_assets(request: Request, call_next):
+    """Réutilise brièvement les ressources statiques, sans figer les pages HTML."""
+    response = await call_next(request)
+    if response.status_code == 200:
+        path = request.url.path
+        if path.startswith(("/lab/assets/", "/lab/chunks/")):
+            # Ces noms contiennent un hash : leur contenu ne change pas à URL identique.
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif path.endswith((".js", ".css", ".svg", ".woff", ".woff2", ".png", ".jpg", ".jpeg", ".webp", ".ico")):
+            # main.js et main.css ont des noms stables, donc TTL court pour éviter les versions périmées.
+            response.headers["Cache-Control"] = "public, max-age=60, must-revalidate"
+        elif path == "/" or path.endswith(".html"):
+            # Revalidation à chaque navigation pour conserver les déploiements à jour.
+            response.headers["Cache-Control"] = "no-cache"
+    return response
 
 
 @app.get("/api/auth/status")
