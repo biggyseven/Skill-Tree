@@ -438,6 +438,11 @@ def _war_room_iso(value: datetime) -> str:
     return value.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
+def _war_room_iso_precise(value: datetime) -> str:
+    """Horodatage à la microseconde pour distinguer deux tentatives démarrées dans la même seconde."""
+    return value.astimezone(timezone.utc).isoformat(timespec="microseconds").replace("+00:00", "Z")
+
+
 def _war_room_parse_time(value: str | None) -> datetime | None:
     if not value:
         return None
@@ -753,12 +758,13 @@ def replay_ticket(scenario_id: str) -> dict[str, Any]:
             conn.execute("DELETE FROM tickets WHERE id = ?", (old["id"],))
         ticket_id = f"{target_scenario_id}-{uuid.uuid4().hex[:8].upper()}"
         now = _war_room_now()
+        opened_at_iso = _war_room_iso_precise(now)
         sla_minutes = scenario.get("sla_minutes")
-        deadline = _war_room_iso(now + timedelta(minutes=int(sla_minutes))) if sla_minutes is not None else None
+        deadline = _war_room_iso_precise(now + timedelta(minutes=int(sla_minutes))) if sla_minutes is not None else None
         conn.execute(
             "INSERT INTO tickets (id, scenario_id, type, severity, status, opened_at, sla_deadline, resolution_data, xp_earned) "
             "VALUES (?, ?, ?, ?, 'open', ?, ?, '{}', 0)",
-            (ticket_id, target_scenario_id, scenario["type"], scenario["severity"], _war_room_iso(now), deadline),
+            (ticket_id, target_scenario_id, scenario["type"], scenario["severity"], opened_at_iso, deadline),
         )
         _ticket_action(conn, ticket_id, "opened", {"source": "replay", "replayed_ticket_id": str(old["id"]) if old else None})
         conn.commit()
