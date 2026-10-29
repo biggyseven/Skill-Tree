@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Support VIP et exécutif » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quelle est la distinction la plus importante entre priorité de service et statut VIP ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Le statut VIP rend toujours la demande critique",
+        "La priorité dépend de l'impact et de l'urgence selon des règles documentées",
+        "La priorité doit être décidée uniquement par l'agent le plus ancien",
+        "Le statut VIP remplace les SLA"
+      ],
+      "answer": 1,
+      "explanation": "Une modalité d'assistance personnalisée ne remplace pas l'évaluation opérationnelle de l'impact, de l'urgence et du risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un dirigeant demande la désactivation de la MFA pour gagner du temps. Que doit faire le support ?",
+      "choices": [
+        "Désactiver immédiatement la protection",
+        "Partager un code temporaire avec son assistant",
+        "Appliquer les contrôles d'identité et mobiliser un décideur autorisé pour les solutions permises",
+        "Ignorer toute demande du dirigeant"
+      ],
+      "answer": 2,
+      "explanation": "La pression hiérarchique ne constitue pas une autorisation de sécurité. Toute exception permise doit être validée et tracée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi garder les demandes VIP dans le système de tickets ?",
+      "choices": [
+        "Pour rendre les conversations plus longues",
+        "Pour empêcher les spécialistes d'intervenir",
+        "Pour créer une file secrète sans mesure",
+        "Pour conserver la responsabilité, la trace et la visibilité de la charge"
+      ],
+      "answer": 3,
+      "explanation": "Le suivi centralisé permet de connaître les décisions, l'historique, les propriétaires et les effets sur les autres engagements."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur seul ne suffit pas à démontrer la valeur d'un service VIP ?",
+      "choices": [
+        "La satisfaction d'un très petit groupe, sans autres éléments de contexte",
+        "Les délais ventilés par type de demande",
+        "Les risques et les exceptions tracées",
+        "La qualité de la préparation et du secours"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Un faible volume de réponses peut être instable. Il faut combiner satisfaction, résultats opérationnels, risques, charge et continuité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle pratique améliore la continuité du service VIP ?",
+      "choices": [
+        "Dépendre d'une personne disposant de tous les accès",
+        "Prévoir des remplaçants, des procédures et des accès contrôlés",
+        "Conserver les coordonnées dans un tableur personnel",
+        "Utiliser uniquement un canal privé"
+      ],
+      "answer": 1,
+      "explanation": "La redondance des compétences, les procédures approuvées et les accès contrôlés rendent le service moins fragile."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit contenir une communication exécutive sur un incident majeur ?",
+      "choices": [
+        "Uniquement des acronymes techniques",
+        "Une heure de résolution garantie même si elle est inconnue",
+        "Les faits, l'impact, les options, les inconnues et la prochaine mise à jour",
+        "Les détails confidentiels des tickets d'autres utilisateurs"
+      ],
+      "answer": 2,
+      "explanation": "Une synthèse utile soutient la décision sans inventer de certitude ou exposer des informations inutiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment gérer une demande VIP qui interrompt des travaux déjà engagés ?",
+      "choices": [
+        "La supprimer de la file existante",
+        "Réécrire les priorités passées sans trace",
+        "Faire décider chaque agent séparément",
+        "Appliquer les critères communs, tracer l'exception éventuelle et informer les propriétaires impactés"
+      ],
+      "answer": 3,
+      "explanation": "Une modification de priorité doit être justifiée et traçable pour rendre visibles les effets sur les engagements et les autres dossiers."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément doit faire partie d'une offre de support VIP mature ?",
+      "choices": [
+        "Des critères d'éligibilité, horaires, engagements, limites et règles d'escalade explicites",
+        "Une promesse illimitée de résolution immédiate",
+        "Une dispense générale de contrôles",
+        "Une communication différente de celle de la crise globale"
+      ],
+      "answer": 0,
+      "explanation": "Le catalogue explicite les capacités et les limites, tout en maintenant des contrôles de sécurité et une communication cohérente."
     }
   ]
 }
