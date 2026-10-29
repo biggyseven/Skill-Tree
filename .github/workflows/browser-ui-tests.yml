@@ -56,6 +56,16 @@ jobs:
       - name: Build Lab Workspace for browser tests
         run: npm --prefix app/lab-workspace run build
 
+      - name: Build main UI assets for browser tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          ESBUILD="./app/lab-workspace/node_modules/.bin/esbuild"
+          for name in skilltree-core skilltree-catalog skilltree-study skilltree-ux skilltree-polish; do
+            "$ESBUILD" "app/main_ui/$name.js" --target=es2020 --minify-whitespace --minify-syntax --outfile="static/assets/$name.js"
+          done
+          "$ESBUILD" app/main_ui/skilltree-ui.css --minify --outfile=static/assets/skilltree-ui.css
+
       - name: Install Playwright test runner
         run: npm install --prefix tests/e2e --no-audit --no-fund
 
