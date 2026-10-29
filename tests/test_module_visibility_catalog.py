@@ -18,7 +18,7 @@ def _word_count(path: Path) -> int:
 
 
 def test_project_module_is_registered_in_the_served_frontend():
-    html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    html = (ROOT / "app" / "main_ui" / "skilltree-catalog.js").read_text(encoding="utf-8")
 
     assert "id: 'gestion-projet-it', label: 'Gestion de Projet IT'" in html
     assert "raw.toLowerCase() === 'gestion de projet it'" in html
@@ -26,7 +26,7 @@ def test_project_module_is_registered_in_the_served_frontend():
 
 
 def test_aiops_module_is_registered_in_the_served_frontend():
-    html = (ROOT / "static" / "index.html").read_text(encoding="utf-8")
+    html = (ROOT / "app" / "main_ui" / "skilltree-catalog.js").read_text(encoding="utf-8")
 
     assert "id: 'aiops', label: 'AIOps & Intelligence Artificielle'" in html
     assert "raw === 'AIOps & Intelligence Artificielle'" in html
@@ -68,3 +68,26 @@ def test_project_catalog_has_18_complete_courses_and_quizzes():
             assert question.get("answer") in range(4)
             assert question.get("prompt", "").strip()
             assert question.get("explanation", "").strip()
+
+
+def test_support_and_blockchain_modules_are_registered_in_the_canonical_catalog():
+    catalog = (ROOT / "app" / "main_ui" / "skilltree-catalog.js").read_text(encoding="utf-8")
+    nodes = _nodes()
+
+    assert "id: 'support', label: 'Support Technique'" in catalog
+    assert "id: 'blockchain', label: 'Blockchain & Web3'" in catalog
+    assert "raw === 'Support Technique'" in catalog
+    assert "raw === 'Blockchain & Web3'" in catalog
+    assert "id.startsWith('support-')" in catalog
+    assert "id.startsWith('blockchain-')" in catalog
+
+    for module_name, prefix, expected_count in (
+        ("Support Technique", "support-", 30),
+        ("Blockchain & Web3", "blockchain-", 21),
+    ):
+        module_nodes = [node for node in nodes if node.get("module") == module_name]
+        assert len(module_nodes) == expected_count
+        assert all(node["id"].startswith(prefix) for node in module_nodes)
+        for node in module_nodes:
+            for prereq in node.get("prereqs", []):
+                assert prereq in {item["id"] for item in nodes}

@@ -12,6 +12,16 @@
       { id: 'commandes', label: 'Commandes & Aide-mémoire', short: 'Commandes', icon: '⌨️', roadmap: {
         intermediaire: ['Config de base', 'Interfaces & VLANs', 'Routage & OSPF', 'Sécurité & ACL', 'Vérification & Diagnostic']
       } },
+      { id: 'support', label: 'Support Technique', short: 'Support', icon: '🎧', roadmap: {
+        debutant: ['Le rôle du technicien support', 'Communication avec les utilisateurs', 'Écoute active et reformulation', 'Méthodologie de dépannage', 'Gestion des priorités', 'Prise en main à distance (TeamViewer, AnyDesk)', 'Étiquette professionnelle et politesse', 'Documenter une intervention'],
+        intermediaire: ['Gestion des tickets (GLPI, Jira Service Mgmt)', 'Niveaux de support N1/N2/N3', 'Escalade et collaboration', 'SLA et gestion du stress', 'Support téléphonique professionnel', 'Support par chat et email', 'Diagnostic à distance (logs, outils)', 'Support Windows/Mac/Linux/mobile', 'Base de connaissances (KB)', 'Gestion des incidents récurrents', 'Demandes de service vs incidents', 'Support à distance avancé (scripts, GPO)'],
+        expert: ["Management d'une équipe support", 'Définition des processus support', 'Optimisation de la satisfaction (CSAT/NPS)', 'Gestion de crise support', 'Support VIP et exécutif', 'Automatisation (chatbots, self-service)', 'Formation des techniciens', 'Reporting support avancé', 'Amélioration continue du support', 'Support international et multilingue']
+      } },
+      { id: 'blockchain', label: 'Blockchain & Web3', short: 'Blockchain', icon: '⛓️', roadmap: {
+        debutant: ["Qu'est-ce que la blockchain ?", 'Histoire (Bitcoin, Ethereum)', 'Cryptographie (hash, clés)', "Structure d'un bloc", 'Consensus (PoW vs PoS)', 'Réseau P2P et nœuds'],
+        intermediaire: ['Smart contracts', 'Solidity (langage)', 'EVM et gas', 'Architecture DApp', 'Standards ERC-20, ERC-721', 'Oracles (Chainlink)', 'Layer 2 (Rollups, sidechains)', 'Stockage décentralisé'],
+        expert: ['Audit et sécurité smart contracts', 'Interopérabilité (bridges, Cosmos)', 'Sharding et scalabilité', 'ZK-proofs et confidentialité', "Blockchain d'entreprise (Hyperledger)", 'DAO et gouvernance on-chain', 'Réglementation (MiCA, SEC)']
+      } },
       { id: 'admin-reseaux', label: 'Administration Réseaux', short: 'Réseaux', icon: '🌐', roadmap: {} },
       { id: 'admin-systeme', label: 'Administration Système', short: 'Système', icon: '🖥️', roadmap: {
         debutant: ['Introduction à Linux et au shell', 'Système de fichiers et permissions', 'Utilisateurs et groupes', 'Processus et services (systemd)', 'Paquets et mises à jour', 'Windows Server : bases et Active Directory'],
@@ -468,6 +478,8 @@
           // Les modules nouvellement ajoutés au catalogue sont canoniques :
           // ne pas laisser d'anciennes affectations locales les masquer.
           const raw = String(n.module || '').trim();
+          if (id.startsWith('support-') || raw === 'Support Technique') return 'support';
+          if (id.startsWith('blockchain-') || raw === 'Blockchain & Web3') return 'blockchain';
           if (id.startsWith('sup-') || raw === 'Supervision & Monitoring') return 'supervision';
           if (raw === 'AIOps & Intelligence Artificielle' || raw.toLowerCase().startsWith('aiops')) return 'aiops';
           if (raw.toLowerCase() === 'gestion de projet it' || id.startsWith('proj-')) return 'gestion-projet-it';
