@@ -656,7 +656,35 @@ Simule un retard RPC dans un environnement de test, puis déconnecte temporairem
 
 Le compte rendu indique le symptôme, l'impact visible, les horodatages, la chaîne active, le hash de transaction, les réponses des fournisseurs, les actions automatiques et le critère de retour à la normale. L'objectif est d'obtenir une application explicable pendant une panne, pas une interface qui masque l'incertitude derrière une animation de chargement.
 
-## 26. Dix questions d'entraînement avec corrigé
+## 26. Runbook de production : transaction en attente ou état incohérent
+
+Une DApp doit pouvoir expliquer une panne en séparant l'état du portefeuille, le transport RPC, l'inclusion sur chaîne et les données dérivées. En production, l'utilisateur décrit souvent un résultat visible — bouton bloqué, solde inchangé, confirmation absente — alors que plusieurs composants peuvent expliquer le symptôme. Le runbook doit collecter suffisamment d'éléments pour réduire cette incertitude sans demander à l'utilisateur de répéter une action potentiellement irréversible.
+
+### 26.1 Collecter les éléments minimaux
+
+Le rapport doit contenir le réseau et son identifiant, l'adresse publique du compte si elle est nécessaire au diagnostic, le hash de transaction s'il existe, l'heure approximative, l'action attendue, le contrat appelé et le message d'erreur observable. Ne demande jamais de phrase de récupération, de clé privée ou de secret de signature. Les journaux doivent masquer les données confidentielles et limiter la conservation aux informations nécessaires au support.
+
+Vérifie ensuite que l'interface et le portefeuille utilisent le même réseau, que le hash est associé à la bonne tentative et que le fournisseur interrogé répond sur la chaîne attendue. Le fait qu'un explorateur ne trouve pas une transaction ne suffit pas à prouver qu'elle n'a jamais été diffusée. Une transaction peut être encore en attente, avoir été remplacée ou avoir été diffusée vers une autre chaîne.
+
+### 26.2 Ordre des vérifications
+
+Commence par une lecture non destructive : récupérer le reçu, consulter le nonce du compte à l'état pertinent, vérifier la hauteur du fournisseur et relire l'état du contrat. Évite de soumettre une nouvelle transaction tant que tu ne sais pas si la première peut encore produire un effet. Si une action doit absolument être retentée, l'application doit utiliser un identifiant métier idempotent lorsque le contrat le prévoit, ou une règle explicite de dédoublonnage hors chaîne.
+
+Si la transaction est incluse et réussie, compare les événements et l'état réellement enregistré. Si elle est incluse mais revertée, examine la raison, les paramètres et l'état au bloc d'exécution. Si le reçu manque, compare plusieurs fournisseurs, vérifie le nonce et la politique de remplacement. Si l'indexeur est en retard, sépare le retard d'affichage d'une absence d'effet sur la chaîne.
+
+### 26.3 Prévenir les effets doubles dans les services hors chaîne
+
+Une DApp dispose souvent d'un service qui réagit aux événements : envoyer un reçu, débloquer un accès, comptabiliser un paiement ou synchroniser un inventaire. Les événements peuvent être livrés plusieurs fois, traités à nouveau après un redémarrage ou retirés lors d'une réorganisation. Le gestionnaire doit reconnaître l'opération déjà appliquée et pouvoir recommencer sans créer une seconde écriture métier.
+
+Une stratégie consiste à enregistrer une clé d'idempotence basée sur la chaîne, l'adresse du contrat, le hash du bloc, l'index du log et l'identifiant d'opération, puis à effectuer la mise à jour dans une transaction de base de données. La clé exacte dépend du modèle d'indexation et de la stratégie de réorganisation : un événement d'un bloc qui n'est plus canonique doit pouvoir être annulé ou réconcilié. Il faut documenter comment l'état métier est corrigé, et pas seulement comment les doublons sont ignorés.
+
+### 26.4 Critères de clôture
+
+Un ticket n'est pas clos parce que la page recharge correctement. Le support doit confirmer que l'action attendue est visible à l'état requis, qu'aucun effet double n'a été créé, que les indexeurs ont rattrapé la chaîne, que l'interface affiche l'état réel et que les alertes sont revenues à la normale. Si une transaction reste en état indéterminé, le rapport doit le dire et décrire le suivi au lieu de la présenter comme réussie ou échouée sans preuve.
+
+Le dossier final doit préciser la cause confirmée ou, si elle reste inconnue, les hypothèses encore ouvertes, la portée, les éléments collectés, la mesure corrective et une prévention. Une bonne procédure de support devient aussi une source d'amélioration : les causes récurrentes peuvent se transformer en tests automatisés, en messages d'interface plus clairs et en alertes plus précoces.
+
+## 27. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Une DApp est-elle entièrement décentralisée parce qu'elle utilise un contrat ?
@@ -708,7 +736,7 @@ Pourquoi gérer les changements de compte et de réseau ?
 
 **Corrigé :** Ils modifient l'identité active, l'état, les contrats disponibles et la signification des transactions. L'application doit invalider les données et revalider le contexte.
 
-## 27. Challenge final : plan de résilience d'une DApp
+## 28. Challenge final : plan de résilience d'une DApp
 
 ### Scénario
 

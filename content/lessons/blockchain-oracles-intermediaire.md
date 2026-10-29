@@ -644,7 +644,50 @@ Vérifie l'état final, les événements et la réponse de l'interface. Un test 
 
 Le compte rendu doit identifier le réseau, l'adresse du flux de test, l'échelle, les valeurs fournies, l'horodatage, le résultat et la politique appliquée. Les adresses et paramètres utilisés en laboratoire ne doivent jamais être supposés valides pour la production. L'objectif est de valider les décisions de l'application lorsque l'entrée est défectueuse, non de prétendre simuler toutes les pannes possibles d'un fournisseur de données.
 
-## 23. Dix questions d'entraînement avec corrigé
+## 23. Gouvernance du flux, changement de configuration et validation de reprise
+
+Les risques d'oracle ne concernent pas seulement la valeur publiée. Ils incluent aussi les changements de configuration, les permissions administratives, le mauvais choix de réseau, les mises à jour de contrats consommateurs et les procédures d'incident. Un flux correct peut être mal utilisé par un consommateur qui applique la mauvaise unité, qui accepte une valeur obsolète ou qui suppose qu'une source restera disponible en permanence.
+
+### 23.1 Inventorier les responsabilités
+
+Pour chaque source, documente son adresse, le réseau, l'actif couvert, les unités, les exigences de fraîcheur, les hypothèses de disponibilité et les personnes ou équipes responsables de l'intégration. Dans le contrat consommateur, identifie qui peut changer l'adresse, ajuster un seuil, suspendre une action ou reprendre le service. Les privilèges ne doivent pas être cachés derrière une opération de déploiement ou une variable de configuration peu visible.
+
+La configuration d'un environnement doit être vérifiée avant toute action irréversible. Une adresse valide sur un réseau peut être vide ou renvoyer un autre contrat sur un autre réseau. La procédure de publication devrait vérifier l'identifiant de chaîne, le code du contrat ciblé, les permissions et les valeurs initiales, puis produire un compte rendu que l'équipe de revue peut comparer à la configuration approuvée.
+
+### 23.2 Protéger les changements sensibles
+
+Une modification d'adresse de flux ou de seuil change directement le modèle de risque du consommateur. Pour les systèmes critiques, la procédure peut exiger une proposition, une revue par une autre personne, une attente ou un mécanisme de multisignature adapté. Le niveau de contrôle doit être proportionnel à l'impact et à la vitesse à laquelle un abus pourrait nuire aux utilisateurs.
+
+Les seuils ne doivent pas être ajustés uniquement pour faire disparaître une alerte gênante. Toute modification doit citer le symptôme, les preuves, le risque accepté, la période de validité éventuelle et le plan de retour arrière. Une dérogation temporaire devrait expirer ou être revue explicitement. Sinon, un réglage d'urgence devient progressivement une partie non documentée de l'architecture.
+
+### 23.3 Tester le changement avant sa mise en production
+
+Un test de changement couvre la valeur normale, les données trop anciennes, l'indisponibilité de la source, les limites d'échelle, les réponses invalides et les cas proches des seuils. Ajoute des tests qui confirment que l'ancienne configuration ne peut plus être utilisée si elle est retirée et que les permissions ne permettent pas à un acteur inattendu de modifier la source. Lorsque la logique s'appuie sur une valeur de secours, teste aussi le passage de la valeur normale au mode dégradé puis le retour.
+
+Les tests de contrats seuls ne couvrent pas nécessairement la surveillance et les procédures humaines. Un exercice opérationnel doit simuler l'alerte, désigner le décideur, vérifier la disponibilité des accès autorisés, mesurer le temps nécessaire pour appliquer la politique et confirmer que le journal d'incident est suffisant pour reconstruire les actions. Les résultats doivent alimenter le runbook avant que le changement soit accepté.
+
+### 23.4 Reprendre après une panne
+
+Le rétablissement de la source ne signifie pas nécessairement que l'application peut reprendre immédiatement. Vérifie la fraîcheur, l'unité, la cohérence du flux et l'état du consommateur. Si l'application a accumulé des opérations en attente, rejoue-les selon un ordre défini et sans doublons. Pour un système de crédit ou de liquidation, évalue si les données manquantes modifient le calcul de positions ou les seuils applicables ; ne remplace pas rétroactivement une décision par une valeur nouvelle sans procédure comptable explicite.
+
+La reprise doit être graduelle lorsqu'elle touche des actifs ou des décisions irréversibles. Commence par les lectures de contrôle, vérifie les événements et les métriques, puis réactive les opérations selon les critères validés. Conserve une possibilité de repasser en mode sûr si les anomalies reviennent. Les critères de sortie de l'incident doivent être chiffrés ou observables : plusieurs lectures cohérentes, un âge de donnée sous le seuil prescrit, des appels réussis pendant une période définie et aucune alerte critique non résolue.
+
+### 23.5 Modèle de fiche de changement
+
+| Champ | Exemple de contenu attendu |
+|---|---|
+| Objet | Adresse ou paramètre modifié |
+| Motif | Problème observé et preuve associée |
+| Risque | Conséquence d'une valeur incorrecte ou obsolète |
+| Validation | Tests exécutés et revue indépendante |
+| Autorité | Rôle qui approuve et rôle qui exécute |
+| Retour arrière | Procédure, conditions et limites |
+| Surveillance | Métriques, seuils et personne responsable |
+| Clôture | État confirmé après le changement |
+
+Cette fiche est volontairement factuelle. Elle permet à un opérateur différent de comprendre non seulement ce qui a changé, mais aussi pourquoi, dans quelles limites et comment la décision serait annulée si les hypothèses s'avéraient fausses.
+
+## 24. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi un contrat ne lit-il pas directement n'importe quelle API web ?
@@ -696,7 +739,7 @@ La bonne intégration d'un oracle garantit-elle la sécurité de tout le protoco
 
 **Corrigé :** Non. La logique financière, les conversions, les permissions, les contrats dépendants et les mécanismes de récupération doivent aussi être sûrs.
 
-## 24. Challenge final : revue d'un oracle de prêt
+## 25. Challenge final : revue d'un oracle de prêt
 
 ### Scénario
 
