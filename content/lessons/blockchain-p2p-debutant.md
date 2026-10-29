@@ -530,7 +530,111 @@ Le nœud doit suivre le bon réseau, progresser et ne pas rapporter de nouvelles
 
 Le rapport final doit distinguer une mise à jour réussie, une panne locale et un incident plus large. Conserve les journaux et le hash des blocs observés afin qu'un autre opérateur puisse reproduire le diagnostic.
 
-## 22. Dix questions d'entraînement avec corrigé
+## 22. Exploitation avancée : observer un réseau sans confondre symptômes et causes
+
+Un tableau de bord P2P doit expliquer le comportement du nœud, pas seulement afficher un nombre de connexions. Un nœud connecté à vingt pairs dépendant tous du même opérateur, de la même région et de la même version de client peut être moins robuste qu'un nœud connecté à huit pairs réellement diversifiés. Le nombre de pairs n'indique pas si les blocs sont valides, si le nœud est à jour, ni s'il relaie correctement les transactions.
+
+### 22.1 Construire une observation à plusieurs dimensions
+
+Sépare les signaux en quatre familles. La connectivité décrit le transport : pairs entrants et sortants, échecs de connexion, durée des sessions et latence. La propagation décrit la diffusion : délai entre la première observation locale et l'observation de messages comparables, taux de transactions relayées et fréquence des annonces de blocs. La synchronisation décrit l'état de la chaîne : hauteur locale, hauteur de pairs de référence, progression du téléchargement, retard du consensus et éventuelles réorganisations. La diversité décrit la concentration des dépendances : versions de clients, fournisseurs réseau, régions, opérateurs et points d'entrée.
+
+Aucun indicateur ne doit être interprété seul. Une faible activité de transactions peut simplement refléter une période calme. Une hausse de latence peut provenir du chemin réseau plutôt que du logiciel. Un retard de hauteur peut être normal au démarrage, mais inquiétant s'il augmente continuellement après la fin attendue de la synchronisation. Les métriques doivent inclure une fenêtre temporelle, un état attendu et un contexte de déploiement.
+
+| Signal | Ce qu'il peut indiquer | Ce qu'il ne prouve pas |
+|---|---|---|
+| Nombre de pairs stable | Les sessions se maintiennent | La diversité ou la qualité des pairs |
+| Hauteur locale en retard | Le nœud ne suit pas la référence | Une panne P2P certaine |
+| Transactions vues tardivement | Propagation lente ou mempools différents | Une censure certaine |
+| Déconnexions répétées | Pare-feu, limites, surcharge ou pairs instables | Une attaque sans autre indice |
+| Versions homogènes | Déploiement contrôlé ou dépendance commune | Une diversité effective |
+
+### 22.2 Corréler les événements dans le temps
+
+Lorsqu'un problème est signalé, conserve une chronologie : heure du premier symptôme, version du client, changements récents, distribution des pairs, état de synchronisation et premiers tests reproductibles. Les journaux horodatés doivent être corrélés avec les métriques système et réseau. Vérifie aussi la synchronisation de l'horloge : comparer deux journaux qui dérivent de plusieurs minutes peut fabriquer une fausse séquence causale.
+
+Ne collecte pas seulement les lignes d'erreur. Une absence de message peut signifier que le niveau de journalisation est insuffisant, que le composant n'a pas atteint le code concerné, ou que l'événement se déroule dans une autre couche. Pour chaque hypothèse, définis une observation qui la renforcerait et une observation qui la contredirait. Cette discipline évite de redémarrer un nœud à répétition alors que le véritable problème est un filtre réseau ou une source de données mal configurée.
+
+### 22.3 Runbook : le nœud accumule du retard
+
+1. **Qualifier l'impact.** Distingue une interface de lecture indisponible, un nœud qui ne suit plus la tête de chaîne et un nœud qui ne reçoit simplement pas une transaction particulière.
+2. **Établir la référence.** Compare hauteur, finalité ou point de contrôle selon le réseau avec plusieurs sources indépendantes. Ne traite pas un explorateur isolé comme un oracle absolu.
+3. **Vérifier les ressources.** Observe disque libre, latence d'E/S, mémoire, CPU, descripteurs de fichiers et redémarrages. Une synchronisation peut ralentir sans erreur P2P si le stockage est saturé.
+4. **Vérifier le chemin réseau.** Confirme que les ports nécessaires sont autorisés, que les connexions sortantes ne sont pas systématiquement rejetées et que DNS et découverte fonctionnent.
+5. **Examiner la diversité des pairs.** Une liste courte, concentrée ou composée de versions incompatibles peut expliquer un progrès intermittent.
+6. **Modifier une variable à la fois.** Évite d'augmenter simultanément les limites, de changer le pare-feu et de remplacer la base locale : la cause du résultat serait impossible à isoler.
+7. **Valider le retour à la normale.** Vérifie que le retard cesse d'augmenter, que le nœud atteint la référence attendue et qu'il reste stable sur une durée définie.
+
+```mermaid
+flowchart TD
+    A[Retard détecté] --> B{Progression locale ?}
+    B -->|Oui mais lente| C[Examiner stockage et charge]
+    B -->|Non| D[Examiner réseau et pairs]
+    C --> E{Ressource saturée ?}
+    E -->|Oui| F[Corriger capacité ou charge]
+    E -->|Non| G[Comparer version et état de chaîne]
+    D --> H{Pairs diversifiés et stables ?}
+    H -->|Non| I[Réparer découverte et règles réseau]
+    H -->|Oui| J[Examiner compatibilité et journaux]
+    F --> K[Surveiller puis vérifier]
+    G --> K
+    I --> K
+    J --> K
+```
+
+## 23. Défense pratique : réduire les risques sans prétendre éliminer les attaques
+
+Les attaques P2P exploitent souvent une dépendance trop forte à peu d'interlocuteurs, une configuration trop permissive ou une confusion entre données reçues et données validées. La défense consiste à réduire l'exposition, diversifier les chemins d'information, surveiller les écarts et préserver la capacité à reconstruire un état de confiance.
+
+### 23.1 Éclipse, sybil et concentration
+
+Dans une attaque d'éclipse, l'attaquant tente de contrôler les connexions utiles d'une victime pour lui présenter une vue isolée ou retardée. Dans une attaque sybil, un adversaire crée de nombreuses identités réseau apparentes. Le nombre d'identifiants n'est donc pas un indicateur suffisant de diversité. Les défenses peuvent inclure des limites de concentration, un choix prudent des pairs, des sources de référence indépendantes, des connexions sortantes diversifiées et des alertes en cas de changement anormal de composition.
+
+Ces mesures dépendent du protocole et du client. Elles ne justifient pas de forcer une liste d'adresses inconnues trouvées sur Internet. Un pair peut être lent, obsolète, malveillant ou simplement inaccessible. Avant de figer une liste statique, documente son propriétaire, sa disponibilité, sa procédure de remplacement et le risque de concentration qu'elle crée.
+
+### 23.2 Réduire la surface d'attaque du serveur
+
+Un nœud de production ne doit pas exposer automatiquement toutes ses interfaces d'administration au réseau public. Les interfaces RPC, consoles de débogage, métriques privées et services de gestion doivent être limitées aux réseaux et identités nécessaires. Le port P2P public, lorsqu'il est requis, ne doit pas entraîner l'exposition du port d'administration. Utilise un pare-feu avec une politique explicite, des comptes de service à privilèges limités, des mises à jour vérifiées et un accès opérateur journalisé.
+
+Les fichiers contenant des clés, secrets ou jetons d'accès ne doivent pas être inclus dans les journaux, rapports d'incident ni dépôts de configuration. Si l'architecture utilise un service d'exécution séparé du nœud P2P, protège aussi le canal entre ces composants : une séparation logique dans un diagramme ne garantit pas à elle seule une séparation réseau.
+
+### 23.3 Une procédure de changement sûre
+
+Avant une mise à jour de client, note la version actuelle, le point de restauration documenté, la configuration active, l'espace disque disponible et le comportement attendu au redémarrage. Lis les notes de version et identifie les changements de protocole ou de format de base. Dans un réseau de test, reproduis l'installation, la migration et le contrôle de santé. En production, procède par étapes si l'architecture le permet et maintiens un retour arrière réaliste.
+
+Un retour arrière n'est pas toujours un simple remplacement du binaire : une nouvelle version peut avoir migré des données, modifié un format de stockage ou changé les paramètres compatibles. Il faut savoir si l'ancien logiciel peut relire la base mise à jour. Si ce n'est pas sûr, le plan de reprise peut consister à restaurer un snapshot vérifié ou à reconstruire un nœud plutôt qu'à rétrograder à chaud.
+
+## 24. Atelier de laboratoire : produire un diagnostic reproductible
+
+L'atelier se déroule sur un nœud de test ou une instance autorisée. N'ajoute pas de pairs inconnus et ne coupe pas le réseau principal pour simuler une panne.
+
+### Travail demandé
+
+- Décris le rôle du nœud et les services qui doivent être joignables.
+- Relève la version du client, l'heure système, la hauteur locale et l'état de synchronisation.
+- Mesure la connectivité sur une période définie sans confondre nombre de pairs et diversité.
+- Vérifie les ports documentés, les règles de pare-feu et les interfaces d'administration exposées.
+- Compare les informations du nœud avec deux sources indépendantes, en notant les limites de chacune.
+- Écris deux hypothèses concurrentes sur le retard éventuel, puis précise la mesure qui permettrait de les départager.
+
+| Champ | Valeur à renseigner | Pourquoi |
+|---|---|---|
+| Heure et version | Valeurs capturées au début du test | Reproduire le contexte |
+| Rôle du nœud | Archive, full, validateur ou rôle pertinent | Définir le comportement attendu |
+| Hauteur et finalité | Valeurs du client et références externes | Quantifier le retard |
+| Pairs entrants/sortants | Séries temporelles, pas une photo isolée | Distinguer fluctuation et panne |
+| Ressources | CPU, mémoire, disque, E/S | Identifier une saturation |
+| Changements récents | Déploiement, pare-feu, fournisseur, configuration | Construire la chronologie |
+| Hypothèse prioritaire | Cause probable et preuves | Éviter les changements au hasard |
+| Test de confirmation | Action limitée et réversible | Réduire l'incertitude |
+| Critère de clôture | Stabilité définie et absence de régression | Prouver le rétablissement |
+
+### Correction attendue
+
+Un bon rapport ne se contente pas d'écrire « le P2P ne marche pas ». Il précise le symptôme observé, sa durée, sa portée, les éléments collectés et ce qui demeure incertain. Il distingue le fait — par exemple, la hauteur locale n'a pas changé pendant dix minutes — de l'interprétation — le nœud pourrait être bloqué par le réseau ou par le stockage. Il donne une action prioritaire, un critère de succès et une procédure de retour arrière.
+
+Une conclusion prudente peut être plus utile qu'une certitude injustifiée : « La connectivité reste stable, mais le retard augmente. Les erreurs d'E/S et la saturation du volume sont corrélées à la baisse de progression. Le prochain test compare les performances du stockage sur l'instance de laboratoire, sans modifier les pairs. » Cette conclusion est précise, vérifiable et révisable si de nouvelles preuves apparaissent.
+
+## 25. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Quelle est la différence entre client-serveur et P2P ?
@@ -582,7 +686,7 @@ Quelle est la première étape d'un diagnostic réseau sérieux ?
 
 **Corrigé :** Identifier précisément la couche et le symptôme, collecter des données reproductibles et comparer des sources indépendantes avant de conclure à une panne de consensus ou à une attaque.
 
-## 23. Challenge final : un nœud ne se synchronise plus
+## 26. Challenge final : un nœud ne se synchronise plus
 
 ### Scénario
 

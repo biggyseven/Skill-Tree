@@ -617,7 +617,103 @@ Les propriétés doivent être adaptées au jeton : une commission de transfert 
 
 Les journaux sont utiles pour l'indexation, mais la DApp doit confirmer l'adresse du contrat et gérer les réorganisations. Les NFT brûlés, les approbations révoquées et les transferts d'un même jeton exigent une mise à jour correcte de l'état hors chaîne. Les tests d'intégration doivent inclure une reconnexion et une relecture des événements pour s'assurer que l'indexeur ne crée pas de doublons.
 
-## 23. Dix questions d'entraînement avec corrigé
+## 23. Intégrer un ERC-20 sans confondre unités, solde et valeur économique
+
+Un ERC-20 fournit une interface commune pour interroger et transférer des jetons fongibles, mais ne garantit ni la stabilité de leur valeur, ni la qualité de leur gouvernance, ni l'absence de comportements spécifiques. L'application doit traiter l'adresse du contrat et le réseau comme des paramètres de sécurité. Deux contrats peuvent porter le même symbole et avoir des comportements très différents.
+
+### 23.1 Les décimales sont une convention d'affichage
+
+La plupart des interfaces affichent un montant humain alors que le contrat manipule un entier en unité minimale. Avec six décimales, une unité entière correspond à 1 000 000 unités minimales. Avec dix-huit décimales, elle correspond à 1 000 000 000 000 000 000 unités minimales. Cette métadonnée ne change pas la précision arithmétique de Solidity et n'autorise pas les fractions dans le stockage : le contrat conserve des entiers.
+
+La conversion doit être exacte. Ne convertis pas les montants de jetons par un nombre flottant binaire si l'exactitude compte. Utilise une représentation décimale ou une bibliothèque d'entiers adaptée, valide le nombre de décimales entrées et refuse les valeurs plus précises que le jeton ne peut représenter. Un arrondi silencieux peut créer un transfert différent de celui que l'utilisateur croit confirmer.
+
+| Valeur affichée | Décimales | Unités minimales |
+|---|---:|---:|
+| 1,25 jeton | 6 | 1 250 000 |
+| 0,000001 jeton | 6 | 1 |
+| 1,25 jeton | 18 | 1 250 000 000 000 000 000 |
+| 0,000000000000000001 jeton | 18 | 1 |
+
+### 23.2 Le symbole et le nom ne sont pas des identifiants
+
+Le symbole ABC n'identifie pas mondialement un jeton. Il faut associer au minimum l'identifiant de chaîne et l'adresse du contrat, puis vérifier l'origine de l'adresse par une source approuvée. Affiche ces informations assez tôt pour permettre à l'utilisateur de repérer un mauvais réseau ou un contrat inattendu. Le logo, le nom et le symbole peuvent être usurpés.
+
+Lorsqu'un jeton est intégré à un système de paiement ou de collatéral, la politique d'admission doit aussi considérer les comportements non standard : frais prélevés au transfert, pauses, listes de blocage, changements de propriétaire, restrictions de transfert, rebase ou retour d'appel atypique. Il ne faut pas supposer que tous les contrats exposant les mêmes fonctions se comportent de façon identique.
+
+### 23.3 Approvals, transferFrom et portée de l'autorisation
+
+Le modèle traditionnel d'approbation permet au détenteur d'autoriser un dépenseur à transférer jusqu'à un plafond depuis son solde. L'autorisation est souvent persistante jusqu'à sa consommation ou sa modification. Donner une autorisation illimitée à un contrat augmente donc l'impact potentiel si ce contrat ou son contrôle d'accès est compromis.
+
+Avant de signer, l'interface doit présenter le contrat dépensier et le montant autorisé, distinguer l'approbation de la transaction métier finale et fournir un moyen de consulter ou révoquer l'autorisation. Lorsqu'une application met à jour une allowance, elle doit tenir compte des particularités du standard et du jeton intégré ; certains environnements exigent une séquence spécifique pour éviter les ambiguïtés lors du passage d'une valeur non nulle à une autre.
+
+```mermaid
+sequenceDiagram
+    participant U as Détenteur
+    participant T as Contrat ERC-20
+    participant S as Contrat dépensier
+    U->>T: approve(S, plafond)
+    T-->>U: allowance mise à jour
+    U->>S: appeler l'action métier
+    S->>T: transferFrom(U, destinataire, montant)
+    T-->>S: transfert accepté ou rejeté
+    S-->>U: résultat de l'action métier
+```
+
+Le déroulement exact dépend des contrôles du contrat dépensier et du jeton. La présence d'une approbation ne prouve pas que la seconde transaction réussira, et l'interface ne doit pas annoncer le succès parce que l'approbation a été confirmée.
+
+## 24. ERC-721 en production : propriété, réception sûre et métadonnées
+
+Un NFT n'est pas l'image qu'une interface lui associe. Le contrat conserve l'identifiant et son propriétaire courant ; la représentation visuelle vient d'une métadonnée séparée, souvent référencée par une URI. Cette séparation rend possible un NFT dont l'image est indisponible, modifiée, mal formée ou servie par un système externe qui n'est plus opérationnel.
+
+### 24.1 Transfert vers un contrat et hook de réception
+
+Une adresse contrôlée par un contrat peut ne pas avoir de fonction permettant de déplacer un NFT qu'elle reçoit. La fonction de transfert sûr d'ERC-721 vérifie le comportement du destinataire contractuel au moyen du hook de réception attendu. Si le destinataire n'implémente pas la réponse requise, le transfert sûr doit échouer afin d'éviter de laisser un NFT inaccessible par inadvertance.
+
+Cette protection n'est pas une preuve que le destinataire est honnête. Un contrat peut accepter le NFT puis appliquer des règles qui empêchent sa restitution. Les tests doivent inclure un destinataire qui accepte, un destinataire qui rejette et un destinataire dont le hook tente un appel inattendu. Vérifie non seulement le résultat de la transaction, mais aussi que le propriétaire reste cohérent après un échec.
+
+### 24.2 Métadonnées et disponibilité dans le temps
+
+Une URI de métadonnées peut pointer vers un serveur HTTPS, un stockage adressé par contenu ou un autre mécanisme externe. Un serveur centralisé est pratique, mais son exploitant peut modifier le contenu ou cesser de servir le fichier. Un stockage adressé par contenu facilite la vérification de l'intégrité du contenu identifié, mais ne garantit pas que quelqu'un le conservera et le rendra accessible.
+
+Le projet doit documenter ce qui est réellement immuable : l'identifiant du token, l'URI, le contenu sous-jacent ou seulement une partie de la chaîne de référence. Une propriété « metadata frozen » n'a de sens qu'au regard du mécanisme exact qui bloque les changements. Vérifie aussi si l'administrateur peut remplacer l'URI de base, changer de serveur ou modifier la politique de rendu sans transaction sur le NFT lui-même.
+
+### 24.3 Identité d'actif et événements
+
+Pour suivre un NFT, l'indexeur associe au minimum le réseau, l'adresse de contrat et le tokenId. Le même identifiant numérique existe dans de nombreux contrats : tokenId égal à 42 n'est pas une identité globale. Les applications doivent aussi gérer les réorganisations de chaîne, les journaux retirés puis réémis et le délai entre une transaction incluse et une transaction considérée assez finale pour le métier.
+
+Un indexeur ne doit pas seulement stocker le dernier événement vu. Il doit pouvoir reconstruire ou corriger son état après réorganisation, et comparer ses résultats à l'état du contrat lorsque c'est nécessaire. Lorsqu'un transfert apparaît dans l'interface, indique clairement s'il est en attente, inclus, confirmé selon la politique locale ou finalisé selon les garanties du réseau.
+
+## 25. Choisir le bon standard et construire une stratégie de validation
+
+Le choix entre ERC-20, ERC-721 et ERC-1155 dépend du modèle métier : unités fongibles, objets individualisés ou collection de types d'actifs. ERC-1155 permet de gérer plusieurs identifiants et des quantités dans une interface commune, ce qui peut réduire les coûts pour certains jeux ou inventaires. Cette souplesse augmente néanmoins la complexité d'intégration et ne signifie pas qu'un portefeuille ou un marché donné prend en charge toutes les fonctions du contrat.
+
+### 25.1 Vérifier les invariants du standard utilisé
+
+Pour ERC-20, teste les transferts, soldes, allowances, événements et règles d'émission ou de destruction. Pour ERC-721, teste la propriété, les approbations, le transfert, les événements et la réception sûre. Pour ERC-1155, ajoute les transferts simples et par lots, les règles d'approbation et les hooks de réception concernés. Dans chaque cas, inclus les entrées invalides et les comptes sans droit.
+
+La conformité d'interface doit être distinguée du comportement métier. Un jeton peut respecter une interface mais inclure une fonction administrative qui bloque les transferts, augmente l'offre ou modifie les frais. Inversement, un portefeuille peut avoir une limitation d'affichage sans que le contrat soit en défaut. Pour diagnostiquer, compare l'ABI, les événements, les appels et l'état réellement observable sur le réseau.
+
+### 25.2 Tests d'intégration de bout en bout
+
+Un test d'intégration commence par l'adresse exacte et le réseau, obtient les décimales et le solde, prépare l'autorisation, soumet la transaction et attend le niveau de confirmation requis. Après confirmation, il relit l'état du contrat et vérifie les événements au lieu d'inférer le succès du seul affichage d'un bouton. Les erreurs RPC, le remplacement d'une transaction, le changement de compte, le mauvais réseau et l'expiration d'une signature doivent faire partie des scénarios négatifs.
+
+Pour les NFT, le scénario suit aussi l'URI de métadonnées et teste le rendu lorsque la ressource est indisponible. Pour les jetons utilisés comme garantie, les tests doivent inclure les très petits montants, les limites d'arrondi, les décimales incorrectes, les variations de solde dues aux frais et les retards d'indexation. La logique comptable doit s'appuyer sur l'état vérifié, pas sur une supposition du front-end.
+
+### 25.3 Checklist de mise en production
+
+- L'adresse du contrat et le réseau sont vérifiés dans une source approuvée.
+- Le comportement du jeton a été testé, y compris les extensions et restrictions.
+- Les unités minimales sont calculées sans arrondi flottant silencieux.
+- Les approbations indiquent clairement le dépenseur, le montant et le risque.
+- Les événements sont interprétés avec une stratégie de confirmations et de réorganisation.
+- Les intégrations externes et la politique de reprise sont documentées.
+- Les rôles d'émission, de pause, de modification de métadonnées et de mise à niveau sont inventoriés.
+- Les tests couvrent les échecs, les retours inattendus et les ressources indisponibles.
+- Le système peut corriger ou reconstruire son indexation à partir de sources vérifiables.
+
+Cette checklist n'est pas une certification de sécurité ni une preuve de conformité. Elle rend les hypothèses visibles et évite de traiter le symbole, l'interface ou un résultat de transaction temporaire comme une preuve suffisante.
+
+## 26. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi existe-t-il des standards de jetons ?
@@ -669,7 +765,7 @@ Un standard ERC garantit-il qu'un token est sûr ?
 
 **Corrigé :** Non. Il normalise l'interface et certains comportements attendus, mais il ne garantit pas l'économie, les permissions, la qualité des métadonnées ou l'absence de bugs.
 
-## 24. Challenge final : choisir un standard pour une application
+## 27. Challenge final : choisir un standard pour une application
 
 ### Scénario
 

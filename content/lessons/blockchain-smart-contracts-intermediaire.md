@@ -539,7 +539,111 @@ Le rapport doit noter l'heure, les numéros de bloc, l'adresse du contrat, la so
 
 N'annonce pas une corruption on-chain sur la seule base d'un écran incohérent. La distinction entre projection hors chaîne et état canonique est un outil essentiel de diagnostic et aide à réduire le risque d'une réponse d'incident inappropriée.
 
-## 23. Dix questions d'entraînement avec corrigé
+## 23. Concevoir une revue de sécurité à partir des actifs et des invariants
+
+Une revue utile commence par le modèle métier, pas par une recherche mécanique de mots-clés dangereux. Avant de lire chaque fonction, écris ce que le contrat protège, qui peut modifier chaque donnée et quelles propriétés doivent rester vraies après toute transaction valide. Le même code peut avoir des risques très différents selon qu'il conserve des fonds, émet un badge non transférable ou contrôle un système de vote.
+
+### 23.1 Construire un modèle de menace minimal
+
+Pour chaque actif, décris sa forme : solde natif, jeton externe, droit administratif, identifiant de propriété ou donnée qui détermine un paiement. Pour chaque acteur, recense les droits et capacités adverses : utilisateur non privilégié, opérateur, administrateur, contrat externe, oracle, relayer ou compte compromis. Identifie ensuite les frontières de confiance : appels externes, signatures, prix, temps, données d'entrée, mises à niveau et dépendances.
+
+| Question | Exemple de réponse exploitable |
+|---|---|
+| Qu'est-ce qui doit être protégé ? | Les dépôts comptabilisés et les droits de retrait |
+| Qui peut déclencher une action ? | Le déposant, un bénéficiaire autorisé, un rôle d'urgence |
+| Quelle entrée est non fiable ? | Adresse cible, montant, retour d'appel, prix externe |
+| Quelle dépendance peut changer ? | Oracle, jeton, bibliothèque ou implémentation proxy |
+| Quelle propriété doit rester vraie ? | Un retrait ne dépasse pas le crédit de l'appelant |
+| Comment limiter un incident ? | Pause ciblée, plafond, multisignature et procédure publique |
+
+Évalue chaque risque selon sa gravité, sa probabilité et sa détectabilité. Une vulnérabilité rare permettant de vider tous les dépôts peut mériter plus d'attention qu'un défaut d'interface fréquent mais récupérable. Le score n'est pas une preuve de sécurité : il explique l'ordre des travaux et rend les risques acceptés explicites.
+
+### 23.2 Exprimer les invariants sous forme testable
+
+Un invariant est une propriété qui doit rester vraie avant et après toute séquence d'opérations autorisée. Exemples : un utilisateur ne retire pas plus que son crédit, un identifiant NFT n'a qu'un propriétaire courant, une fonction privilégiée rejette les autres comptes, et une pause empêche les opérations prévues par la politique d'urgence.
+
+Ne formule pas une règle seulement en termes d'interface. « Le bouton Retirer est désactivé » n'est pas un invariant du contrat, car l'appelant peut invoquer directement l'ABI. Écris plutôt : « Pour toute adresse non privilégiée, une demande supérieure au crédit doit échouer sans réduire le crédit ni transférer d'actif. » Cette phrase conduit à des tests négatifs, à des assertions sur l'état et à des tests d'appel direct.
+
+### 23.3 Exemple de retrait : effets avant interaction
+
+L'exemple suivant illustre un retrait sur un compte de dépôt natif. Il ne remplace pas une revue complète, et le choix de politique en cas d'échec du transfert doit être explicite. Le code applique vérification, mise à jour d'état, puis interaction externe. Un projet réel doit aussi décider des protections contre la réentrance, des événements, des fonctions de secours et du comportement opérationnel.
+
+```solidity
+// Exemple pédagogique : ce fragment n'est pas un coffre de production.
+mapping(address => uint256) public credit;
+
+function withdraw(uint256 amount) external {
+    require(amount > 0, "amount=0");
+    uint256 available = credit[msg.sender];
+    require(available >= amount, "insufficient credit");
+
+    // Effects : l'état est ajusté avant l'appel externe.
+    credit[msg.sender] = available - amount;
+
+    // Interaction : le destinataire peut être un contrat avec un fallback.
+    (bool ok, ) = payable(msg.sender).call{value: amount}("");
+    require(ok, "transfer failed");
+}
+```
+
+Si le transfert échoue et que la condition de succès annule la transaction, la modification précédente est elle aussi annulée par l'atomicité de l'exécution. Cela ne rend pas ce modèle automatiquement suffisant : un contrat plus complexe peut avoir plusieurs chemins de retrait, des appels imbriqués, des états partagés ou d'autres actifs. Les protections doivent être évaluées à l'échelle du graphe d'appels complet.
+
+## 24. Tests de propriétés, fuzzing et scénarios adverses
+
+Un test unitaire confirme un scénario précis. Un test de propriété explore une règle générale sur plusieurs paramètres et séquences d'actions. Le fuzzing propose de nombreuses entrées pour rechercher des combinaisons non anticipées. Ces méthodes sont complémentaires : une suite de tests couvrant uniquement les chemins heureux peut passer alors qu'un invariant est violé par une séquence inhabituelle.
+
+### 24.1 Traduire une règle métier en matrice de tests
+
+Pour un coffre de dépôt, la matrice peut contenir au minimum les scénarios suivants :
+
+| Situation | Résultat attendu | État à vérifier |
+|---|---|---|
+| Dépôt positif | Accepté si les règles le permettent | Crédit et solde cohérents |
+| Retrait égal au crédit | Accepté | Crédit nul après succès |
+| Retrait supérieur au crédit | Rejeté | Crédit inchangé |
+| Retrait de zéro | Rejeté ou défini explicitement | Aucun transfert inattendu |
+| Destinataire qui réentre | Bloqué ou rendu inoffensif | Pas de retrait supplémentaire |
+| Transfert qui échoue | Transaction annulée selon le design | Pas de perte comptable |
+| Appelant non autorisé | Rejeté | Aucun changement privilégié |
+| Pause activée | Opérations ciblées bloquées | Fonctions d'urgence prévues toujours accessibles |
+
+La dernière colonne est essentielle. Vérifie la cause de l'échec et l'état après l'échec, pas seulement que le test a reçu une exception. Une opération peut échouer après avoir modifié des variables lorsque le chemin concerné dépend aussi d'un système externe hors chaîne.
+
+### 24.2 Fuzzing et invariants après séquences
+
+Dans un test fondé sur des séquences, génère plusieurs utilisateurs, montants et appels puis vérifie les règles après chaque étape. Une propriété possible est que le crédit comptabilisé d'un utilisateur ne devienne jamais incohérent. Une propriété plus métier est que la somme des crédits ne dépasse pas les fonds comptabilisés, en tenant compte du modèle exact du contrat, des frais et des autres actifs.
+
+Le fuzzing ne prouve pas l'absence de défaut. Il augmente la probabilité de trouver une séquence problématique dans l'espace exploré. Complète-le par des tests déterministes de régression, des invariants explicites, une revue de code et, pour les systèmes critiques, des outils d'analyse statique et une revue indépendante. Conserve la graine, la version du compilateur et les paramètres de test lorsqu'un échec est découvert pour pouvoir le reproduire.
+
+### 24.3 Réentrance : construire le test autour du comportement externe
+
+Un test de réentrance doit utiliser un contrat destinataire qui rappelle la fonction vulnérable pendant la réception d'un actif. Un compte externe classique ne reproduit pas ce comportement. Le destinataire de test doit contrôler le nombre de rappels, le montant et l'ordre des appels, puis mesurer si le cumul reçu dépasse le crédit autorisé.
+
+La question centrale n'est pas seulement « existe-t-il un modificateur de garde ? ». Examine l'ordre des opérations, les autres fonctions accessibles pendant l'appel, les variables partagées, les fonctions qui peuvent modifier l'autorisation et les interactions avec des jetons externes. Une garde peut être adaptée, mais elle ne corrige pas un invariant métier mal conçu et peut bloquer des compositions souhaitées si elle est appliquée sans analyse.
+
+## 25. Mise à niveau, urgence et exploitation après déploiement
+
+Une mise à niveau améliore parfois la capacité à corriger des erreurs, mais ajoute une frontière de confiance. Une architecture proxy sépare généralement l'adresse utilisée par les utilisateurs d'une implémentation qui contient le code exécuté. Cela ne rend pas le code immuable : l'autorité qui change l'implémentation devient une capacité critique.
+
+### 25.1 La compatibilité de stockage est une propriété de sécurité
+
+Dans une architecture à stockage partagé, l'implémentation mise à niveau peut lire des emplacements écrits par la version précédente. Réordonner des variables, changer leur type ou modifier l'héritage peut provoquer des lectures incorrectes, parfois silencieuses. Les règles exactes dépendent du framework et de son mécanisme de stockage. Utilise les outils de validation et examine les avertissements : la simple compilation ne prouve pas la compatibilité.
+
+La procédure de déploiement devrait inclure une comparaison du stockage, des tests de migration lorsque des données doivent être transformées, une simulation sur une copie représentative, la vérification des rôles et une validation de l'état après mise à niveau. Si l'architecture ne permet pas de retour arrière fiable, le plan doit le préciser avant le déploiement.
+
+### 25.2 Pause, rôles et multisignature
+
+Un mécanisme de pause n'est utile que si sa portée correspond au risque. Une pause globale peut empêcher les retraits légitimes pendant une panne ; une pause trop limitée peut laisser une voie d'exploitation ouverte. Définis qui peut déclencher l'urgence, quelles opérations restent ouvertes, comment les utilisateurs sont informés et quelles preuves sont nécessaires pour reprendre l'activité.
+
+Les rôles fortement privilégiés devraient être attribués à des identités contrôlées et, quand le risque le justifie, à une multisignature avec procédure de proposition et d'exécution. Vérifie les fonctions d'administration après chaque transfert de rôle : l'adresse attendue possède-t-elle le pouvoir, l'ancienne adresse l'a-t-elle perdu, et les délais ou garde-fous sont-ils actifs ? Un transfert mal ciblé peut transformer une défense en point de blocage.
+
+### 25.3 Préparer une réponse à incident
+
+Lorsqu'une anomalie est confirmée, protège d'abord les utilisateurs et préserve les preuves. Vérifie la portée à partir des événements et de l'état sur chaîne, identifie les fonctions encore exploitables et applique uniquement les mesures d'urgence prévues et autorisées. Ne lance pas de transaction improvisée sur un contrat contenant des actifs réels : les interventions sont publiques, irréversibles et peuvent aggraver l'incident.
+
+Le dossier d'incident doit contenir l'adresse et le réseau exacts, le bloc ou la transaction de référence, le code et la version déployés, les rôles encore actifs, les actifs potentiellement exposés, la mesure prise, son résultat et le plan de communication. Après l'endiguement, réalise une analyse de cause racine, ajoute des tests de régression, revois la configuration et clarifie les conditions de reprise. Une correction de code sans correction du processus laisse souvent le risque réapparaître.
+
+## 26. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Qu'est-ce qu'un smart contract ?
@@ -591,7 +695,7 @@ Un audit garantit-il qu'un contrat ne sera jamais exploité ?
 
 **Corrigé :** Non. Il peut réduire le risque, mais ne prouve pas l'absence de toutes les vulnérabilités. Le code, les dépendances, les paramètres et les menaces évoluent.
 
-## 24. Challenge final : concevoir un coffre de laboratoire
+## 27. Challenge final : concevoir un coffre de laboratoire
 
 ### Scénario
 
