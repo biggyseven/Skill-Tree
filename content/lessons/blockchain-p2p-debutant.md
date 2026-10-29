@@ -634,7 +634,55 @@ Un bon rapport ne se contente pas d'écrire « le P2P ne marche pas ». Il préc
 
 Une conclusion prudente peut être plus utile qu'une certitude injustifiée : « La connectivité reste stable, mais le retard augmente. Les erreurs d'E/S et la saturation du volume sont corrélées à la baisse de progression. Le prochain test compare les performances du stockage sur l'instance de laboratoire, sans modifier les pairs. » Cette conclusion est précise, vérifiable et révisable si de nouvelles preuves apparaissent.
 
-## 25. Dix questions d'entraînement avec corrigé
+## 25. Tester la résilience avec des pannes contrôlées
+
+Une architecture est plus facile à défendre lorsque son comportement en panne est connu. Un test de résilience ne consiste pas à couper des connexions au hasard sur un réseau utilisé par des tiers. Il s'effectue dans un environnement de laboratoire, avec une hypothèse, une durée, une limite d'impact et une procédure de retour à l'état initial. L'objectif est de mesurer la réaction du système lorsque l'une de ses dépendances se dégrade.
+
+### 25.1 Préparer l'expérience
+
+Avant le test, écris les conditions de départ : version du client, hauteur et état de synchronisation, nombre et type de pairs, ressources système, latence de référence et temps nécessaire au rétablissement. Choisis une seule perturbation. Par exemple, simule une latence supplémentaire sur un lien isolé, arrête proprement un pair de laboratoire, limite temporairement la bande passante d'une instance ou redémarre un client de test selon sa documentation. N'applique jamais ces actions à l'infrastructure principale sans autorisation explicite et procédure de changement.
+
+Définis ensuite les critères d'arrêt. Arrête l'expérience si le nœud cesse de progresser au-delà du seuil accepté, si les ressources se dégradent anormalement ou si la perturbation atteint une cible non prévue. Une expérience sans limite de durée peut devenir une panne auto-infligée.
+
+### 25.2 Scénarios et preuves attendues
+
+| Perturbation en laboratoire | Mesure prioritaire | Résultat attendu |
+|---|---|---|
+| Perte d'un pair | Nombre de pairs restants et délai de reconnexion | Reconnexion ou remplacement dans la fenêtre prévue |
+| Latence accrue | Retard de propagation et évolution de la hauteur | Dégradation mesurée, puis retour au niveau normal |
+| Débit limité | Progression de synchronisation et files d'attente | Ralentissement explicable sans corruption d'état |
+| Redémarrage du client | Durée de reprise et cohérence locale | Reprise conforme à la documentation |
+| Source de découverte indisponible | Capacité à conserver ou remplacer des pairs | Perte limitée, alerte visible |
+| Pair avec version incompatible | Journaux et comportement de négociation | Échec isolé, sans blocage durable du nœud |
+
+La preuve ne se résume pas à une capture d'écran. Conserve les mesures avant, pendant et après l'expérience, les heures exactes, la version de configuration et les événements pertinents. Compare le résultat avec une référence. Si le comportement réel diverge de l'attendu, note la divergence au lieu de modifier le critère de réussite a posteriori.
+
+### 25.3 Faire la différence entre récupération et retour à la normale
+
+Un nœud peut recommencer à produire des réponses sans avoir fini de se synchroniser. Il peut accepter les requêtes RPC tout en servant une hauteur ancienne, ou afficher un nombre de pairs normal tout en dépendant de connexions concentrées. Le critère de récupération doit donc couvrir plusieurs dimensions : disponibilité, progression, cohérence de la tête de chaîne, stabilité des sessions et absence de nouvelles erreurs pendant une fenêtre définie.
+
+La procédure de reprise doit indiquer quand l'opérateur peut remettre le nœud derrière un répartiteur de charge, quand il faut le retirer du service et quelles lectures peuvent rester disponibles en mode dégradé. Si l'application dépend de plusieurs nœuds, évite de faire confiance à une seule instance tout juste redémarrée. Compare son état à d'autres instances et n'autorise sa remise en service que lorsque les critères objectifs sont satisfaits.
+
+### 25.4 Exemple de compte rendu final
+
+Un rapport utile mentionne l'objectif, le périmètre, la perturbation choisie, le résultat observé, le temps de récupération, les signaux qui ont permis le diagnostic, les limites du test et l'action de suivi. Il précise ce qui n'a pas été testé. Une expérience simulant la perte d'un pair ne démontre pas la résistance à une attaque sybil ; une expérience de latence ne garantit pas le comportement sous saturation du disque.
+
+Termine par une décision vérifiable : accepter le comportement tel qu'il est documenté, augmenter la surveillance, réduire une dépendance, corriger une configuration ou ouvrir une tâche d'ingénierie. L'apprentissage est maximal quand le test améliore aussi le runbook et les seuils d'alerte. Une expérience n'est pas réussie simplement parce que le service a survécu ; elle doit avoir réduit une incertitude et rendu la reprise plus prévisible.
+
+```mermaid
+flowchart LR
+    A[Hypothèse et périmètre] --> B[Mesures de référence]
+    B --> C[Perturbation limitée]
+    C --> D[Collecte des observations]
+    D --> E{Critères d'arrêt atteints ?}
+    E -->|Oui| F[Restaurer la configuration]
+    E -->|Non| G[Observer la récupération]
+    G --> F
+    F --> H[Comparer avant et après]
+    H --> I[Mettre à jour runbook et alertes]
+```
+
+## 26. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Quelle est la différence entre client-serveur et P2P ?
@@ -686,7 +734,7 @@ Quelle est la première étape d'un diagnostic réseau sérieux ?
 
 **Corrigé :** Identifier précisément la couche et le symptôme, collecter des données reproductibles et comparer des sources indépendantes avant de conclure à une panne de consensus ou à une attaque.
 
-## 26. Challenge final : un nœud ne se synchronise plus
+## 27. Challenge final : un nœud ne se synchronise plus
 
 ### Scénario
 
