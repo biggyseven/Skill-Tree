@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Gestion de crise support » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quel critère peut justifier l'activation d'un dispositif de crise ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Le nombre de messages dans le canal de discussion uniquement",
+        "Un impact important, un service critique touché ou un risque grave selon les critères préétablis",
+        "La demande d'un seul agent sans évaluation",
+        "La présence d'un graphique rouge"
+      ],
+      "answer": 1,
+      "explanation": "Les critères doivent considérer l'impact, l'étendue, la criticité, la durée et les risques ; le seul volume ne suffit pas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi séparer coordination de crise et investigation technique ?",
+      "choices": [
+        "Pour empêcher les experts de communiquer",
+        "Pour rendre les décisions anonymes",
+        "Pour donner une vision globale au coordinateur et laisser l'investigation aux responsables techniques",
+        "Pour réduire le nombre de preuves conservées"
+      ],
+      "answer": 2,
+      "explanation": "La séparation limite les actions contradictoires et garde la coordination, la technique et la communication cohérentes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que devrait contenir une mise à jour de crise ?",
+      "choices": [
+        "Une heure de résolution inventée",
+        "Des hypothèses présentées comme des certitudes",
+        "Les secrets techniques non nécessaires",
+        "Les faits connus, l'impact, les actions, les inconnues et l'heure du prochain point"
+      ],
+      "answer": 3,
+      "explanation": "Une mise à jour honnête présente l'état vérifié et annonce une prochaine communication sans fabriquer une promesse de résolution."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le risque d'un redémarrage immédiat pendant un incident de sécurité suspecté ?",
+      "choices": [
+        "Il peut compromettre des preuves ou aggraver l'incident si l'action n'est pas évaluée",
+        "Il améliore toujours la conservation des preuves",
+        "Il supprime automatiquement le besoin de journalisation",
+        "Il ne peut avoir aucun effet secondaire"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Les actions doivent être évaluées par les responsables compétents ; il faut préserver les preuves et suivre le plan de réponse approprié."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand la crise peut-elle être déclarée terminée ?",
+      "choices": [
+        "Dès qu'un ping répond une fois",
+        "Lorsque les critères techniques et métier sont validés, les risques résiduels attribués et la surveillance organisée",
+        "Dès que le canal de crise est silencieux",
+        "Lorsque le nombre de tickets diminue, sans autre contrôle"
+      ],
+      "answer": 1,
+      "explanation": "Le rétablissement doit être démontré par des tests représentatifs et une validation du service, pas par un signal isolé."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure pratique pour le journal de décision ?",
+      "choices": [
+        "Le réécrire à la fin sans garder l'historique",
+        "Conserver seulement les décisions réussies",
+        "Enregistrer le contexte, les options, le décideur, l'heure et les conditions de réévaluation",
+        "Utiliser des notes privées sans accès à l'équipe"
+      ],
+      "answer": 2,
+      "explanation": "Une trace permet de comprendre pourquoi une action a été choisie et comment la décision a évolué lorsque de nouveaux faits sont apparus."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi garder un propriétaire interne lorsqu'un fournisseur intervient ?",
+      "choices": [
+        "Pour empêcher le fournisseur de résoudre le problème",
+        "Parce que le fournisseur doit communiquer uniquement avec la direction",
+        "Pour transférer tous les risques à l'utilisateur",
+        "Pour maintenir la responsabilité du suivi, des mises à jour et de l'escalade"
+      ],
+      "answer": 3,
+      "explanation": "Le support reste responsable de la continuité du dossier et de la communication, même si l'investigation technique est externalisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel livrable est attendu d'un retour d'expérience utile ?",
+      "choices": [
+        "Des actions avec propriétaires, échéances et critères de vérification",
+        "Un classement des personnes impliquées",
+        "Une chronologie sans analyse",
+        "Une consigne vague d'être plus vigilant"
+      ],
+      "answer": 0,
+      "explanation": "Le retour d'expérience doit transformer les observations en actions concrètes et vérifier qu'elles réduisent effectivement le risque."
     }
   ]
 }
