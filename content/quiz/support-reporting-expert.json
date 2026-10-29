@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Reporting support avancé » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Que doit contenir en priorité la définition d'un indicateur ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Une couleur et un graphique seulement",
+        "Une formule, un périmètre, une période, une source et un propriétaire",
+        "Le nom du logiciel de tableau de bord seulement",
+        "Une cible sans méthode de calcul"
+      ],
+      "answer": 1,
+      "explanation": "Une définition documentée rend le chiffre reproductible et interprétable dans le temps."
+    },
+    {
+      "type": "qcm",
+      "prompt": "1 080 tickets sur 1 200 tickets éligibles ont été résolus dans le délai. Quel est le taux ?",
+      "choices": [
+        "80 %",
+        "85 %",
+        "90 %",
+        "92 %"
+      ],
+      "answer": 2,
+      "explanation": "1 080 / 1 200 × 100 = 90 %. Le résultat n'est valable que si l'éligibilité et les calendriers sont définis."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi compléter le taux de respect SLA par le taux de réouverture ?",
+      "choices": [
+        "Pour obtenir deux chiffres identiques",
+        "Pour augmenter le nombre de graphiques",
+        "Pour supprimer les tickets complexes",
+        "Pour détecter une possible optimisation du délai au détriment de la résolution durable"
+      ],
+      "answer": 3,
+      "explanation": "Une réponse rapide ou une clôture accélérée peut dégrader la qualité ; un indicateur de garde-fou aide à rendre ce compromis visible."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que décrit généralement le 90e percentile d'un délai ?",
+      "choices": [
+        "Le seuil sous lequel se trouvent environ 90 % des observations selon la méthode retenue",
+        "La moyenne des 90 derniers tickets",
+        "Le temps de 90 secondes",
+        "Le délai maximal garanti pour tous les cas"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Le percentile décrit la distribution observée ; il ne constitue pas automatiquement une garantie contractuelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Le volume de tickets augmente de 15 % et le parc d'utilisateurs de 10 %. Quelle approche est la plus utile ?",
+      "choices": [
+        "Conclure immédiatement à un effondrement du support",
+        "Normaliser la demande par utilisateur et segmenter les causes",
+        "Supprimer du rapport le volume des tickets",
+        "Ne comparer aucune période"
+      ],
+      "answer": 1,
+      "explanation": "La normalisation fournit un contexte et la segmentation aide à identifier si certaines catégories ou services portent la variation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel signal convient à un tableau de bord dont l'extraction a échoué ?",
+      "choices": [
+        "Afficher les données précédentes comme si elles étaient actuelles",
+        "Masquer l'heure de mise à jour",
+        "Afficher clairement la date de fraîcheur et signaler le défaut",
+        "Remplacer toutes les valeurs par zéro"
+      ],
+      "answer": 2,
+      "explanation": "Les utilisateurs doivent pouvoir distinguer les données fraîches des données périmées ; zéro et absence de données ne signifient pas la même chose."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi la satisfaction seule est-elle insuffisante pour juger le service ?",
+      "choices": [
+        "Parce qu'elle est toujours inutile",
+        "Parce qu'elle doit être mesurée seulement une fois par an",
+        "Parce qu'elle ne peut jamais être comparée",
+        "Parce que le taux de réponse, le contexte et les résultats opérationnels influencent l'interprétation"
+      ],
+      "answer": 3,
+      "explanation": "La satisfaction apporte une perspective, mais doit être interprétée avec la participation, le périmètre et d'autres preuves de qualité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel doit être l'effet attendu d'un rapport de pilotage ?",
+      "choices": [
+        "Soutenir une décision explicite et permettre d'en suivre le résultat",
+        "Présenter le plus grand nombre de métriques possible",
+        "Classer les employés sans contexte",
+        "Remplacer toute analyse des causes"
+      ],
+      "answer": 0,
+      "explanation": "Un reporting utile relie des données fiables à une action, un propriétaire, une échéance et une mesure de suivi."
     }
   ]
 }
