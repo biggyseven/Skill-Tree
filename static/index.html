@@ -953,7 +953,7 @@
           <div class="mb-8" x-show="labNodes.filter(n => levelOf(n) === l.id && (!labSearch || norm([n.title, moduleMeta(moduleOf(n)).label, n.id].join(' ')).includes(norm(labSearch)))).length">
             <h3 class="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white" x-text="l.icon + ' ' + l.label"></h3>
             <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              <template x-for="n in labNodes.filter(x => levelOf(x) === l.id && (!labSearch || norm([x.title, moduleMeta(moduleOf(x)).label, x.id].join(' ')).includes(norm(labSearch)))" :key="n.id">
+              <template x-for="n in labNodes.filter(x => levelOf(x) === l.id && (!labSearch || norm([x.title, moduleMeta(moduleOf(x)).label, x.id].join(' ')).includes(norm(labSearch))))" :key="n.id">
                 <a data-lab-card="catalog"
                    :data-lab-kind="labIndex[n.id]?.kind === 'workspace-v2' ? 'workspace-v2' : 'legacy'"
                    :href="labIndex[n.id]?.kind === 'workspace-v2' ? '/lab.html?id=' + encodeURIComponent(n.id) : '/?openLab=' + encodeURIComponent(n.id)"
