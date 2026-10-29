@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Optimisation de la satisfaction (CSAT/NPS) » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quelle différence entre CSAT et NPS est la plus exacte ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Ils sont toujours identiques",
+        "Le CSAT mesure une satisfaction liée à une expérience définie ; le NPS mesure une propension déclarée à recommander",
+        "Le NPS ne peut pas être négatif",
+        "Le CSAT mesure uniquement le nombre de tickets"
+      ],
+      "answer": 1,
+      "explanation": "Ces mesures répondent à des questions différentes et leur formule et périmètre doivent être documentés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans le calcul NPS conventionnel, comment sont traitées les réponses de 7 et 8 sur 10 ?",
+      "choices": [
+        "Elles deviennent automatiquement des promoteurs",
+        "Elles sont retirées du dénominateur",
+        "Elles sont classées comme passifs",
+        "Elles deviennent automatiquement des détracteurs"
+      ],
+      "answer": 2,
+      "explanation": "Les réponses 7-8 sont des passifs ; elles entrent dans le total des répondants mais ne s'ajoutent ni aux promoteurs ni aux détracteurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment calcule-t-on un CSAT exprimé en pourcentage de réponses positives ?",
+      "choices": [
+        "Tickets clos divisé par tickets reçus",
+        "Moyenne de tous les délais",
+        "Réponses négatives divisées par les utilisateurs actifs",
+        "Réponses définies comme positives divisées par réponses valides, multiplié par 100"
+      ],
+      "answer": 3,
+      "explanation": "Le calcul dépend des catégories retenues comme positives ; cette règle doit rester cohérente et documentée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel biais peut affecter une enquête de satisfaction ?",
+      "choices": [
+        "Les utilisateurs qui répondent peuvent différer de ceux qui ne répondent pas",
+        "Le score est toujours objectif par définition",
+        "Le volume de réponses ne compte jamais",
+        "Le texte de la question n'a aucun effet"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "La non-réponse et la composition des répondants peuvent déformer l'image de l'expérience de l'ensemble des utilisateurs."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une enquête obtient un score positif, mais les tickets sont souvent réouverts. Quelle suite est la plus utile ?",
+      "choices": [
+        "Ignorer les réouvertures",
+        "Croiser les scores avec la qualité de résolution et examiner un échantillon de dossiers",
+        "Arrêter toutes les enquêtes",
+        "Modifier l'échelle jusqu'à obtenir un meilleur score"
+      ],
+      "answer": 1,
+      "explanation": "La satisfaction seule ne prouve pas la résolution durable ; les retours doivent être reliés aux résultats opérationnels."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que signifie « fermer la boucle » avec un utilisateur insatisfait ?",
+      "choices": [
+        "Effacer son commentaire",
+        "Garantir une correction immédiate quelle que soit la cause",
+        "Analyser le retour, fournir une réponse réaliste et suivre l'action pertinente",
+        "Lui demander de changer son score"
+      ],
+      "answer": 2,
+      "explanation": "La boucle fermée signifie que le retour est pris en compte et qu'une réponse ou une action est tracée, sans promesse non maîtrisée."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il être prudent en comparant le CSAT de deux agents ?",
+      "choices": [
+        "Le score est toujours inutile",
+        "Les agents doivent recevoir exactement le même ticket",
+        "Le score mesure seulement la vitesse de frappe",
+        "La difficulté des cas, le volume de réponses et les facteurs hors contrôle peuvent différer"
+      ],
+      "answer": 3,
+      "explanation": "La comparaison demande un contexte et des échantillons suffisants ; un classement brut peut être injuste ou trompeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une action vise à améliorer la communication pendant les retards. Quel garde-fou est pertinent ?",
+      "choices": [
+        "Suivre aussi les relances et les résultats du traitement pour ne pas confondre communication et résolution",
+        "Mesurer uniquement le nombre de messages envoyés",
+        "Arrêter de suivre le délai de traitement",
+        "Exclure les utilisateurs mécontents"
+      ],
+      "answer": 0,
+      "explanation": "La communication peut améliorer la compréhension, mais elle ne doit pas masquer la cause opérationnelle du délai."
     }
   ]
 }

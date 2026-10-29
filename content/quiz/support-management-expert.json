@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Management d'une équipe support » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quelle est la meilleure manière d'évaluer la performance d'un agent support ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Utiliser uniquement le nombre de tickets clos",
+        "Comparer le volume en tenant compte de la complexité, de la qualité et des contraintes",
+        "Classer les agents selon leur vitesse sans autre critère",
+        "Mesurer seulement la satisfaction des répondants"
+      ],
+      "answer": 1,
+      "explanation": "Le volume brut ne reflète pas la complexité, les tâches préventives ni la qualité. Plusieurs dimensions et un périmètre comparable sont nécessaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est l'objectif principal d'une matrice de compétences ?",
+      "choices": [
+        "Identifier uniquement les agents à sanctionner",
+        "Garantir que personne ne prend de congé",
+        "Rendre visibles les savoir-faire critiques et organiser la progression ou les remplacements",
+        "Remplacer toutes les procédures"
+      ],
+      "answer": 2,
+      "explanation": "La matrice révèle les dépendances à une seule personne et permet de planifier le compagnonnage, la validation et la couverture."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi faut-il conserver un propriétaire pendant un transfert de ticket ?",
+      "choices": [
+        "Pour empêcher l'intervention d'autres équipes",
+        "Pour améliorer artificiellement le taux de clôture",
+        "Pour éviter de documenter le diagnostic",
+        "Pour prévenir les tickets orphelins et garder une responsabilité claire"
+      ],
+      "answer": 3,
+      "explanation": "Le ticket reste suivi jusqu'à l'acceptation explicite par le destinataire, avec un responsable et un prochain pas."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est une limite importante d'un dimensionnement fondé uniquement sur la moyenne ?",
+      "choices": [
+        "Il peut masquer les pics, la variabilité et les goulots de compétence",
+        "Il exige toujours un outil d'IA",
+        "Il ne permet jamais de compter les tickets",
+        "Il surestime nécessairement toutes les équipes"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Les pointes et la distribution des durées doivent être prises en compte ; une moyenne seule masque les périodes de saturation."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel comportement de management protège les apprentissages à long terme ?",
+      "choices": [
+        "Mesurer seulement la clôture quotidienne",
+        "Protéger du temps pour la documentation, la formation et le transfert de savoir",
+        "Supprimer les revues de qualité",
+        "Récompenser systématiquement la fermeture rapide"
+      ],
+      "answer": 1,
+      "explanation": "Sans temps protégé, la connaissance et la prévention deviennent invisibles et les dépendances à quelques experts persistent."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit provoquer une revue hebdomadaire efficace ?",
+      "choices": [
+        "Un classement sans contexte",
+        "Un nouveau tableau de bord à chaque réunion",
+        "Des décisions tracées avec un responsable et une échéance",
+        "Une discussion libre sans suivi"
+      ],
+      "answer": 2,
+      "explanation": "Les rituels de pilotage sont utiles s'ils débouchent sur des actions attribuées, datées et suivies."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel risque apparaît si l'on exige un taux de temps productif proche de 100 % ?",
+      "choices": [
+        "La demande disparaît",
+        "Les procédures deviennent automatiquement plus fiables",
+        "Les agents gagnent nécessairement en compétence",
+        "Il ne reste presque plus de marge pour l'imprévu, la prévention et la formation"
+      ],
+      "answer": 3,
+      "explanation": "Le support est soumis aux interruptions. Une occupation sans marge rend les pics plus difficiles à absorber et déplace le travail préventif."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une performance dégradée observée lors d'une revue de tickets ?",
+      "choices": [
+        "Examiner les preuves et distinguer compétence, procédure, outil et surcharge avant d'agir",
+        "Critiquer publiquement l'agent",
+        "Modifier les indicateurs pour cacher l'écart",
+        "Supprimer tous les tickets complexes de l'échantillon"
+      ],
+      "answer": 0,
+      "explanation": "Le management doit identifier le vrai obstacle et donner un retour précis, sans supposer immédiatement qu'il s'agit d'un manque individuel."
     }
   ]
 }
