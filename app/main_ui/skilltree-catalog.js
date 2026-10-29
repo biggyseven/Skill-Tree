@@ -9,6 +9,9 @@
     ];
 
         const MODULES = [
+      { id: 'commandes', label: 'Commandes & Aide-mémoire', short: 'Commandes', icon: '⌨️', roadmap: {
+        intermediaire: ['Config de base', 'Interfaces & VLANs', 'Routage & OSPF', 'Sécurité & ACL', 'Vérification & Diagnostic']
+      } },
       { id: 'admin-reseaux', label: 'Administration Réseaux', short: 'Réseaux', icon: '🌐', roadmap: {} },
       { id: 'admin-systeme', label: 'Administration Système', short: 'Système', icon: '🖥️', roadmap: {
         debutant: ['Introduction à Linux et au shell', 'Système de fichiers et permissions', 'Utilisateurs et groupes', 'Processus et services (systemd)', 'Paquets et mises à jour', 'Windows Server : bases et Active Directory'],
@@ -133,6 +136,8 @@
       'ospf-advanced': 'expert', 'bgp-advanced': 'expert', 'qos-advanced': 'expert', 'vxlan': 'expert', 'spine-leaf': 'expert', 'sd-access': 'expert',
       'zero-trust': 'expert', 'zero-trust-architecture': 'expert', 'ddos-mitigation': 'expert', 'netconf-yang': 'expert', 'wireshark-advanced': 'expert',
       'segment-routing': 'expert', 'evpn': 'expert', 'cisco-aci': 'expert',
+      'cmd-base': 'intermediaire', 'cmd-interfaces': 'intermediaire', 'cmd-routage': 'intermediaire',
+      'cmd-securite': 'intermediaire', 'cmd-verification': 'intermediaire',
     };
 
     const NAV_ITEMS = [
@@ -457,6 +462,7 @@
         levelMeta(id) { return this.levels.find(l => l.id === id) || null; },
                 moduleOf(n) {
           const id = String(n.id || '');
+          if (id.startsWith('cmd-')) return 'commandes';
           if (id.startsWith('maint-')) return 'maintenance';
 
           // Les modules nouvellement ajoutés au catalogue sont canoniques :
