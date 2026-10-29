@@ -33,6 +33,13 @@ def main() -> int:
             if prereq not in known:
                 errors.append(f"{node.get('id')}: prérequis inconnu {prereq}")
 
+    # Bibliothèque de fiches de consultation rapide : pas de quiz individuel
+    # et longueur volontairement plus courte que les cours classiques.
+    free_reference_ids = {
+        node.get("id") for node in nodes
+        if node.get("module") == "Commandes & Aide-mémoire"
+    }
+
     lessons: dict[str, Path] = {}
     empty_drafts: dict[str, Path] = {}
     for path in sorted((CONTENT / "lessons").glob("*.md")):
@@ -51,9 +58,11 @@ def main() -> int:
     for lesson_id in sorted(lessons):
         if lesson_id not in known:
             errors.append(f"Cours sans nœud: {lesson_id}")
-        if lesson_id not in quizzes:
+        if lesson_id not in quizzes and lesson_id not in free_reference_ids:
             errors.append(f"Cours sans quiz homonyme: {lesson_id}")
     for quiz_id, path in sorted(quizzes.items()):
+        if quiz_id in free_reference_ids:
+            errors.append(f"Fiche de référence avec quiz individuel inattendu: {quiz_id}")
         if quiz_id not in known:
             errors.append(f"Quiz sans nœud: {quiz_id}")
         try:
@@ -103,7 +112,9 @@ def main() -> int:
     short_lessons = [
         (lesson_id, path.stat().st_size)
         for lesson_id, path in lessons.items()
-        if path.stat().st_size < 8000 and not lesson_id.startswith(("challenge-", "lab_"))
+        if path.stat().st_size < 8000
+        and lesson_id not in free_reference_ids
+        and not lesson_id.startswith(("challenge-", "lab_"))
     ]
 
     print("Audit du catalogue pédagogique Skill-Tree")
