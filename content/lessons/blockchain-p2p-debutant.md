@@ -272,7 +272,97 @@ Un diagnostic utile suit les couches :
 
 Si le fournisseur RPC principal ne répond plus mais qu'un autre service fonctionne, le problème est probablement au niveau du fournisseur ou du chemin réseau, pas nécessairement au niveau du consensus. Si les nœuds indépendants cessent de progresser ou rapportent des erreurs de consensus, l'enquête doit être élargie. Le vocabulaire précis évite les fausses alertes et accélère la résolution.
 
-## 11. TP guidé A : mesurer la connectivité sans altérer le réseau
+## 11. Propagation efficace et validation indépendante
+
+La propagation des blocs et transactions doit équilibrer vitesse, bande passante et sécurité. Envoyer systématiquement toutes les données volumineuses à tous les pairs serait coûteux. Les protocoles peuvent utiliser des annonces, des identifiants de transactions et des mécanismes de récupération de données que les pairs n'ont pas encore reçues. Les détails varient selon les clients et évoluent avec les versions.
+
+Un nœud doit éviter de considérer une annonce de bloc comme une preuve de validité. Il peut demander l'en-tête et le corps, vérifier la continuité du parent, contrôler les engagements cryptographiques et appliquer les règles de consensus. La validation locale reste essentielle même lorsque le pair qui relaie les données est réputé.
+
+~~~mermaid
+sequenceDiagram
+    participant A as Pair A
+    participant B as Nœud local
+    participant C as Pair C
+    A->>B: Annonce d'un bloc connu par hash
+    B->>B: Vérifier parent et données déjà présentes
+    B->>A: Demander les données manquantes
+    A-->>B: En-tête et corps du bloc
+    B->>B: Vérifier engagements et règles
+    B->>C: Relayer si admissible
+~~~
+
+### Transactions remplaçables et dépendances
+
+Les transactions en attente peuvent entrer en concurrence. Dans Bitcoin, une transaction qui dépense un UTXO peut être en conflit avec une autre transaction qui dépense le même UTXO. Dans Ethereum, les transactions d'un même compte utilisent des nonces et peuvent être remplacées selon des conditions de client et de réseau. Il faut comprendre le modèle du protocole avant d'expliquer pourquoi une transaction n'est plus visible.
+
+Les dépendances de transactions compliquent aussi la propagation. Une transaction peut dépenser une sortie créée par une transaction non confirmée ; si la transaction parent n'est pas relayée, la transaction enfant peut être considérée différemment selon la politique du nœud. Une analyse ne doit donc pas se limiter au hash d'une transaction isolée sans examiner ses parents, ses conflits et les règles locales de mempool.
+
+## 12. Sync, snapshots et confiance initiale
+
+Un nouveau nœud doit établir un état local qui correspond à l'historique accepté. Le mode de synchronisation influence le temps d'initialisation, le stockage requis et les données vérifiées localement. Une synchronisation complète depuis le point de départ offre un modèle de vérification différent d'une méthode accélérée qui utilise un instantané ou certaines hypothèses de confiance.
+
+Un snapshot est une copie d'un état à une hauteur donnée. Il peut accélérer un déploiement, surtout lorsque l'historique est volumineux. Mais le fait de télécharger un snapshot n'est pas automatiquement équivalent à avoir validé toute l'histoire depuis le bloc de genèse. Il faut comprendre si le snapshot est vérifié cryptographiquement, comment le parent ou la racine est contrôlé et quelles étapes restent à accomplir.
+
+~~~mermaid
+flowchart TD
+    A["Choisir le mode de synchronisation"] --> B{"Validation complète ou mode accéléré ?"}
+    B -->|Complète| C["Télécharger et vérifier l'historique"]
+    B -->|Accélérée| D["Charger un état/snapshot selon la procédure"]
+    D --> E["Vérifier les engagements disponibles"]
+    E --> F["Poursuivre la synchronisation et les contrôles prévus"]
+    C --> G["Comparer la tête locale aux pairs"]
+    F --> G
+    G --> H["Surveiller la progression"]
+~~~
+
+### Stockage et reprise
+
+Avant une synchronisation, dimensionne le volume de données, le débit disponible, l'espace disque temporaire et la durée de récupération. Le disque doit disposer de marge suffisante pour les écritures et les opérations de maintenance. Une base saturée peut bloquer la synchronisation même si le client et le réseau fonctionnent correctement.
+
+Pour une reprise, conserve d'abord les journaux et la configuration, puis identifie le type de panne. Une base corrompue peut nécessiter une réparation ou une resynchronisation selon la documentation du client. Un problème DNS ou de pare-feu ne sera pas résolu en supprimant la base. Une bonne procédure choisit l'action après avoir identifié la couche affectée.
+
+## 13. Défenses contre l'éclipse et les dépendances réseau
+
+Une attaque d'éclipse vise à isoler un nœud en influençant ses connexions et les informations qu'il reçoit. Le nœud peut continuer à répondre, mais sa vue du réseau peut être incomplète ou retardée. La défense ne consiste pas uniquement à augmenter le nombre de connexions ; il faut tenir compte de leur diversité et du mécanisme de découverte.
+
+Les mesures possibles dépendent du client : connexions sortantes diversifiées, découverte de pairs à partir de plusieurs sources, conservation d'adresses apprises, limitation de la dépendance à un ensemble unique et comparaison périodique avec des sources indépendantes. Les paramètres doivent suivre les recommandations du client ; augmenter arbitrairement les connexions peut créer d'autres problèmes de ressources.
+
+### Diversité et points communs
+
+Si tous les pairs utilisent le même hébergeur ou passent par la même infrastructure, une panne ou un filtrage à cet endroit peut les affecter en même temps. La diversité doit être évaluée selon l'opérateur, le fournisseur réseau, l'hébergement, la version du client et le chemin de communication. Il faut éviter de conclure qu'il y a une diversité réelle à partir de plusieurs adresses IP seulement.
+
+Les services RPC ont une couche de confiance distincte du P2P. Deux endpoints qui appartiennent au même fournisseur peuvent partager des dépendances et un retard commun. Pour une décision critique, vérifie si le fournisseur est réellement indépendant et si la réponse inclut les informations nécessaires pour déterminer la hauteur ou le bloc concerné.
+
+## 14. Runbook P2P : diagnostiquer une propagation anormale
+
+Lorsque les transactions ou blocs semblent manquer, le diagnostic doit distinguer le trajet local, les pairs, le fournisseur RPC, les politiques de relais et le consensus.
+
+| Symptôme | Vérifications initiales | Hypothèses possibles |
+|---|---|---|
+| Aucun pair | DNS, pare-feu, ports et découverte | Réseau ou configuration locale |
+| Pair connecté, tête figée | Hauteur, erreurs de validation et disque | Synchronisation ou problème de client |
+| Transaction vue par un seul nœud | Hash, format, politique de relais et conflits | Transaction non relayée ou fournisseur isolé |
+| Explorateur en retard | Comparer la hauteur et le bloc parent | Indexation ou cache |
+| Blocs concurrents courts | Parent commun et durée de l'écart | Propagation normale ou latence |
+| De nombreux pairs chutent ensemble | Hébergeur, route et versions | Dépendance commune ou incident plus large |
+
+~~~mermaid
+flowchart TD
+    A["Symptôme signalé"] --> B["Identifier le composant et le réseau"]
+    B --> C["Tester localement DNS, TCP, stockage et client"]
+    C --> D["Comparer un second nœud / RPC"]
+    D --> E{"Même anomalie indépendante ?"}
+    E -->|Non| F["Investiguer fournisseur ou poste local"]
+    E -->|Oui| G["Collecter données réseau et consensus"]
+    F --> H["Documenter et surveiller"]
+    G --> H
+~~~
+
+Ne lance pas de test intrusif sur des systèmes qui ne t'appartiennent pas. Les commandes réseau doivent être limitées aux hôtes autorisés et les ports testés doivent correspondre à la configuration réelle. Le résultat d'un test TCP ne démontre pas la validité des blocs ; il indique uniquement la capacité à établir une connexion à l'endroit testé.
+
+Un compte rendu de diagnostic doit indiquer la date, l'hôte, le réseau, le résultat observé, la commande ou méthode utilisée, les sources comparées et le niveau de certitude. Cette discipline aide à éviter de transformer une panne de fournisseur en fausse alerte de consensus.
+
+## 15. TP guidé A : mesurer la connectivité sans altérer le réseau
 
 ### Objectif
 
@@ -306,7 +396,7 @@ Si tu disposes de deux endpoints de lecture autorisés pour un réseau de test, 
 
 Note l'adresse de l'hôte, le type de requête, le résultat, l'heure, l'état DNS/TCP et les écarts observés entre fournisseurs. Conclus en séparant les faits confirmés et les hypothèses. Le rapport ne doit pas déclarer une panne du consensus sur la seule base d'un endpoint qui ne répond pas.
 
-## 12. TP guidé B : cartographier les dépendances d'une DApp
+## 16. TP guidé B : cartographier les dépendances d'une DApp
 
 Dessine les composants suivants : navigateur, portefeuille, interface web, fournisseur RPC, nœud complet, réseau P2P, consensus, contrat intelligent et indexeur. Connecte-les selon le parcours d'une lecture et d'une transaction.
 
@@ -330,7 +420,117 @@ Pour chaque connexion, précise si elle dépend d'un fournisseur centralisé, d'
 
 **Corrigé indicatif :** l'interface peut être hébergée de façon centralisée alors que le contrat est sur une chaîne publique. Le portefeuille signe localement, mais peut dépendre d'un RPC pour diffuser la transaction. Un nœud personnel ou un fournisseur alternatif peut réduire la dépendance RPC. La panne de l'interface peut être contournée uniquement si une interface fiable alternative est disponible ; la transaction ne doit pas être signée à l'aveugle. Un retard de consensus affecte la confirmation et la finalité même si le site et le RPC restent accessibles.
 
-## 13. Dix questions d'entraînement avec corrigé
+## 17. Étude de cas : la transaction n'apparaît pas partout
+
+Un utilisateur affirme avoir envoyé une transaction. Son portefeuille affiche un hash, mais un explorateur ne la trouve pas et un second fournisseur la voit comme en attente. Ce scénario n'indique pas immédiatement une attaque. Il faut reconstruire le trajet de la transaction et vérifier si les sources utilisent le même réseau.
+
+### Arbre de diagnostic
+
+~~~mermaid
+flowchart TD
+    A["Le portefeuille donne-t-il un hash ?"] -->|Non| B["Vérifier signature, réseau et erreur locale"]
+    A -->|Oui| C["Vérifier le chain ID et décoder le hash"]
+    C --> D["Interroger plusieurs nœuds indépendants"]
+    D --> E{"La transaction est-elle connue ?"}
+    E -->|Oui| F["Examiner statut, nonce/inputs et inclusion"]
+    E -->|Non| G["Vérifier relais, format et politique locale"]
+    F --> H["Suivre confirmation ou reçu"]
+    G --> H
+~~~
+
+### Informations à recueillir
+
+Récupère le hash, le réseau, l'adresse expéditrice, l'heure de soumission, le compte utilisé et le message d'erreur du portefeuille. Ne demande jamais à l'utilisateur une clé privée pour diagnostiquer un problème. Compare ensuite les données de deux fournisseurs dont l'indépendance est connue. Si la transaction n'est pas connue de plusieurs nœuds, elle peut n'avoir jamais été diffusée correctement, avoir été rejetée ou être perdue par certains services.
+
+Les détails diffèrent selon Bitcoin et Ethereum. Bitcoin permet de vérifier les entrées et sorties UTXO, les conflits de dépenses et les règles de mempool. Ethereum exige notamment d'examiner le nonce du compte, les frais, le réseau et les transactions éventuellement remplacées. La procédure doit donc suivre la chaîne précise, et non appliquer des étapes abstraites sans tenir compte du protocole.
+
+## 18. Dépendances communes et fausse diversité
+
+Deux nœuds ne sont pas forcément indépendants parce qu'ils utilisent des IP différentes. Ils peuvent être hébergés par le même fournisseur cloud, partager une version de client, utiliser le même service de bootstrap ou dépendre d'une seule route réseau. La diversité réelle est une propriété de l'exploitation, de la connectivité et des implémentations.
+
+Une architecture pour un service critique peut comparer :
+- les opérateurs et fournisseurs d'hébergement ;
+- les régions et réseaux autonomes ;
+- les implémentations clientes et versions ;
+- les mécanismes de découverte de pairs ;
+- les endpoints RPC et leurs dépendances ;
+- la méthode de synchronisation et les sources d'instantanés.
+
+~~~mermaid
+flowchart TD
+    A["Nœuds d'observation"] --> B["Même fournisseur cloud ?"]
+    A --> C["Même client / même version ?"]
+    A --> D["Même source RPC amont ?"]
+    B --> E["Identifier les dépendances communes"]
+    C --> E
+    D --> E
+    E --> F["Diversifier ou documenter le risque restant"]
+~~~
+
+### Diversifier sans multiplier le risque
+
+Le but n'est pas d'ajouter des connexions au hasard. Des connexions excessives peuvent augmenter la consommation mémoire, le trafic et l'exposition. Il faut suivre les recommandations du client et choisir des sources réellement indépendantes pour les décisions où cela fait une différence.
+
+Pour les opérations critiques, la DApp peut utiliser un nœud complet géré en interne comme source primaire de vérification tout en conservant un fournisseur externe comme chemin de reprise. Il faut toutefois prévoir ce qui se passe si les sources diffèrent : vérifier le réseau, la hauteur, le hash du parent et le statut finalisé, plutôt que de choisir arbitrairement la réponse qui paraît la plus favorable.
+
+## 19. Mesures de santé et objectifs opérationnels
+
+La santé d'un nœud ne se résume pas à son processus actif. Un nœud peut être vivant mais en retard, manquer d'espace disque, perdre ses pairs ou ne pas suivre les mises à jour du protocole. La supervision doit lier chaque indicateur à une action de diagnostic.
+
+| Mesure | Signal possible | Contrôle suivant |
+|---|---|---|
+| Hauteur ou slot stagnant | Synchronisation bloquée ou réseau lent | Comparer plusieurs sources |
+| Nombre de pairs en baisse | Connectivité, découverte ou incident distant | Vérifier routes et journaux |
+| Espace disque proche de la limite | Le client ne peut plus écrire l'état | Vérifier capacité et rétention |
+| Erreurs de validation | Données invalides, bug ou incompatibilité | Conserver le bloc et la version client |
+| Latence RPC élevée | Fournisseur saturé ou réseau instable | Comparer un endpoint indépendant |
+| Version trop ancienne | Risque d'incompatibilité | Suivre la procédure officielle de mise à jour |
+
+Les objectifs de service doivent préciser la fraîcheur maximale des données, le délai d'alerte et le temps de reprise. Un seul chiffre « uptime » peut masquer le fait que l'application répond avec un état ancien. La supervision doit donc tester aussi la progression et la cohérence, pas seulement le port ouvert.
+
+Un exercice de reprise régulier aide l'équipe à vérifier les sauvegardes de configuration, la méthode de resynchronisation, les ressources nécessaires et les contacts d'escalade. La procédure doit être testée dans un environnement de laboratoire avant d'être nécessaire en production.
+
+## 20. Mesurer la diversité réelle du réseau
+
+Un réseau P2P peut afficher de nombreux pairs alors qu'une part importante dépend de quelques fournisseurs ou d'une même famille de clients. Une mesure utile doit tenir compte de l'indépendance organisationnelle, de la localisation réseau, de la version logicielle et des chemins de découverte. Le nombre brut de connexions est une mesure partielle.
+
+~~~mermaid
+flowchart TD
+    A["Liste de pairs"] --> B["Grouper par hébergeur et réseau"]
+    A --> C["Comparer versions de clients"]
+    A --> D["Identifier sources de découverte"]
+    B --> E["Évaluer les dépendances communes"]
+    C --> E
+    D --> E
+    E --> F["Documenter les limites et mesures de résilience"]
+~~~
+
+### Exemple
+
+Une entreprise configure deux endpoints RPC, mais les deux sont hébergés par le même fournisseur qui indexe les données à partir d'une seule région. Le changement d'URL ne garantit donc pas une reprise indépendante. Un vrai plan de résilience devrait préciser les fournisseurs, leurs garanties, le réseau utilisé et la procédure pour vérifier que les réponses n'ont pas divergé.
+
+Cette diversification ne nécessite pas de créer une quantité excessive de connexions P2P. Elle exige d'abord de cartographier les dépendances et de décider quels risques l'architecture doit réduire. Les paramètres de connexion doivent ensuite respecter les recommandations du client et les limites de l'infrastructure.
+
+## 21. Exercice de reprise après une mise à jour de client
+
+Une mise à jour peut corriger un bug ou suivre une nouvelle règle du protocole, mais elle peut aussi révéler une incompatibilité entre opérateurs si tous ne la déploient pas au même moment. La procédure de mise à jour doit préciser quelle version est requise, comment le changement est testé, quelle sauvegarde de configuration est faite et comment vérifier la synchronisation après redémarrage.
+
+Le plan de test comprend :
+1. relever la version courante et le dernier bloc accepté ;
+2. lire les notes de version et vérifier le réseau ciblé ;
+3. tester la nouvelle version dans un environnement non productif ;
+4. sauvegarder la configuration et les données nécessaires à la reprise ;
+5. appliquer la mise à jour selon la procédure officielle ;
+6. vérifier les pairs, la progression et les erreurs de validation ;
+7. comparer la tête avec une source indépendante.
+
+### Critères de réussite
+
+Le nœud doit suivre le bon réseau, progresser et ne pas rapporter de nouvelles erreurs de validation. Un processus démarré ne suffit pas. Si le nœud reste en retard, vérifie le stockage, les pairs et les journaux avant de supprimer les données. Une resynchronisation peut être coûteuse et ne corrigera pas une mauvaise configuration réseau.
+
+Le rapport final doit distinguer une mise à jour réussie, une panne locale et un incident plus large. Conserve les journaux et le hash des blocs observés afin qu'un autre opérateur puisse reproduire le diagnostic.
+
+## 22. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Quelle est la différence entre client-serveur et P2P ?
@@ -382,7 +582,7 @@ Quelle est la première étape d'un diagnostic réseau sérieux ?
 
 **Corrigé :** Identifier précisément la couche et le symptôme, collecter des données reproductibles et comparer des sources indépendantes avant de conclure à une panne de consensus ou à une attaque.
 
-## 14. Challenge final : un nœud ne se synchronise plus
+## 23. Challenge final : un nœud ne se synchronise plus
 
 ### Scénario
 

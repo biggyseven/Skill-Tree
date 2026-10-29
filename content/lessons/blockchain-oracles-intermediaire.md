@@ -327,7 +327,124 @@ Pour un protocole financier, les propriétés à tester peuvent inclure : aucun 
 
 Le test doit considérer les interactions entre fonctions. Une vérification isolée de fraîcheur peut être correcte alors que la fonction de liquidation l'appelle avec une autre valeur ou n'applique pas la même vérification. Les contrôles critiques doivent être centralisés de manière lisible et leurs propriétés documentées.
 
-## 11. TP guidé A : lire un flux de prix en sécurité
+## 11. Utiliser un prix dans une formule de collatéral
+
+Un prix oracle n'a de sens que lorsqu'il est combiné correctement aux unités et à la logique métier. Dans un protocole de prêt, la valeur d'une garantie peut être calculée à partir d'une quantité de jeton et d'un prix par unité. La formule doit normaliser les décimales du jeton et celles du flux, puis appliquer le facteur de collatéral et les règles d'arrondi.
+
+Supposons à titre d'exemple que le solde du jeton soit stocké dans 18 décimales et que le flux de prix utilise 8 décimales. Le développeur ne peut pas multiplier les deux entiers et afficher le résultat directement. Il doit définir l'échelle intermédiaire, les unités, la devise finale et les bornes. Pour un calcul financier, les formules devraient être documentées en équations puis vérifiées par des tests de référence.
+
+~~~mermaid
+flowchart LR
+    B["Solde brut du token"] --> N["Normaliser les décimales du token"]
+    P["Answer du flux"] --> D["Lire decimals du flux"]
+    N --> V["Calcul valeur dans une unité connue"]
+    D --> V
+    V --> C["Appliquer facteur de garantie et arrondi"]
+    C --> R["Valeur exploitable par le protocole"]
+~~~
+
+### Exemple mathématique conceptuel
+
+Si le montant humain du jeton est \(Q\) et que le prix humain du flux est \(P\), la valeur brute dans la devise du flux est \(V = Q \times P\). Le contrat réel ne travaille pas nécessairement directement avec \(Q\) et \(P\) sous forme décimale ; il les représente comme des entiers avec des facteurs de précision. La formule de conversion doit annuler les échelles correctement et ne pas déborder les types numériques.
+
+La précision affecte les seuils : un arrondi vers le bas peut diminuer la valeur de la garantie, tandis qu'un arrondi vers le haut peut la surestimer. La direction de l'arrondi doit être choisie de manière prudente selon l'opération. Pour une décision de solvabilité, le contrat doit éviter de donner trop de crédit à une valeur imprécise.
+
+### Prix et risque de liquidation
+
+Le prix oracle représente une information selon un modèle de flux, et non une garantie que le protocole puisse vendre la garantie immédiatement à ce prix. La liquidité, le slippage, la profondeur des marchés et la vitesse du changement de prix affectent l'exécution. Une liquidation qui repose sur un prix correct mais ne tient pas compte du coût d'exécution peut encore causer des pertes.
+
+Sépare donc les couches : le flux fournit la donnée ; le contrat valide la fraîcheur et calcule le ratio ; le mécanisme de liquidation tente d'exécuter l'opération ; le marché détermine le prix réellement obtenu. Le modèle de risque doit considérer les quatre.
+
+## 12. Heartbeat, déviation et contrôle de fraîcheur
+
+Les Data Feeds ne fonctionnent pas nécessairement comme un flux continu où chaque changement minime est publié immédiatement. Dans le modèle courant documenté pour les flux de prix Chainlink, une mise à jour peut être déclenchée lorsqu'un seuil de déviation est dépassé ou lorsqu'un délai d'inactivité prévu par le heartbeat est atteint. Les paramètres varient selon le flux. C'est pourquoi il faut consulter les caractéristiques spécifiques au flux au lieu de coder un seuil générique.
+
+Le contrat consommateur doit vérifier que la dernière observation est suffisamment récente pour l'usage. La valeur \`updatedAt\` renvoyée par \`latestRoundData()\` peut être comparée à l'heure de bloc fournie par \`block.timestamp\`, mais le seuil acceptable doit venir d'une analyse de risque et de la documentation du flux. Un seuil inférieur au rythme normal du flux peut provoquer des refus inattendus ; un seuil trop généreux peut exposer le protocole à une valeur périmée.
+
+### Trois dimensions à séparer
+
+- **Fraîcheur** : l'observation n'est-elle pas trop ancienne pour la décision ?
+- **Plausibilité** : la valeur est-elle dans une plage acceptable pour cet actif et cette logique ?
+- **Disponibilité** : le contrat peut-il obtenir la valeur et poursuivre l'opération ?
+
+Une valeur récente peut rester erronée ou être temporairement atypique ; une valeur plausible peut être périmée ; une source peut être indisponible. Ces contrôles ne se remplacent pas. Les limites de plausibilité doivent être justifiées, car un seuil arbitraire peut bloquer une évolution légitime du marché.
+
+~~~mermaid
+flowchart TD
+    A["Lire answer et updatedAt"] --> B["Vérifier horodatage et fraîcheur"]
+    B --> C["Vérifier signe et bornes selon l'actif"]
+    C --> D["Vérifier conversion et unités"]
+    D --> E["Autoriser le calcul métier"]
+    B -->|Échec| X["Refuser ou passer en mode sûr"]
+    C -->|Échec| X
+    D -->|Échec| X
+~~~
+
+### Panne prolongée ou marché fermé
+
+Si l'activité du marché est faible, si une source est indisponible ou si l'infrastructure connaît un incident, une application doit déterminer si elle préfère interrompre certaines opérations ou adopter un mode de fonctionnement réduit. Ce choix est spécifique au produit et doit être testé. Le dernier prix connu peut être utile à l'affichage, mais il ne doit pas être utilisé dans une décision critique sans un contrôle de fraîcheur documenté.
+
+## 13. Choisir, vérifier et surveiller un flux en production
+
+Avant un déploiement, l'équipe doit vérifier l'adresse du flux dans la documentation officielle pour le réseau cible, puis confirmer que la paire, l'unité et la précision sont correctes. Il faut également vérifier les conditions de mise à jour et les recommandations d'intégration. Un flux nommé « ETH/USD » sur un réseau n'est pas interchangeable avec un flux portant un nom similaire sur un autre réseau.
+
+### Fiche de configuration
+
+| Propriété | Pourquoi elle compte |
+|---|---|
+| Réseau et chain ID | Éviter une adresse correcte sur la mauvaise chaîne |
+| Adresse du proxy officielle | Lire la bonne source de données |
+| Description / paire | Confirmer les actifs et la devise |
+| decimals | Normaliser la valeur entière |
+| updatedAt | Mesurer la fraîcheur |
+| heartbeat / seuil de déviation documenté | Comprendre les attentes de mise à jour |
+| Age maximal accepté par le protocole | Contrôler l'âge d'une observation |
+| Comportement de panne | Décider ce qui est permis lorsque la donnée n'est pas utilisable |
+
+### Surveillance après déploiement
+
+La surveillance peut suivre les valeurs lues, l'âge moyen des observations, les erreurs d'appel, le nombre de fois où la logique rejette une valeur périmée et les divergences avec une référence indépendante utilisée uniquement à des fins de détection. Une comparaison hors chaîne peut aider à détecter un incident, mais le contrat ne doit pas nécessairement s'appuyer sur une API qui n'est pas elle-même prévue comme source de vérité.
+
+Les alertes doivent distinguer le comportement normal du flux et une situation anormale. Un changement de prix important n'est pas forcément une erreur ; il peut correspondre à un mouvement réel du marché. Une alerte devrait se baser sur les seuils et le modèle de risque documentés plutôt que sur l'intuition du développeur.
+
+Les adresses de flux, versions, paramètres de fraîcheur et règles de repli doivent être versionnés avec le code. Une mise à jour de configuration peut modifier le risque du protocole même sans changer le bytecode. La revue doit donc inclure les paramètres et les opérations d'administration.
+
+## 14. Tests adverses et retour au fonctionnement normal
+
+L'intégration d'un oracle doit être testée avec une interface factice qui permet de contrôler les réponses. Il faut couvrir les données attendues et les données défectueuses, notamment prix zéro ou négatif si la donnée doit être positive, updatedAt nul, observation ancienne, précision inhabituelle, appel qui revert et valeur extrême.
+
+### Matrice de tests
+
+| Cas | Résultat attendu à définir |
+|---|---|
+| Valeur positive et récente | L'opération peut poursuivre les contrôles métier |
+| Valeur zéro ou négative | Rejet si l'usage exige un prix positif |
+| updatedAt nul | Rejet ou traitement selon les spécifications du flux |
+| Observation trop ancienne | Refus des opérations qui exigent un prix frais |
+| Réponse de lecture indisponible | Erreur contrôlée, pas de valeur inventée |
+| Décimales non prévues | Échec de configuration plutôt que conversion silencieuse |
+| Prix très haut ou bas | Pas de débordement ; bornes et arrondis contrôlés |
+| Source reprise après incident | Vérification avant réouverture des fonctions |
+
+~~~mermaid
+flowchart TD
+    A["Déployer un mock de flux"] --> B["Injecter cas normal"]
+    B --> C["Tester données invalides et périmées"]
+    C --> D["Tester fonction métier consommatrice"]
+    D --> E["Vérifier absence de mutation non autorisée"]
+    E --> F["Simuler panne puis reprise"]
+    F --> G["Rejouer les tests avant production"]
+~~~
+
+### Politique de reprise
+
+La reprise ne devrait pas être déclenchée uniquement parce qu'un appel réussit à nouveau. Il faut vérifier l'adresse, la paire, la fraîcheur, les unités et la situation métier. Si une fonction était en pause, la réouverture devrait suivre une procédure documentée et laisser une trace d'audit. Les permissions de pause et de reprise doivent être protégées et limitées.
+
+Il faut également tester les interactions avec d'autres composants. Si le prix est utilisé dans un protocole de prêt, quelles opérations peuvent se poursuivre lorsque le flux est en panne ? Les retraits, les dépôts, les emprunts et les liquidations n'ont pas toujours les mêmes risques. Une politique qui bloque tout peut protéger contre un prix erroné mais aussi empêcher des utilisateurs d'agir ; une politique qui laisse tout passer peut accroître les pertes.
+
+Une approche prudente traite les opérations séparément : les lectures et les fonctions qui n'utilisent pas le prix peuvent rester disponibles, tandis que les opérations de valorisation critique sont restreintes si leur donnée n'est pas acceptable. Cette politique doit être validée par les propriétaires du risque métier, pas seulement par le développeur.
+
+## 15. TP guidé A : lire un flux de prix en sécurité
 
 ### Objectif
 
@@ -349,7 +466,7 @@ Compare updatedAt au temps courant du bloc et calcule l'âge de l'observation. C
 
 La fiche doit contenir le réseau, l'adresse, la paire, les unités, la date de mise à jour, le contrôle de fraîcheur et les limites. N'utilise pas la valeur pour ouvrir une position financière ou déployer une logique de liquidation dans ce TP.
 
-## 12. TP guidé B : définir la politique de panne d'un protocole
+## 16. TP guidé B : définir la politique de panne d'un protocole
 
 Imagine un protocole de prêt qui utilise un prix oracle pour calculer la valeur des garanties. Le flux n'est plus assez récent et les utilisateurs continuent d'envoyer des transactions. Rédige une politique qui explique quelles fonctions restent accessibles, quelles actions sont bloquées, comment les utilisateurs sont informés et qui peut déclencher la procédure de reprise.
 
@@ -367,7 +484,116 @@ Imagine un protocole de prêt qui utilise un prix oracle pour calculer la valeur
 
 Une politique prudente peut laisser accessibles les lectures et les fonctions qui ne dépendent pas d'un prix fiable, tout en suspendant les nouvelles opérations qui exigent la valorisation tant que le flux n'est pas acceptable. Les retraits ne doivent pas être bloqués sans réflexion : leur traitement dépend du modèle de solvabilité et des risques de l'application. La reprise doit vérifier le flux et appliquer les mêmes conditions à toutes les transactions. Le seuil, les pouvoirs de pause et la procédure de communication doivent être documentés.
 
-## 13. Dix questions d'entraînement avec corrigé
+## 17. Étude de cas : construire une règle d'arrêt sur prix périmé
+
+Un protocole de prêt utilise un prix de marché pour calculer si une position est suffisamment garantie. Le flux répond correctement, mais son horodatage est ancien par rapport au seuil établi par l'application. Le contrat ne doit pas considérer qu'une réponse non vide est forcément utilisable.
+
+La règle doit distinguer les opérations. Une consultation de solde peut continuer sans prix, tandis qu'une nouvelle prise de dette ou une liquidation peut nécessiter une observation fraîche. Le retrait d'une garantie n'a pas forcément le même profil de risque qu'un dépôt additionnel. Il faut écrire la politique avant de coder les conditions.
+
+~~~mermaid
+flowchart TD
+    A["Requête d'opération"] --> B{"Dépend du prix ?"}
+    B -->|Non| C["Appliquer les règles non liées au prix"]
+    B -->|Oui| D["Lire prix et updatedAt"]
+    D --> E{"Donnée valide et assez récente ?"}
+    E -->|Oui| F["Calcul métier avec unités vérifiées"]
+    E -->|Non| G["Refuser ou appliquer le mode dégradé prévu"]
+~~~
+
+### Définir le comportement de panne
+
+Le contrat peut refuser temporairement certaines actions de valorisation, tandis que l'interface informe l'utilisateur de la cause et de l'heure de la dernière observation. La procédure de retour doit vérifier que la donnée est à nouveau acceptable, que l'adresse du flux reste correcte et que les calculs utilisent les bonnes décimales. La reprise ne doit pas dépendre d'une décision arbitraire de l'interface.
+
+Un mécanisme d'arrêt doit aussi être protégé. Si un seul compte peut suspendre ou réactiver toutes les opérations, sa clé devient un risque. Selon la criticité, il peut être nécessaire de limiter son pouvoir, d'exiger plusieurs signatures ou d'enregistrer les actions dans des événements surveillés. La complexité supplémentaire doit être testée ; un mécanisme d'urgence mal implémenté peut empirer l'incident.
+
+## 18. Flux de prix : conception d'un calcul de valeur explicite
+
+La valeur d'une position est souvent calculée comme quantité multipliée par prix, puis ajustée selon des facteurs propres au protocole. Ce calcul doit expliciter l'unité de la quantité, la précision du token, la précision de l'answer, la devise de référence et la règle d'arrondi. Une formule qui paraît simple peut être fausse si l'une des décimales est interprétée incorrectement.
+
+Pour rendre le calcul vérifiable, écris d'abord l'équation avec des unités humaines, puis traduis-la en arithmétique entière avec les facteurs de normalisation. Définis les limites numériques et teste les cas extrêmes. Ne copie pas une conversion d'un autre flux sans confirmer la précision de celui qui sera déployé.
+
+### Exemple conceptuel
+
+Si un compte possède \(Q\) unités humaines d'un actif et si le flux fournit un prix \(P\) exprimé en USD par unité, la valeur théorique est \(Q \times P\) USD. Le contrat doit représenter Q et P comme des entiers mis à l'échelle, calculer sans dépasser les limites et convertir le résultat dans une unité commune avant de comparer le seuil de garantie. Les arrondis peuvent être choisis de façon conservatrice selon l'opération.
+
+La valeur d'oracle ne garantit pas le prix réel d'une liquidation. Si la garantie doit être vendue sur un marché peu liquide, la valeur réalisable peut être plus faible, en raison du slippage ou d'un mouvement de prix. Le risque de liquidation dépend donc de la donnée, de la formule et du mécanisme d'exécution.
+
+~~~mermaid
+flowchart LR
+    Q["Quantité avec décimales du token"] --> N["Normalisation"]
+    P["Prix avec décimales du flux"] --> N
+    N --> V["Valeur dans devise commune"]
+    V --> F["Appliquer facteur et arrondi"]
+    F --> C["Comparer au seuil du protocole"]
+~~~
+
+### Test de cohérence indépendant
+
+Sur un environnement de test, calcule quelques valeurs de référence en dehors du contrat avec une bibliothèque décimale fiable, puis compare les résultats avec le contrat. Teste l'arrondi, les valeurs petites et grandes, les prix proches du seuil et les conversions entre deux unités. L'objectif n'est pas d'utiliser le calcul hors chaîne comme autorité de production, mais de détecter les erreurs de formule avant déploiement.
+
+## 19. Checklist de revue d'une intégration oracle
+
+Avant publication, relis la configuration et la logique avec une checklist qui oblige l'équipe à prouver les hypothèses.
+
+- L'adresse du flux provient de la documentation officielle pour le réseau cible.
+- Le contrat lit le type de donnée attendu et l'unité correspondante.
+- Les décimales sont obtenues ou confirmées pour ce flux précis.
+- Le code contrôle l'horodatage, le signe et les bornes pertinentes.
+- Le seuil de fraîcheur est justifié par le heartbeat, la déviation et le besoin métier.
+- Les valeurs extrêmes ne provoquent pas de débordement ni de calcul incohérent.
+- Les fonctions critiques partagent la même logique de validation du prix.
+- Une panne ou une donnée périmée suit une politique documentée.
+- Les pouvoirs de pause et de reprise sont limités et surveillés.
+- Les tests couvrent réponse normale, données invalides, appel échoué et reprise.
+- La surveillance distingue mouvement de marché et défaut de données.
+- Les dépendances de la fonction consommatrice ont été examinées.
+
+La documentation Chainlink souligne que les flux ne sont pas nécessairement des flux continus : des mises à jour peuvent dépendre de seuils de déviation et de heartbeats spécifiques. L'équipe doit consulter les paramètres du flux avant de définir l'âge maximal acceptable. Une hypothèse de fréquence prise depuis un autre actif ou réseau peut conduire à des rejets inutiles ou, plus dangereusement, à l'acceptation de valeurs trop anciennes.
+
+Une intégration oracle est prête lorsque son comportement sous panne est aussi explicite que son comportement normal. Elle ne l'est pas simplement parce que la lecture fonctionne dans un test heureux.
+
+## 20. Conception de seuils de données : ne pas confondre erreur et volatilité
+
+Une règle qui rejette une valeur trop éloignée du prix observé auparavant peut limiter certaines anomalies, mais elle peut également refuser un vrai mouvement de marché. Le seuil doit être conçu selon l'actif, l'horizon, la liquidité, les risques du protocole et les caractéristiques du flux. Il ne devrait pas être choisi uniquement parce qu'un chiffre semble raisonnable dans un exemple de cours.
+
+Le modèle de décision peut combiner la fraîcheur, la validité de la valeur, les plages numériques et des limites opérationnelles. Si une condition anormale est détectée, le contrat peut refuser certaines actions ou déclencher une pause selon des règles définies à l'avance. Une valeur de secours fixe ne doit pas remplacer sans réflexion un prix périmé.
+
+~~~mermaid
+flowchart TD
+    A["Nouvelle observation"] --> B["Contrôle de fraîcheur"]
+    B --> C["Contrôle de valeur et d'unités"]
+    C --> D["Contrôle de risque spécifique au marché"]
+    D --> E{"Donnée utilisable ?"}
+    E -->|Oui| F["Calcul métier"]
+    E -->|Non| G["Mode sûr selon la politique"]
+~~~
+
+### Calibrer et documenter
+
+La calibration doit utiliser des scénarios qui comprennent faible activité, forte volatilité, divergence des sources et indisponibilité. Les tests ne garantissent pas que le marché futur suivra le même profil, mais ils révèlent comment le contrat réagit aux cas connus. Documente les raisons du seuil, les données utilisées pour le choisir et les conditions dans lesquelles il doit être revu.
+
+Le protocole devrait aussi distinguer les alertes de surveillance hors chaîne et les conditions de sécurité on-chain. Une alerte peut demander une enquête humaine ; une condition de sécurité dans le contrat doit rester déterministe et vérifiable.
+
+## 21. Matrice de responsabilités entre le flux, le contrat et l'opérateur
+
+Les incidents d'oracle sont souvent difficiles à diagnostiquer parce que l'équipe ne sait pas si le problème se trouve dans la source, l'adresse de flux, les décimales, le contrat consommateur ou la procédure opérationnelle. Une matrice de responsabilités aide à assigner chaque vérification à une couche.
+
+| Couche | Responsabilité | Exemple de contrôle |
+|---|---|---|
+| Flux oracle | Publier la donnée selon son modèle de service | Vérifier la documentation et l'état du flux |
+| Configuration | Choisir adresse, réseau et paire | Revue indépendante des adresses |
+| Contrat consommateur | Valider fraîcheur, signe et unité | Tests de données invalides et périmées |
+| Logique métier | Utiliser la valeur dans une formule correcte | Tests numériques et invariants |
+| Opérations | Détecter anomalie et gérer la reprise | Alertes, procédure de pause, rapport |
+| Interface | Montrer le statut et expliquer l'échec | Tests de panne et messages explicites |
+
+Cette matrice empêche d'attribuer automatiquement toute mauvaise valeur au fournisseur oracle. Un flux peut fournir une observation selon les règles annoncées alors que le contrat l'interprète avec la mauvaise précision. Inversement, un contrat correct ne peut pas garantir que les données externes seront toujours disponibles.
+
+### Revue finale
+
+Avant déploiement, vérifie l'adresse, le réseau, la paire, la précision, le heartbeat ou le seuil de déviation documenté, la fenêtre de fraîcheur, les formules de conversion, les permissions et le comportement de panne. Après déploiement, surveille l'âge des observations et les rejets. À chaque modification de configuration, relance les tests qui dépendent de la source et des unités.
+
+## 22. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi un contrat ne lit-il pas directement n'importe quelle API web ?
@@ -419,7 +645,7 @@ La bonne intégration d'un oracle garantit-elle la sécurité de tout le protoco
 
 **Corrigé :** Non. La logique financière, les conversions, les permissions, les contrats dépendants et les mécanismes de récupération doivent aussi être sûrs.
 
-## 14. Challenge final : revue d'un oracle de prêt
+## 23. Challenge final : revue d'un oracle de prêt
 
 ### Scénario
 

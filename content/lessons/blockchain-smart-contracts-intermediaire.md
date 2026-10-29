@@ -291,7 +291,115 @@ Exemples d'invariants pour un coffre simple :
 
 Les tests ne prouvent pas l'absence de bug. Ils vérifient le comportement sur les scénarios testés. Pour les systèmes à forte valeur, il faut combiner tests, analyse statique, revue de code, tests de propriétés, audit, limites d'exposition et surveillance après le déploiement.
 
-## 12. TP guidé A : utiliser un environnement de test
+## 12. Invariants métier : exprimer les règles avant les appels
+
+Un invariant est une propriété qui doit rester vraie après toute séquence d'opérations autorisées. La plupart des erreurs graves apparaissent lorsque le développeur teste les fonctions isolément mais ne considère pas l'état combiné ou l'ordre des appels. Un solde peut être correct après un dépôt simple, mais devenir incorrect lorsque deux fonctions interagissent ou qu'un appel externe échoue.
+
+Pour un coffre, les invariants pourraient inclure :
+- le solde comptable d'un utilisateur ne peut pas être négatif ;
+- les retraits cumulés ne dépassent pas les fonds attribués ;
+- une demande ne peut être exécutée qu'une fois ;
+- une fonction administrative ne peut pas être appelée par un compte ordinaire ;
+- un état de pause bloque les fonctions spécifiées et pas nécessairement toutes les lectures ;
+- les événements reflètent uniquement les changements réellement appliqués.
+
+~~~mermaid
+flowchart TD
+    A["Définir l'invariant"] --> B["Identifier les fonctions qui le modifient"]
+    B --> C["Lister les séquences adverses"]
+    C --> D["Écrire tests unitaires et de propriétés"]
+    D --> E["Reproduire les cas limites"]
+    E --> F["Réviser l'implémentation"]
+~~~
+
+### Exemple de séquence adverse
+
+Une fonction \`retirer\` vérifie le solde, appelle un contrat externe pour envoyer la valeur puis débite le solde. Si le destinataire est un contrat qui rappelle \`retirer\`, le second appel peut encore voir le solde non débité. Le problème ne vient pas nécessairement d'une ligne de code isolée : c'est l'ordre entre vérification, écriture et interaction qui crée la vulnérabilité.
+
+La correction classique consiste à vérifier les conditions, mettre à jour l'état interne, puis effectuer l'interaction externe. Mais le modèle Checks-Effects-Interactions n'exempte pas de vérifier les callbacks, les retours, les chemins d'échec et le comportement des dépendances. Une revue de sécurité doit analyser l'ensemble de la transaction et les appels imbriqués.
+
+## 13. Réentrance : raisonner sur le flux d'appels
+
+La réentrance existe lorsque le contrôle passe vers un code externe qui peut rappeler le contrat initial avant que l'opération d'origine soit terminée. Le contrat doit se comporter correctement même si l'appel externe n'est pas passif. Les contrats récepteurs peuvent exécuter du code, et certaines opérations de transfert de NFT appellent un mécanisme de réception qui peut déclencher des callbacks.
+
+~~~mermaid
+sequenceDiagram
+    participant A as Contrat A
+    participant B as Contrat destinataire
+    A->>B: Appel externe
+    B->>A: Rappel avant retour
+    A->>A: Chemin de fonction réentrant
+    A-->>B: Retour
+    B-->>A: Fin de l'appel initial
+~~~
+
+### Mesures de conception
+
+1. Débiter ou mettre à jour l'état avant l'interaction externe, lorsque la logique le permet.
+2. Vérifier les résultats d'appel et définir une conduite en cas d'échec.
+3. Éviter de supposer qu'un contrat destinataire ne déclenche pas de callbacks.
+4. Utiliser un verrou anti-réentrance reconnu lorsque le modèle d'appel le justifie.
+5. Tester un destinataire hostile capable de rappeler la fonction.
+6. Examiner les appels à plusieurs contrats et les fonctions qui partagent le même état.
+
+Un verrou n'est pas une correction universelle. Il peut empêcher certaines réentrances mais ne remplace pas une comptabilité cohérente ni des contrôles de permission. Certaines architectures légitimes reposent sur des callbacks ; la sécurité exige alors que les transitions d'état soient définies avec précision.
+
+### Réentrance et atomicité
+
+Si une sous-opération échoue et que l'erreur est propagée, l'ensemble de l'exécution peut revert et annuler les changements d'état de la transaction selon les règles de l'EVM. Si le contrat capture l'échec et continue, il doit garantir que l'état obtenu reste cohérent. Les développeurs doivent décider explicitement quelle action est atomique et quels échecs peuvent être tolérés.
+
+## 14. Contrôle d'accès, pause et mise à niveau
+
+Les rôles administratifs doivent être pensés selon l'impact d'une compromission. Une fonction de pause peut limiter les dégâts pendant un incident, mais elle peut aussi bloquer des utilisateurs. Un rôle de mint peut créer des actifs supplémentaires ; un rôle d'upgrade peut remplacer la logique qui gère les actifs. Il faut énumérer ces pouvoirs et expliquer pourquoi ils sont nécessaires.
+
+Une conception robuste définit :
+- qui détient chaque rôle et comment il est attribué ;
+- si un rôle peut être transféré ou révoqué ;
+- si les opérations critiques exigent plusieurs signatures ;
+- si une modification est retardée par un timelock ;
+- quelles actions restent disponibles pendant une pause ;
+- comment les événements d'administration sont surveillés ;
+- comment tester la récupération d'une clé perdue ou compromise.
+
+~~~mermaid
+flowchart TD
+    A["Demande de changement administratif"] --> B["Vérifier le rôle"]
+    B -->|Non autorisé| X["Rejeter"]
+    B -->|Autorisé| C["Appliquer délai ou multisignature si requis"]
+    C --> D["Exécuter la mise à jour"]
+    D --> E["Émettre un événement et surveiller"]
+~~~
+
+### Immuable ou évolutif ?
+
+Un contrat immuable réduit les possibilités de changer la logique, mais rend les corrections difficiles. Un proxy peut permettre une mise à niveau, mais crée une capacité administrative ou de gouvernance à examiner. Il faut vérifier qui peut mettre à jour l'implémentation, si le stockage reste compatible, comment les tests sont effectués et si les utilisateurs disposent d'un délai ou d'une voie de sortie.
+
+Une mise à niveau n'est pas une simple livraison frontend : elle peut changer le comportement de l'état existant et toucher des actifs. Avant son exécution, il faut comparer le code, exécuter la suite de tests contre l'état prévu, vérifier l'ABI et annoncer les changements. Après, on doit vérifier le bytecode et surveiller les premières interactions.
+
+## 15. Distinguer audit, vérification et surveillance
+
+Un audit est une revue du code et du modèle de menace dans un périmètre et à une date précis. La vérification de source compare une source et des paramètres de compilation avec le bytecode publié. Les tests vérifient des scénarios. La surveillance détecte des comportements inhabituels après déploiement. Ces activités se complètent ; aucune ne remplace les autres.
+
+### Dossier minimum avant production
+
+| Élément | Question à documenter |
+|---|---|
+| Version du code | Quel commit exact a été testé ? |
+| Compilateur | Quelle version et quelles options ont été utilisées ? |
+| Dépendances | Quelles versions, adresses et bibliothèques ? |
+| Permissions | Qui peut changer l'état ou le code ? |
+| Tests | Quels cas normaux, négatifs et adverses sont couverts ? |
+| Audit | Quel périmètre a été examiné et quelles limites restent ouvertes ? |
+| Déploiement | Quelle adresse, quel réseau et quel bytecode ? |
+| Surveillance | Quels événements et anomalies déclenchent une alerte ? |
+
+### Réponse à une vulnérabilité
+
+Le plan d'incident doit établir comment confirmer une vulnérabilité, réduire l'exposition, avertir les opérateurs, préserver les preuves et décider si un mécanisme de pause est disponible. Une pause peut limiter certains dommages, mais elle n'est pas toujours souhaitable ni suffisante. Les rôles d'urgence doivent être protégés pour ne pas créer eux-mêmes un point de compromission.
+
+Après le correctif, il faut ajouter un test de régression qui reproduit la faille, refaire les tests de propriétés, examiner les dépendances et vérifier le comportement sur un environnement de test. La transparence du processus aide les utilisateurs à comprendre ce qui s'est passé, mais les communications doivent éviter d'affirmer que tout risque a disparu dès qu'un correctif est déployé.
+
+## 16. TP guidé A : utiliser un environnement de test
 
 ### Objectif
 
@@ -313,7 +421,7 @@ Utilise l'environnement local de l'outil, sans fonds réels. Déploie le contrat
 
 Ajoute un contrôle d'accès dans une copie séparée du contrat, par exemple une adresse propriétaire définie dans le constructeur. Teste la fonction avec le propriétaire puis avec une adresse différente. Ne considère pas un test effectué uniquement depuis le compte du développeur comme suffisant.
 
-## 13. TP guidé B : examiner un contrat existant
+## 17. TP guidé B : examiner un contrat existant
 
 Choisis un contrat publié sur un réseau de test ou un contrat connu qui dispose d'une source vérifiée. Ne lui envoie pas d'actifs. Vérifie l'adresse et le réseau, lis l'ABI et identifie les fonctions de lecture et d'écriture, les événements, les rôles administratifs et les dépendances.
 
@@ -323,7 +431,115 @@ Crée un tableau à quatre colonnes : élément, fonction observée, risque ou h
 
 Une inspection ne devrait pas conclure « sûr » ou « dangereux » à partir du nom des fonctions. Il faut comprendre la logique complète et le contexte. Une fonction de pause peut protéger les utilisateurs lors d'un incident, mais aussi permettre de bloquer les retraits. Un proxy peut permettre des correctifs, mais il faut identifier qui contrôle la mise à niveau. Une source vérifiée améliore la transparence, sans remplacer un audit ou les tests.
 
-## 14. Dix questions d'entraînement avec corrigé
+## 18. Étude de cas : concevoir une fonction de retrait sûre
+
+Considérons un contrat qui enregistre le solde interne de chaque utilisateur. Une fonction de retrait doit faire plus que « vérifier le solde et envoyer l'ETH ». Il faut définir le comportement lorsque le montant est nul, lorsque le solde est insuffisant, lorsque le destinataire est un contrat, lorsque le transfert échoue et lorsque le destinataire tente d'appeler à nouveau le contrat.
+
+La conception peut être décrite en trois phases : préconditions, effets sur l'état, interaction externe. La mise à jour du solde doit être appliquée avant l'appel, et l'échec du transfert doit être traité sans laisser une comptabilité incohérente. Une bibliothèque et des patterns éprouvés sont préférables à une implémentation improvisée.
+
+~~~mermaid
+flowchart LR
+    A["Préconditions"] --> B["Vérifier montant et solde"]
+    B --> C["Mettre à jour la comptabilité"]
+    C --> D["Appel externe"]
+    D --> E{"Transfert réussi ?"}
+    E -->|Oui| F["Terminer"]
+    E -->|Non| G["Revert ou traitement sûr documenté"]
+~~~
+
+### Quelles propriétés tester ?
+
+- Un retrait supérieur au solde est rejeté.
+- Un retrait réussi diminue le solde du montant attendu.
+- Une tentative qui échoue ne laisse pas un état partiellement incorrect.
+- Un destinataire hostile ne peut pas retirer plus que son solde.
+- Deux retraits séquentiels sont cohérents.
+- Le montant et le destinataire sont correctement reflétés dans les logs.
+- L'appelant ne peut modifier le solde d'une autre adresse sans permission.
+
+L'analyse doit prendre en compte la valeur qui se trouve réellement dans le contrat, les mécanismes de dépôt, les callbacks et les éventuelles fonctions administratives. Une fonction de retrait ne peut pas être évaluée isolément du reste du contrat qui crée, modifie et restitue la comptabilité.
+
+## 19. Dépendances, appels externes et données de confiance
+
+Un contrat peut s'appuyer sur un jeton, un oracle, un échange, un pont ou un contrat de gouvernance. Chaque dépendance introduit une hypothèse : elle peut être mise à niveau, être interrompue, retourner une donnée atypique ou être compromise. Une revue ne doit pas se limiter au fichier de contrat principal.
+
+~~~mermaid
+flowchart TD
+    M["Contrat métier"] --> T["Jeton externe"]
+    M --> O["Oracle"]
+    M --> A["Rôle administrateur / proxy"]
+    M --> L["Bibliothèque ou contrat auxiliaire"]
+    T --> R["Hypothèses de comportement"]
+    O --> R
+    A --> R
+    L --> R
+    R --> V["Tests d'intégration et revue des risques"]
+~~~
+
+### Registre des dépendances
+
+Pour chaque contrat externe, documente l'adresse, le réseau, l'interface, la source de confiance, les permissions et les erreurs possibles. Si l'adresse est modifiable par un administrateur, l'événement de modification doit être surveillé. Si un oracle peut devenir périmé, le contrat doit définir un comportement en cas de donnée invalide. Si un token applique des frais de transfert, la comptabilité doit en tenir compte ou refuser ce token.
+
+Le contrat doit considérer la donnée de dépendance comme entrée non fiable jusqu'à ce qu'elle ait été validée selon les règles pertinentes. Un retour non nul ou une signature valide ne garantit pas que la valeur est appropriée au modèle métier. Les contrôles doivent être fondés sur le type de donnée, les bornes et les invariants.
+
+### Limiter les pouvoirs cachés
+
+Des fonctions administratives peuvent modifier l'oracle, mettre en pause le contrat ou remplacer une implémentation. Elles doivent être visibles dans la documentation de sécurité et dans l'interface lorsque l'information est pertinente pour l'utilisateur. Les applications peuvent afficher le statut des rôles et des mises à niveau depuis les données on-chain, mais doivent aussi vérifier l'adresse et la fiabilité de la source de lecture.
+
+## 20. Plan d'urgence après la découverte d'une vulnérabilité
+
+L'équipe doit préparer sa réaction avant le déploiement. Une procédure utile définit qui confirme la vulnérabilité, qui peut activer une pause, comment sont conservés les éléments techniques, comment les utilisateurs sont informés et comment une correction est vérifiée. L'urgence ne doit pas conduire à exécuter une nouvelle fonction administrative sans revue.
+
+La pause peut limiter des dégâts, mais elle peut aussi empêcher des utilisateurs d'effectuer des actions légitimes. Il faut avoir décidé à l'avance quelles fonctions sont affectées et comment les utilisateurs récupèrent leurs actifs ou leur accès. Si le contrat est immuable, la capacité de correction est différente de celle d'un contrat proxy.
+
+Après correction, ajoute un test de régression qui reproduit la vulnérabilité, relance les tests de propriétés et vérifie les dépendances. Une mise à niveau exige de vérifier la compatibilité du stockage, de l'ABI, des permissions et des valeurs existantes. Un patch ne devrait pas être considéré comme sûr uniquement parce que le test de l'incident initial passe.
+
+Le rapport post-incident doit séparer la cause technique, l'impact observé, les actifs ou fonctions affectés, la procédure de récupération et les risques qui restent ouverts. Évite les expressions absolues telles que « désormais invulnérable ». Une correction peut réduire un risque spécifique sans éliminer les autres menaces du système.
+
+## 21. Checklist de préparation de sécurité d'un smart contract
+
+Une équipe doit documenter les propriétés que le contrat protège, les actifs ou données qu'il contrôle, les rôles administratifs, les dépendances externes et les scénarios qui exigent une pause ou une mise à niveau. Cette fiche doit être revue avant que le contrat ne gère des actifs réels.
+
+~~~mermaid
+flowchart TD
+    A["Inventaire des actifs et données"] --> B["Cartographier rôles et fonctions"]
+    B --> C["Définir invariants et risques"]
+    C --> D["Tests adverses et dépendances"]
+    D --> E["Revue indépendante"]
+    E --> F["Plan d'incident et surveillance"]
+~~~
+
+### Points à faire confirmer par une deuxième personne
+
+- Les fonctions de mint, retrait, pause et upgrade sont documentées.
+- Les limites et permissions ont des tests positifs et négatifs.
+- Les appels externes sont analysés pour les retours et la réentrance.
+- Les données de prix et autres entrées externes sont vérifiées.
+- Les erreurs n'entraînent pas une comptabilité incohérente.
+- Les événements correspondent aux effets réels.
+- Les bibliothèques et le compilateur sont versions connus.
+- La procédure de pause et de reprise a été testée dans un environnement de test.
+
+Une deuxième lecture est utile car le développeur principal peut normaliser mentalement certaines hypothèses. Le relecteur devrait analyser les exigences et les scénarios, pas uniquement vérifier la syntaxe. L'indépendance reste relative : si les deux personnes partagent la même hypothèse erronée, la revue peut manquer un problème.
+
+## 22. Incident : l'état du contrat et l'interface semblent diverger
+
+Si une interface affiche un solde ou un statut qui ne correspond pas à la lecture directe du contrat, commence par identifier les sources et les blocs de référence. L'interface peut afficher une valeur en cache, l'indexeur peut être en retard, le RPC peut suivre une autre tête récente ou le contrat peut avoir changé d'état après la dernière lecture.
+
+~~~mermaid
+flowchart TD
+    A["Valeurs divergentes"] --> B["Comparer réseau et chain ID"]
+    B --> C["Comparer bloc de référence"]
+    C --> D["Lire l'état directement"]
+    D --> E["Comparer indexeur et événements"]
+    E --> F["Invalider cache et reconstruire si nécessaire"]
+~~~
+
+Le rapport doit noter l'heure, les numéros de bloc, l'adresse du contrat, la source RPC, la valeur retournée et le dernier événement correspondant. Une correction frontend peut consister à invalider le cache ; une correction d'indexeur peut exiger une relecture de la plage affectée. Si le contrat lui-même expose un état inattendu, l'enquête doit porter sur la transaction qui l'a modifié, ses permissions et ses dépendances.
+
+N'annonce pas une corruption on-chain sur la seule base d'un écran incohérent. La distinction entre projection hors chaîne et état canonique est un outil essentiel de diagnostic et aide à réduire le risque d'une réponse d'incident inappropriée.
+
+## 23. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Qu'est-ce qu'un smart contract ?
@@ -375,7 +591,7 @@ Un audit garantit-il qu'un contrat ne sera jamais exploité ?
 
 **Corrigé :** Non. Il peut réduire le risque, mais ne prouve pas l'absence de toutes les vulnérabilités. Le code, les dépendances, les paramètres et les menaces évoluent.
 
-## 15. Challenge final : concevoir un coffre de laboratoire
+## 24. Challenge final : concevoir un coffre de laboratoire
 
 ### Scénario
 

@@ -285,7 +285,131 @@ Pour ERC-20, vérifie la quantité totale, la politique d'émission, les fonctio
 
 Les explorateurs de blocs peuvent aider à retrouver les transactions, événements et sources publiées. Une source vérifiée permet de lire le code associé au bytecode dans des conditions compatibles, mais ce n'est pas une garantie de sécurité. Pour un usage important, une revue indépendante et des tests d'intégration restent nécessaires.
 
-## 11. TP guidé A : analyser un ERC-20 sans dépenser de fonds
+## 11. Tester la conformité plutôt que le nom du jeton
+
+Un jeton ne devient pas sûr parce que son nom contient « ERC-20 » ou parce qu'il expose une méthode \`transfer\`. La conformité se vérifie avec une suite de comportements attendus et avec le code effectif. L'adresse et le réseau doivent être connus avant de lire les soldes ou les événements. Les métadonnées comme name et symbol sont utiles à l'affichage, mais elles ne sont pas des identifiants uniques.
+
+Pour ERC-20, les tests devraient vérifier notamment :
+- \`totalSupply\` et la politique d'émission ;
+- \`balanceOf\` avant et après un transfert ;
+- le transfert d'une quantité nulle, qui reste un cas à traiter conformément au standard ;
+- le refus d'un montant supérieur au solde ;
+- \`approve\`, \`allowance\` et \`transferFrom\` ;
+- les événements Transfer et Approval ;
+- le comportement des autorisations lors d'un transfert par un tiers ;
+- les comportements atypiques si le contrat applique frais, pause ou restrictions.
+
+~~~mermaid
+flowchart TD
+    A["Choisir réseau et adresse"] --> B["Lire interface et code"]
+    B --> C["Tester transferts et soldes"]
+    C --> D["Tester autorisations"]
+    D --> E["Tester erreurs et événements"]
+    E --> F["Analyser fonctions administratives"]
+    F --> G["Documenter ce qui reste incertain"]
+~~~
+
+### Compatibilité et retours de transfert
+
+La spécification ERC-20 prévoit un booléen de retour pour certaines fonctions de transfert et d'approbation, mais des contrats historiques n'ont pas tous le même comportement de retour. Les intégrateurs doivent utiliser des bibliothèques reconnues conçues pour gérer les modèles courants et ne pas supposer que l'absence de revert signifie toujours que les jetons ont été déplacés comme attendu.
+
+Une bibliothèque telle que SafeERC20 peut normaliser plusieurs comportements observés, mais elle ne rend pas sûrs les jetons arbitraires. Un jeton peut appliquer des frais, geler des comptes, rebaser les soldes ou posséder des permissions administratives. Une application financière doit définir les jetons qu'elle supporte et les tests d'intégration qu'elle exige.
+
+### Propriétés de transfert
+
+Pour un jeton simple sans frais ni mécanisme particulier, une propriété attendue est que la somme des soldes ne change pas pendant un transfert ordinaire ; seul le propriétaire de la quantité change. Cette propriété peut être différente si le contrat brûle une commission, émet de nouvelles unités ou applique des règles spécifiques. Il faut toujours formuler les invariants selon le comportement déclaré et codé, pas selon une supposition générale.
+
+## 12. Autorisations de dépense : comprendre approve et permit
+
+Dans ERC-20, \`approve(spender, amount)\` permet à un tiers de transférer une quantité définie de jetons du compte propriétaire. \`transferFrom\` utilise cette permission. Une autorisation n'est pas une transaction de transfert en elle-même : elle ouvre une capacité de dépense future, dont la portée doit être comprise.
+
+~~~mermaid
+sequenceDiagram
+    participant U as Propriétaire
+    participant T as Contrat du jeton
+    participant S as Spender
+    U->>T: approve(S, quantité)
+    T-->>U: Événement Approval
+    S->>T: transferFrom(U, destinataire, quantité)
+    T->>T: Vérifier solde et allowance
+    T-->>S: Transfert accepté ou rejeté
+~~~
+
+Une application peut demander une autorisation à chaque utilisation ou demander une autorisation plus grande pour réduire les transactions répétées. L'option d'autorisation large améliore parfois l'expérience mais élargit l'exposition en cas de compromission du spender. L'interface devrait demander le minimum nécessaire et offrir un moyen de consulter les autorisations actives.
+
+### Signatures de type permit
+
+Certains jetons implémentent une extension de type EIP-2612 qui permet de créer ou modifier une allowance à l'aide d'une signature off-chain plutôt que d'une transaction d'approbation séparée. Cette mécanique peut réduire le nombre d'étapes, mais elle introduit des questions de nonce, de domaine, d'expiration et de rejeu. Elle n'est pas disponible sur tous les jetons et doit être vérifiée sur le contrat précis.
+
+Une signature permit reste une autorisation de dépense. Elle ne doit pas être présentée comme une simple connexion ou un message de preuve d'identité. L'application doit afficher le contrat et la portée autorisés, vérifier le domaine et le nonce selon la norme, et traiter les signatures expirées ou déjà utilisées.
+
+### Nettoyage des permissions
+
+Quand une application n'a plus besoin d'une allowance, elle peut aider l'utilisateur à la réduire ou à la révoquer, selon ce que le jeton et le réseau permettent. La révocation est elle-même une transaction ; elle peut échouer ou rester en attente. Une interface doit distinguer la demande d'annulation de l'autorisation et la confirmation effective de la nouvelle valeur.
+
+## 13. NFT : récepteurs, métadonnées et état réel
+
+ERC-721 distingue le propriétaire on-chain, l'identifiant du token et les métadonnées référencées. Une collection peut annoncer une image et des attributs, mais le contrat ne garantit pas que le fichier soit encore disponible ni que les droits d'utilisation du média soient transférés. Il faut considérer le contrat, la URI et le service de stockage comme des composants distincts.
+
+~~~mermaid
+flowchart TD
+    A["Réseau + adresse du contrat + tokenId"] --> B["ownerOf : propriétaire on-chain"]
+    A --> C["tokenURI : emplacement des métadonnées"]
+    C --> D["JSON de métadonnées"]
+    D --> E["Image / animation / attributs"]
+    E --> F["Stockage et disponibilité hors chaîne"]
+~~~
+
+### Les transferts sûrs peuvent appeler du code externe
+
+\`safeTransferFrom\` cherche à éviter qu'un NFT soit envoyé à un contrat qui ne peut pas le recevoir en exigeant, pour un destinataire contractuel, le mécanisme de réception attendu par le standard. Cette vérification implique un appel externe au contrat destinataire. Le code du destinataire peut donc s'exécuter pendant le transfert, ce qui oblige les implémentations à raisonner sur les callbacks et les risques de réentrance.
+
+« Sûr » ne signifie pas que le transfert est honnête, réversible ou exempt de phishing. Un utilisateur peut toujours autoriser un contrat malveillant à déplacer un NFT. Les permissions et l'adresse du destinataire doivent être vérifiées avant la signature. Les contrats récepteurs devraient être testés avec les chemins de succès et de refus.
+
+### Métadonnées mutables
+
+La fonction \`tokenURI\` peut renvoyer des données dont le contenu change au fil du temps selon la conception du contrat et l'hébergement. Un administrateur peut avoir un rôle de mise à jour ; un serveur peut changer le fichier ; un stockage adressé par contenu peut garder l'intégrité mais dépend de la disponibilité du contenu.
+
+Pour une collection qui promet une métadonnée immuable, documente précisément ce qui est immuable : l'URI peut-elle changer ? le JSON est-il stocké sur chaîne ? l'image peut-elle disparaître ? la licence peut-elle changer ? La promesse commerciale ne doit pas être confondue avec ce que le code garantit.
+
+### Burn et événements
+
+Un NFT peut être détruit si son contrat implémente un mécanisme de burn. Après la destruction, l'identifiant peut ne plus avoir de propriétaire selon l'implémentation. Les indexeurs doivent traiter les événements appropriés et ne pas supposer que tous les tokenId qui ont existé sont encore valides. Les applications qui affichent une collection doivent gérer les NFT brûlés, les transferts récents et les réorganisations de chaîne.
+
+## 14. Autres standards et matrice de choix
+
+ERC-20 et ERC-721 ne couvrent pas tous les besoins de tokenisation. ERC-1155 permet à un même contrat de gérer plusieurs types de jetons, incluant des types fongibles et non fongibles selon la manière dont ils sont utilisés. Il peut être utile pour les jeux ou les applications qui gèrent de nombreux actifs. En contrepartie, les intégrateurs doivent comprendre son interface de transfert par lots et ses événements particuliers.
+
+~~~mermaid
+flowchart TD
+    Q["Besoin métier"] --> F{"Unités interchangeables ?"}
+    F -->|Oui| ERC20["Évaluer ERC-20"]
+    F -->|Non, chaque objet distinct| ERC721["Évaluer ERC-721"]
+    F -->|Plusieurs types et lots| ERC1155["Évaluer ERC-1155"]
+    ERC20 --> R["Vérifier fonctions, permissions et compatibilité"]
+    ERC721 --> R
+    ERC1155 --> R
+~~~
+
+### Choisir selon la logique, pas selon la mode
+
+| Besoin | Piste de départ | Questions complémentaires |
+|---|---|---|
+| Points ou unité fongible | ERC-20 | Offre fixe ou mint ? Transferts libres ? Précision ? |
+| Pièce de collection individuelle | ERC-721 | Métadonnées, opérateurs, transfert sûr, burn ? |
+| Plusieurs catégories d'objets et transferts par lots | ERC-1155 | Gestion des lots, récepteurs, événements et indexeurs ? |
+| Certificat vérifiable | ERC-721 ou registre dédié | Révocation, confidentialité et droits juridiques ? |
+| Permission à durée limitée | Extension ou contrat d'autorisation | Nonce, échéance, domaine de signature et rejeu ? |
+
+Le standard doit exprimer les propriétés techniques nécessaires sans donner une fausse impression de garantie juridique. Un certificat ou une carte de membre peut nécessiter une fonction de révocation, un statut d'expiration ou un modèle de confidentialité. Ces besoins doivent être vérifiés avant le choix du standard.
+
+### Plan de test d'intégration
+
+Une DApp qui consomme un jeton doit tester l'intégration avec le contrat exact, et non uniquement avec un jeton de test idéal. Les scénarios comprennent les métadonnées absentes, les transferts qui retournent false ou revert, les approbations larges, les frais de transfert, les pauses, les adresses erronées, les mauvais réseaux et les événements dupliqués lors d'une réorganisation. Les tests de propriété doivent utiliser le vrai modèle de comptabilité du jeton.
+
+Pour les NFT, teste l'adresse de collection, les tokenId invalides, les autorisations par token et globales, les récepteurs contractuels qui acceptent ou rejettent, la disponibilité des métadonnées et les pouvoirs qui modifient les URI. Une interface fiable affiche les incertitudes connues et ne transforme pas un événement isolé en preuve universelle de droits.
+
+## 15. TP guidé A : analyser un ERC-20 sans dépenser de fonds
 
 ### Objectif
 
@@ -311,7 +435,7 @@ Repère Transfer et Approval dans l'historique. Vérifie l'adresse émettrice de
 
 Fournis une fiche qui comprend le contrat, le réseau, les métadonnées, la politique d'offre, les pouvoirs d'administration et cinq risques éventuels. Si une information ne peut pas être confirmée, marque-la explicitement comme inconnue.
 
-## 12. TP guidé B : analyser un NFT ERC-721
+## 16. TP guidé B : analyser un NFT ERC-721
 
 ### Objectif
 
@@ -333,7 +457,167 @@ Vérifie l'approbation d'un token spécifique et l'autorisation globale des opé
 
 Rédige un court paragraphe qui distingue ce qui est garanti par le contrat (identifiant et propriétaire selon le protocole) de ce qui dépend des métadonnées, de l'hébergeur et des droits juridiques. Un NFT n'est pas automatiquement une propriété immobilière ou un droit d'auteur.
 
-## 13. Dix questions d'entraînement avec corrigé
+## 17. ERC-20 : vérifier les propriétés métier et la politique d'offre
+
+L'interface ERC-20 ne définit pas à elle seule l'économie du jeton. Avant de l'intégrer, il faut connaître la règle d'émission, la politique de destruction, les fonctions administratives, la possibilité de pause, l'existence de restrictions de transfert et la manière dont le contrat peut changer. Deux contrats conformes à la même interface peuvent présenter des risques très différents.
+
+### Questions à poser au propriétaire du token
+
+- L'offre est-elle fixe ou peut-elle augmenter ?
+- Qui peut appeler mint, burn, pause ou les fonctions de liste de blocage ?
+- Une mise à niveau peut-elle modifier les règles de transfert ?
+- Existe-t-il une commission prélevée à chaque transfert ?
+- Les soldes peuvent-ils évoluer sans événement Transfer classique, par exemple dans un modèle de rebase ?
+- La précision est-elle disponible et est-elle utilisée de manière cohérente par les applications ?
+- Qui surveille les fonctions administratives et quelle est la procédure d'urgence ?
+
+~~~mermaid
+flowchart TD
+    A["Contrat ERC-20 identifié"] --> B["Lire offre et règles d'émission"]
+    B --> C["Identifier rôles et fonctions sensibles"]
+    C --> D["Tester transfert, allowance et retours"]
+    D --> E["Tester comportements spécifiques"]
+    E --> F["Décider si l'intégration supporte ce token"]
+~~~
+
+### Comptabilité et jetons atypiques
+
+Le modèle le plus simple suppose que le montant reçu par un destinataire correspond exactement au montant demandé. Cette hypothèse n'est pas vraie pour tous les jetons : certains prélèvent une commission, modifient les soldes selon une règle de rebase ou appliquent des restrictions. Un protocole qui calcule son solde comptable à partir du montant demandé peut alors diverger de la quantité réellement reçue.
+
+Si un protocole prend en charge ces jetons, il doit prévoir une stratégie adaptée, par exemple vérifier le changement de solde réel avant et après le transfert selon les limites de sécurité. Cette mesure n'est pas universellement adaptée à tous les tokens et peut présenter ses propres cas limites. La meilleure approche est de définir explicitement la liste des jetons supportés et de tester leur comportement réel.
+
+### Approvals et événements
+
+Les événements Approval et Transfer sont des signaux utiles, mais ne remplacent pas l'examen de la fonction et de son statut. Un contrat d'indexation doit vérifier l'adresse émettrice et gérer les réorganisations. L'interface doit également rendre visible le spender autorisé, l'allowance, la quantité et l'action que l'utilisateur s'apprête à signer.
+
+## 18. ERC-721 : identité, propriété et réception par un contrat
+
+L'identité d'un NFT est définie par le réseau, l'adresse du contrat et le tokenId. Ce triplet doit être utilisé dans les bases de données et les API afin d'éviter que deux collections différentes soient confondues parce qu'elles partagent un même tokenId. L'URI et les métadonnées sont des propriétés supplémentaires, pas un substitut à l'identifiant on-chain.
+
+### Détection d'un contrat récepteur
+
+Lors d'un safeTransferFrom vers une adresse de contrat, l'implémentation ERC-721 appelle la fonction de réception attendue et vérifie sa valeur de retour. Ce mécanisme réduit le risque d'envoyer accidentellement un NFT à un contrat incapable de le traiter. Il ne garantit pas que le contrat récepteur conservera le NFT de manière sûre ou qu'il ne fera pas autre chose ensuite.
+
+~~~mermaid
+sequenceDiagram
+    participant O as Propriétaire
+    participant E as Contrat ERC-721
+    participant R as Contrat récepteur
+    O->>E: safeTransferFrom(destinataire, tokenId)
+    E->>E: Vérifier propriétaire et autorisation
+    E->>R: onERC721Received(...)
+    R-->>E: Valeur de réception attendue
+    E->>E: Finaliser le transfert
+    E-->>O: Événement Transfer
+~~~
+
+Le callback du récepteur est un appel externe. Les implémentations doivent tenir compte de la réentrance et garantir que l'état de propriété est cohérent selon l'ordre d'exécution. Les tests doivent inclure un destinataire conforme, un destinataire qui refuse et un destinataire qui exécute du code inattendu pendant la réception.
+
+### Métadonnées, URI et droits
+
+Le standard ne garantit pas que tokenURI reste disponible ni que le contenu soit immuable. Une URI HTTP dépend d'un serveur ; une URI IPFS dépend de la disponibilité des nœuds qui conservent le contenu. Un identifiant de contenu peut vérifier l'intégrité mais ne chiffre pas le document et ne garantit pas sa pérennité.
+
+Les conditions commerciales doivent préciser les droits associés au NFT. Posséder le token ne signifie pas nécessairement détenir le droit d'auteur, un titre de propriété physique ou la capacité juridique de revendre l'objet associé. Si le NFT est un certificat, l'émetteur, la révocation, la confidentialité et les erreurs doivent être spécifiés.
+
+## 19. Intégration d'un jeton : test de bout en bout
+
+Un contrat qui utilise un jeton doit être testé avec le jeton choisi et avec des réponses réalistes. Un test qui passe avec un ERC-20 simpliste ne prouve pas que le protocole gère correctement les tokens à comportement atypique. La bibliothèque d'intégration, la gestion des retours, la précision des montants et la politique d'allowance doivent être évaluées ensemble.
+
+### Matrice de test recommandée
+
+| Scénario | Vérification attendue |
+|---|---|
+| Transfert ERC-20 normal | Soldes et événements cohérents |
+| Solde insuffisant | Rejet sans mutation incorrecte |
+| Approve puis transferFrom | Quantité et allowance réduites selon le contrat |
+| Approve maximal | Risque et portée montrés à l'utilisateur |
+| Fonction transfer qui revert | Erreur propagée et interface claire |
+| Jeton à commission | Quantité reçue traitée selon la politique du protocole |
+| NFT inexistant | ownerOf/requête renvoie l'erreur attendue |
+| NFT envoyé à un contrat non récepteur | safeTransferFrom refuse le transfert |
+| URI inaccessible | Interface gère la métadonnée indisponible |
+| Mauvais réseau | Aucune transaction n'est préparée avec la mauvaise configuration |
+
+### Critères d'acceptation
+
+La DApp doit afficher le bon réseau, vérifier l'adresse du contrat, convertir la quantité avec la précision correcte, demander une approbation dont la portée est comprise et attendre un reçu pour conclure. Pour les NFT, elle doit distinguer propriétaire on-chain et métadonnées. L'indexeur doit être capable de reconstruire l'historique à partir d'un bloc de référence et de traiter une réorganisation.
+
+Le protocole peut choisir de ne supporter qu'une liste de jetons explicitement autorisés. Cette politique réduit les surprises, mais nécessite une gouvernance transparente : qui ajoute un jeton, quelles vérifications sont faites, comment un actif est retiré de la liste et quelles conséquences cela a pour les utilisateurs déjà exposés ?
+
+## 20. Cas pratique : suivre une approbation du début à la révocation
+
+Une DApp d'échange peut demander à l'utilisateur d'approuver un contrat de marché avant de transférer ses jetons. La première transaction change allowance ; la transaction suivante utilise transferFrom pour déplacer les jetons. L'utilisateur peut croire qu'il a seulement « connecté » son portefeuille, alors qu'il a en réalité accordé une permission de dépense.
+
+~~~mermaid
+sequenceDiagram
+    participant U as Utilisateur
+    participant D as DApp
+    participant T as Contrat ERC-20
+    participant M as Contrat de marché
+    U->>D: Choisir un montant à échanger
+    D->>T: Demander une approbation limitée
+    U->>T: Signer approve
+    T-->>U: Événement Approval
+    U->>M: Confirmer l'échange
+    M->>T: transferFrom
+    T-->>M: Transfert selon règles du jeton
+~~~
+
+### Avant la signature
+
+L'interface devrait montrer l'adresse du spender, le montant autorisé, le jeton concerné et le réseau. Si l'opération requiert une allowance supérieure au montant de l'échange, il faut expliquer pourquoi. Un mécanisme permit n'enlève pas le risque de permission : il déplace le mode d'autorisation vers une signature, avec ses règles de domaine et de nonce.
+
+### Après la signature
+
+L'application doit attendre le reçu de l'approbation et relire allowance si l'opération suivante en dépend. Elle ne doit pas supposer que la permission est active immédiatement après que la fenêtre de portefeuille s'est fermée. Si la transaction est remplacée ou échoue, le montant autorisé peut rester inchangé.
+
+Une révocation est une nouvelle transaction qui met l'autorisation à zéro ou à une valeur plus faible lorsque le contrat le permet. Elle aussi doit être confirmée avant d'annoncer qu'elle est effective. Le portefeuille peut proposer de réduire régulièrement les permissions, mais l'utilisateur doit connaître le coût de la transaction et le fait qu'une révocation n'annule pas un transfert déjà exécuté.
+
+### Pourquoi la liste des jetons supportés est importante
+
+Un protocole peut choisir de n'accepter que des jetons connus et vérifiés. Cette liste peut réduire les risques de frais de transfert, de rebasing ou de comportement inattendu. Il faut toutefois que la gouvernance de cette liste soit claire, et que les utilisateurs sachent qu'un jeton non supporté peut produire un comportement incorrect même s'il expose une interface ERC-20.
+
+## 21. Émission, destruction et gouvernance de l'offre
+
+Les standards ERC décrivent des interfaces, pas une politique monétaire complète. Un token peut suivre ERC-20 et avoir une offre fixe, un mécanisme d'émission contrôlé, des frais, une pause ou des pouvoirs de liste de blocage. L'intégrateur doit lire les fonctions et les rôles pour comprendre qui peut modifier l'offre et dans quelles conditions.
+
+~~~mermaid
+flowchart TD
+    A["Lire les fonctions d'offre"] --> B{"Mint ou burn autorisé ?"}
+    B -->|Oui| C["Identifier rôle, limite et événements"]
+    B -->|Non| D["Vérifier l'offre initiale et les règles restantes"]
+    C --> E["Évaluer le risque de gouvernance"]
+    D --> E
+    E --> F["Documenter la politique et tester"]
+~~~
+
+Pour un projet de points, le pouvoir de mint peut être voulu, mais il faut préciser qui l'exerce, avec quelles limites et quelle transparence. Pour un stablecoin ou un actif financier, le pouvoir de gel ou la possibilité de mise à niveau peuvent avoir un impact majeur sur les utilisateurs. Le standard ERC-20 ne répond pas à ces questions : elles viennent de l'implémentation et du modèle opérationnel.
+
+### Contrats évolutifs
+
+Lorsqu'un jeton utilise un proxy, le code de transfert peut changer sans que l'adresse de l'actif ne change. Cela apporte une capacité de correction, mais ajoute une hypothèse de confiance concernant l'administration. Le dossier d'intégration devrait préciser l'implémentation actuelle, qui peut la changer et comment la nouvelle version est annoncée.
+
+Une DApp qui accepte un token doit décider ce qu'elle fera en cas de changement de code ou de politique. Certaines applications suivent des listes d'actifs approuvés et réévaluent les jetons en cas de mise à niveau ; d'autres peuvent interrompre les nouvelles positions tant qu'une revue n'est pas terminée.
+
+## 22. Tests de conformité ERC-20/ERC-721 par propriétés
+
+Au lieu de vérifier une seule transaction, formule les propriétés qui doivent rester vraies. Pour ERC-20, un jeton simple sans frais doit déplacer une quantité d'un solde à l'autre sans modifier arbitrairement le total supply. Pour ERC-721, un transfert doit faire correspondre ownerOf au nouveau propriétaire et appliquer les règles d'approbation appropriées.
+
+| Propriété | Test positif | Test négatif |
+|---|---|---|
+| ERC-20 transfert | Solde émetteur baisse, destinataire augmente | Solde insuffisant |
+| ERC-20 approval | Allowance correspond à la valeur signée | Dépense supérieure à allowance |
+| ERC-721 propriété | ownerOf reflète le nouveau propriétaire | Transfert par un tiers non autorisé |
+| ERC-721 réception sûre | Contrat compatible accepte le NFT | Contrat qui refuse la réception |
+| Métadonnées | URI conforme au comportement attendu | URI inaccessible ou modifiable de façon inattendue |
+
+Les propriétés doivent être adaptées au jeton : une commission de transfert ou un mécanisme de rebase change les attentes du modèle simple. Il ne faut pas déclarer un test comme échoué uniquement parce que le token a un comportement spécifique prévu, mais l'application doit avoir décidé si elle supporte ce comportement.
+
+### Contrôle des événements
+
+Les journaux sont utiles pour l'indexation, mais la DApp doit confirmer l'adresse du contrat et gérer les réorganisations. Les NFT brûlés, les approbations révoquées et les transferts d'un même jeton exigent une mise à jour correcte de l'état hors chaîne. Les tests d'intégration doivent inclure une reconnexion et une relecture des événements pour s'assurer que l'indexeur ne crée pas de doublons.
+
+## 23. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi existe-t-il des standards de jetons ?
@@ -385,7 +669,7 @@ Un standard ERC garantit-il qu'un token est sûr ?
 
 **Corrigé :** Non. Il normalise l'interface et certains comportements attendus, mais il ne garantit pas l'économie, les permissions, la qualité des métadonnées ou l'absence de bugs.
 
-## 14. Challenge final : choisir un standard pour une application
+## 24. Challenge final : choisir un standard pour une application
 
 ### Scénario
 

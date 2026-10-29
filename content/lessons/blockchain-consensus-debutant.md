@@ -274,7 +274,108 @@ Un portefeuille qui affiche « envoyé » indique souvent que la transaction a �
 
 La même intuition s'applique à d'autres modèles, mais les structures comptables diffèrent. Ethereum utilise notamment le nonce d'un compte et des règles d'exécution ; des transactions concurrentes peuvent avoir le même nonce et être incompatibles. Il faut appliquer le modèle du réseau concerné et ne pas recopier les détails UTXO de Bitcoin dans un système à comptes.
 
-## 12. TP guidé A : simuler un consensus simplifié sur papier
+## 12. Mesurer le risque : confirmations, valeur et coût d'une réorganisation
+
+Le nombre de confirmations requis ne devrait pas être choisi uniquement parce qu'un tutoriel cite une valeur courante. Une politique d'acceptation doit tenir compte de la valeur transférée, du coût d'une fraude, de la probabilité et de l'impact d'une réorganisation, du délai attendu par l'utilisateur et de la qualité des sources d'observation. Une boutique qui remet immédiatement un bien de grande valeur ne prend pas le même risque qu'un service qui affiche simplement une transaction dans un tableau de bord.
+
+Dans une chaîne à preuve de travail, les blocs supplémentaires augmentent le travail qui devrait être remplacé par une branche alternative. Cette protection dépend néanmoins de la distribution de puissance de calcul, de la propagation, du comportement des autres mineurs et du contexte d'attaque. Il n'existe pas de nombre magique qui rende tout risque exactement nul. Le seuil opérationnel est donc un choix fondé sur un modèle de risque, et non une loi de la cryptographie.
+
+~~~mermaid
+flowchart TD
+    A["Transaction observée"] --> B["Évaluer la valeur et le risque"]
+    B --> C["Vérifier les confirmations"]
+    C --> D{"Seuil opérationnel atteint ?"}
+    D -->|Non| E["Attendre et surveiller"]
+    E --> C
+    D -->|Oui| F["Autoriser l'action selon la politique"]
+    F --> G["Conserver l'identifiant et la preuve d'état"]
+~~~
+
+### Exemple de politique de confirmation
+
+Une application peut classifier les paiements en niveaux de risque plutôt que d'appliquer le même seuil à tout le monde. Les paiements faibles et réversibles peuvent accepter un statut précoce ; les paiements importants peuvent exiger davantage de confirmations et une vérification sur plusieurs sources. Cette politique doit considérer aussi les conséquences d'un faux positif et les coûts de support d'une attente plus longue.
+
+| Classe de risque | Décision possible | Mesures complémentaires |
+|---|---|---|
+| Affichage informatif | Montrer la transaction comme en attente | Actualiser le statut et signaler qu'il peut évoluer |
+| Petit paiement avec livraison différée | Attendre une confirmation selon la politique définie | Vérifier hash, réseau et destinataire |
+| Paiement de forte valeur | Seuil de confirmations plus élevé | Observabilité indépendante, procédure d'escalade |
+| Opération irréversible ou critique | Évaluer finalité et hypothèses du réseau | Validation technique et approbation opérationnelle |
+
+Cette matrice est un modèle à adapter, pas une recommandation universelle. Les seuils exacts dépendent de la chaîne, du montant, du marché et du coût d'une réorganisation.
+
+## 13. Fork choice, validité et finalité : trois mécanismes différents
+
+Le choix de branche, la validité d'un bloc et la finalité sont liés, mais ne veulent pas dire la même chose. Un client vérifie d'abord les règles de validité et rejette les propositions qui ne les respectent pas. Le mécanisme de fork choice détermine ensuite quelle branche admissible le nœud suit parmi les branches concurrentes. La finalité, lorsqu'elle existe sous une forme explicite, donne des garanties supplémentaires selon les conditions du protocole.
+
+En Bitcoin, la règle de sélection est fondée sur le travail cumulé des chaînes valides. Pendant une propagation lente, deux nœuds peuvent suivre provisoirement des blocs différents et converger plus tard. Dans Ethereum après The Merge, le consensus PoS comporte des propositions, attestations, justifications et finalisations, selon les règles de consensus. Il serait incorrect de décrire les deux systèmes par une même règle telle que « la majorité vote pour le bloc gagnant ».
+
+### Ce que fait et ne fait pas un nœud
+
+Un nœud ne demande pas simplement aux pairs quel bloc est le bon et ne copie pas aveuglément la réponse majoritaire. Il valide les données en fonction de son état et des règles du protocole. Les informations reçues des pairs servent à apprendre les propositions et à synchroniser les données ; elles ne remplacent pas les contrôles locaux.
+
+Un réseau peut être temporairement en désaccord sur les blocs récents sans que tous ses nœuds soient en panne. À l'inverse, si des clients conformes calculent des états différents à partir des mêmes données, cela peut indiquer un bug d'implémentation ou une divergence de règles qui mérite une investigation. Il faut collecter des preuves avant d'attribuer la cause à une attaque.
+
+### Pourquoi « une majorité » ne suffit pas à tout expliquer
+
+Dans PoW, une majorité de puissance de calcul affecte principalement la probabilité de produire une branche avec plus de travail cumulé et la capacité de perturber l'inclusion. Elle ne remplace pas la signature privée d'un utilisateur ni ne permet à des blocs invalides d'être acceptés par des nœuds conformes. Dans PoS, les seuils et effets dépendent des votes, des mises et des règles de slashing ou de finalité ; le simple pourcentage de jetons détenus n'explique pas à lui seul toutes les conséquences d'une attaque.
+
+La question correcte est donc : quelle ressource est contrôlée, quelle violation cherche-t-on à réaliser, quelles règles les nœuds honnêtes appliquent-ils, quelles pénalités existent et quelles conditions d'arrêt ou de reprise sont prévues ?
+
+## 14. Incidents de consensus : procédure d'investigation
+
+Lorsqu'un réseau semble bloqué ou que des explorateurs affichent des blocs différents, il faut séparer les symptômes des causes possibles. Un retard d'indexeur, une panne RPC, une partition réseau, une baisse de production, une erreur de client et une véritable divergence de consensus ne se diagnostiquent pas de la même façon.
+
+~~~mermaid
+flowchart TD
+    A["Alerte : progrès ou vues incohérentes"] --> B["Confirmer réseau et versions"]
+    B --> C["Comparer plusieurs nœuds indépendants"]
+    C --> D["Comparer tête, parent et statut finalisé"]
+    D --> E{"Les nœuds progressent-ils ?"}
+    E -->|Oui| F["Investiguer RPC, indexeur ou propagation"]
+    E -->|Non| G["Collecter journaux et métriques consensus"]
+    F --> H["Documenter cause et impact"]
+    G --> I["Escalader avec preuves reproductibles"]
+    I --> H
+~~~
+
+### Informations à conserver
+
+- réseau, chain ID ou identifiant de chaîne et horodatage de la collecte ;
+- version du client et paramètres de configuration ;
+- derniers blocs ou slots connus, hashes et parents ;
+- évolution du nombre de pairs et erreurs de validation ;
+- réponses de plusieurs fournisseurs RPC, en identifiant leur indépendance réelle ;
+- heure de début, durée, impact utilisateur et changements récents.
+
+Ne réinitialise pas les données du nœud avant d'avoir conservé les informations nécessaires à l'investigation. Ne remplace pas manuellement un état local par celui d'un fournisseur sans comprendre les garanties de vérification de la méthode. Si le problème vient d'un indexeur qui a pris du retard, une reconstruction peut être suffisante ; si plusieurs clients divergent, il faut traiter l'incident comme beaucoup plus sérieux.
+
+### Communication de l'incident
+
+Le rapport doit indiquer ce qui est confirmé, ce qui reste une hypothèse, quelles transactions sont affectées et quels statuts peuvent encore évoluer. Évite d'annoncer une « attaque à 51 % » ou une « panne globale » avant d'avoir des éléments. Une bonne communication précise la chaîne, la période, le périmètre et les mesures en cours.
+
+Les procédures de reprise doivent être préparées avant la crise : canaux de coordination, personnes habilitées à changer les clients, moyens de vérifier une mise à jour et règles de décision en cas de divergence. Une réponse d'urgence improvisée peut aggraver un incident.
+
+## 15. Gouvernance des règles et choix de chaîne
+
+Les règles du consensus sont implémentées dans le logiciel et appliquées par les participants qui choisissent de l'exécuter. Une mise à niveau peut être coordonnée par une communauté, des opérateurs, développeurs et utilisateurs ; une divergence de versions peut produire des chaînes distinctes si les règles ne sont plus compatibles. Le vote social, la disponibilité d'implémentations, la distribution des opérateurs et la confiance des utilisateurs influencent la capacité d'une mise à jour à être adoptée.
+
+Cela ne signifie pas que n'importe quel groupe puisse modifier rétroactivement toutes les données sans résistance. Un fork change ce que les participants choisissent de suivre et peut créer une chaîne concurrente. Les utilisateurs doivent connaître le réseau et la version de protocole avec lesquels ils interagissent, surtout lors d'une mise à jour ou d'une séparation de chaîne.
+
+### Critères d'évaluation d'un réseau
+
+Avant de choisir une blockchain pour un système métier, examine :
+- le modèle de consensus et ses hypothèses ;
+- la distribution des mineurs ou validateurs et les services de staking ;
+- les mécanismes de finalité ou les confirmations attendues ;
+- les clients disponibles et la diversité de leurs implémentations ;
+- les procédures de mise à niveau, de réaction à un bug et de communication ;
+- les dépendances centralisées de l'expérience utilisateur ;
+- le coût et la disponibilité d'un nœud indépendant.
+
+La réputation ou la taille d'un réseau ne remplace pas ces vérifications. Une application doit évaluer si ses risques, ses délais et ses exigences d'auditabilité correspondent au réseau envisagé.
+
+## 16. TP guidé A : simuler un consensus simplifié sur papier
 
 ### Objectif
 
@@ -304,7 +405,7 @@ Place un bloc A3 sur la branche A qui dépense une valeur inexistante. Bien qu'i
 
 **Dans un système réel, le poids est-il toujours simplement le nombre inscrit sur la carte ?** Non. La preuve de travail, la preuve d'enjeu et d'autres protocoles définissent leurs propres règles et mesures.
 
-## 13. TP guidé B : comparer un paiement PoW et un paiement PoS
+## 17. TP guidé B : comparer un paiement PoW et un paiement PoS
 
 Crée un tableau de comparaison à deux colonnes. Pour Bitcoin, décris l'émission d'une transaction, sa diffusion, son inclusion dans un bloc miné, puis l'augmentation des confirmations. Pour Ethereum, décris la diffusion d'une transaction, son exécution dans un bloc, la validation par le réseau PoS et les étapes de justification ou finalité pertinentes.
 
@@ -314,7 +415,108 @@ Le tableau doit comprendre les mêmes étapes pour les deux chaînes : transacti
 
 Bitcoin s'appuie sur la preuve de travail et une règle de chaîne à travail cumulé ; les confirmations supplémentaires rendent une réorganisation de plus en plus coûteuse dans les hypothèses habituelles, sans créer une garantie mathématique absolue après un nombre fixe de blocs. Ethereum utilise la preuve d'enjeu, avec propositions et attestations qui conduisent à une finalité protocolisée lorsque les conditions sont réunies. Dans les deux cas, une interface peut être en retard, une transaction peut échouer au niveau applicatif et les services centralisés peuvent ajouter des risques qui ne proviennent pas du consensus de base.
 
-## 14. Dix questions d'entraînement avec corrigé
+## 18. Exemple chiffré simplifié de branches concurrentes
+
+Supposons que deux branches valides partent du même parent. Pour rendre le raisonnement accessible, attribuons à chaque bloc un poids fictif de travail cumulé. Ces nombres ne sont pas les valeurs réelles d'un client Bitcoin ; ils servent seulement à montrer que le nombre de blocs et le travail cumulé ne sont pas la même mesure.
+
+La branche A possède deux blocs dont le poids cumulé fictif vaut 12 unités, alors que la branche B possède trois blocs dont le poids vaut 10 unités. Avec une règle de sélection fondée sur le travail cumulé, A serait retenue dans cet exemple malgré le nombre inférieur de blocs. Un nœud ne doit pas comparer uniquement les hauteurs lorsque la règle du protocole porte sur le travail cumulé.
+
+~~~mermaid
+flowchart TD
+    G["Parent commun"] --> A1["A1 : poids fictif 7"]
+    A1 --> A2["A2 : +5"]
+    G --> B1["B1 : poids fictif 4"]
+    B1 --> B2["B2 : +3"]
+    B2 --> B3["B3 : +3"]
+    A2 --> S["Comparer poids cumulé des branches valides"]
+    B3 --> S
+~~~
+
+Cet exercice n'est pas un simulateur de minage réel : le travail d'un bloc dépend de sa cible, et la comparaison suit les règles de la chaîne. L'intérêt est de retenir qu'une branche n'est admissible que si ses blocs sont valides et que la règle de fork choice doit ensuite sélectionner entre les branches concurrentes.
+
+### Ce que le scénario ne prouve pas
+
+Le poids supérieur ne permet pas de faire accepter une transaction invalide. Les nœuds appliquent les règles de validité indépendamment. De plus, si une branche inclut une double dépense, son effet n'est pas de faire apparaître deux dépenses dans l'état final ; l'une des branches peut être rejetée par le choix final, ce qui modifie le statut des transactions récentes.
+
+Les plateformes doivent donc traiter les paiements avant finalisation comme des opérations pouvant encore changer de statut. Le risque dépend de la chaîne, du montant et des hypothèses de sécurité, pas seulement du nombre affiché de blocs.
+
+## 19. Scénarios de consensus et décision opérationnelle
+
+Un opérateur peut rencontrer plusieurs types de ralentissement :
+- le réseau continue à produire des blocs, mais un RPC est en retard ;
+- plusieurs blocs concurrents sont produits sur une courte période ;
+- une partie des validateurs devient indisponible ;
+- les blocs sont produits mais la progression vers la finalité ralentit ;
+- un client refuse les blocs après une mise à jour ;
+- les vues de plusieurs opérateurs diffèrent durablement.
+
+Le diagnostic commence par comparer des sources indépendantes et noter les identifiants de blocs ou de checkpoints. Ne base pas la décision sur un seul tableau de bord, qui peut être en cache ou utiliser son propre indexeur.
+
+~~~mermaid
+flowchart TD
+    A["Réseau semble lent"] --> B["Comparer production de blocs et finalité"]
+    B --> C["Comparer plusieurs nœuds indépendants"]
+    C --> D{"Le problème est-il local à un fournisseur ?"}
+    D -->|Oui| E["Traiter le RPC / indexeur"]
+    D -->|Non| F["Collecter versions, pairs et événements de consensus"]
+    E --> G["Documenter impact et vérifier reprise"]
+    F --> H["Escalade technique avec preuves"]
+~~~
+
+### Politique utilisateur et incident
+
+Pendant un incident, l'application doit préciser si elle accepte les paiements, met les opérations en attente ou suspend certaines actions. La politique doit éviter les promesses absolues et être liée au risque métier. La boutique qui livre un bien irréversible ne devrait pas utiliser la même règle que l'application qui affiche une donnée publique.
+
+Un rapport d'incident utile contient la période, le réseau, les blocs observés, les services affectés, les hypothèses et les éléments confirmés. Les termes « attaque », « double dépense » et « arrêt du consensus » doivent être réservés aux cas où les faits soutiennent réellement ces conclusions.
+
+## 20. Évaluation critique : quels compromis comptent pour un projet ?
+
+Le choix PoW ou PoS doit commencer par les besoins de l'application. Les critères peuvent inclure la finalité, la résistance à la censure, la possibilité d'exécuter un nœud indépendant, le coût, la distribution des opérateurs et les exigences réglementaires. Il faut distinguer les garanties du protocole des risques des services qui l'entourent.
+
+Un tableau de comparaison utile contient au moins :
+- le modèle de ressource qui rend l'attaque coûteuse ;
+- la procédure de choix de chaîne et les garanties de finalité ;
+- les hypothèses de réseau et de distribution des participants ;
+- la concentration des opérateurs, pools ou services de staking ;
+- le coût et la difficulté d'exploitation d'un nœud de vérification ;
+- le traitement des pannes et la gouvernance des mises à jour ;
+- la manière dont l'application observe l'état et décide qu'une transaction est suffisamment confirmée.
+
+Aucune approche n'est meilleure dans toutes les dimensions. Une comparaison technique doit éviter les slogans et préciser le contexte, l'adversaire, la période observée et les mesures retenues. C'est cette discipline qui transforme une opinion sur une blockchain en une décision d'architecture défendable.
+
+## 21. Choisir une politique de confirmation pour une application
+
+Une application doit documenter ce qui signifie « payé », « validé » ou « finalisé ». Ces termes ne doivent pas se réduire à un seul nombre dans le frontend. Le statut peut être une information en attente, une inclusion dans un bloc, des confirmations supplémentaires ou la finalité définie par le protocole.
+
+~~~mermaid
+flowchart TD
+    A["Définir action métier"] --> B["Évaluer coût d'un faux positif"]
+    B --> C["Choisir statut de confirmation attendu"]
+    C --> D["Vérifier la source et le réseau"]
+    D --> E["Appliquer la politique et journaliser"]
+~~~
+
+Un service qui affiche une transaction peut choisir un statut précoce avec une étiquette claire. Un service qui délivre un bien irréversible devrait attendre des garanties plus fortes. Les règles exactes doivent être justifiées par le modèle de risque, et non copiées depuis un tutoriel. L'interface doit aussi prévoir le cas où un bloc récent disparaît de la branche suivie.
+
+### Transparence du statut
+
+La communication doit indiquer le réseau, le hash, le nombre de confirmations ou le statut de finalité, et préciser si une action dépend encore d'une confirmation supplémentaire. Évite des mots comme « irréversible » si le système n'offre qu'une assurance probabiliste. Même une finalité protocolisée n'élimine pas tous les risques de contrat, de garde ou de service externe.
+
+## 22. Revue de sécurité d'un choix PoW/PoS
+
+Une comparaison utile examine le modèle d'attaque, les opérateurs qui produisent les blocs, les dépendances et les garanties exactes du protocole. Ne compare pas seulement une estimation de consommation électrique avec un coût de staking : ces mesures portent sur des ressources et des risques différents.
+
+| Question | PoW | PoS |
+|---|---|---|
+| Ressource centrale | Puissance de calcul et énergie | Mise et participation des validateurs |
+| Sélection | Travail cumulé des branches valides dans Bitcoin | Règles de proposition, attestations et finalité selon le protocole |
+| Risques de concentration | Pools, matériel, énergie, hébergement | Pools de staking, opérateurs, garde des clés |
+| Pénalités | Coût du travail gaspillé et conséquences économiques | Récompenses, pénalités et slashing selon les règles |
+| Observation | Hauteur, travail cumulé et confirmations | Propositions, attestations et statut de finalité |
+
+Une fiche technique doit identifier les hypothèses qui importent pour l'application : montant, délai, disponibilité, protection contre la censure, capacité à vérifier par soi-même et procédures de mise à niveau. Le choix doit correspondre aux contraintes réelles, pas à un slogan sur une famille de consensus.
+
+## 23. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi un réseau blockchain a-t-il besoin d'un mécanisme de consensus ?
@@ -366,7 +568,7 @@ Un fork temporaire signifie-t-il que le réseau a été attaqué ?
 
 **Corrigé :** Pas nécessairement. Il peut résulter de blocs concurrents et de délais de propagation. La durée, la profondeur et les données de l'incident sont nécessaires pour établir un diagnostic.
 
-## 15. Challenge final : analyser une suspicion de double dépense
+## 24. Challenge final : analyser une suspicion de double dépense
 
 ### Scénario
 

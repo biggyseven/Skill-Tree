@@ -137,7 +137,7 @@ Un enum définit un ensemble fini de valeurs nommées. Une struct regroupe plusi
 pragma solidity ^0.8.20;
 
 contract SuiviTicket {
-    enum Etat { Ouvert, EnCours, Resol u, Ferme }
+    enum Etat { Ouvert, EnCours, Resolu, Ferme }
 
     struct Ticket {
         address createur;
@@ -160,7 +160,7 @@ contract SuiviTicket {
 }
 ~~~
 
-Dans cet extrait, le mot de l'énumération qui représente l'état résolu doit être écrit sans espace comme une seule valeur, par exemple Resolu. Cet exemple illustre l'idée des structures, mais il doit être corrigé avant compilation et complété par des fonctions de lecture et de transition. Toujours compiler le code copié au lieu de supposer que chaque extrait explicatif est déjà un projet complet.
+Dans cet extrait, la valeur `Resolu` est maintenant écrite comme un identifiant Solidity valide. L'exemple illustre les structures et les mappings ; pour une application complète, il faut encore définir les transitions autorisées, la lecture des tâches et les tests de permission. Compile toujours le code dans la version ciblée avant de l'intégrer à un projet.
 
 ## 4. Variables d'état, memory et calldata
 
@@ -408,7 +408,194 @@ Les tests doivent changer l'identité de l'appelant. Si tu testes une fonction a
 
 Une fois le contrat compilé et testé, il peut être déployé sur un réseau local ou de test. Conserve le code source, la version du compilateur, les paramètres d'optimisation, les bibliothèques, l'ABI et le bytecode de création. Après le déploiement, vérifie l'adresse et le bytecode attendu. Les outils de vérification de source facilitent la comparaison publique entre le code annoncé et le code exécuté.
 
-## 12. TP guidé A : construire un registre de tâches
+## 12. Concevoir les données avant les fonctions
+
+Un contrat lisible commence par un modèle de données qui représente précisément le besoin. Pour un registre de tâches, il faut décider si chaque tâche possède un créateur, un état, une date, une description et une date de clôture. Pour un coffre, les données peuvent être le solde par utilisateur, les paramètres de pause et les rôles. Ces choix conditionnent les invariants et les tests.
+
+Un mapping convient aux recherches par clé, par exemple \`mapping(address => uint256)\` pour un solde. Il ne fournit pas nativement une liste itérable de toutes les clés. Si le contrat doit afficher le nombre de tâches, le simple fait de posséder \`mapping(uint256 => Task)\` ne suffit pas : il faut aussi conserver un compteur ou un index séparé. Ce compteur doit être mis à jour exactement une fois lors d'une création réussie.
+
+Un tableau dynamique conserve un ordre et permet l'accès par index, mais il peut devenir coûteux à parcourir. Une fonction d'écriture qui boucle sur toutes les tâches pourrait finir par dépasser la limite de gas. Il faut se demander si la recherche doit être réalisée on-chain ou par un indexeur hors chaîne qui écoute les événements.
+
+~~~mermaid
+flowchart TD
+    R["Besoin métier"] --> Q{"Recherche par clé ou parcours complet ?"}
+    Q -->|Par clé| M["Mapping"]
+    Q -->|Par index ou ordre| A["Tableau"]
+    M --> I["Ajouter un index séparé si nécessaire"]
+    A --> L["Éviter les boucles d'écriture non bornées"]
+    I --> T["Définir invariants et tests"]
+    L --> T
+~~~
+
+Un bon modèle de données inclut aussi les états impossibles. Par exemple, une tâche ne doit pas être « terminée » avant d'exister ; un retrait ne doit pas faire passer un solde sous zéro ; une demande qui a déjà été consommée ne doit pas être traitée une seconde fois. Ces propriétés doivent être visibles dans la spécification avant d'écrire les fonctions.
+
+### Exemple de décision de conception
+
+| Besoin | Structure potentielle | Point à vérifier |
+|---|---|---|
+| Lire le solde d'une adresse connue | Mapping | Le mapping ne liste pas tous les utilisateurs |
+| Lire une tâche par identifiant | Mapping de struct | Prévoir les identifiants inexistants |
+| Afficher les dernières tâches | Tableau ou indexeur | Définir pagination et ordre |
+| Suivre les changements dans l'interface | Événements | Gérer les réorganisations et doublons |
+| Empêcher la duplication d'une action | Mapping de drapeaux ou état dédié | Mettre le drapeau à jour dans le bon ordre |
+
+Les structures doivent être adaptées au modèle d'accès réel. Ne choisis pas un tableau uniquement parce qu'il est facile à expliquer, ni un mapping uniquement parce qu'il semble rapide. Le contrat paie le coût des données persistantes et doit pouvoir être utilisé à mesure que le volume augmente.
+
+## 13. Exemple corrigé et compilable : registre de tâches
+
+Le contrat ci-dessous est un exemple pédagogique complet pour illustrer une struct, un enum, un mapping, un compteur, des événements et un contrôle d'accès au niveau d'une tâche. Il n'utilise aucun jeton et n'envoie aucune valeur native. Il constitue un bon exercice pour tester la logique avant de l'élargir.
+
+~~~solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract RegistreTaches {
+    enum Etat { Ouverte, EnCours, Terminee, Annulee }
+
+    struct Tache {
+        address createur;
+        string titre;
+        uint64 creeeLe;
+        Etat etat;
+    }
+
+    mapping(uint256 => Tache) private taches;
+    uint256 public prochainId;
+
+    event TacheCreee(uint256 indexed id, address indexed createur, string titre);
+    event EtatModifie(uint256 indexed id, Etat ancienEtat, Etat nouvelEtat);
+
+    error TacheInexistante(uint256 id);
+    error AppelantNonAutorise();
+    error TransitionInterdite();
+
+    function creer(string calldata titre) external returns (uint256 id) {
+        require(bytes(titre).length > 0, "Titre vide");
+        id = prochainId;
+        prochainId += 1;
+        taches[id] = Tache({
+            createur: msg.sender,
+            titre: titre,
+            creeeLe: uint64(block.timestamp),
+            etat: Etat.Ouverte
+        });
+        emit TacheCreee(id, msg.sender, titre);
+    }
+
+    function lire(uint256 id) external view returns (Tache memory) {
+        if (id >= prochainId) revert TacheInexistante(id);
+        return taches[id];
+    }
+
+    function definirEtat(uint256 id, Etat nouvelEtat) external {
+        if (id >= prochainId) revert TacheInexistante(id);
+        Tache storage tache = taches[id];
+        if (tache.createur != msg.sender) revert AppelantNonAutorise();
+        if (tache.etat == Etat.Terminee || tache.etat == Etat.Annulee) {
+            revert TransitionInterdite();
+        }
+        Etat ancien = tache.etat;
+        tache.etat = nouvelEtat;
+        emit EtatModifie(id, ancien, nouvelEtat);
+    }
+}
+~~~
+
+Le contrat permet au créateur de modifier l'état tant que la tâche n'est pas terminée ou annulée. Pour un exercice de conception, cela soulève une question utile : l'expression \`nouvelEtat\` permet-elle de passer directement d'Ouverte à Annulée ou d'Ouverte à Terminée ? Le code le permet. Si la politique exige des transitions séquentielles, elle doit les vérifier explicitement. Une enum limite les valeurs possibles, mais ne définit pas à elle seule les transitions métiers autorisées.
+
+Le contrôle par \`id >= prochainId\` repose sur le fait que les identifiants sont créés séquentiellement et qu'aucune suppression ne les réutilise. Si une future version ajoute une destruction ou un import de données, cette hypothèse devra être revue. Les erreurs personnalisées donnent des erreurs structurées, tandis que l'événement permet à l'interface de suivre les changements sans parcourir l'ensemble du stockage.
+
+### Tests minimaux à écrire
+
+1. Le compte A crée une tâche et devient son créateur.
+2. Le titre vide est refusé.
+3. Le compte B ne peut pas modifier l'état de la tâche de A.
+4. Un identifiant supérieur ou égal à \`prochainId\` est rejeté.
+5. Le créateur peut modifier l'état d'une tâche ouverte.
+6. Une tâche terminée ne peut plus être modifiée.
+7. L'événement émis contient l'identifiant et les états attendus.
+8. Le comportement correspond à la spécification si l'utilisateur tente de passer directement à l'état Annulée.
+
+Ce petit exemple est volontairement plus utile qu'un extrait qui ne compile pas : la structure, les noms et les types sont cohérents, et les limites métiers sont explicites. Il reste nécessaire de compiler et tester avec la version exacte de Solidity visée.
+
+## 14. Organiser les permissions et les transitions d'état
+
+La sécurité d'un contrat dépend moins du nombre de modificateurs que de la justesse du modèle d'autorisation. Pour chaque fonction d'écriture, formule une phrase : « Qui peut appeler cette fonction, sur quel objet, à quel moment, avec quelles conséquences ? » Si la réponse est vague, le contrôle d'accès n'est pas prêt.
+
+Les permissions peuvent dépendre de l'appelant, du propriétaire d'un objet, d'un rôle, d'un délai ou d'une condition de gouvernance. Le contrôle basé sur \`msg.sender\` ne prouve que l'adresse de l'appelant immédiat dans le contexte EVM ; il n'établit pas l'identité civile de la personne. Lorsqu'un contrat intermédiaire appelle la fonction, \`msg.sender\` peut être ce contrat intermédiaire plutôt que l'utilisateur final.
+
+~~~mermaid
+flowchart TD
+    A["Appel externe"] --> B["Vérifier l'existence de l'objet"]
+    B --> C["Vérifier le rôle ou le propriétaire"]
+    C --> D["Vérifier l'état courant et la transition"]
+    D --> E["Mettre à jour les données"]
+    E --> F["Émettre l'événement correspondant"]
+    B -->|Échec| X["Revert"]
+    C -->|Échec| X
+    D -->|Échec| X
+~~~
+
+Il est utile de représenter un objet métier avec une machine à états. Pour une tâche, les états peuvent être Ouverte, EnCours, Terminée et Annulée. La matrice doit préciser quelles transitions sont autorisées :
+
+| État actuel | Nouvel état autorisé | Exemple de règle |
+|---|---|---|
+| Ouverte | EnCours | Le créateur ou un membre autorisé démarre le travail |
+| Ouverte | Annulée | Le créateur peut annuler avant le démarrage |
+| EnCours | Terminée | Le créateur ou le rôle responsable valide le résultat |
+| Terminée | Tout autre état | Refusé si l'état final est irréversible |
+| Annulée | Tout autre état | Refusé, sauf procédure de réouverture documentée |
+
+Cette matrice doit être reflétée dans les tests. Tester uniquement les transitions autorisées ne suffit pas : les transitions interdites constituent souvent le cœur de la sécurité métier. Les cas limites incluent l'appel répété, le mauvais rôle, un identifiant absent, un état final et une transition effectuée par un contrat intermédiaire.
+
+### Séparer les responsabilités administratives
+
+Un propriétaire unique est simple, mais il concentre le pouvoir. Une multisignature répartit une décision entre plusieurs clés, tandis qu'un mécanisme de délai donne aux utilisateurs le temps d'observer une mise à niveau ou une modification de paramètres. Ces approches répondent à des risques différents et apportent une complexité supplémentaire.
+
+Le bon choix dépend du dommage possible. Pour un exercice sans fonds, un propriétaire simple permet d'apprendre la syntaxe. Pour un contrat qui garde des actifs ou contrôle des certificats à valeur importante, il faut documenter la rotation de clés, l'urgence, les conflits, les délais, les journaux et les recours possibles. Une fonction d'administration doit être traitée comme une capacité puissante, pas comme un détail pratique.
+
+## 15. Revue de code, tests de propriétés et critères d'acceptation
+
+Une revue de smart contract doit se concentrer sur les invariants et les chemins d'exécution, pas seulement sur le style du code. Avant de chercher des optimisations, identifie les actifs contrôlés, les rôles, les dépendances et les scénarios de défaillance. Pour chaque fonction d'écriture, examine la précondition, le changement d'état, les appels externes et le résultat observable.
+
+~~~mermaid
+flowchart LR
+    S["Spécification"] --> I["Définir invariants"]
+    I --> U["Tests unitaires"]
+    U --> P["Tests négatifs et de propriétés"]
+    P --> R["Revue indépendante"]
+    R --> D["Déployer sur réseau de test"]
+    D --> V["Vérifier bytecode et comportement"]
+~~~
+
+### Checklist de revue
+
+- Toutes les fonctions d'écriture ont une règle de permission claire.
+- Les identifiants non existants sont rejetés sans modifier l'état.
+- Les valeurs nulles, limites et extrêmes sont testées.
+- Les transitions d'état autorisées et interdites sont spécifiées.
+- Les appels externes peuvent échouer et leur échec est traité.
+- Les événements sont émis après une modification réussie et reflètent les valeurs correctes.
+- Les données provenant d'oracles ou d'autres contrats sont validées.
+- Les boucles ont des limites ou une stratégie de pagination appropriée.
+- Les variables publiques et les méthodes accessibles correspondent à l'API voulue.
+- La version du compilateur et les dépendances sont fixées pour le build reproductible.
+- Les avertissements du compilateur ont été résolus ou documentés.
+- Les tests incluent un acteur non autorisé, un état inattendu et une erreur.
+
+### Propriétés et tests automatisés
+
+Un test unitaire vérifie un scénario précis. Un test de propriété vérifie une règle qui devrait rester vraie après plusieurs séquences d'appels. Par exemple, dans un registre de tâches, le nombre \`prochainId\` ne doit jamais diminuer et une tâche doit toujours conserver le créateur initial. Dans un coffre, le total des retraits d'un utilisateur ne doit pas dépasser ses dépôts selon la comptabilité prévue.
+
+Les outils de fuzzing peuvent générer des entrées variées pour découvrir des cas qu'un humain n'a pas écrits à la main. Toutefois, les outils ne connaissent pas automatiquement l'intention métier. Il faut écrire des propriétés suffisamment précises, analyser les contre-exemples et reproduire les défauts identifiés par des tests de régression.
+
+### Échecs à ne pas ignorer
+
+Une compilation réussie ne prouve pas l'absence de bug. Un test passant ne prouve pas que le code est sûr dans tous les états. Un audit est une évaluation limitée dans le temps, sur une version donnée et selon un périmètre annoncé. Après une modification de code, de configuration ou de dépendance, il faut déterminer si les preuves précédentes sont toujours pertinentes.
+
+Pour un vrai projet, conserve le hash du commit, la version du compilateur, les options d'optimisation, les tests exécutés, les adresses de déploiement, l'ABI et les résultats de vérification. Cette traçabilité aide à relier le code source au comportement publié et facilite le diagnostic en cas d'incident.
+
+## 16. TP guidé A : construire un registre de tâches
 
 ### Objectif
 
@@ -433,7 +620,7 @@ Chaque tâche contient un identifiant, le créateur, une description courte et u
 
 Le contrat compile sans erreur ; un utilisateur ne peut pas modifier la tâche d'un autre ; les identifiants ne sont pas réutilisés ; les événements correspondent aux changements effectifs ; les erreurs attendues sont claires. Évite de parcourir tout le tableau dans une transaction d'écriture si son nombre d'éléments peut croître sans limite.
 
-## 13. TP guidé B : examiner un contrat à partir de son ABI
+## 17. TP guidé B : examiner un contrat à partir de son ABI
 
 Choisis un contrat de démonstration sur un réseau de test. Recueille l'adresse, le nom du réseau, l'ABI et la source vérifiée si elle est disponible. Classe les fonctions en lectures et écritures, puis identifie celles qui nécessitent des permissions. Repère les événements et explique comment un indexeur pourrait les utiliser.
 
@@ -443,7 +630,159 @@ Pour chaque fonction, relève les paramètres, les sorties, les effets sur l'ét
 
 L'ABI révèle l'interface mais ne garantit pas le comportement. Les fonctions view sont normalement des lectures qui n'écrivent pas l'état persistant, tandis qu'une fonction d'écriture est appelée par une transaction. Les permissions doivent être vérifiées dans le code. Les événements servent à l'observation, mais l'application doit vérifier l'adresse du contrat et gérer les réorganisations. Une source vérifiée augmente la transparence sans remplacer les tests ou l'audit.
 
-## 14. Dix questions d'entraînement avec corrigé
+## 18. Interactions externes et modèle Checks-Effects-Interactions
+
+Un smart contract doit considérer qu'un appel externe peut transférer le contrôle à du code qui n'est pas sous le contrôle du contrat appelant. Le destinataire peut revenir vers le contrat, déclencher d'autres contrats, refuser l'appel ou retourner des données inattendues. La sécurité ne se limite donc pas aux paramètres visibles de la fonction : l'ordre des écritures et des interactions fait partie du modèle de menace.
+
+Le modèle Checks-Effects-Interactions recommande de vérifier d'abord les préconditions, d'appliquer ensuite les changements d'état nécessaires, puis d'effectuer l'interaction externe. Ce modèle limite de nombreuses formes de réentrance, mais il faut l'appliquer à la logique réelle : certains scénarios ont besoin de callbacks, et certaines opérations doivent être atomiques.
+
+~~~solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract CoffreDeTest {
+    mapping(address => uint256) public soldes;
+
+    error SoldeInsuffisant();
+    error TransfertEchoue();
+
+    function crediterPourTest(address utilisateur) external payable {
+        require(msg.value > 0, "Montant nul");
+        soldes[utilisateur] += msg.value;
+    }
+
+    function retirer(uint256 montant) external {
+        uint256 solde = soldes[msg.sender];
+        if (montant > solde) revert SoldeInsuffisant();
+
+        // Effet appliqué avant l'interaction externe.
+        soldes[msg.sender] = solde - montant;
+
+        (bool succes, ) = payable(msg.sender).call{value: montant}("");
+        if (!succes) revert TransfertEchoue();
+    }
+}
+~~~
+
+Cet exemple reste pédagogique et ne doit pas être déployé avec des fonds réels sans revue. La fonction \`crediterPourTest\` est accessible à tout le monde et créditerait le compte indiqué avec la valeur attachée à l'appel ; ce choix est acceptable pour illustrer le flux, mais ne représente pas une comptabilité complète. Le retrait réduit d'abord le solde, puis tente le transfert. Si le transfert échoue et que l'erreur est propagée, la transaction revert et l'écriture du solde est annulée selon les règles de l'EVM.
+
+### Scénarios à tester
+
+- Le retrait est inférieur au solde.
+- Le retrait est égal au solde.
+- Le retrait dépasse le solde.
+- Le destinataire est un contrat qui refuse le transfert.
+- Le destinataire tente de rappeler \`retirer\` pendant le transfert.
+- Le compte effectue deux retraits de suite.
+- Le code est exécuté dans un environnement où les frais et l'état initial sont connus.
+
+La règle ne consiste pas à remplacer toutes les anciennes fonctions de transfert par un seul appel précis. Elle consiste à comprendre le contexte d'appel, la sémantique de retour, la possibilité de callbacks et la gestion des erreurs. Pour les composants courants, utilise des bibliothèques auditées et respecte la version de Solidity choisie.
+
+## 19. Construire une suite de tests qui décrit l'intention
+
+Une bonne suite de tests n'est pas un inventaire de boutons que l'on a cliqués. Elle décrit les propriétés qui doivent rester vraies. Pour le registre de tâches, la propriété peut être « seul le créateur modifie sa tâche ». Pour un jeton, elle peut être « le total des soldes suit la règle d'offre attendue ». Pour un coffre, elle peut être « les retraits autorisés ne dépassent pas la comptabilité définie ».
+
+~~~mermaid
+flowchart TD
+    S["Définir un invariant métier"] --> N["Construire le cas normal"]
+    N --> E["Ajouter cas limites"]
+    E --> A["Ajouter compte non autorisé"]
+    A --> X["Simuler appel externe ou échec"]
+    X --> R["Exécuter tests et analyser les contre-exemples"]
+    R --> T["Ajouter un test de régression"]
+~~~
+
+### Cas de test et résultats attendus
+
+| Catégorie | Exemple | Résultat attendu |
+|---|---|---|
+| Cas normal | Créer une tâche avec un titre valide | Nouvelle tâche et événement correct |
+| Entrée limite | Titre vide | Revert ou erreur prévue |
+| Autorisation | Un tiers modifie la tâche d'un autre | Refus sans mutation |
+| État invalide | Identifiant inexistant | Refus clairement testable |
+| Appel répété | Terminer deux fois une tâche finale | Seconde transition refusée |
+| Dépendance | Appel externe qui échoue | État cohérent ou rollback documenté |
+| Régression | Rejouer une ancienne faille | Le comportement vulnérable ne revient pas |
+
+Les tests unitaires sont adaptés aux fonctions isolées. Les tests d'intégration valident les interactions entre contrats et bibliothèques. Le fuzzing explore un grand espace d'entrées. Les tests de propriétés vérifient des invariants sur des séquences variées. L'analyse statique repère certains motifs de risque, mais ne connaît pas automatiquement l'intention métier.
+
+### Conditions de sortie vers un réseau public
+
+Avant de déployer, vérifie la version exacte du compilateur, les dépendances, les options d'optimisation, les avertissements, la couverture des chemins critiques et la reproductibilité du build. Conserve le commit source, l'ABI, le bytecode de création et l'adresse déployée. Vérifie ensuite que le code publié correspond à l'artefact construit.
+
+Aucun seuil numérique de couverture ne garantit qu'un contrat soit sûr. Une couverture élevée peut coexister avec des assertions faibles ; une couverture plus ciblée peut manquer un chemin d'appel. Les critères doivent privilégier les invariants, les autorisations, les interactions externes, les cas de panne et la clarté des résultats.
+
+## 20. Étude de cas : réviser un contrat avant de le partager
+
+Supposons qu'un apprenant ait écrit un registre de tâches qui fonctionne sur un réseau local. La première démonstration réussit : créer une tâche augmente le compteur, et le lecteur récupère la bonne description. Avant de déclarer le contrat prêt, il faut vérifier ce qui se passe avec des séquences moins évidentes : changement d'état répété, identifiant inexistant, action depuis une autre adresse, titre inhabituellement long et remise en service après une interruption.
+
+~~~mermaid
+flowchart TD
+    A["Version qui fonctionne sur le cas nominal"] --> B["Tester limites et erreurs"]
+    B --> C["Tester permissions depuis un autre compte"]
+    C --> D["Vérifier événements et état final"]
+    D --> E["Corriger puis ajouter un test de régression"]
+    E --> F["Revue finale avant partage"]
+~~~
+
+### De la spécification aux assertions
+
+Une assertion de test doit exprimer une propriété observable. Après la création d'une tâche, le compteur doit avoir augmenté d'une unité et l'événement doit inclure le bon identifiant et le bon créateur. Après une tentative d'accès non autorisé, l'état doit rester identique. Après une erreur, l'application doit pouvoir reconnaître l'échec et ne pas afficher une réussite.
+
+La distinction entre erreur attendue et bug est importante. Si un identifiant n'existe pas, le refus fait partie du contrat. Si un accès non autorisé modifie la tâche, c'est un défaut de sécurité. Si un événement est émis avant qu'une condition échoue puis l'exécution revert, il faut comprendre les règles de rollback des logs et les effets observés par les outils.
+
+### Qualité des exemples pédagogiques
+
+Un exemple dans une leçon doit être clairement classé : extrait illustratif, contrat complet de laboratoire ou implémentation de production. Un extrait de syntaxe peut omettre des contrôles pour rendre un concept visible, mais il ne doit pas contenir une erreur de compilation non signalée. Un contrat de laboratoire doit avoir un périmètre de sécurité explicitement décrit. Un exemple de production exige des tests, une revue, des dépendances vérifiées et une stratégie de déploiement.
+
+Cette classification aide les apprenants à copier le code en connaissance de cause. Dans le dépôt de cours, relis chaque extrait comme si un étudiant allait le coller dans son IDE : noms de variables, types, accolades, version de compilateur, noms d'événements et explication après l'extrait doivent être cohérents.
+
+## 21. Lire du Solidity comme un auditeur
+
+Un audit de lecture commence par les fonctions accessibles depuis l'extérieur. Pour chacune, repère les données contrôlées par l'appelant, la condition d'accès, les lectures d'état, les écritures et les appels externes. Cette méthode évite de rester bloqué sur la syntaxe et aide à comprendre ce qu'un utilisateur peut réellement demander au contrat.
+
+~~~mermaid
+flowchart TD
+    A["Fonction externe"] --> B["Quelles entrées l'appelant contrôle-t-il ?"]
+    B --> C["Quelles permissions sont vérifiées ?"]
+    C --> D["Quel état peut être modifié ?"]
+    D --> E["Des appels externes sont-ils effectués ?"]
+    E --> F["Quels tests démontrent les propriétés ?"]
+~~~
+
+### Exercice de lecture guidée
+
+Pour une fonction de transfert, cherche d'abord le propriétaire des fonds et la manière dont le destinataire est choisi. Vérifie ensuite le solde ou l'autorisation, puis l'ordre des écritures. Examine si l'appel peut déclencher un callback. Enfin, relève les événements et vérifie qu'ils ne peuvent pas être interprétés comme une réussite lorsque l'exécution a échoué.
+
+Pour une fonction administrative, identifie qui peut la déclencher et quel dommage elle peut provoquer. Une fonction qui change une adresse oracle est presque aussi critique que la fonction qui lit ce prix : un attaquant capable de remplacer la source peut contourner la sécurité de la fonction consommatrice sans modifier son code.
+
+### Transformer l'analyse en test
+
+Chaque risque doit donner lieu à un scénario précis. Si l'utilisateur A ne doit pas pouvoir modifier les données de B, crée les deux comptes dans le test et tente l'appel depuis B. Si une valeur trop grande doit être refusée, teste la limite elle-même, la valeur juste en dessous et la valeur juste au-dessus. Si un appel externe peut échouer, crée un destinataire de test qui renvoie une erreur et observe l'état final.
+
+Le but est de pouvoir relier chaque règle importante à une condition de code et à un test. Une revue qui ne fait que lire le code sans essayer les chemins négatifs manque souvent les problèmes de logique.
+
+## 22. Conventions et reproductibilité des projets Solidity
+
+Le code doit pouvoir être recompilé et vérifié à partir d'une configuration connue. Verrouille la version du compilateur, la version des bibliothèques et les paramètres d'optimisation. Conserve le code source et le résultat de compilation associés au déploiement. Si une interface dépend d'une ABI, elle doit être régénérée à partir de l'artefact validé, pas modifiée à la main sans contrôle.
+
+### Discipline de projet
+
+- Chaque contrat doit avoir un nom et un périmètre clair.
+- Les fonctions publiques et externes doivent être documentées.
+- Les permissions doivent être commentées au niveau de l'intention, sans remplacer le test.
+- Les erreurs personnalisées doivent être cohérentes avec les conditions qui les déclenchent.
+- Les événements doivent représenter les changements significatifs de l'état.
+- Les extraits pédagogiques doivent être compilés avant publication.
+- Les tests doivent être exécutés après toute correction ou mise à niveau de dépendance.
+
+Un avertissement de compilateur peut révéler une intention ambiguë, une conversion dangereuse ou du code inutilisé. Il ne faut pas le masquer simplement pour avoir un journal propre. En cas de désactivation volontaire, documente la raison et vérifie que le comportement reste correct.
+
+### Critère pédagogique
+
+Un cours technique de qualité doit séparer le code d'exemple qui illustre un concept, le mini-projet qui doit compiler et la recommandation adaptée à la production. Une explication honnête mentionne les omissions et les risques restants. Cette séparation évite qu'un débutant confonde un exemple court avec un contrat prêt à gérer de la valeur réelle.
+
+## 23. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 À quoi sert la directive pragma ?
@@ -495,7 +834,7 @@ La compilation réussie prouve-t-elle qu'un contrat est sûr ?
 
 **Corrigé :** Non. Il faut aussi des tests, analyses, revues, contrôles des dépendances, vérification de déploiement et surveillance.
 
-## 15. Challenge final : spécifier et tester un coffre fictif
+## 24. Challenge final : spécifier et tester un coffre fictif
 
 ### Scénario
 

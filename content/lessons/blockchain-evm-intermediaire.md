@@ -269,7 +269,123 @@ Une trace donne le déroulement de l'exécution selon l'outil, mais n'est pas au
 
 Les mesures doivent être reproductibles. Note la version du compilateur, les options d'optimisation, la taille des entrées, l'état initial et le chemin d'exécution. Sans cette information, comparer deux chiffres de gas peut être trompeur.
 
-## 11. TP guidé A : comparer les coûts de lecture et d'écriture
+## 11. Cycle d'exécution d'une transaction EVM
+
+Une transaction ne se résume pas à l'appel d'une fonction Solidity. Le nœud vérifie d'abord la structure et les conditions liées au compte et aux frais, puis la transaction est incluse dans un bloc. Les clients appliquent les opérations dans l'ordre prévu par le protocole, exécutent le bytecode, calculent la consommation de gas et déterminent le nouvel état et le reçu.
+
+~~~mermaid
+sequenceDiagram
+    participant U as Portefeuille
+    participant N as Nœud
+    participant B as Bloc
+    participant E as EVM
+    participant S as État
+    U->>N: Transaction signée
+    N->>N: Validation préliminaire
+    N->>B: Inclusion si sélectionnée
+    B->>E: Exécuter le bytecode
+    E->>E: Compter le gas
+    E->>S: Appliquer les changements si succès
+    E-->>N: Reçu et statut
+~~~
+
+Cette séquence contient des étapes avec des garanties différentes. Une simulation locale peut aider à détecter un revert, mais l'état peut changer avant l'inclusion. Un hash de transaction identifie l'opération diffusée, mais n'atteste pas son succès. Le reçu indique le résultat de l'exécution incluse, et une application critique doit encore décider quel statut de confirmation ou de finalité elle exige.
+
+### Contexte d'exécution et données visibles
+
+L'EVM reçoit des données de contexte comme l'adresse du contrat, l'appelant immédiat, la valeur transférée, le gas disponible, les données de calldata et les informations de bloc autorisées par le protocole. Les valeurs de bloc ne doivent pas être traitées comme des vérités physiques parfaites. Leur usage doit être évalué selon le modèle de menace.
+
+Lors d'un appel imbriqué, la sémantique dépend de l'instruction employée. Un appel classique exécute du code dans le contexte du contrat appelé. Certaines formes d'appel, notamment DELEGATECALL, exécutent le code d'un autre emplacement en conservant le contexte de stockage et l'identité d'appel pertinents du contrat appelant. C'est une base technique de certaines architectures de proxy, mais une mauvaise configuration peut donner au code appelé le pouvoir de modifier le stockage du contrat principal.
+
+## 12. Pourquoi les opérations de stockage coûtent cher
+
+L'état persistant fait partie du registre partagé que les nœuds doivent maintenir. Une écriture dans le stockage a donc un coût défini par les règles de gas. Le coût dépend du type de changement, de la valeur précédente, des accès effectués dans le contexte de la transaction et des mises à jour du protocole. Il est incorrect d'apprendre une seule valeur de gas et de l'appliquer à tous les contrats sans connaître les conditions.
+
+Les variables temporaires permettent souvent d'effectuer des calculs sans écrire chaque résultat. Mais une variable de stockage est nécessaire si le résultat doit survivre à la fin de la transaction et être consultable lors d'un appel ultérieur. Le concepteur doit distinguer les données persistantes qui font partie de la logique métier des données qui peuvent être recomputées ou indexées hors chaîne.
+
+~~~mermaid
+flowchart TD
+    A["Entrées d'appel"] --> M["Calcul temporaire en mémoire/pile"]
+    M --> Q{"La donnée doit-elle survivre ?"}
+    Q -->|Non| R["Retourner résultat ou émettre trace"]
+    Q -->|Oui| S["Écrire dans le stockage"]
+    S --> C["État partagé mis à jour"]
+~~~
+
+### Croissance et complexité
+
+Une fonction qui traite un seul élément peut coûter peu et devenir inutilisable lorsqu'elle parcourt un tableau de milliers d'éléments. Il faut mesurer le coût pour différentes tailles et déterminer si la complexité est linéaire, quadratique ou liée à d'autres données. Les boucles sur une collection contrôlée par des utilisateurs méritent une attention particulière.
+
+Les alternatives comprennent la pagination pour les lectures, les opérations par lots à taille limitée, un indexeur hors chaîne pour les recherches, ou des structures cryptographiques d'engagement lorsque l'application peut vérifier une preuve au lieu de parcourir toutes les données on-chain. Ces solutions échangent la simplicité contre des hypothèses et des composants additionnels ; elles ne doivent pas être choisies uniquement pour réduire le gas apparent.
+
+### Stockage chaud et froid
+
+Les règles de gas tiennent compte du contexte d'accès aux emplacements de stockage. Des accès répétés à un même emplacement au cours d'une transaction peuvent ne pas coûter comme le premier accès. Les mises à jour du protocole ont modifié les coûts et les hypothèses au fil du temps. Le code qui dépend de détails très précis doit donc être mesuré avec une version de client et un réseau de test représentatifs, puis réévalué lorsqu'un fork change les règles.
+
+Il ne faut pas coder des hypothèses de rentabilité fondées sur une situation de cache accidentelle. Si une optimisation dépend du fait qu'une clé de stockage a déjà été lue, cette hypothèse doit être comprise, mesurée et comparée au comportement dans les chemins alternatifs.
+
+## 13. Frais : du gas brut au montant facturé
+
+Pour une transaction courante après EIP-1559, le montant effectif dépend du gas consommé, de la base fee du bloc et du pourboire réellement applicable, sous les plafonds spécifiés par l'expéditeur. La règle de base est d'expliquer le calcul en unités cohérentes : gas used multiplié par le prix effectif par unité donne le coût en wei. La conversion vers ETH utilise le rapport défini entre wei et ETH.
+
+~~~mermaid
+flowchart LR
+    G["Gas utilisé"] --> M["Multiplier par le prix effectif"]
+    B["Base fee du bloc"] --> P["Calcul du prix effectif"]
+    T["Priority fee proposé"] --> P
+    F["Max fee : plafond utilisateur"] --> P
+    P --> M
+    M --> W["Coût en wei"]
+    W --> E["Conversion en ETH pour affichage"]
+~~~
+
+La base fee est déterminée par le mécanisme du protocole et est brûlée. Le composant de priorité est destiné à l'inclusion et est versé selon les règles actuelles du réseau. Le prix effectif ne dépasse pas le plafond du prix que l'expéditeur a accepté. Les formulaires de portefeuille affichent souvent un maximum estimé, qui peut différer des frais effectivement facturés.
+
+### Exemple réutilisable
+
+Si le reçu indique 120 000 gas utilisés et un prix effectif de 25 gwei par unité, le coût est 3 000 000 gwei, soit 0,003 ETH. Cette opération de conversion suppose que le reçu et le prix sont déjà exprimés dans les unités attendues. Pour toute valeur importante, utilise une bibliothèque d'entiers plutôt qu'un type flottant qui peut perdre de la précision.
+
+Il faut distinguer frais, valeur native transférée, jetons transférés et montant économique de l'appel. Une transaction peut envoyer 2 ETH et consommer 0,003 ETH de frais, donc le coût pour l'expéditeur ne se limite pas à l'un des deux nombres. Un appel de contrat peut déplacer des jetons sans envoyer de valeur native, mais il doit toujours être payé en frais sur le réseau qui exécute la transaction.
+
+### Réseaux de couche 2
+
+Un réseau de couche 2 peut facturer l'exécution locale ainsi qu'un coût associé à la publication de données ou au règlement sur une chaîne de base. Son mécanisme de frais dépend de son architecture et des mises à jour déployées. Le coût affiché par un portefeuille ne doit pas être interprété en recopiant simplement la formule d'Ethereum mainnet sans consulter la documentation du L2.
+
+## 14. Diagnostiquer avec un reçu et une trace
+
+Un diagnostic utile commence par le hash de transaction et le réseau. Il faut récupérer le reçu, le statut d'exécution, le gas utilisé, le bloc d'inclusion et, lorsqu'ils sont disponibles, les données de revert ou une trace détaillée. Ensuite, on décompose le chemin : validation de transaction, appel initial, appels externes, instructions coûteuses et point d'échec.
+
+~~~mermaid
+flowchart TD
+    A["Hash de transaction"] --> B["Récupérer reçu et bloc"]
+    B --> C{"Statut succès ?"}
+    C -->|Oui| D["Vérifier événements et nouvel état"]
+    C -->|Non| E["Inspecter revert et trace"]
+    E --> F["Repérer le premier appel fautif"]
+    F --> G["Reproduire dans un environnement local"]
+    D --> H["Documenter le diagnostic"]
+    G --> H
+~~~
+
+Une transaction peut échouer parce qu'une précondition métier n'est plus vraie, par exemple qu'un solde est insuffisant au moment de l'exécution. Elle peut échouer sur un appel externe, atteindre la limite de gas ou rencontrer une donnée oracle invalide. Ces causes exigent des corrections différentes. Augmenter arbitrairement la limite de gas ne corrige pas un contrôle d'accès ou une condition métier erronée.
+
+### Procédure de triage
+
+1. Confirmer le réseau, le hash, le bloc et la version du contrat.
+2. Lire le reçu et distinguer rejet avant inclusion, revert et succès.
+3. Comparer la consommation réelle à l'estimation initiale.
+4. Examiner la donnée d'entrée encodée et l'état qui existait au bloc.
+5. Si disponible, lancer une trace avec un nœud capable de fournir cette information.
+6. Reproduire le scénario dans un environnement local avec le même état de départ.
+7. Ajouter un test de régression avant de publier une correction.
+
+Une trace n'est pas la même chose qu'un reçu normatif et toutes les API RPC ne fournissent pas les mêmes détails. Conserve la provenance de chaque donnée utilisée. Lorsque l'analyse repose sur un fournisseur tiers, compare au besoin le résultat avec une source indépendante.
+
+### Optimisation guidée par mesure
+
+Mesure d'abord les chemins dominants et les tailles d'entrée réalistes. Évite de réduire la sécurité pour économiser quelques unités. Une optimisation acceptable conserve les mêmes invariants, améliore ou maintient les tests, et documente le changement. Le gas est une contrainte de conception, mais la lisibilité et la sécurité restent des critères essentiels.
+
+## 15. TP guidé A : comparer les coûts de lecture et d'écriture
 
 ### Objectif
 
@@ -293,7 +409,7 @@ Documente la version du compilateur, l'état initial, les entrées, le nombre d'
 
 **Corrigé indicatif :** les lectures et calculs sans écriture persistante présentent un profil différent des transactions qui modifient le stockage. Les tableaux augmentent le coût selon la quantité de données et l'algorithme. Les valeurs absolues dépendent du code compilé, de l'environnement et de l'état précédent. Une mesure ne doit pas être généralisée à tous les contrats.
 
-## 12. TP guidé B : calculer des frais effectifs
+## 16. TP guidé B : calculer des frais effectifs
 
 ### Objectif
 
@@ -313,7 +429,146 @@ Une transaction utilise 95 000 unités de gas. Le prix effectif est de 24 gwei p
 
 **Corrigé :** 95 000 × 24 = 2 280 000 gwei, soit 0,00228 ETH. À 40 gwei, le même gas used donne 0,0038 ETH. Avec 150 000 gas à 24 gwei, le coût est 3 600 000 gwei, soit 0,0036 ETH. Le plafond maxFeePerGas fixe le montant maximum par unité accepté, mais le montant effectivement payé peut être inférieur selon les règles de base fee et de priorité.
 
-## 13. Dix questions d'entraînement avec corrigé
+## 17. Call frames et appels imbriqués
+
+Lorsqu'une fonction appelle un autre contrat, l'EVM crée un contexte d'appel imbriqué. Le contrat appelé peut exécuter ses instructions, consommer du gas et appeler à son tour d'autres contrats. Le coût total d'une transaction dépend donc du chemin complet, pas uniquement de la fonction publique appelée par le portefeuille.
+
+Il faut distinguer \`CALL\`, \`STATICCALL\` et \`DELEGATECALL\` au niveau conceptuel. CALL lance un appel où le contrat cible s'exécute dans son propre contexte ; STATICCALL interdit les modifications de l'état pendant le sous-appel ; DELEGATECALL exécute le code d'une autre adresse tout en conservant le contexte d'état du contrat appelant pour les opérations concernées. L'usage exact de ces instructions est complexe et doit se baser sur la spécification EVM et l'implémentation utilisée.
+
+~~~mermaid
+flowchart TD
+    A["Transaction externe"] --> B["Frame du contrat A"]
+    B --> C["CALL vers contrat B"]
+    C --> D["Frame du contrat B"]
+    D --> E["Appel éventuel vers contrat C"]
+    E --> F["Retour des appels et résultats"]
+    F --> G["État final ou revert propagé"]
+~~~
+
+### Propagation des erreurs
+
+Si un appel interne échoue, le contrat appelant peut propager l'erreur et faire échouer l'ensemble de l'exécution, ou traiter l'échec selon sa logique. Le choix doit refléter les règles métier. Par exemple, un protocole qui effectue trois sous-opérations doit préciser si l'échec de la troisième annule les deux premières ou si des sous-opérations indépendantes peuvent être conservées.
+
+La règle d'atomicité de l'EVM protège l'état de l'exécution qui revert, mais elle ne permet pas de conclure que toute opération externe dans un système complet est automatiquement inversée : les appels sont exécutés dans le cadre de la transaction, et les changements d'état traités selon les règles de rollback. Les services off-chain, emails envoyés et actions externes ne sont pas annulés par magie. Il faut donc éviter de déclencher des effets hors chaîne avant d'avoir un état suffisamment fiable, ou prévoir une logique de confirmation et de compensation.
+
+### Traces et débogage
+
+Une trace d'exécution peut révéler la succession d'appels, les arguments, les retours et le point où l'exécution s'arrête. Elle aide à repérer un appel récursif, une fonction coûteuse ou une erreur qui n'est pas visible dans l'interface. Toutes les API ne fournissent pas les mêmes traces ; une application doit documenter l'outil et la source dont elle dépend.
+
+## 18. Optimiser une fonction : démarche et anti-patterns
+
+L'optimisation du gas commence par une mesure de référence, sur le bytecode qui sera réellement déployé. Il faut fixer la version du compilateur, les options, les entrées, le réseau de test, l'état précédent et la méthode de mesure. Sans ces conditions, deux nombres peuvent être incomparables.
+
+### Démarche d'optimisation
+
+1. Écrire des tests qui décrivent le comportement correct.
+2. Mesurer le gas pour plusieurs tailles d'entrée et états.
+3. Inspecter la trace pour comprendre les opérations dominantes.
+4. Formuler une hypothèse précise sur le coût.
+5. Modifier une chose à la fois.
+6. Relancer les tests fonctionnels et les tests de sécurité.
+7. Comparer les mesures, documenter le gain et vérifier qu'il persiste dans les chemins représentatifs.
+
+### Anti-patterns
+
+Une optimisation dangereuse retire une validation d'entrée ou un contrôle d'accès pour économiser des ressources. Une optimisation prématurée utilise de l'assembleur difficile à relire sans preuve que le gas économisé est important. Une optimisation locale déplace parfois le coût vers le stockage ou vers un autre appel et n'améliore pas la transaction totale.
+
+~~~mermaid
+flowchart LR
+    M["Mesurer le coût actuel"] --> H["Hypothèse mesurable"]
+    H --> C["Changer une seule chose"]
+    C --> T["Tests et analyse de sécurité"]
+    T --> D{"Comportement identique et gain réel ?"}
+    D -->|Oui| A["Documenter et conserver"]
+    D -->|Non| R["Revenir au code sûr"]
+~~~
+
+### Coût des boucles et des lots
+
+Une fonction qui parcourt un tableau dont la taille est contrôlée par des utilisateurs peut devenir inexécutable à mesure que le tableau augmente. Les solutions possibles sont les opérations par lots à taille bornée, la pagination pour les lectures, un indexeur hors chaîne ou une conception où chaque utilisateur traite ses propres éléments. Le bon choix dépend de ce que le contrat doit vérifier on-chain.
+
+Si le contrat doit prouver une propriété sur l'ensemble de la liste, déplacer le calcul vers un serveur qui renvoie simplement un résultat ne suffit pas : il faut un mécanisme de preuve ou une hypothèse de confiance explicitement acceptée. Le gain de gas doit être évalué avec les coûts et risques déplacés hors chaîne.
+
+## 19. Pourquoi les estimations de gas varient
+
+Un simulateur prédit le gas d'un appel sur un état et un contexte donnés. Avant l'inclusion, le solde, les allowances, la position dans un protocole, la valeur d'un oracle ou la configuration d'un contrat peuvent changer. Le chemin d'exécution réel ne correspond alors plus nécessairement à la simulation.
+
+Le prix du gas est aussi différent de la consommation de gas. Le gas used décrit le travail facturé ; le prix effectif par unité décrit le coût économique. Le portefeuille peut montrer un plafond maximal qui n'est pas le montant effectivement payé. L'utilisateur doit pouvoir distinguer estimation, plafond, consommation et frais définitifs dans le reçu.
+
+### Petite expérience
+
+Exécute une même fonction d'écriture dans un environnement local :
+- première fois, lorsque l'emplacement de stockage contient zéro ;
+- deuxième fois, lorsque la valeur est déjà présente ;
+- troisième fois, lorsque la fonction effectue une écriture avec un autre chemin de code ;
+- quatrième fois, avec un appel externe qui revert.
+
+Note la valeur de gas used et explique les différences observées. Ne généralise pas un résultat à tous les contrats : les coûts dépendent des instructions, de l'état préalable et des règles du protocole.
+
+### Revue du résultat
+
+Après l'expérience, formule ce qui est stable (le comportement de la fonction selon la spécification), ce qui dépend de l'état (chemin d'exécution et coût), et ce qui dépend du marché des frais (prix par unité). Ce vocabulaire permet de diagnostiquer une transaction chère sans conclure automatiquement que le réseau est mal configuré.
+
+## 20. Exercice avancé : distinguer estimation, exécution et frais
+
+Trois valeurs sont souvent confondues dans les interfaces : l'estimation avant la soumission, le gas used du reçu et les frais définitifs. L'estimation est calculée sur un état simulé. Le reçu reflète l'exécution incluse. Les frais dépendent du gas effectivement facturé et du prix effectif par unité. Ces trois étapes peuvent différer.
+
+~~~mermaid
+flowchart TD
+    A["Simulation avant envoi"] --> B["Gas estimé"]
+    B --> C["Transaction signée et incluse"]
+    C --> D["Exécution réelle"]
+    D --> E["Gas used dans le reçu"]
+    E --> F["Prix effectif par unité"]
+    F --> G["Frais effectivement facturés"]
+~~~
+
+### Scénario
+
+Une interface estime 90 000 unités de gas. L'utilisateur envoie la transaction avec une limite de 120 000. L'état change avant l'inclusion et la transaction prend un chemin différent, qui utilise 105 000 unités. L'application ne doit pas dire que le gas utilisé a été 90 000 : ce chiffre était une estimation, pas une mesure finale.
+
+Si la transaction échoue après avoir consommé 105 000 unités, les changements d'état peuvent être annulés alors que les frais du travail effectué restent dus selon les règles du protocole. C'est pourquoi l'expérience utilisateur doit afficher à la fois le résultat métier et le coût. Un revert n'est pas forcément un échec de réseau ; il peut être le comportement correct d'une précondition non satisfaite.
+
+### Diagnostic par comparaison
+
+Pour analyser un coût, conserve l'état d'entrée, les paramètres de transaction, la version de compilation, l'estimation, le reçu, le prix effectif et toute trace disponible. Compare ensuite la simulation et l'exécution. Si le résultat diverge, cherche d'abord quel état a changé entre les deux opérations, puis quel chemin d'exécution a été pris.
+
+N'optimise pas sur un seul exemple. Une fonction peut coûter davantage lorsque la valeur de stockage initiale change ou lorsqu'un tableau a grandi. Les mesures répétées doivent couvrir les chemins normaux, limites et adverses.
+
+## 21. Lecture d'une trace : trouver la source d'un gas élevé
+
+Lorsqu'une transaction consomme plus de gas que prévu, commence par comparer l'estimation, le reçu et la trace si celle-ci est disponible. Le premier appel qui consomme beaucoup n'est pas toujours la cause métier du problème ; il faut comprendre pourquoi ce chemin d'exécution a été pris et si la quantité de données était attendue.
+
+~~~mermaid
+flowchart TD
+    A["Reçu : gas used"] --> B["Comparer à la simulation"]
+    B --> C["Inspecter la trace d'appels"]
+    C --> D["Repérer boucles, écritures et appels externes"]
+    D --> E["Reproduire avec le même état d'entrée"]
+    E --> F["Tester une optimisation sûre"]
+~~~
+
+### Exemple
+
+Une fonction met à jour un profil et parcourt ensuite une liste d'adresses pour synchroniser les droits. Le coût augmente lorsque la liste grandit. Le problème peut être la complexité de la fonction, mais aussi le fait que l'opération a été conçue comme une écriture collective non bornée. Une optimisation peut consister à traiter les éléments par lots ou à déplacer une partie de la recherche vers un indexeur, mais seulement si la vérification on-chain reste correcte.
+
+Le diagnostic doit enregistrer la taille de la liste, l'état initial, les versions et les appels effectués. Si la liste est très petite dans le test, le défaut de croissance peut passer inaperçu. Les mesures devraient inclure plusieurs tailles d'entrée et les chemins où l'appel externe réussit ou échoue.
+
+## 22. Mesurer l'effet d'une modification de code
+
+Une modification qui semble plus courte n'est pas nécessairement moins coûteuse. Le compilateur peut optimiser deux formes équivalentes différemment, et le coût réel dépend également de l'état et des accès effectués. Compare le gas du bytecode construit avec les mêmes versions et options.
+
+Pour chaque optimisation, prépare :
+1. le test de référence qui définit le comportement ;
+2. une série d'entrées représentatives ;
+3. la mesure avant changement ;
+4. la mesure après changement ;
+5. les tests de sécurité relancés ;
+6. l'explication du gain ou de la perte observés.
+
+Si le gain est faible et que la lisibilité chute fortement, il peut être préférable de conserver la version plus claire. Si une modification réduit fortement les écritures, vérifie qu'elle n'a pas déplacé une dépendance vers un backend moins fiable ou supprimé une vérification de sécurité. Une optimisation est une décision d'architecture, pas seulement une chasse au nombre de gas.
+
+## 23. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Quel est le rôle de l'EVM ?
@@ -365,7 +620,7 @@ Pourquoi le gas d'une couche 2 peut-il différer du coût total payé par l'util
 
 **Corrigé :** Le coût peut inclure l'exécution sur la couche 2 et une part des coûts de publication de données ou de règlement sur la couche de base, selon le réseau.
 
-## 14. Challenge final : diagnostiquer une transaction trop chère
+## 24. Challenge final : diagnostiquer une transaction trop chère
 
 ### Scénario
 

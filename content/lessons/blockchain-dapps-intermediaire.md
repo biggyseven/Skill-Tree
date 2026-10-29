@@ -264,7 +264,154 @@ Les métriques opérationnelles utiles incluent latence des requêtes, taux d'er
 
 Les alertes doivent distinguer un fournisseur qui tombe en panne d'un réseau qui cesse d'avancer. Une stratégie de reprise peut prévoir un fournisseur de secours, mais il faut tester que celui-ci suit le bon réseau, applique les mêmes règles et n'introduit pas de résultats périmés.
 
-## 13. TP guidé A : dessiner une DApp de vote
+## 13. Choisir une architecture selon le modèle de confiance
+
+Toutes les DApps ne doivent pas employer la même architecture. Une application de lecture publique peut appeler directement un contrat et utiliser un indexeur pour l'historique. Une application qui possède des processus métiers complexes peut utiliser un backend pour la recherche, les notifications et la préparation de données, tout en gardant les règles de transfert critiques dans les contrats. Une DApp qui exige un contrôle strict de l'infrastructure peut exploiter son propre nœud ou son propre fournisseur RPC.
+
+Le diagramme ci-dessous montre une architecture hybride typique. Les composants hors chaîne peuvent être remplacés ou répliqués, mais ils introduisent des dépendances à documenter.
+
+~~~mermaid
+flowchart TD
+    U["Utilisateur"] --> UI["Frontend public"]
+    UI --> W["Portefeuille"]
+    UI --> API["API métier facultative"]
+    API --> IDX["Indexeur / base de lecture"]
+    UI --> RPC1["RPC principal"]
+    W --> RPC1
+    RPC1 --> N["Nœud / réseau blockchain"]
+    RPC2["RPC secondaire"] -. "reprise contrôlée" .-> UI
+    N --> IDX
+~~~
+
+### Décisions à documenter
+
+Pour chaque composant, réponds aux questions suivantes : qui le déploie, qui peut le modifier, que sait-il sur l'utilisateur, que se passe-t-il s'il tombe en panne et comment détecter une réponse périmée ? L'API métier peut fournir des recommandations ou calculs hors chaîne, mais le contrat doit revalider toutes les règles critiques avant de modifier des actifs.
+
+Le choix d'un fournisseur RPC externe réduit la charge opérationnelle, mais crée une dépendance. Exploiter son propre nœud donne plus de contrôle sur la collecte et la disponibilité des données, mais exige de gérer le stockage, les mises à jour, les connexions et la supervision. Un modèle mixte peut utiliser un fournisseur externe pour les lectures ordinaires et une source indépendante pour les décisions critiques, à condition de ne pas introduire deux états contradictoires sans règle de résolution.
+
+### Données publiques et données privées
+
+Les adresses, transactions et événements publics ne doivent pas être considérés comme des secrets. Les données de profil, e-mails ou contenus sensibles devraient généralement être stockés hors chaîne si leur publication n'est pas nécessaire. Un hash sur chaîne permet de vérifier l'intégrité d'un contenu mais n'empêche pas de deviner une valeur prévisible. La conception doit traiter confidentialité, intégrité et disponibilité séparément.
+
+## 14. Machine à états d'une transaction dans le frontend
+
+Une transaction doit traverser plusieurs états explicites. Cette machine à états évite que l'interface affiche « succès » dès que le portefeuille retourne un hash. Les termes exacts peuvent varier selon les bibliothèques, mais les transitions et la signification utilisateur doivent être contrôlées.
+
+~~~mermaid
+stateDiagram-v2
+    [*] --> Formulaire
+    Formulaire --> DemandeSignature: validation locale
+    DemandeSignature --> Refusee: utilisateur annule
+    DemandeSignature --> Envoyee: transaction signée et soumise
+    Envoyee --> EnAttente: hash reçu
+    EnAttente --> Incluse: bloc observé
+    Incluse --> Reussie: reçu succès
+    Incluse --> Echouee: reçu revert
+    Reussie --> Confirmee: confirmations ou finalité requise
+    Incluse --> EnAttente: réorganisation / bloc perdu
+    Refusee --> Formulaire
+    Echouee --> [*]
+    Confirmee --> [*]
+~~~
+
+Chaque état doit avoir une action et un message précis. Quand la signature est refusée, ne pas réessayer automatiquement. Quand la transaction est envoyée, conserver le hash et permettre de retrouver son statut après un rafraîchissement de page. Quand le reçu est un échec, afficher un échec d'exécution, pas un succès suivi d'un avertissement.
+
+### Pseudo-code de gestion d'une transaction
+
+~~~typescript
+type TxStatus =
+  | "idle"
+  | "awaiting-signature"
+  | "submitted"
+  | "pending"
+  | "included"
+  | "succeeded"
+  | "failed"
+  | "finalized";
+
+async function submitAction() {
+  setStatus("awaiting-signature");
+
+  try {
+    const tx = await contract.writeMethod(argument);
+    setTxHash(tx.hash);
+    setStatus("submitted");
+
+    const receipt = await tx.wait();
+    setStatus("included");
+
+    if (receipt.status !== "success") {
+      setStatus("failed");
+      return;
+    }
+
+    await refreshContractState();
+    setStatus("succeeded");
+  } catch (error) {
+    // Distinguer refus de signature, erreur RPC et échec d'exécution.
+    setStatus("failed");
+    setErrorMessage(normalizeWalletError(error));
+  }
+}
+~~~
+
+Ce pseudo-code illustre la séquence mais ne doit pas être copié tel quel sans tenir compte de la bibliothèque choisie : le type du statut dans les reçus et la méthode \`wait\` peuvent varier. Une implémentation de production doit gérer le remplacement de transaction, le timeout, la reconnexion, les chaînes réorganisées et le statut de finalité. Elle doit aussi éviter qu'un clic répété envoie plusieurs opérations inattendues.
+
+### Éviter les états impossibles
+
+N'autorise pas le passage direct de « formulaire » à « finalisé ». Le frontend doit conserver le hash d'une transaction envoyée, vérifier le réseau et le compte utilisés, et traiter les cas où la page recharge alors que la transaction est toujours en attente. Un état d'interface n'est pas une source de vérité : il doit pouvoir être reconstruit depuis le portefeuille, le reçu ou le contrat.
+
+## 15. Modèle de menace et frontières de confiance
+
+Une revue DApp doit identifier les acteurs : utilisateur, frontend, portefeuille, RPC, indexeur, backend, contrat et opérateurs de la chaîne. Pour chacun, analyse les capacités d'un attaquant, les données contrôlées par l'acteur et les conséquences possibles.
+
+| Composant | Risque typique | Contrôle utile |
+|---|---|---|
+| Frontend | Substitution de destinataire ou de fonction | Build contrôlé, adresse vérifiée, détails affichés clairement |
+| Portefeuille | Mauvaise compréhension de la signature | Transactions lisibles, moindre permission, pas de phrase de récupération |
+| RPC | Données retardées ou disponibilité réduite | Surveillance, comparaisons, solution de repli |
+| Indexeur | Historique incohérent après réorganisation | Curseur de bloc, reprise et reconstruction |
+| Contrat | Permission incorrecte ou bug logique | Tests, revue, audit proportionné |
+| Stockage | Fichier supprimé ou modifié | Réplication, hash d'intégrité, stratégie de récupération |
+| Backend | Réponse erronée ou censure | Source de vérité explicite, journaux et alternatives |
+
+Une dépendance doit être testée dans son mode de panne, pas uniquement dans son fonctionnement normal. Le fallback RPC doit être vérifié pour le bon réseau et les mêmes adresses de contrat. L'indexeur doit être capable de rattraper un retard sans dupliquer les événements. Le contrat doit être testé quand un appel externe échoue ou qu'un utilisateur n'a pas la permission.
+
+### Protection contre le phishing et les signatures de message
+
+La DApp ne doit jamais demander à l'utilisateur sa clé privée ou sa phrase de récupération. Les signatures de message devraient utiliser un format adapté à l'authentification avec un domaine, un nonce et une expiration lorsque le protocole le prévoit. Une chaîne de texte arbitraire peut être réutilisée ou mal interprétée.
+
+Les demandes d'approbation de jetons doivent être distinctes des signatures de connexion et des transactions de transfert. L'interface devrait annoncer ce que le contrat pourra dépenser, pendant combien de temps ou jusqu'à quelle quantité selon l'approbation. La clarté de l'écran réduit les erreurs, mais ne remplace pas la validation on-chain.
+
+## 16. Cohérence entre indexeur et chaîne canonique
+
+Un indexeur transforme des blocs et événements en une base adaptée aux recherches. Il doit suivre la hauteur ou le slot qu'il a traité, conserver un identifiant de bloc, et pouvoir détecter qu'un événement appartient à une branche qui n'est plus retenue. Une logique qui se contente d'ajouter tous les événements qu'elle reçoit peut produire des doublons après une reconnexion ou une réorganisation.
+
+~~~mermaid
+flowchart TD
+    C["Blocs reçus"] --> V["Vérifier la continuité du parent"]
+    V --> P["Traiter transactions et événements"]
+    P --> DB["Écrire dans l'indexeur avec hauteur et hash"]
+    DB --> H{"La tête de chaîne a-t-elle changé ?"}
+    H -->|Non| N["Continuer le traitement"]
+    H -->|Oui| R["Revenir au dernier ancêtre commun"]
+    R --> X["Annuler/recalculer les données affectées"]
+    X --> P
+~~~
+
+### Stratégie de rattrapage
+
+L'indexeur doit enregistrer un point de contrôle fiable, puis reprendre à partir de celui-ci si le processus redémarre. Les événements devraient être dédupliqués à partir de clés déterministes comme réseau, hash de transaction et index de journal, en tenant compte du fait que la même transaction peut être réincluse dans un autre bloc. En cas de réorganisation, il faut corriger la projection et notifier les composants qui ont déjà consommé l'événement.
+
+Pour une interface qui affiche un certificat ou un NFT, l'indexeur peut être suffisant pour parcourir des milliers d'entrées. Avant d'autoriser une opération critique, il est néanmoins prudent de vérifier l'état actuel du contrat ou de demander une preuve adaptée. L'indexeur est une amélioration de performance, pas une autorité qui peut remplacer les règles on-chain.
+
+### Contrôler les caches
+
+Les caches réduisent la latence et le nombre de requêtes, mais ils peuvent rendre une information périmée. Définis la durée de vie selon le type de donnée : une description statique peut être mise en cache longtemps, tandis qu'une allowance, un solde ou un statut de finalité doit être actualisé selon l'action réalisée. Les changements de compte et de réseau doivent invalider les données associées.
+
+La cohérence d'une DApp est une propriété de bout en bout : l'interface peut être en avance ou en retard par rapport à l'indexeur, le fournisseur RPC peut suivre une tête différente et le contrat peut avoir changé d'état depuis l'ancienne lecture. Les composants doivent afficher la provenance et le statut pertinent des informations sensibles.
+
+## 17. TP guidé A : dessiner une DApp de vote
 
 ### Objectif
 
@@ -290,7 +437,7 @@ Teste le portefeuille absent, le réseau incorrect, l'électeur non autorisé, u
 
 Les règles de vote et l'unicité d'un vote doivent être appliquées on-chain. Le frontend vérifie les préconditions pour guider l'utilisateur, mais le contrat reste la source de validation. Un indexeur améliore les recherches mais peut être en retard. Les identités d'électeurs et la confidentialité du vote exigeraient un modèle de menace beaucoup plus élaboré : une adresse publique ne garantit ni anonymat ni unicité d'une personne.
 
-## 14. TP guidé B : cartographier le parcours d'une transaction
+## 18. TP guidé B : cartographier le parcours d'une transaction
 
 Choisis une fonction d'écriture dans un contrat de test. Décris chaque étape de la saisie jusqu'à l'état final, avec la donnée transmise, le composant responsable, l'erreur possible et la mesure de reprise.
 
@@ -298,7 +445,158 @@ Le tableau doit comporter au moins huit étapes : validation de formulaire, lect
 
 **Corrigé indicatif :** l'interface valide l'expérience, mais le contrat valide les règles métier. Le portefeuille autorise la transaction avec la clé de l'utilisateur. Le RPC transmet la demande sans garantir l'inclusion. Les nœuds valident et le consensus choisit la chaîne. Le reçu donne le statut d'exécution ; une lecture actualisée confirme l'état pertinent. Chaque étape doit présenter une erreur distincte.
 
-## 15. Dix questions d'entraînement avec corrigé
+## 19. Changement de compte, changement de réseau et rejeu d'état
+
+Le compte actif et le réseau sélectionné sont des données de contexte. Une DApp doit écouter les changements proposés par le portefeuille, invalider les lectures associées à l'ancien compte et charger les données du nouveau réseau. Un solde lu sur une chaîne ne doit pas être présenté comme s'il appartenait à une autre. Le même identifiant d'adresse peut avoir des contrats et des états différents selon le réseau.
+
+~~~mermaid
+flowchart TD
+    A["Compte ou réseau change"] --> B["Arrêter les actions en cours si nécessaire"]
+    B --> C["Invalider le cache lié à l'ancien contexte"]
+    C --> D["Vérifier chain ID et compte actif"]
+    D --> E["Recharger contrats, soldes et allowances"]
+    E --> F["Autoriser une nouvelle transaction"]
+~~~
+
+### Contrôles avant toute écriture
+
+Avant une transaction, vérifie le chain ID attendu, l'adresse de contrat configurée, les paramètres encodés, le compte actif et les permissions nécessaires. Si le formulaire a été rempli avant un changement de compte, demande une confirmation ou recharge les données pour éviter que l'utilisateur signe avec un contexte différent de celui qu'il croyait utiliser.
+
+Les signatures de connexion doivent être séparées des signatures de transaction. Un mécanisme de connexion de type message signé devrait inclure un domaine, un nonce et une expiration selon le standard retenu. Sans protection contre le rejeu, une signature valide peut être réutilisée dans un autre contexte ou après la période où elle était censée servir.
+
+### Confidentialité et journalisation
+
+Une adresse publique n'est pas nécessairement l'identité civile d'une personne, mais elle peut être reliée à des informations identifiantes par d'autres données. Les logs de frontend, les outils d'analytique et les services de support devraient collecter le minimum nécessaire. Ne journalise jamais la phrase de récupération, une clé privée ou un secret d'API privé. Les erreurs peuvent être enregistrées sans stocker l'intégralité de données sensibles.
+
+## 20. Indexeur : cohérence, relecture et doublons
+
+L'indexeur facilite les recherches sur un historique volumineux, mais il maintient une projection hors chaîne. Il doit conserver un curseur de progression et des informations sur les blocs traités. En cas de réorganisation, les événements d'un bloc retiré de la chaîne canonique doivent être annulés ou recalculés. Sans cette logique, un utilisateur peut voir un transfert qui n'appartient plus à l'état actuellement suivi.
+
+### Procédure de traitement d'événement
+
+1. Identifier le réseau et le contrat émetteur.
+2. Confirmer le hash du bloc, le parent et la position de l'événement.
+3. Dédupliquer l'événement avec une clé adaptée à l'inclusion courante.
+4. Mettre à jour la base et enregistrer la hauteur de traitement.
+5. Après redémarrage, reprendre depuis le dernier point de contrôle.
+6. Si la tête change, revenir au dernier ancêtre commun connu et rejouer la plage affectée.
+
+~~~mermaid
+sequenceDiagram
+    participant N as Nœud
+    participant I as Indexeur
+    participant DB as Base de lecture
+    N->>I: Nouveau bloc et événements
+    I->>I: Vérifier parent et continuité
+    I->>DB: Enregistrer événements et curseur
+    N-->>I: Réorganisation possible
+    I->>DB: Annuler/recalculer les données affectées
+    I->>DB: Reprendre le traitement canonique
+~~~
+
+### État canonique et données de recherche
+
+Une base d'indexation peut offrir des requêtes rapides, des filtres et des agrégations, mais elle ne devient pas la source normative du contrat. Pour une décision critique, l'application peut recouper le résultat avec un appel direct au contrat ou une preuve adaptée. Le choix de la source devrait dépendre de la criticité : une liste d'articles peut tolérer quelques secondes de retard ; une autorisation de transfert exige des données récentes et vérifiées.
+
+### Mode dégradé
+
+Si l'indexeur est en retard, l'interface peut afficher un avertissement et continuer à fournir les fonctions directes qui restent sûres. Si le RPC est en panne, la DApp peut basculer vers un fournisseur vérifié, mais doit confirmer que ce dernier suit le réseau attendu. L'application doit éviter d'afficher un succès sur la base d'un cache qui n'a pas été invalidé après une transaction.
+
+## 21. Préparer un lancement sans confondre test et production
+
+Une DApp associe des contrats, une ABI, des adresses, des dépendances frontend, des endpoints RPC et parfois une base d'indexation. Le lancement ne doit pas seulement vérifier que le site s'ouvre. Il doit vérifier que tous les composants correspondent au même environnement et que les opérations critiques donnent le résultat attendu.
+
+### Checklist de mise en production
+
+- Les contrats et le commit source ont été revus.
+- Le code et les paramètres de compilation sont reproductibles.
+- Les adresses et le chain ID ont été vérifiés par une seconde personne.
+- Les tests couvrent les transactions réussies, refusées, en attente et échouées.
+- Les changements de compte ou de réseau invalident bien les données périmées.
+- Les états de transaction survivent à un rafraîchissement de page.
+- Le frontend ne contient pas de secrets privés.
+- Les autorisations de jeton sont minimales et explicites.
+- Les indexeurs gèrent les doublons et les réorganisations.
+- Les alertes de panne RPC et de retard d'indexation sont testées.
+- Le plan de reprise a été essayé sans fonds réels.
+
+### Retour arrière et incidents
+
+Un rollback du frontend ne restaure pas nécessairement un contrat qui a déjà modifié l'état. Les procédures doivent distinguer le retour d'une version web, la pause ou mise à niveau d'un contrat et la reconstruction d'un indexeur. Les actions d'urgence doivent être documentées avant le lancement, surtout si des clés administratives existent.
+
+Après une mise à jour frontend, vérifie que la nouvelle interface utilise encore l'ABI et l'adresse attendues. Après une mise à niveau de contrat, revalide l'ABI, les permissions, le stockage et les événements. La version publiée de chaque composant doit être reliée à une trace de déploiement afin de faciliter le diagnostic.
+
+## 22. Scénarios d'interface : messages précis selon la panne
+
+Une DApp fiable ne traite pas tous les problèmes comme « erreur de transaction ». Le portefeuille peut refuser la signature, le réseau actif peut être incorrect, le RPC peut être indisponible, le contrat peut revert ou l'indexeur peut simplement être en retard. Chaque cas demande un message, un état et une possibilité de reprise différents.
+
+| Symptôme | Message utile | Action suivante |
+|---|---|---|
+| Utilisateur annule la signature | « Signature annulée, aucune transaction soumise par cette action » | Revenir au formulaire |
+| Mauvais réseau | « Réseau non pris en charge pour cette action » | Demander un changement vers un réseau connu |
+| RPC indisponible avant envoi | « Impossible de contacter le réseau » | Réessayer ou changer de fournisseur approuvé |
+| Hash reçu, aucun reçu | « Transaction envoyée, confirmation en attente » | Continuer à suivre le hash |
+| Reçu avec échec | « Transaction incluse mais exécution échouée » | Afficher le détail disponible |
+| Indexeur en retard | « Historique en cours de synchronisation » | Vérifier l'état direct si nécessaire |
+
+~~~mermaid
+flowchart LR
+    A["Erreur détectée"] --> B{"À quelle couche ?"}
+    B --> C["Portefeuille"]
+    B --> D["RPC / réseau"]
+    B --> E["Contrat / exécution"]
+    B --> F["Indexeur / cache"]
+    C --> G["Message et reprise adaptée"]
+    D --> G
+    E --> G
+    F --> G
+~~~
+
+### États et accessibilité
+
+Les messages doivent être visibles sans dépendre uniquement d'une couleur ou d'une animation. Un statut de transaction doit pouvoir être lu par les technologies d'assistance, conserver le hash et expliquer la prochaine action. Les boutons devraient être désactivés lorsque le formulaire est invalide ou qu'une transaction identique est en cours, mais la logique de contrat doit toujours être considérée comme la validation finale.
+
+Un bon test UX couvre les scénarios de réseau lent, de refus de portefeuille, de changement d'onglet et de rechargement de page. L'état du frontend devrait être reconstructible à partir du hash et du contexte réseau plutôt que perdu au premier refresh.
+
+## 23. Étude de cas : transaction qui semble réussie mais n'a pas modifié l'état attendu
+
+Un frontend peut afficher la confirmation d'une signature alors que le contrat a rejeté la transaction, que le reçu est en échec ou que l'indexeur n'a pas encore traité l'événement. La bonne expérience doit s'appuyer sur une suite de vérifications et présenter l'état avec précision.
+
+~~~mermaid
+flowchart TD
+    A["Utilisateur signe"] --> B["Le portefeuille renvoie un hash"]
+    B --> C["Attendre le reçu"]
+    C --> D{"Statut d'exécution"}
+    D -->|Échec| E["Afficher revert et frais possibles"]
+    D -->|Succès| F["Relire l'état du contrat"]
+    F --> G["Actualiser l'indexeur et l'interface"]
+    G --> H["Afficher le résultat confirmé selon la politique"]
+~~~
+
+Le hash identifie une transaction, mais ne prouve pas à lui seul que le contrat a produit le résultat souhaité. Après le reçu, relis la valeur de l'état pertinente si cette information est accessible. Si le contrat émet un événement, vérifie l'adresse émettrice et les paramètres attendus. Pour les opérations critiques, tiens compte de la confirmation ou de la finalité appropriée au réseau.
+
+### Reprise en cas d'interruption
+
+Le frontend devrait conserver le hash et le réseau actif afin de retrouver le statut après un rechargement. Si la transaction est encore en attente, l'interface ne doit pas inviter automatiquement l'utilisateur à envoyer une seconde transaction. Si le bloc a été réorganisé, elle doit corriger le statut plutôt que conserver une réussite historique qui n'est plus dans la branche suivie.
+
+## 24. Contrôle final d'une DApp avant la production
+
+Le contrôle final doit inclure une répétition complète du parcours utilisateur depuis un compte neuf, sur le bon réseau, avec les contrats et les indexeurs prévus. Vérifie l'absence de secrets privés dans le bundle frontend, la qualité des messages d'erreur, le statut de la transaction, le changement de compte et les adresses de contrat.
+
+~~~mermaid
+flowchart LR
+    A["Vérifier configuration"] --> B["Tester compte et réseau"]
+    B --> C["Tester signature, attente et reçu"]
+    C --> D["Tester erreurs et reprise"]
+    D --> E["Contrôler les données on-chain et indexées"]
+    E --> F["Tracer la version de production"]
+~~~
+
+Un test de fumée après déploiement peut vérifier une lecture non destructive, l'adresse du contrat, le statut de synchronisation du fournisseur et une opération de laboratoire si le réseau et les fonds de test le permettent. Ce test ne remplace pas une suite complète, mais il détecte quelques erreurs de configuration courantes.
+
+Le déploiement doit produire un dossier vérifiable : commit source, ABI, adresse et réseau, version des dépendances, tests exécutés et date de mise en ligne. Toute mise à jour de contrat, de frontend ou de fournisseur devrait vérifier que la configuration reste cohérente.
+
+## 25. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Une DApp est-elle entièrement décentralisée parce qu'elle utilise un contrat ?
@@ -350,7 +648,7 @@ Pourquoi gérer les changements de compte et de réseau ?
 
 **Corrigé :** Ils modifient l'identité active, l'état, les contrats disponibles et la signification des transactions. L'application doit invalider les données et revalider le contexte.
 
-## 16. Challenge final : plan de résilience d'une DApp
+## 26. Challenge final : plan de résilience d'une DApp
 
 ### Scénario
 
