@@ -10359,7 +10359,7 @@
     "title": "Support VIP et exécutif",
     "category": "Support — Pilotage et amélioration",
     "order": 4463,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Organiser une assistance exécutive personnalisée, rapide et traçable tout en préservant les règles de sécurité, d'équité et de continuité.",
     "prereqs": [
       "support-crise-expert"
     ],
@@ -10376,7 +10376,7 @@
     "title": "Automatisation (chatbots, self-service)",
     "category": "Support — Pilotage et amélioration",
     "order": 4464,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Concevoir un self-service et des assistants de support sécurisés, testables et mesurables, avec des sources fiables et une escalade humaine.",
     "prereqs": [
       "support-vip-expert"
     ],
