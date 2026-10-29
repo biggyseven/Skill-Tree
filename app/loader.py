@@ -357,8 +357,13 @@ def _parse_nodes(path: Path) -> list[NodeSpec]:
             prereqs.append(prereq)
 
         raw_requirements = raw.get("requirements")
-        if not isinstance(raw_requirements, list) or not raw_requirements:
-            raise ContentError(f"{where} : « requirements » doit être une liste non vide.")
+        # Les fiches de consultation libre du module Commandes & Aide-mémoire
+        # ne portent volontairement aucune preuve de validation (ni quiz, ni lab).
+        # L'exception reste limitée à ce préfixe et à ce module pour conserver
+        # la validation stricte des cours classiques.
+        allows_no_requirement = node_id.startswith("cmd-") and module == "Commandes & Aide-mémoire"
+        if not isinstance(raw_requirements, list) or (not raw_requirements and not allows_no_requirement):
+            raise ContentError(f"{where} : « requirements » doit être une liste non vide, sauf pour les fiches libres Commandes & Aide-mémoire.")
 
         requirements: list[tuple[str, int]] = []
         kinds: set[str] = set()

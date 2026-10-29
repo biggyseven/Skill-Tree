@@ -38,12 +38,25 @@ class PedagogicalCatalogIntegrityTests(unittest.TestCase):
         }
         self.assertEqual(missing, set(), f"Prérequis inconnus : {sorted(missing)}")
 
-    def test_each_lesson_has_a_node_and_matching_quiz(self) -> None:
+    def test_each_lesson_has_a_node_and_matching_quiz_unless_it_is_a_cheat_sheet(self) -> None:
         lesson_ids = set(self.lesson_paths)
         quiz_ids = set(self.quiz_paths)
         node_ids = set(self.node_by_id)
+        free_reference_ids = {
+            node["id"] for node in self.nodes
+            if node.get("module") == "Commandes & Aide-mémoire"
+        }
         self.assertEqual(lesson_ids - node_ids, set(), "Cours Markdown sans nœud de parcours.")
-        self.assertEqual(lesson_ids - quiz_ids, set(), "Cours sans fichier de quiz correspondant.")
+        self.assertEqual(
+            lesson_ids - quiz_ids - free_reference_ids,
+            set(),
+            "Cours classiques sans quiz correspondant.",
+        )
+        self.assertEqual(
+            free_reference_ids & quiz_ids,
+            set(),
+            "Les fiches Commandes & Aide-mémoire ne doivent pas imposer de quiz individuel.",
+        )
         self.assertEqual(quiz_ids - node_ids, set(), "Quiz sans nœud de parcours.")
         for quiz_id, path in self.quiz_paths.items():
             data = json.loads(path.read_text(encoding="utf-8"))
