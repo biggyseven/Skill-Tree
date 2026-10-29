@@ -1,0 +1,18 @@
+{
+  "node_id": "support-recurrents-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Question temporaire sur « Gestion des incidents récurrents » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "choices": [
+        "Réponse correcte à rédiger",
+        "Distracteur à rédiger A",
+        "Distracteur à rédiger B",
+        "Distracteur à rédiger C"
+      ],
+      "answer": 0,
+      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+    }
+  ]
+}

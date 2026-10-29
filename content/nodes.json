@@ -9946,5 +9946,513 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "support-role-debutant",
+    "module": "Support Technique",
+    "title": "Le rôle du technicien support",
+    "category": "Support — Fondamentaux",
+    "order": 4439,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-communication-debutant",
+    "module": "Support Technique",
+    "title": "Communication avec les utilisateurs",
+    "category": "Support — Fondamentaux",
+    "order": 4440,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-role-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-ecoute-debutant",
+    "module": "Support Technique",
+    "title": "Écoute active et reformulation",
+    "category": "Support — Fondamentaux",
+    "order": 4441,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-communication-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-methodologie-debutant",
+    "module": "Support Technique",
+    "title": "Méthodologie de dépannage",
+    "category": "Support — Fondamentaux",
+    "order": 4442,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-ecoute-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-priorites-debutant",
+    "module": "Support Technique",
+    "title": "Gestion des priorités",
+    "category": "Support — Fondamentaux",
+    "order": 4443,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-methodologie-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-outils-distants-debutant",
+    "module": "Support Technique",
+    "title": "Prise en main à distance (TeamViewer, AnyDesk)",
+    "category": "Support — Fondamentaux",
+    "order": 4444,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-priorites-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-etiquette-debutant",
+    "module": "Support Technique",
+    "title": "Étiquette professionnelle et politesse",
+    "category": "Support — Fondamentaux",
+    "order": 4445,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-outils-distants-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-documentation-debutant",
+    "module": "Support Technique",
+    "title": "Documenter une intervention",
+    "category": "Support — Fondamentaux",
+    "order": 4446,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-etiquette-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-tickets-intermediaire",
+    "module": "Support Technique",
+    "title": "Gestion des tickets (GLPI, Jira Service Mgmt)",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4447,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-documentation-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-niveaux-intermediaire",
+    "module": "Support Technique",
+    "title": "Niveaux de support N1/N2/N3",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4448,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-tickets-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-escalade-intermediaire",
+    "module": "Support Technique",
+    "title": "Escalade et collaboration",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4449,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-niveaux-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-sla-intermediaire",
+    "module": "Support Technique",
+    "title": "SLA et gestion du stress",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4450,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-escalade-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-telephone-intermediaire",
+    "module": "Support Technique",
+    "title": "Support téléphonique professionnel",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4451,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-sla-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-chat-email-intermediaire",
+    "module": "Support Technique",
+    "title": "Support par chat et email",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4452,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-telephone-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-diagnostic-intermediaire",
+    "module": "Support Technique",
+    "title": "Diagnostic à distance (logs, outils)",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4453,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-chat-email-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-multiplateforme-intermediaire",
+    "module": "Support Technique",
+    "title": "Support Windows/Mac/Linux/mobile",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4454,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-diagnostic-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-kb-intermediaire",
+    "module": "Support Technique",
+    "title": "Base de connaissances (KB)",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4455,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-multiplateforme-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-recurrents-intermediaire",
+    "module": "Support Technique",
+    "title": "Gestion des incidents récurrents",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4456,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-kb-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-demandes-intermediaire",
+    "module": "Support Technique",
+    "title": "Demandes de service vs incidents",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4457,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-recurrents-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-remote-avance-intermediaire",
+    "module": "Support Technique",
+    "title": "Support à distance avancé (scripts, GPO)",
+    "category": "Support — Pratiques opérationnelles",
+    "order": 4458,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-demandes-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "support-management-expert",
+    "module": "Support Technique",
+    "title": "Management d'une équipe support",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4459,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-remote-avance-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-processus-expert",
+    "module": "Support Technique",
+    "title": "Définition des processus support",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4460,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-management-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-csat-expert",
+    "module": "Support Technique",
+    "title": "Optimisation de la satisfaction (CSAT/NPS)",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4461,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-processus-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-crise-expert",
+    "module": "Support Technique",
+    "title": "Gestion de crise support",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4462,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-csat-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-vip-expert",
+    "module": "Support Technique",
+    "title": "Support VIP et exécutif",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4463,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-crise-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-automation-expert",
+    "module": "Support Technique",
+    "title": "Automatisation (chatbots, self-service)",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4464,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-vip-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-formation-expert",
+    "module": "Support Technique",
+    "title": "Formation des techniciens",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4465,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-automation-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-reporting-expert",
+    "module": "Support Technique",
+    "title": "Reporting support avancé",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4466,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-formation-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-amelioration-expert",
+    "module": "Support Technique",
+    "title": "Amélioration continue du support",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4467,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-reporting-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "support-international-expert",
+    "module": "Support Technique",
+    "title": "Support international et multilingue",
+    "category": "Support — Pilotage et amélioration",
+    "order": 4468,
+    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "prereqs": [
+      "support-amelioration-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
   }
 ]
