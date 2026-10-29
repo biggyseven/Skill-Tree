@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Formation des techniciens » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quel élément distingue le mieux un objectif de formation réellement vérifiable ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Un titre de module attractif",
+        "Une action observable, des conditions et un critère de réussite",
+        "Le nombre de diapositives produites",
+        "Le nombre de participants inscrits"
+      ],
+      "answer": 1,
+      "explanation": "Un objectif opérationnel décrit ce que l'apprenant doit faire, dans quel contexte et selon quel critère ; les supports et la présence ne prouvent pas la maîtrise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Avant de concevoir une formation demandée pour un nouvel outil, quelle est la meilleure première étape ?",
+      "choices": [
+        "Créer immédiatement les diapositives",
+        "Acheter une plateforme de formation",
+        "Analyser le problème métier et vérifier si une formation est bien adaptée",
+        "Envoyer un quiz à tout le personnel"
+      ],
+      "answer": 2,
+      "explanation": "Le problème peut venir des accès, du processus ou de l'outil lui-même. Le diagnostic évite de traiter chaque difficulté comme un manque de connaissances."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur fournit une preuve plus forte du transfert après formation ?",
+      "choices": [
+        "Le nombre de personnes inscrites",
+        "Le taux de satisfaction à chaud uniquement",
+        "Le nombre de pages du support",
+        "L'observation de la tâche en situation réelle quelques semaines après"
+      ],
+      "answer": 3,
+      "explanation": "Le transfert examine si les comportements appris sont utilisés au travail ; la satisfaction est utile mais ne prouve pas ce transfert."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi segmenter les publics avant de bâtir le parcours ?",
+      "choices": [
+        "Pour adapter tâches, prérequis, risques et formats aux situations réelles",
+        "Pour classer les utilisateurs par valeur personnelle",
+        "Pour éviter toute pratique commune",
+        "Pour éliminer le besoin d'évaluation"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "La segmentation pédagogique se fonde sur les tâches, le contexte et le niveau requis, et non sur des stéréotypes ou un classement des personnes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble est le plus approprié pour une formation à l'authentification multifacteur ?",
+      "choices": [
+        "Des comptes personnels et de vrais codes de connexion",
+        "Une simulation avec données fictives, exercices de décision et voie d'escalade",
+        "Un diaporama sans manipulation",
+        "Une capture d'écran ancienne sans date"
+      ],
+      "answer": 1,
+      "explanation": "Un environnement fictif limite l'exposition des secrets et permet de tester la décision, les gestes et le signalement en sécurité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le principal risque d'une mesure basée uniquement sur la baisse du volume de tickets ?",
+      "choices": [
+        "Elle nécessite toujours un outil payant",
+        "Elle ne peut jamais être calculée",
+        "La baisse peut refléter une sous-déclaration ou un changement de périmètre",
+        "Elle démontre automatiquement une amélioration"
+      ],
+      "answer": 2,
+      "explanation": "Il faut vérifier les dénominateurs, les changements de périmètre et les autres indicateurs ; une baisse de tickets ne prouve pas à elle seule l'autonomie."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il faire lorsqu'une procédure change après la publication du cours ?",
+      "choices": [
+        "Conserver toutes les versions au même endroit sans repère",
+        "Modifier uniquement la date du fichier",
+        "Attendre que les utilisateurs signalent une erreur",
+        "Nommer un propriétaire, réviser le support et retirer les anciennes versions trompeuses"
+      ],
+      "answer": 3,
+      "explanation": "La gestion de version et le propriétaire de contenu réduisent le risque que les utilisateurs suivent une procédure obsolète."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle approche convient à une formation dont les résultats métiers sont difficiles à attribuer à une seule cause ?",
+      "choices": [
+        "Mesurer une référence, documenter les changements concurrents et combiner plusieurs preuves",
+        "Attribuer toute variation à la formation",
+        "Ignorer les données de référence",
+        "Utiliser seulement la note de satisfaction"
+      ],
+      "answer": 0,
+      "explanation": "La comparaison documentée, les observations et la prise en compte des facteurs concurrents évitent d'affirmer une causalité non démontrée."
     }
   ]
 }
