@@ -516,7 +516,82 @@ Une comparaison utile examine le modèle d'attaque, les opérateurs qui produise
 
 Une fiche technique doit identifier les hypothèses qui importent pour l'application : montant, délai, disponibilité, protection contre la censure, capacité à vérifier par soi-même et procédures de mise à niveau. Le choix doit correspondre aux contraintes réelles, pas à un slogan sur une famille de consensus.
 
-## 23. Dix questions d'entraînement avec corrigé
+## 23. Diagnostiquer un incident de consensus et définir une politique de reprise
+
+Lorsqu'une chaîne semble bloquée, distingue plusieurs symptômes : la production de blocs s'arrête, les blocs continuent mais la finalité n'avance plus, les nœuds observent des têtes différentes, ou seule une application semble en retard. Ces situations n'ont pas les mêmes causes ni les mêmes conséquences. Une interface qui affiche encore un ancien solde ne prouve pas que le consensus est arrêté ; elle peut consulter un RPC retardé, un indexeur en panne ou une politique de confirmation trop agressive.
+
+### 23.1 Construire une référence observable
+
+Une investigation commence par une période de référence : rythme habituel de production des blocs, délai d'inclusion et de finalité, participation des validateurs ou producteurs, fréquence des réorganisations, versions logicielles déployées et disponibilité des nœuds d'observation. Il faut aussi documenter la tolérance opérationnelle attendue. Une chaîne dont les blocs arrivent toutes les quelques secondes ne doit pas être diagnostiquée au moyen d'un seuil conçu pour un réseau produisant un bloc toutes les dix minutes.
+
+Observe plusieurs vues indépendantes lorsque c'est possible. Un seul explorateur ou fournisseur RPC peut être retardé, mal configuré ou influencé par son propre indexeur. Compare la hauteur, le hash du dernier bloc, l'état de finalité et les horodatages fournis par plusieurs sources. Les sources ne sont réellement indépendantes que si elles ne reposent pas toutes sur le même nœud ou le même intermédiaire.
+
+### 23.2 Séparer production, finalité et affichage
+
+Une absence de nouveaux blocs peut résulter d'une panne de production, d'une connectivité dégradée, d'une perte de quorum ou d'une pression sur les ressources. Une absence de finalité alors que les blocs continuent d'arriver indique une autre catégorie de problème : les votes ou la participation n'atteignent plus le niveau requis. Redémarrer un seul nœud ne corrige pas nécessairement un problème collectif.
+
+Dans certains protocoles, une finalité retardée peut être un mécanisme de protection plutôt qu'une erreur : le réseau refuse de finaliser lorsque les hypothèses de sécurité ne sont plus satisfaites. Forcer l'application à traiter des blocs non finalisés comme définitifs peut transformer un incident de disponibilité en perte financière ou en incohérence métier.
+
+| Observation | Hypothèses à tester | Première vérification |
+|---|---|---|
+| Plus aucun bloc n'apparaît | Production arrêtée ou observateur bloqué | Comparer hashes et heures sur plusieurs sources |
+| Les blocs avancent, pas la finalité | Participation insuffisante ou quorum non atteint | Lire les métriques de finalité du protocole |
+| Les nœuds exposent des têtes divergentes | Réorganisation, partition réseau ou clients incompatibles | Comparer le point commun et les versions |
+| Le portefeuille affiche un ancien solde | RPC retardé, cache, indexeur ou mauvais réseau | Interroger l'état direct sur la chaîne attendue |
+| Les transactions restent en attente | Frais, nonce, mempool ou diffusion | Examiner les données de la transaction |
+
+### 23.3 Runbook d'un incident
+
+1. Définis l'impact métier : dépôts, retraits, émission d'actifs, gouvernance ou simple lecture.
+2. Vérifie le réseau et l'identifiant de chaîne exacts. Une erreur de réseau peut imiter une divergence de consensus.
+3. Collecte hashes, hauteurs, marqueurs de finalité et heures UTC depuis plusieurs sources.
+4. Vérifie les alertes de ressources et les changements récents, sans redémarrer toutes les instances simultanément.
+5. Classe les observations : arrêt de production, retard de finalité, divergence de têtes ou panne d'un fournisseur.
+6. Applique la politique de dégradation prévue ; par exemple, suspends les actions irréversibles tout en étiquetant explicitement les lectures provisoires.
+7. Documente les critères de reprise et exige une stabilité mesurée avant de réactiver les opérations sensibles.
+
+~~~mermaid
+flowchart TD
+    A[Incident signalé] --> B[Comparer plusieurs observateurs]
+    B --> C{Les hashes divergent ?}
+    C -->|Oui| D[Étudier réorganisation et versions]
+    C -->|Non| E{Les blocs progressent ?}
+    E -->|Non| F[Étudier production et connectivité]
+    E -->|Oui| G{La finalité progresse ?}
+    G -->|Non| H[Étudier participation et votes]
+    G -->|Oui| I[Étudier RPC, indexeur et application]
+    D --> J[Appliquer politique de sécurité]
+    F --> J
+    H --> J
+    I --> K[Valider puis rétablir progressivement]
+    J --> K
+~~~
+
+### 23.4 Revue de menace : censure, concentration et gouvernance
+
+La résilience d'un consensus ne se résume pas au coût d'une attaque contre les blocs. Il faut aussi examiner qui peut empêcher une transaction d'être incluse, qui peut influencer l'ordre des transactions, quelles coalitions sont économiquement viables et comment les règles évoluent. La décentralisation est multidimensionnelle : la distribution des nœuds ne prouve pas à elle seule une distribution du contrôle.
+
+Une analyse utile décrit les ressources de l'adversaire, ses objectifs et les frontières du système qu'il peut influencer. Un utilisateur malveillant peut créer des transactions valides mais coûteuses ; un opérateur réseau peut retarder certaines connexions ; un groupe de producteurs peut influencer l'inclusion ; un attaquant logiciel peut exploiter des versions incompatibles. Ces menaces ne sont pas interchangeables, et le modèle doit préciser si l'adversaire contrôle l'infrastructure, les clés ou seulement les données d'une application.
+
+Une transaction absente d'un bloc ne suffit pas à établir une censure : elle peut avoir un prix insuffisant, un nonce invalide ou n'avoir jamais été correctement diffusée. Une conclusion de censure demande une observation plus robuste, par exemple des transactions valides systématiquement exclues malgré les conditions d'inclusion annoncées et une propagation confirmée.
+
+Le nombre de validateurs est utile mais ne capture pas les dépendances communes. Plusieurs participants peuvent utiliser le même fournisseur cloud, le même logiciel, le même relais ou la même bibliothèque de signature. Une panne commune peut donc affecter de nombreux identifiants supposés indépendants. Une matrice de dépendances devrait distinguer les données observées des déclarations d'opérateurs et chercher les points de défaillance communs.
+
+La gouvernance est une autre frontière de confiance : qui propose une mise à jour, qui relit le code, qui construit le logiciel, qui choisit le calendrier d'activation et que font les opérateurs si le réseau se divise ? Une procédure publique ne supprime pas le désaccord, mais permet aux utilisateurs de comprendre la chaîne de décision. Avant un changement majeur, compare les règles, les exigences de version, la compatibilité des outils, les risques de migration et les critères qui signaleraient un déploiement anormal.
+
+### 23.5 Atelier : politique de confirmation adaptée au risque
+
+Considère une application qui accepte un paiement et crédite un compte interne. Le métier veut une expérience rapide sans créditer définitivement une opération dont l'inclusion pourrait être annulée. Définis des états intermédiaires plutôt qu'un nombre universel de confirmations.
+
+Le travail demandé consiste à décrire l'actif, le montant et le coût d'une erreur ; écrire les états visibles — détectée, incluse, confirmée, finalisée, rejetée ou remplacée — ; définir comment l'application réagit à une réorganisation ; choisir des sources d'observation ; et rédiger des messages qui ne confondent pas diffusion et finalité.
+
+La politique dépend de la blockchain, de l'actif et de l'impact métier. Une petite opération réversible peut tolérer un niveau de confirmation plus faible ; un retrait important ou une action irréversible peut exiger la finalité et des contrôles supplémentaires. Le seuil doit être documenté et testé, pas présenté comme une garantie absolue.
+
+L'application conserve identifiant de chaîne, hash de transaction, destinataire, montant dans ses unités exactes, bloc d'inclusion et état de finalité observé. À chaque contrôle, elle vérifie que la transaction est toujours canonique selon la source consultée et correspond exactement à l'opération attendue. Si les sources se contredisent, l'action sensible est mise en attente plutôt que de choisir silencieusement la réponse la plus favorable.
+
+Le test de validation simule l'inclusion, la confirmation, un retard RPC, un changement de tête, la disparition d'une transaction de la chaîne canonique et le retour à un état stable. Le critère de clôture est mesurable : aucune opération provisoire n'est traitée comme définitive, les divergences déclenchent une alerte et la reprise respecte la politique écrite. L'application ne supprime pas le risque du consensus ; elle aligne son comportement sur le modèle de sécurité réel du réseau.
+
+## 24. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi un réseau blockchain a-t-il besoin d'un mécanisme de consensus ?
@@ -568,7 +643,7 @@ Un fork temporaire signifie-t-il que le réseau a été attaqué ?
 
 **Corrigé :** Pas nécessairement. Il peut résulter de blocs concurrents et de délais de propagation. La durée, la profondeur et les données de l'incident sont nécessaires pour établir un diagnostic.
 
-## 24. Challenge final : analyser une suspicion de double dépense
+## 25. Challenge final : analyser une suspicion de double dépense
 
 ### Scénario
 

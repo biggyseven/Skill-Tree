@@ -782,7 +782,81 @@ Un avertissement de compilateur peut révéler une intention ambiguë, une conve
 
 Un cours technique de qualité doit séparer le code d'exemple qui illustre un concept, le mini-projet qui doit compiler et la recommandation adaptée à la production. Une explication honnête mentionne les omissions et les risques restants. Cette séparation évite qu'un débutant confonde un exemple court avec un contrat prêt à gérer de la valeur réelle.
 
-## 23. Dix questions d'entraînement avec corrigé
+## 23. Concevoir une interface Solidity claire, vérifiable et reproductible
+
+Le code Solidity est lu par plusieurs audiences : compilateur, contrats appelants, interfaces, testeurs, auditeurs et opérateurs. Une bonne interface rend les intentions visibles et limite les hypothèses cachées. Le nom d'une fonction ne prouve pas son comportement ; la visibilité, les modificateurs, les types, les événements et les conditions de validation doivent concorder avec la règle métier.
+
+### 23.1 Erreurs personnalisées et événements
+
+Les erreurs personnalisées expriment un échec métier sans répéter une chaîne à chaque endroit. Elles peuvent réduire certaines données de revert, mais ne seront pas toujours présentées lisiblement par l'interface : le front-end doit gérer des erreurs du contrat, du fournisseur, du réseau et de l'utilisateur. Il ne doit pas supposer que chaque panne provient d'une seule cause.
+
+Les événements informent les indexeurs qu'une transition s'est produite. Ils ne remplacent pas l'état du contrat : un événement ne peut pas être interrogé comme une variable de stockage par un simple appel de lecture, et une application qui indexe les logs doit tenir compte des réorganisations. Émets des événements cohérents avec les transitions métier. Évite de présenter dans un événement une promesse qui n'est pas garantie par l'état final.
+
+| Besoin | Choix conseillé | Point de vigilance |
+|---|---|---|
+| Lire une valeur sans modifier l'état | Fonction de lecture adaptée | La lecture RPC se rapporte à un bloc donné |
+| Notifier une transition | Événement métier explicite | Indexation et réorganisations |
+| Signaler une précondition violée | Erreur ou condition contrôlée | Plusieurs formats d'erreur possibles |
+| Autoriser une opération | Contrôle d'accès explicite | Vérifier tous les chemins qui touchent l'état |
+| Retourner un calcul | Valeur de retour documentée | Ne pas confondre retour EVM et événement |
+
+### 23.2 Séparer les responsabilités d'une fonction
+
+Une fonction qui valide, met à jour plusieurs structures, émet plusieurs événements et appelle des contrats externes devient difficile à auditer. Décompose le traitement en étapes conceptuelles : validation de la demande, vérification des autorisations, calcul des changements, mise à jour de l'état et interaction externe. Les fonctions internes doivent clarifier ces étapes plutôt que simplement déplacer du code.
+
+Les préconditions doivent être testées avant tout effet qui ne serait pas annulé en cas d'échec. Les transactions EVM sont atomiques dans leur contexte d'exécution, mais les systèmes hors chaîne peuvent avoir déjà envoyé un courriel, déclenché une tâche ou modifié une base avant de constater l'échec. Le contrat et les services qui l'entourent doivent donc partager une compréhension précise des transitions.
+
+### 23.3 Stockage, mémoire et données d'appel
+
+Le choix entre stockage persistant, mémoire temporaire et données d'appel n'est pas uniquement une optimisation. Le stockage persiste entre transactions et représente une ressource coûteuse ; la mémoire vit pendant l'exécution ; les données d'appel représentent les paramètres externes en lecture seule. Le bon emplacement dépend de la durée de vie et de l'usage des données.
+
+Avant de déplacer une variable pour économiser du gas, vérifie la sémantique. Une structure copiée depuis le stockage vers la mémoire n'est plus une référence mutable à l'original. Inversement, une variable persistante partagée par plusieurs fonctions peut être modifiée par des chemins que la revue initiale n'avait pas anticipés. Les tests doivent couvrir les états persistants après chaque appel réussi et après chaque revert.
+
+## 24. Revue de code : suivre chaque donnée de l'entrée à l'effet
+
+Une revue efficace suit le flux des données non fiables. Pour chaque paramètre, demande qui peut le fournir, s'il est validé, comment il influence les calculs et s'il peut provoquer un appel externe ou un changement de privilège. Une adresse fournie par l'utilisateur n'est pas automatiquement sûre parce que son type est address : elle peut désigner un contrat qui exécute du code pendant l'interaction.
+
+### 24.1 Construire une carte des flux
+
+Commence par les points d'entrée publics et externes, puis trace les appels internes, les modifications d'état, les transferts d'actifs et les appels aux dépendances. Identifie les fonctions qui changent les droits, configurent des adresses, changent des prix ou modifient les paramètres servant à valider une opération. Les chemins administratifs sont du code métier critique même s'ils sont rarement appelés.
+
+Pour chaque fonction, pose cette question : quelles hypothèses doit-elle recevoir de son appelant et lesquelles vérifie-t-elle elle-même ? Si une fonction interne n'est correcte que lorsque l'appelant a déjà validé une condition, cette précondition doit être documentée et couverte par des tests passant par tous les points d'entrée accessibles.
+
+### 24.2 Vérifier les nombres et les conversions
+
+Les types entiers non signés ne représentent pas de valeurs négatives, mais cela ne supprime pas le risque de calcul. Les soustractions, multiplications, changements d'échelle et divisions exigent un raisonnement sur les bornes et l'ordre des opérations. Les versions récentes de Solidity contrôlent les débordements arithmétiques ordinaires, mais les conversions explicites et les opérations dans des blocs non contrôlés demandent une attention particulière.
+
+Une formule peut être mathématiquement correcte et donner un résultat entier erroné si elle arrondit trop tôt. Pour un montant exprimé en unités minimales, documente les échelles, les décimales et la règle d'arrondi. Pour les pourcentages, vérifie zéro, le maximum attendu, le très petit montant et les valeurs juste de part et d'autre d'une limite.
+
+### 24.3 Tester ce qui ne doit jamais arriver
+
+Un test négatif doit vérifier l'état après l'échec et pas seulement constater un revert. Pour une fonction administrative, appelle-la depuis un compte sans privilège puis vérifie que ni la configuration ni les rôles n'ont changé. Pour un retrait, tente un montant supérieur au crédit, un destinataire contractuel et un scénario où l'interaction externe échoue. Pour une mise à jour de configuration, vérifie que l'ancienne valeur est conservée lorsque les conditions ne sont pas respectées.
+
+L'analyse statique et le fuzzing complètent la revue manuelle, mais dépendent de la couverture, de la configuration et de la compréhension du modèle métier. Ils ne peuvent pas déterminer à eux seuls si une règle financière est correcte. Les hypothèses importantes doivent être écrites dans les tests ou dans une spécification vérifiable.
+
+## 25. Reproductibilité et acceptation d'un projet Solidity
+
+Une compilation reproductible permet à une autre personne de vérifier qu'un ensemble précis de sources produit le même artefact dans le même environnement. Pour les contrats qui gèrent des actifs, la version du compilateur, les paramètres d'optimisation, les dépendances et la configuration du framework doivent être conservés dans le dépôt. Une compilation réussie dans un environnement différent ne prouve pas que l'artefact déployé correspond aux sources examinées.
+
+### 25.1 Verrouiller les dépendances
+
+Documente le gestionnaire de paquets, les versions de bibliothèques, le compilateur et les paramètres qui influencent le bytecode. Évite de dépendre silencieusement d'une branche mouvante. Les versions d'une bibliothèque peuvent changer les mécanismes de contrôle d'accès, le comportement de sécurité ou les règles de stockage. Après une mise à jour, lis le diff, exécute les tests et valide les changements de stockage si des proxies sont utilisés.
+
+Conserve les commandes permettant de compiler, tester, lancer les tests de propriétés et produire les artefacts. Les scripts doivent échouer explicitement si une variable nécessaire est absente plutôt que d'utiliser une adresse par défaut non maîtrisée. Les clés et secrets ne doivent pas être intégrés aux fichiers versionnés ni aux journaux de CI.
+
+### 25.2 Vérifier l'artefact déployé
+
+Après le déploiement, archive l'adresse, le réseau, le hash du bloc ou la transaction, le compilateur, la configuration et l'artefact correspondant. Vérifie que les sources publiées et les paramètres correspondent au bytecode observé selon les mécanismes de vérification du réseau. Si un proxy est employé, documente séparément l'adresse d'entrée, l'implémentation active et l'autorité capable de la modifier.
+
+Un rapport de déploiement doit indiquer les rôles, les permissions et les étapes manuelles restantes. Un contrat compilé et publié peut rester mal configuré : mauvais administrateur, oracle incorrect, pause activée, paramètre initial incohérent ou adresse cible erronée. La validation post-déploiement est une étape métier et sécurité à part entière.
+
+### 25.3 Critères d'acceptation pour une revue
+
+Avant d'autoriser une publication, exige une compilation reproductible, une suite de tests documentée, des scénarios négatifs, une analyse des dépendances, une revue des permissions, un plan de déploiement et une procédure d'incident. Pour un système à risque élevé, ajoute une revue indépendante et une preuve ciblée des propriétés les plus importantes.
+
+La décision d'accepter doit nommer les risques résiduels et la personne ou le processus qui les accepte. « Tous les tests passent » est un élément de preuve, pas une conclusion complète. La qualité dépend aussi de ce que les tests affirment, des hypothèses, des dépendances et de la capacité à observer et contenir un incident en production.
+
+## 24. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 À quoi sert la directive pragma ?
@@ -834,7 +908,7 @@ La compilation réussie prouve-t-elle qu'un contrat est sûr ?
 
 **Corrigé :** Non. Il faut aussi des tests, analyses, revues, contrôles des dépendances, vérification de déploiement et surveillance.
 
-## 24. Challenge final : spécifier et tester un coffre fictif
+## 25. Challenge final : spécifier et tester un coffre fictif
 
 ### Scénario
 
