@@ -2135,8 +2135,11 @@
                   <div x-show="quizResult?.results?.length" class="mt-4 space-y-2 border-t border-white/10 pt-3">
                     <template x-for="item in (quizResult.results || [])" :key="item.id">
                       <div class="rounded-xl bg-[color:var(--s1)] p-3">
-                        <p class="text-sm font-semibold" :class="item.correct ? 'text-lime-300' : 'text-rose-300'" x-text="item.correct ? '✓ Réponse correcte' : '✕ Réponse incorrecte'"></p>
-                        <p x-show="item.explanation" class="mt-1 text-sm leading-relaxed text-zinc-400" x-text="item.explanation"></p>
+                        <p x-show="item.prompt" class="text-sm font-semibold text-white" x-text="item.prompt"></p>
+                        <p class="mt-2 text-sm font-semibold" :class="item.correct ? 'text-lime-300' : 'text-rose-300'" x-text="item.correct ? '✓ Réponse correcte' : '✕ Réponse incorrecte'"></p>
+                        <p x-show="item.selected_answer" class="mt-1 text-sm text-zinc-300" x-text="'Ta réponse : ' + item.selected_answer"></p>
+                        <p x-show="item.correct_answer" class="mt-1 text-sm font-medium text-emerald-300" x-text="'Bonne réponse : ' + item.correct_answer"></p>
+                        <p x-show="item.explanation" class="mt-2 text-sm leading-relaxed text-zinc-400" x-text="item.explanation"></p>
                       </div>
                     </template>
                   </div>

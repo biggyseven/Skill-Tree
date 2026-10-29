@@ -166,6 +166,10 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("Cours validé : ta progression a été actualisée.", exercise_ui)
         self.assertIn("d’autres exigences du cours restent à valider.", exercise_ui)
         self.assertIn("quizResult.results || []", exercise_ui)
+        self.assertIn("item.prompt", exercise_ui)
+        self.assertIn("item.selected_answer", exercise_ui)
+        self.assertIn("item.correct_answer", exercise_ui)
+        self.assertIn("'Bonne réponse : ' + item.correct_answer", exercise_ui)
         self.assertIn("exerciseError: null", DASHBOARD_HTML)
 
     def test_validation_advances_resume_target_and_reports_refresh_health(self):

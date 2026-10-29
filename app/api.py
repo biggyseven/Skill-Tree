@@ -2239,7 +2239,16 @@ def submit_quiz(node_id: str, payload: dict[str, Any] = Body(...), tree: SkillTr
         else:
             matches = answer == question.answer
         correct += int(matches)
-        results.append({"id": question.id, "correct": matches, "explanation": question.explanation})
+        result_item = {"id": question.id, "correct": matches, "explanation": question.explanation}
+        if question.choices and isinstance(question.answer, int) and 0 <= question.answer < len(question.choices):
+            result_item["prompt"] = question.prompt
+            result_item["correct_answer"] = question.choices[question.answer]
+            result_item["selected_answer"] = (
+                question.choices[answer]
+                if isinstance(answer, int) and 0 <= answer < len(question.choices)
+                else None
+            )
+        results.append(result_item)
 
     score = round(100 * correct / len(questions))
     passed = score >= requirement.min_score
