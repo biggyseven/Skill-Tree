@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Amélioration continue du support » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quelle distinction est correcte entre rétablissement et prévention ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Ce sont toujours des synonymes",
+        "Le rétablissement remet le service en état ; la prévention réduit la probabilité ou l'impact d'une réapparition",
+        "La prévention doit précéder tout rétablissement",
+        "Le rétablissement n'exige aucune validation"
+      ],
+      "answer": 1,
+      "explanation": "Le rétablissement traite l'urgence, tandis que la prévention vise à réduire le risque futur ; les deux sont complémentaires."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le but du cycle PDCA ?",
+      "choices": [
+        "Supprimer toute mesure après le changement",
+        "Éviter de tester les hypothèses",
+        "Planifier un changement, le tester, vérifier ses effets et l'ajuster",
+        "Déployer immédiatement chaque idée dans toute l'organisation"
+      ],
+      "answer": 2,
+      "explanation": "PDCA fournit une boucle d'apprentissage et de contrôle plutôt qu'une mise en œuvre définitive sans vérification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que produit principalement une analyse des cinq pourquoi ?",
+      "choices": [
+        "Une preuve définitive après cinq questions",
+        "Un classement individuel",
+        "Un chiffre exact du retour sur investissement",
+        "Des hypothèses causales à vérifier avec des preuves"
+      ],
+      "answer": 3,
+      "explanation": "La méthode structure l'exploration, mais ne garantit ni une cause unique ni une conclusion vraie sans vérification."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une automatisation réduit le temps de traitement mais double le taux de réouverture. Quelle conduite est la plus adaptée ?",
+      "choices": [
+        "Suspendre la généralisation, analyser la qualité et tester des corrections",
+        "La généraliser car le temps moyen baisse",
+        "Supprimer le suivi des réouvertures",
+        "Cacher le résultat dans le rapport"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Les garde-fous permettent de repérer un transfert de coût ou une dégradation de la résolution durable."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément caractérise une action d'amélioration correctement définie ?",
+      "choices": [
+        "Une phrase générale sans date",
+        "Un propriétaire, une échéance, une mesure de succès et un critère d'arrêt ou de revue",
+        "Une réunion sans compte rendu",
+        "Une promesse d'améliorer la communication"
+      ],
+      "answer": 1,
+      "explanation": "Une action précise peut être mise en œuvre, attribuée et vérifiée ; elle évite les engagements vagues."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une revue d'incident doit-elle éviter la recherche d'un coupable ?",
+      "choices": [
+        "Pour interdire toute responsabilité formelle",
+        "Pour éviter de consigner les faits",
+        "Pour identifier les conditions, contrôles et facteurs contributifs afin d'améliorer le système",
+        "Pour ignorer les erreurs répétées"
+      ],
+      "answer": 2,
+      "explanation": "Une revue sans blâme encourage l'apprentissage des facteurs du système, sans remplacer les procédures distinctes nécessaires en cas de faute intentionnelle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quand faut-il généraliser une amélioration testée ?",
+      "choices": [
+        "Dès que le pilote démarre",
+        "Dès qu'un participant la préfère",
+        "Quand le premier indicateur monte, sans autre contrôle",
+        "Lorsque le bénéfice est confirmé, les garde-fous respectés et la maintenance organisée"
+      ],
+      "answer": 3,
+      "explanation": "Une généralisation exige des preuves suffisantes, une vérification des effets secondaires et un plan de maintien."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Une catégorie d'incident est rare mais expose des données sensibles. Comment la prioriser ?",
+      "choices": [
+        "Évaluer le risque et l'impact, qui peuvent primer sur la fréquence",
+        "La laisser en dernier puisque le volume est faible",
+        "La retirer du reporting",
+        "Attendre un deuxième incident identique"
+      ],
+      "answer": 0,
+      "explanation": "La fréquence n'est qu'un critère. Un risque grave peut justifier une action préventive après un seul événement."
     }
   ]
 }
