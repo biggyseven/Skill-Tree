@@ -7,6 +7,7 @@ on:
       - "static/**"
       - "app/**"
       - "labs_v2/**"
+      - "content/**"
       - "tests/e2e/**"
       - "requirements.txt"
       - ".github/workflows/browser-ui-tests.yml"
@@ -42,6 +43,7 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
+
         with:
           node-version: "20"
 
