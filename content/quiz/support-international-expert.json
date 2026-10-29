@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Support international et multilingue » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quelle pratique facilite une chronologie fiable entre régions ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Utiliser l'heure locale sans indiquer le fuseau",
+        "Conserver une référence UTC et afficher les heures locales utiles avec leur fuseau",
+        "Ajouter toujours un décalage fixe toute l'année",
+        "Écraser l'heure initiale lors de chaque transfert"
+      ],
+      "answer": 1,
+      "explanation": "UTC fournit une référence commune, tandis que l'affichage local explicite reste compréhensible pour les équipes concernées."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel élément manque le plus souvent à une passation qui indique simplement « à suivre » ?",
+      "choices": [
+        "Le nom de l'application de chat",
+        "Une longue introduction",
+        "Un résumé factuel, un prochain pas et un propriétaire qui confirme la prise en charge",
+        "Un tableau de bord coloré"
+      ],
+      "answer": 2,
+      "explanation": "Une passation exploitable précise impact, chronologie, tests, risques, action suivante et responsable ; le destinataire doit confirmer."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment traiter une traduction automatique ambiguë dans une communication d'incident critique ?",
+      "choices": [
+        "L'envoyer rapidement sans correction",
+        "L'effacer sans informer personne",
+        "Remplacer tous les termes techniques par des synonymes",
+        "Faire relire et clarifier le message par une personne compétente avant diffusion"
+      ],
+      "answer": 3,
+      "explanation": "Une ambiguïté peut conduire à une action risquée ; les communications critiques nécessitent une validation adaptée au niveau de risque."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit-on faire avant de transférer des journaux à une équipe située dans un autre pays ?",
+      "choices": [
+        "Vérifier les règles approuvées, minimiser les données et utiliser un dépôt autorisé",
+        "Envoyer les fichiers dans un outil personnel de traduction",
+        "Joindre tous les secrets pour faciliter le diagnostic",
+        "Supposer que tout transfert interne est automatiquement autorisé"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Les accès transfrontaliers peuvent être soumis à des règles de confidentialité et de sécurité ; les données doivent être limitées au besoin."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle affirmation décrit le mieux la localisation d'une base de connaissances ?",
+      "choices": [
+        "Traduire automatiquement chaque phrase suffit",
+        "Maintenir une source approuvée, des traductions versionnées et une validation technique locale",
+        "Créer un article séparé sans propriétaire pour chaque pays",
+        "Ne jamais mettre à jour les traductions"
+      ],
+      "answer": 1,
+      "explanation": "La cohérence exige un propriétaire de source, des versions suivies et la revalidation des traductions après un changement critique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel indicateur peut révéler un défaut de couverture linguistique ?",
+      "choices": [
+        "Le nombre total de pages sur l'intranet",
+        "La taille du logo du centre de support",
+        "Les transferts non acceptés ou l'attente d'une compétence linguistique nécessaire",
+        "Le nombre de couleurs du dashboard"
+      ],
+      "answer": 2,
+      "explanation": "Les temps d'attente liés à une langue ou à l'absence de compétence montrent où la promesse de service dépasse la capacité."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi ne faut-il pas déduire le style de communication d'un utilisateur de sa nationalité ?",
+      "choices": [
+        "Parce que les préférences n'existent pas",
+        "Parce que toutes les équipes utilisent la même langue",
+        "Parce que cela élimine la nécessité de poser des questions",
+        "Parce que les personnes diffèrent et que les stéréotypes risquent de fausser le diagnostic"
+      ],
+      "answer": 3,
+      "explanation": "Il faut demander les besoins de communication et adapter le langage à la situation, plutôt que supposer des préférences selon l'origine."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire le modèle de support si l'équipe suivante n'accepte pas un incident critique à la relève ?",
+      "choices": [
+        "Déclencher l'escalade définie tout en conservant un propriétaire responsable",
+        "Fermer le ticket automatiquement",
+        "Attendre sans limite jusqu'à l'ouverture du prochain bureau",
+        "Créer un doublon sans lien avec le ticket initial"
+      ],
+      "answer": 0,
+      "explanation": "La règle d'escalade prévient les dossiers orphelins ; le ticket doit conserver un propriétaire et une chronologie traçable."
     }
   ]
 }
