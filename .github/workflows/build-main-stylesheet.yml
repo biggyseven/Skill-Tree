@@ -68,4 +68,16 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "build(frontend): refresh compiled Tailwind stylesheet"
-          git push origin "HEAD:${GITHUB_REF_NAME}"
+          for attempt in 1 2 3; do
+            git fetch origin "+refs/heads/${GITHUB_REF_NAME}:refs/remotes/origin/${GITHUB_REF_NAME}"
+            if ! git rebase "origin/${GITHUB_REF_NAME}"; then
+              git rebase --abort || true
+              echo "Could not rebase generated assets onto the latest branch." >&2
+              exit 1
+            fi
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+              exit 0
+            fi
+            echo "Push raced with another asset build (attempt ${attempt}/3); retrying." >&2
+          done
+          exit 1

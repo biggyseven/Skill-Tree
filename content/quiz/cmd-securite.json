@@ -1,0 +1,66 @@
+{
+  "node_id": "cmd-securite",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Que se passe-t-il si un paquet ne correspond à aucune entrée d'une ACL IOS ?",
+      "choices": [
+        "Il est toujours autorisé",
+        "Il est refusé par le deny implicite final",
+        "Il est réessayé par OSPF",
+        "Il est automatiquement placé dans un VLAN invité"
+      ],
+      "answer": 1,
+      "explanation": "Une ACL IOS se termine par un refus implicite si aucune entrée ne correspond."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle directive permet de limiter les sources autorisées à se connecter aux lignes VTY ?",
+      "choices": [
+        "switchport access vlan",
+        "ntp server",
+        "access-class appliquée aux VTY",
+        "spanning-tree portfast"
+      ],
+      "answer": 2,
+      "explanation": "`access-class` sur les lignes VTY filtre les sources de connexion d'administration."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel type d'ACL peut filtrer selon le protocole et les ports TCP/UDP en plus des adresses ?",
+      "choices": [
+        "ACL standard source-only",
+        "ACL de VLAN natif",
+        "ACL de routage par défaut",
+        "ACL étendue"
+      ],
+      "answer": 3,
+      "explanation": "Une ACL étendue peut inclure le protocole, la source, la destination et les ports selon le protocole."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur quels ports doit-on généralement activer le mode trusted de DHCP Snooping ?",
+      "choices": [
+        "Uniquement les ports identifiés vers les serveurs DHCP ou uplinks de confiance",
+        "Tous les ports des utilisateurs",
+        "Tous les ports sans exception",
+        "Aucun port vers le serveur DHCP"
+      ],
+      "answer": 0,
+      "explanation": "Les ports clients restent non fiables ; seuls les chemins vers les serveurs DHCP autorisés doivent être trusted."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que protège principalement le port-security sur un port de switch ?",
+      "choices": [
+        "La table de routage OSPF",
+        "Le mécanisme NTP",
+        "Le nombre ou l'identité des adresses MAC apprises selon la politique configurée",
+        "Les clés RSA des sessions SSH"
+      ],
+      "answer": 2,
+      "explanation": "Port-security permet de limiter les MAC apprises et d'appliquer une action en cas de violation."
+    }
+  ]
+}

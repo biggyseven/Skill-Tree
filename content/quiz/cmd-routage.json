@@ -1,0 +1,66 @@
+{
+  "node_id": "cmd-routage",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande IOS configure une route IPv4 par défaut vers un prochain saut ?",
+      "choices": [
+        "ip route 0.0.0.0 0.0.0.0 198.51.100.1",
+        "router ospf default",
+        "show ip route default",
+        "ip default-gateway 0.0.0.0 0.0.0.0"
+      ],
+      "answer": 0,
+      "explanation": "La route statique par défaut utilise le préfixe `0.0.0.0 0.0.0.0` suivi du prochain saut."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande affiche les routes connues et installées dans la table IPv4 ?",
+      "choices": [
+        "show ip protocols",
+        "show ip route",
+        "show vlan brief",
+        "show interfaces trunk"
+      ],
+      "answer": 1,
+      "explanation": "`show ip route` affiche les routes installées et leurs codes de source."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans la table IOS `show ip route`, quelle lettre indique habituellement une route statique ?",
+      "choices": [
+        "O",
+        "D",
+        "S",
+        "L"
+      ],
+      "answer": 2,
+      "explanation": "Le code `S` désigne une route statique."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi une route statique via prochain saut est-elle souvent préférable sur un réseau Ethernet multi-accès ?",
+      "choices": [
+        "Elle désactive ARP",
+        "Elle évite tout routage",
+        "Elle transforme le lien en point-à-point",
+        "Elle évite de traiter chaque destination distante comme directement attachée à l'interface"
+      ],
+      "answer": 3,
+      "explanation": "Sur Ethernet multi-accès, préciser le prochain saut évite une résolution ARP pour chaque destination distante."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande donne des informations sur les protocoles de routage configurés ?",
+      "choices": [
+        "show ip protocols",
+        "show access-lists",
+        "show clock",
+        "show mac address-table"
+      ],
+      "answer": 0,
+      "explanation": "`show ip protocols` résume les protocoles de routage et des paramètres utiles."
+    }
+  ]
+}

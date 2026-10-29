@@ -1,0 +1,66 @@
+{
+  "node_id": "cmd-interfaces",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Quelle paire de commandes place un port dans le VLAN 10 en mode access ?",
+      "choices": [
+        "switchport mode trunk puis switchport trunk native vlan 10",
+        "switchport mode access puis switchport access vlan 10",
+        "vlan 10 puis ip route 10.0.0.0",
+        "switchport trunk allowed vlan 10 puis no shutdown uniquement"
+      ],
+      "answer": 1,
+      "explanation": "Un port d'accès utilise `switchport mode access` et `switchport access vlan 10`."
+    },
+    {
+      "type": "qcm",
+      "prompt": "À quoi sert un trunk 802.1Q entre switches ?",
+      "choices": [
+        "À transporter plusieurs VLAN sur un lien",
+        "À remplacer STP",
+        "À donner une adresse IP à chaque port",
+        "À chiffrer les paquets"
+      ],
+      "answer": 0,
+      "explanation": "Un trunk transporte le trafic de plusieurs VLAN, selon sa liste de VLAN autorisés."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Sur quel type de port faut-il généralement utiliser PortFast ?",
+      "choices": [
+        "Sur tous les liens inter-switch",
+        "Sur les liens WAN uniquement",
+        "Sur les ports reliés à des terminaux finaux",
+        "Sur tout port trunk sans vérification"
+      ],
+      "answer": 2,
+      "explanation": "PortFast est destiné aux ports edge de terminaux, pas aux liens entre switches."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que peut provoquer BPDU Guard si un port edge reçoit une BPDU inattendue ?",
+      "choices": [
+        "L'ajout automatique d'un VLAN",
+        "La synchronisation NTP",
+        "L'activation d'OSPF",
+        "La mise en état err-disabled du port"
+      ],
+      "answer": 3,
+      "explanation": "Une violation BPDU Guard peut placer le port dans l'état err-disabled."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle commande permet d'inspecter les trunks actifs et les VLAN autorisés ?",
+      "choices": [
+        "show interfaces trunk",
+        "show ip route",
+        "show ntp associations",
+        "show users"
+      ],
+      "answer": 0,
+      "explanation": "`show interfaces trunk` affiche les trunks opérationnels, le VLAN natif et les VLAN transportés."
+    }
+  ]
+}
