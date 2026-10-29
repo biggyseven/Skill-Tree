@@ -329,12 +329,23 @@ test('la navigation du lecteur respecte l’ordre pédagogique et contextualise 
   const orderedIds = await page.evaluate(() => {
     const state = window.Alpine.$data(document.body);
     const originalNodes = state.nodes;
+    const introNode = originalNodes.find(node => node.id === 'intro-reseau-debutant');
+    const moduleId = state.moduleOf(introNode);
     // Simulate a persistent DB whose sort_order is stale and contradicts nodes.json.
+    // Assert the sequence within the target module, not the global first module:
+    // new modules (such as the cheat-sheet module) can legitimately precede it.
     state.nodes = [...originalNodes].reverse().map((node, index) => ({
       ...node,
       sort_order: -1 * Number(node.order ?? index + 1),
     }));
-    const ordered = state.lessonSequence.slice(0, 3).map(node => node.id);
+    const targetIds = new Set([
+      'intro-reseau-debutant',
+      'intro-reseau-intermediaire',
+      'intro-reseau-expert',
+    ]);
+    const ordered = state.orderedModuleLessons(moduleId)
+      .filter(node => targetIds.has(node.id))
+      .map(node => node.id);
     state.nodes = originalNodes;
     return ordered;
   });
@@ -662,7 +673,9 @@ test('le catalogue v2 affiche le lab ACL même si le nœud manque dans le graphe
   await expect(aclLab).toBeVisible();
   await expect(aclLab).toHaveAttribute('data-lab-kind', 'workspace-v2');
   await expect(aclLab).toHaveAttribute('href', '/lab.html?id=secu-acl-intermediaire');
-  await expect(aclLab).toContainText('⏱ 20 · intermédiaire');
+  // The duration and level are separate elements in the responsive card layout.
+  await expect(aclLab).toContainText('⏱ 20');
+  await expect(aclLab).toContainText('intermédiaire');
 });
 
 test('le catalogue des labs réutilise son cache après avoir quitté puis rouvert la section', async ({ page }) => {
