@@ -14,6 +14,10 @@ on:
       - "static/tailwind.input.css"
       - ".github/workflows/build-main-stylesheet.yml"
 
+concurrency:
+  group: frontend-cache-assets-${{ github.ref_name }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -69,6 +73,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "build(frontend): refresh compiled Tailwind stylesheet"
           for attempt in 1 2 3; do
+            # Asset generation may leave ignored or unrelated build outputs unstaged.
+            # Stash them before rebasing; the generated target files were already committed above.
+            if ! git diff --quiet || [[ -n "$(git ls-files --others --exclude-standard)" ]]; then
+              echo "Working tree before asset push:"
+              git status --short
+              git stash push --include-untracked -m "temporary generated artifacts before cache-asset rebase"
+            fi
             git fetch origin "+refs/heads/${GITHUB_REF_NAME}:refs/remotes/origin/${GITHUB_REF_NAME}"
             if ! git rebase "origin/${GITHUB_REF_NAME}"; then
               git rebase --abort || true
