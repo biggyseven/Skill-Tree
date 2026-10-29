@@ -61,6 +61,15 @@ flowchart LR
     F --> G[Journal de communication]
 ~~~
 
+~~~mermaid
+flowchart TD
+    A[Demande ou période sensible] --> B[Valider le besoin et le propriétaire]
+    B --> C[Préparer les moyens autorisés]
+    C --> D[Vérifier identité, accès et secours]
+    D --> E[Confirmer la préparation]
+    E --> F[Surveiller et révoquer les accès temporaires]
+~~~
+
 ## 5. Préparer les équipements et les périodes critiques
 
 La préparation réduit le besoin d'improviser pendant une urgence. Pour les personnes éligibles, documentez les équipements autorisés, les options de prêt, la procédure en déplacement, les contacts d'urgence et les conditions de remplacement. La fiche d'assistance doit être tenue dans un dépôt approuvé, avec un accès strictement limité. Évitez les tableurs personnels contenant numéros privés, itinéraires, détails d'agenda et informations non nécessaires.
