@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Automatisation (chatbots, self-service) » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quels cas sont généralement les meilleurs candidats à l'automatisation ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Les décisions sensibles et ambiguës",
+        "Les tâches fréquentes, prévisibles, documentées et à risque maîtrisable",
+        "Toutes les demandes sans exception",
+        "Les actions privilégiées sans validation"
+      ],
+      "answer": 1,
+      "explanation": "Les cas stables et de risque limité facilitent les tests et réduisent les conséquences d'une erreur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle distinction est correcte entre un parcours guidé et un assistant génératif ?",
+      "choices": [
+        "Un parcours guidé invente toujours des réponses",
+        "Un assistant génératif n'a besoin d'aucune source",
+        "Un parcours guidé applique une logique définie, tandis qu'un assistant génératif interprète des questions plus variables",
+        "Les deux sont forcément équivalents"
+      ],
+      "answer": 2,
+      "explanation": "Le parcours guidé est prévisible pour les tâches standard ; le génératif gère plus de variété mais introduit un risque d'erreur et exige des garde-fous."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le meilleur moyen de protéger une action sensible déclenchée depuis un chatbot ?",
+      "choices": [
+        "Demander au modèle s'il pense que l'utilisateur est autorisé",
+        "Faire confiance au texte de la conversation",
+        "Cacher les erreurs à l'utilisateur",
+        "Vérifier identité, droits et paramètres côté backend avant l'exécution"
+      ],
+      "answer": 3,
+      "explanation": "Les règles de sécurité doivent être imposées par le système d'exécution, et non seulement par les instructions conversationnelles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi le taux de conversations terminées sans agent est-il insuffisant comme indicateur ?",
+      "choices": [
+        "Une conversation peut se terminer sans résoudre le problème ou après un abandon",
+        "Il est impossible à calculer",
+        "Il mesure automatiquement la sécurité",
+        "Il inclut toujours une confirmation de l'utilisateur"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Le containment doit être accompagné de la résolution confirmée, des réouvertures, de l'effort, de la satisfaction et des incidents."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que doit faire un assistant lorsqu'il n'a pas de source fiable ou que la question dépasse son périmètre ?",
+      "choices": [
+        "Inventer une réponse plausible",
+        "Indiquer sa limite et proposer un transfert humain",
+        "Répéter indéfiniment la même procédure",
+        "Demander systématiquement un mot de passe"
+      ],
+      "answer": 1,
+      "explanation": "Une voie d'escalade évite les réponses spéculatives et les boucles qui bloquent l'utilisateur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel principe doit guider la recherche dans une base de connaissances ?",
+      "choices": [
+        "Indexation de tous les documents sans droits",
+        "Priorité aux documents les plus récents, même non validés",
+        "Respect des permissions de l'utilisateur et des sources approuvées",
+        "Publication automatique de tout document trouvé"
+      ],
+      "answer": 2,
+      "explanation": "La recherche sémantique ne doit pas contourner les contrôles d'accès. La validité et les permissions des sources restent essentielles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Que faut-il prévoir lorsqu'une intégration de tickets est indisponible ?",
+      "choices": [
+        "Confirmer que le ticket est créé même si l'API a échoué",
+        "Perdre le contenu et demander de recommencer sans explication",
+        "Continuer à réessayer sans limite",
+        "Afficher une erreur claire, préserver le contexte utile et fournir une voie de secours"
+      ],
+      "answer": 3,
+      "explanation": "Le mode dégradé doit prévenir la perte de demandes, éviter de faux succès et maintenir un parcours de reprise."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel ensemble de tests convient avant le lancement d'un assistant génératif de support ?",
+      "choices": [
+        "Questions normales, ambiguës, hors périmètre, données sensibles, sources périmées et tentatives de détournement",
+        "Uniquement trois questions faciles",
+        "Seulement un test de vitesse",
+        "Uniquement les commentaires positifs de l'équipe projet"
+      ],
+      "answer": 0,
+      "explanation": "Un jeu de tests représentatif doit couvrir exactitude, qualité des sources, sécurité, transferts et comportements inattendus."
     }
   ]
 }
