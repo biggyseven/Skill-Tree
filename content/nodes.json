@@ -10454,5 +10454,55 @@
         "min_score": 85
       }
     ]
+  },
+  {
+    "id": "cmd-base",
+    "module": "Commandes & Aide-mémoire",
+    "title": "Configuration de base (Hostname, SSH, Mots de passe, NTP)",
+    "category": "Fiches Cisco",
+    "order": 4501,
+    "description": "Fiche de référence pour l'identité de l'équipement, l'accès SSH, les secrets et la synchronisation NTP.",
+    "prereqs": [],
+    "requirements": []
+  },
+  {
+    "id": "cmd-interfaces",
+    "module": "Commandes & Aide-mémoire",
+    "title": "Interfaces & VLANs (Switchport, Trunk, Router-on-a-stick)",
+    "category": "Fiches Cisco",
+    "order": 4502,
+    "description": "Commandes pratiques pour les ports access, les trunks 802.1Q, les VLANs et le routage inter-VLAN.",
+    "prereqs": [],
+    "requirements": []
+  },
+  {
+    "id": "cmd-routage",
+    "module": "Commandes & Aide-mémoire",
+    "title": "Routage & OSPF (Routes statiques, OSPF, EIGRP)",
+    "category": "Fiches Cisco",
+    "order": 4503,
+    "description": "Référence rapide aux routes statiques, au routage par défaut et au contrôle des protocoles OSPF/EIGRP.",
+    "prereqs": [],
+    "requirements": []
+  },
+  {
+    "id": "cmd-securite",
+    "module": "Commandes & Aide-mémoire",
+    "title": "Sécurité & ACL (Access-lists, Port-security, DHCP Snooping)",
+    "category": "Fiches Cisco",
+    "order": 4504,
+    "description": "Aide-mémoire sur les ACL IPv4, les VTY, le port-security et DHCP Snooping.",
+    "prereqs": [],
+    "requirements": []
+  },
+  {
+    "id": "cmd-verification",
+    "module": "Commandes & Aide-mémoire",
+    "title": "Vérification & Diagnostic (Show, Debug, Ping, Traceroute)",
+    "category": "Fiches Cisco",
+    "order": 4505,
+    "description": "Commandes de vérification et méthode de diagnostic progressive, avec précautions sur debug.",
+    "prereqs": [],
+    "requirements": []
   }
 ]
