@@ -78,6 +78,19 @@ Analysez les commentaires avec un codage cohérent : délai, qualité de solutio
 
 Identifiez les moments de vérité du parcours : ouverture du ticket, premier retour, transfert, annonce d'un retard, résolution et réouverture. La qualité de la communication lors d'un retard peut améliorer la compréhension sans remplacer le besoin de corriger la cause du délai.
 
+~~~mermaid
+flowchart TD
+    A[Retour utilisateur] --> B[Accuser réception et qualifier]
+    B --> C[Analyser les faits]
+    C --> D{Action nécessaire ?}
+    D -->|Individuelle| E[Réponse et suivi du dossier]
+    D -->|Structurelle| F[Action d'amélioration]
+    E --> G[Confirmer la suite]
+    F --> H[Mesurer l'effet]
+    G --> I[Informer et capitaliser]
+    H --> I
+~~~
+
 ## 6. Fermer la boucle avec les utilisateurs
 
 « Fermer la boucle » signifie que le retour recueilli provoque une analyse et, lorsque c'est pertinent, une réponse ou une action. Une équipe doit distinguer le suivi individuel d'un retour et les améliorations structurelles à l'échelle du service.
