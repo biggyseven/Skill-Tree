@@ -48,7 +48,8 @@ class LearningValidationTests(unittest.TestCase):
                     self.assertFalse(reading.json()["read_completed"])
 
                     target = int(reading.json()["target_seconds"])
-                    old_ping = (datetime.now(timezone.utc) - timedelta(seconds=30)).isoformat()
+                    # A recent activity ping can earn the final ten seconds; stale sessions cannot.
+            old_ping = (datetime.now(timezone.utc) - timedelta(seconds=15)).isoformat()
                     with sqlite3.connect(database_path) as conn:
                         conn.execute(
                             "UPDATE lesson_progress SET active_seconds = ?, last_ping_at = ? WHERE node_id = ?",
