@@ -69,6 +69,16 @@ Reliez la matrice aux besoins du service : systèmes gérés, outils, accès pri
 
 Le plan de progression ne doit pas être réservé aux personnes en difficulté. Les experts ont besoin de temps pour apprendre, documenter et prévenir les problèmes. Si toute la charge est mesurée uniquement par les tickets clos, la transmission de compétence deviendra invisible et sera progressivement abandonnée.
 
+~~~mermaid
+flowchart LR
+    A[Observer la compétence] --> B[Pratique encadrée]
+    B --> C[Évaluer sur des cas réels]
+    C --> D{Autonomie démontrée ?}
+    D -->|Non| B
+    D -->|Oui| E[Autorisation et transmission]
+    E --> F[Réévaluation périodique]
+~~~
+
 ## 5. Piloter la performance sans créer de mauvais comportements
 
 Le tableau de bord doit combiner demande, délai, qualité, risque, expérience et capacité. Le nombre de tickets traités ne reflète pas la complexité. Le délai moyen peut masquer une longue queue de dossiers anciens. Le respect des SLA peut être artificiellement amélioré par des priorités mal attribuées ou des fermetures prématurées. La satisfaction peut varier selon le public qui répond et le type de demande.
