@@ -7,6 +7,7 @@ on:
       - perf/main-assets-cache-20261028
     paths:
       - "app/main_ui/**"
+      - "static/index.html"
       - ".github/workflows/build-main-ui-assets.yml"
 
 permissions:
@@ -63,10 +64,10 @@ jobs:
           ]
           for asset in assets:
               digest = hashlib.sha256(Path("static/assets", asset).read_bytes()).hexdigest()[:12]
-              pattern = re.compile(r"(/assets/" + re.escape(asset) + r"\?v=)[0-9a-f]{12}")
+              pattern = re.compile(r"(/assets/" + re.escape(asset) + r"\?v=)[^\"\\s]+")
               html, count = pattern.subn(lambda match: match.group(1) + digest, html)
-              if count < 2:
-                  raise SystemExit(f"Expected preload plus use for {asset}; found {count} versioned URL(s)")
+              if count != 2:
+                  raise SystemExit(f"Expected exactly a preload and a use for {asset}; found {count} versioned URL(s)")
           html_path.write_text(html, encoding="utf-8", newline="")
 
       - name: Commit generated assets and updated URLs when changed

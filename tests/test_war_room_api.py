@@ -43,10 +43,12 @@ class WarRoomApiTests(unittest.TestCase):
 
     def test_pilot_scenarios_are_valid_and_every_link_has_both_ports(self) -> None:
         scenarios = list_scenarios()
-        self.assertEqual(
-            {scenario["id"] for scenario in scenarios},
-            {"INC-001", "CHG-001", "PRB-001"},
+        scenario_ids = {scenario["id"] for scenario in scenarios}
+        self.assertTrue(
+            {"INC-001", "CHG-001", "PRB-001"}.issubset(scenario_ids),
+            "Les trois scénarios pilotes doivent toujours être présents.",
         )
+        self.assertEqual(len(scenario_ids), len(scenarios), "Chaque scénario doit avoir un identifiant unique.")
         for scenario in scenarios:
             self.assertEqual(scenario["initial_topology"]["schema_version"], 2)
             nodes = {node["id"]: node for node in scenario["initial_topology"]["nodes"]}
@@ -66,7 +68,11 @@ class WarRoomApiTests(unittest.TestCase):
         with self._client() as client:
             inbox = client.get("/api/tickets")
             self.assertEqual(inbox.status_code, 200, inbox.text)
-            self.assertEqual({item["id"] for item in inbox.json()}, {"INC-001", "CHG-001", "PRB-001"})
+            inbox_ids = {item["id"] for item in inbox.json()}
+            self.assertTrue(
+                {"INC-001", "CHG-001", "PRB-001"}.issubset(inbox_ids),
+                "Les scénarios pilotes doivent rester disponibles dans l’inbox, même si la bibliothèque grandit.",
+            )
             ticket_response = client.get("/api/tickets/INC-001")
             self.assertEqual(ticket_response.status_code, 200, ticket_response.text)
             scenario = ticket_response.json()["scenario"]
