@@ -4,15 +4,99 @@
   "questions": [
     {
       "type": "qcm",
-      "prompt": "Question temporaire sur « Définition des processus support » : quel élément devra être maîtrisé après la rédaction du cours ?",
+      "prompt": "Quelle différence décrit correctement incident et demande de service ?",
       "choices": [
-        "Réponse correcte à rédiger",
-        "Distracteur à rédiger A",
-        "Distracteur à rédiger B",
-        "Distracteur à rédiger C"
+        "Ils ont toujours le même flux",
+        "L'incident vise à rétablir un service perturbé ; la demande fournit un service standard défini",
+        "La demande de service nécessite toujours une crise",
+        "Un incident ne doit jamais être priorisé"
+      ],
+      "answer": 1,
+      "explanation": "Les catégories entraînent des contrôles, objectifs et critères de sortie différents ; ce ne sont pas uniquement des étiquettes."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Pourquoi cartographier le processus réel avant de l'automatiser ?",
+      "choices": [
+        "Pour produire un diagramme décoratif",
+        "Pour supprimer toute exception de la documentation",
+        "Pour repérer les attentes, transferts, contournements et exceptions existants",
+        "Pour éviter de parler aux équipes"
+      ],
+      "answer": 2,
+      "explanation": "Une automatisation basée sur le flux idéal ignore souvent les contraintes et cas limites du travail réel."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Qu'est-ce qui doit accompagner un ticket dans l'état « en cours » ?",
+      "choices": [
+        "Un statut uniquement",
+        "Le nom du département général",
+        "Une date de fermeture future inventée",
+        "Un responsable, un prochain pas et une date de revue utile"
+      ],
+      "answer": 3,
+      "explanation": "L'état seul n'assure pas le suivi ; un propriétaire et une prochaine action réduisent les dossiers immobiles."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel est le rôle d'un propriétaire de processus ?",
+      "choices": [
+        "Maintenir la finalité, les définitions, les mesures et les évolutions du processus",
+        "Réaliser personnellement chaque ticket",
+        "Supprimer toutes les approbations",
+        "Décider seul de contourner les règles sécurité"
       ],
       "answer": 0,
-      "explanation": "Question et correction temporaires : à rédiger lorsque le cours sera produit."
+      "explanation": "Le propriétaire pilote le processus et sa qualité, tout en respectant les autorités de décision des métiers et des fonctions de contrôle."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Comment faut-il définir un indicateur de respect SLA ?",
+      "choices": [
+        "Par un nom et une couleur",
+        "Avec une formule, un calendrier, un périmètre et des règles d'éligibilité explicites",
+        "En comptant les tickets clos sans dénominateur",
+        "En laissant chaque équipe choisir sa formule"
+      ],
+      "answer": 1,
+      "explanation": "La définition doit être cohérente entre équipes, périodes et priorités pour rendre les résultats comparables."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quel contrôle est essentiel avant de déployer une automatisation de processus ?",
+      "choices": [
+        "La vitesse du script uniquement",
+        "Le nombre de lignes de code",
+        "Les cas limites, permissions, journalisation, exceptions et retour arrière",
+        "Le choix d'un nom mémorable"
+      ],
+      "answer": 2,
+      "explanation": "Les automatisations doivent être testées sur les erreurs et exceptions et disposer de contrôles de sécurité et de récupération."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Un ticket est transféré à un fournisseur. Qui reste responsable du suivi côté support ?",
+      "choices": [
+        "Personne, puisque le fournisseur a le ticket",
+        "L'utilisateur demandeur uniquement",
+        "Le premier agent quitte définitivement le dossier",
+        "Un propriétaire interne désigné, qui suit le fournisseur et la communication"
+      ],
+      "answer": 3,
+      "explanation": "L'externalisation de l'action technique ne supprime pas la responsabilité de suivi du service envers le demandeur."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Quelle est la meilleure raison de conserver des états et transitions versionnés ?",
+      "choices": [
+        "Permettre de comprendre les règles appliquées et maîtriser les changements dans le temps",
+        "Empêcher les retours utilisateurs",
+        "Éviter d'analyser les erreurs",
+        "Garantir que le processus ne changera jamais"
+      ],
+      "answer": 0,
+      "explanation": "Les versions et décisions permettent de savoir quelle règle s'appliquait à un dossier et de mesurer l'effet d'une modification."
     }
   ]
 }
