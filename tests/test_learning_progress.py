@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import json
 import unittest
+from unittest.mock import patch
 
 from fastapi import HTTPException
 from datetime import datetime, timedelta
 
-from app.api import read_node, read_profile, read_tree, submit_challenge
+from app.api import (
+    LessonProgressUpdate, read_learning_progress, read_node, read_profile,
+    read_tree, submit_challenge, update_learning_progress,
+)
 from app.db import connect, initialize
 from app.engine import SkillTree, get_daily_plan
 from app.loader import ContentError, _parse_challenge_brief, _parse_expected_topology
@@ -585,6 +589,46 @@ class LearningProgressConsistencyTests(unittest.TestCase):
                 },
                 "fixture",
             )
+
+
+    def test_server_learning_progress_persists_percent_and_requires_active_reading(self) -> None:
+        node_id = "tracked-course"
+        self.add_node(node_id, "Cours suivi", "Administration Réseaux", 1)
+        self.add_quiz_requirement(node_id)
+        self.conn.commit()
+
+        with patch("app.api._lesson_reading_target_seconds", return_value=60):
+            initial = read_learning_progress(node_id, self.tree)
+            self.assertFalse(initial["started"])
+            self.assertTrue(initial["requires_reading"])
+            self.assertFalse(initial["ready_for_assessment"])
+
+            first = update_learning_progress(node_id, LessonProgressUpdate(progress_percent=95), self.tree)
+            self.assertTrue(first["started"])
+            self.assertEqual(first["progress_percent"], 95)
+            self.assertEqual(first["active_seconds"], 0)
+            self.assertFalse(first["read_completed"])
+            self.assertFalse(first["ready_for_assessment"])
+
+            stale_ping = (datetime.now().astimezone() - timedelta(seconds=45)).isoformat()
+            self.conn.execute(
+                "UPDATE lesson_progress SET active_seconds = 35, last_ping_at = ? WHERE node_id = ?",
+                (stale_ping, node_id),
+            )
+            self.conn.commit()
+            stale = update_learning_progress(node_id, LessonProgressUpdate(progress_percent=95), self.tree)
+            self.assertEqual(stale["active_seconds"], 35, "Un vieux ping ne doit pas ajouter du temps inactif.")
+
+            recent_ping = (datetime.now().astimezone() - timedelta(seconds=5)).isoformat()
+            self.conn.execute(
+                "UPDATE lesson_progress SET active_seconds = 60, last_ping_at = ? WHERE node_id = ?",
+                (recent_ping, node_id),
+            )
+            self.conn.commit()
+            recent = update_learning_progress(node_id, LessonProgressUpdate(progress_percent=95), self.tree)
+            self.assertGreaterEqual(recent["active_seconds"], 60)
+            self.assertTrue(recent["read_completed"])
+            self.assertTrue(recent["ready_for_assessment"])
 
 
 if __name__ == "__main__":

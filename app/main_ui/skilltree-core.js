@@ -41,6 +41,7 @@
         userStats: { total_xp: 0, current_level: 1, level_name: 'Débutant', progress_percent: 0, coins: 0 }, userStatsLoaded: false,
         shopOpen: false, shopItems: [], open: false,
         detail: null, detailLoading: false, detailLoadError: null, detailRequestedNodeId: null, _detailRequestId: 0, modalTab: 'lesson', isFullscreen: false,
+        learningProgress: null, learningProgressError: '', _learningProgressTimer: null, _learningProgressNodeId: '', _learningProgressBusy: false,
         lessonHtml: '', lessonMissing: false, lessonIsPlaceholder: false,
 
         // --- Lecteur de cours ---
@@ -76,6 +77,13 @@
 
         async init() {
           this.loadLessonPositions();
+          this.$watch('modalTab', (value, previous) => {
+            const nodeId = String(this._learningProgressNodeId || '');
+            if (!nodeId || !this.open) return;
+            if ((previous === 'lesson' && value !== 'lesson') || (value === 'lesson' && previous !== 'lesson')) {
+              void this.syncLearningProgress(nodeId, { force: true });
+            }
+          });
           this.loadUiPrefs();
           this.loadFavorites();
           this.loadWarOpenCount();
@@ -1652,6 +1660,67 @@
           this._lessonHeadingOffsets = [];
           this._lessonHeadingCourseId = '';
         },
+        async syncLearningProgress(nodeId = this.detail?.id, options = {}) {
+          const targetId = String(nodeId || '');
+          const force = options && options.force === true;
+          if (!targetId || !this.open || String(this.detail?.id || '') !== targetId) return null;
+          if (!force && (this.modalTab !== 'lesson' || document.hidden)) return null;
+          if (this._learningProgressBusy) return null;
+
+          this._learningProgressBusy = true;
+          try {
+            const response = await fetch('/api/node/' + encodeURIComponent(targetId) + '/learning-progress', {
+              method: 'POST',
+              credentials: 'same-origin',
+              cache: 'no-store',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                progress_percent: Math.max(0, Math.min(100, Number(this.lessonProgress) || 0))
+              })
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(payload.detail || ('HTTP ' + response.status));
+            if (this.open && String(this.detail?.id || '') === targetId) {
+              this.learningProgress = payload;
+              this.learningProgressError = '';
+            }
+            return payload;
+          } catch (error) {
+            if (this.open && String(this.detail?.id || '') === targetId) {
+              this.learningProgressError = 'La progression de lecture ne peut pas être synchronisée. Vérifie la connexion puis réessaie.';
+            }
+            return null;
+          } finally {
+            this._learningProgressBusy = false;
+          }
+        },
+        startLearningProgressSync(nodeId) {
+          if (this._learningProgressTimer) window.clearInterval(this._learningProgressTimer);
+          this._learningProgressTimer = null;
+          const targetId = String(nodeId || this.detail?.id || '');
+          this._learningProgressNodeId = '';
+          this.learningProgress = null;
+          this.learningProgressError = '';
+          if (!targetId || String(this.detail?.id || '') !== targetId ||
+              !this.detail?.requirements?.some(requirement => requirement.kind === 'quiz')) return;
+
+          this._learningProgressNodeId = targetId;
+          void this.syncLearningProgress(targetId, { force: true });
+          this._learningProgressTimer = window.setInterval(() => {
+            if (this._learningProgressNodeId === targetId) void this.syncLearningProgress(targetId);
+          }, 15000);
+        },
+        stopLearningProgressSync(options = {}) {
+          const nodeId = String(this._learningProgressNodeId || '');
+          if (this._learningProgressTimer) window.clearInterval(this._learningProgressTimer);
+          this._learningProgressTimer = null;
+          this._learningProgressNodeId = '';
+          if (options && options.flush === true && nodeId && this.open &&
+              String(this.detail?.id || '') === nodeId) {
+            void this.syncLearningProgress(nodeId, { force: true });
+          }
+        },
+
         onLessonScroll(e) {
           const el = e.target;
           const max = el.scrollHeight - el.clientHeight;
@@ -1784,6 +1853,7 @@
         },
 
         async show(nodeId) {
+          this.stopLearningProgressSync({ flush: true });
           this.labWorkspaceFallbackId = null;
           const nodeKey = String(nodeId);
           this.moduleNextCourseId = null;
@@ -1813,6 +1883,8 @@
           this.stopSpeech();
           this.tutorOpen = false; this.tutorQuestion = ''; this.tutorMessages = []; this.tutorSelectedText = '';
           this.detail = null;
+          this.learningProgress = null;
+          this.learningProgressError = '';
           this.lessonHtml = '';
           this.lessonMissing = false;
           this.lessonIsPlaceholder = false;
@@ -1869,6 +1941,7 @@
                 this.refreshLessonHeadingOffsets();
                 this.observeLessonHeadingLayout();
                 if (s) this.restoreLessonPosition(s, this.lessonPositions[String(this.detail?.id || '')] || null);
+                this.startLearningProgressSync(String(this.detail?.id || ''));
                 this.fixLessonContrast();
               });
             }
@@ -1882,6 +1955,7 @@
           this.resetLessonHeadingOffsets();
           this._detailRequestId += 1;
           this.stopSpeech();
+          this.stopLearningProgressSync({ flush: true });
           this.open = false;
           this.detailLoading = false;
           this.detailLoadError = null;
@@ -1993,6 +2067,9 @@
           }
 
           if (requestId === this._detailRequestId && String(this.detail?.id) === nodeId) this.quizResult = result;
+          if (result.validated && requestId === this._detailRequestId && String(this.detail?.id) === nodeId) {
+            await this.syncLearningProgress(nodeId, { force: true });
+          }
           try {
             const refreshed = await this.refreshAll();
             if (result.validated && refreshed.tree) this.advanceResumeTargetAfterValidation(nodeId, requestId);

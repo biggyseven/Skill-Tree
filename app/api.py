@@ -1650,7 +1650,10 @@ def update_learning_progress(
             previous_ping = datetime.fromisoformat(str(row["last_ping_at"]))
             if previous_ping.tzinfo is None:
                 previous_ping = previous_ping.replace(tzinfo=timezone.utc)
-            elapsed = max(0, min(20, int((now - previous_ping).total_seconds())))
+            elapsed_delta = (now - previous_ping).total_seconds()
+            # Ne créditer que les pings rapprochés : une page fermée ou un onglet inactif
+            # ne doit pas gagner des secondes lors de la prochaine ouverture.
+            elapsed = int(elapsed_delta) if 0 <= elapsed_delta <= 20 else 0
         except (TypeError, ValueError, OverflowError):
             elapsed = 0
     active_seconds = min(86400, previous_seconds + elapsed)
