@@ -399,7 +399,7 @@ class DashboardUiRegressionTests(unittest.TestCase):
         # duplicate card row is intentionally absent from the redesigned dashboard.
         self.assertIn("get planActions()", DASHBOARD_HTML)
         self.assertIn("get planEmptyMessage()", DASHBOARD_HTML)
-        self.assertIn("get activePlanAction()", DASHBOARD_HTML)
+        self.assertIn("async openPlanAction(action)", DASHBOARD_HTML)
         self.assertNotIn('id="daily-plan-dashboard-v1"', DASHBOARD_HTML)
         self.assertNotIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
         self.assertIn('aria-label="Indicateurs de progression"', DASHBOARD_HTML)
@@ -997,7 +997,8 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn("setTab('memo')", mobile_nav)
         self.assertIn('aria-label="Plus de sections"', mobile_nav)
         self.assertIn("grid-template-columns: repeat(7, minmax(0,1fr))", DASHBOARD_HTML)
-        self.assertIn("item.id === 'memo' ? 'Réviser' : item.label", DASHBOARD_HTML)
+        self.assertIn('aria-label="Révisions espacées"', mobile_nav)
+        self.assertIn('<span>Réviser</span>', mobile_nav)
         self.assertNotIn("Ouvrir les révisions espacées", DASHBOARD_HTML)
         self.assertIn("même lorsqu’aucune révision n’est encore due dans le plan du jour", DASHBOARD_HTML)
 
