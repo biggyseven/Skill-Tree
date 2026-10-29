@@ -10390,10 +10390,10 @@
   {
     "id": "support-formation-expert",
     "module": "Support Technique",
-    "title": "Formation des techniciens",
+    "title": "Formation des utilisateurs",
     "category": "Support — Pilotage et amélioration",
     "order": 4465,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Concevoir, déployer et évaluer des parcours de formation qui améliorent l'autonomie et la sécurité des utilisateurs.",
     "prereqs": [
       "support-automation-expert"
     ],
@@ -10410,7 +10410,7 @@
     "title": "Reporting support avancé",
     "category": "Support — Pilotage et amélioration",
     "order": 4466,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Définir des indicateurs fiables, analyser les tendances du support et produire des rapports qui soutiennent les décisions.",
     "prereqs": [
       "support-formation-expert"
     ],
@@ -10427,7 +10427,7 @@
     "title": "Amélioration continue du support",
     "category": "Support — Pilotage et amélioration",
     "order": 4467,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Analyser les causes récurrentes, conduire des pilotes contrôlés et vérifier les effets des actions d'amélioration.",
     "prereqs": [
       "support-reporting-expert"
     ],
@@ -10444,7 +10444,7 @@
     "title": "Support international et multilingue",
     "category": "Support — Pilotage et amélioration",
     "order": 4468,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Organiser une prise en charge cohérente entre langues, fuseaux horaires, régions et contraintes de confidentialité.",
     "prereqs": [
       "support-amelioration-expert"
     ],
