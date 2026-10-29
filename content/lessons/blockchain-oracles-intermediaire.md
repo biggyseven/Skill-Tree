@@ -593,7 +593,58 @@ Cette matrice empêche d'attribuer automatiquement toute mauvaise valeur au four
 
 Avant déploiement, vérifie l'adresse, le réseau, la paire, la précision, le heartbeat ou le seuil de déviation documenté, la fenêtre de fraîcheur, les formules de conversion, les permissions et le comportement de panne. Après déploiement, surveille l'âge des observations et les rejets. À chaque modification de configuration, relance les tests qui dépendent de la source et des unités.
 
-## 22. Dix questions d'entraînement avec corrigé
+## 22. Construire une politique opérationnelle de confiance pour les oracles
+
+Un flux de données est une dépendance métier, pas seulement une adresse de contrat. La sécurité d'une application qui utilise un prix dépend de la qualité et de la fraîcheur de la donnée, de la manière dont elle est interprétée, des conditions du marché et du comportement prévu si elle devient indisponible. Une adresse de flux qui renvoie une valeur numérique n'est pas une preuve que cette valeur est adaptée à la décision effectuée.
+
+### 22.1 Valider le contexte du flux
+
+Avant d'utiliser une donnée, valide le réseau, l'adresse exacte du flux, l'actif de base, l'actif de cotation, l'unité, la précision et le sens du prix. Le fait qu'un flux soit nommé comme une paire familière ne garantit pas qu'il s'agit de la bonne paire pour l'application. Le prix d'un actif en USD n'est pas automatiquement interchangeable avec celui du même actif dans une autre devise, ni avec une valeur provenant d'une autre chaîne.
+
+La configuration doit être versionnée et revue, avec des tests qui échouent si une adresse est remplacée par erreur. Pour les déploiements sur plusieurs réseaux, maintiens une matrice explicite des adresses et de leurs propriétés au lieu de construire les adresses à partir d'une chaîne de caractères supposée universelle. Les environnements de test et de production doivent être séparés, et une configuration de test ne doit pas être embarquée par défaut dans un déploiement public.
+
+### 22.2 Fraîcheur, heartbeat et déviation
+
+Les mécanismes de mise à jour d'un flux ne garantissent pas nécessairement une nouvelle valeur à chaque bloc ni à intervalle fixe universel. Selon le flux et sa configuration, une mise à jour peut être déclenchée par une variation suffisante, par une limite de temps ou par d'autres règles. L'application doit définir sa propre exigence de fraîcheur en fonction du risque : un marché liquide et une fonction de prêt fortement levierisée n'ont pas les mêmes tolérances.
+
+Lorsqu'elle lit une donnée, l'application doit vérifier l'horodatage fourni et rejeter une valeur trop ancienne selon la politique définie. Il faut aussi traiter les données dont la valeur est nulle ou négative lorsque le domaine métier ne l'autorise pas, les appels qui revertent et les réponses mal formées. La conversion des décimales doit être vérifiée avant toute comparaison avec un montant exprimé dans une autre échelle.
+
+### 22.3 Contrôles de plausibilité sans inventer le prix
+
+Un contrôle de plausibilité peut rejeter une variation impossible au regard des limites métier, mais il ne doit pas supposer que tout mouvement important est une erreur. Une variation extrême peut être réelle, notamment dans un marché volatil. Le seuil doit donc être lié à une action définie : suspendre une opération, demander une seconde source, réduire une exposition ou déclencher un examen, plutôt que remplacer silencieusement la donnée par une ancienne valeur.
+
+Une seconde source n'est utile que si elle réduit réellement le risque. Deux flux peuvent partager les mêmes marchés sous-jacents, les mêmes fournisseurs ou des dépendances communes. La politique doit expliquer ce que signifie l'accord entre sources, que faire en cas de désaccord et quand l'application doit refuser d'agir. Une moyenne improvisée entre deux valeurs contradictoires peut produire un nombre qui ne correspond à aucun marché réel.
+
+| Contrôle | Question à répondre | Comportement si échec |
+|---|---|---|
+| Réseau et adresse | Est-ce le flux autorisé pour cette chaîne ? | Refuser l'opération et alerter |
+| Horodatage | La valeur respecte-t-elle la fraîcheur requise ? | Rejeter ou passer en mode sûr |
+| Décimales | La conversion utilise-t-elle l'échelle attendue ? | Arrêt explicite, sans arrondi implicite |
+| Domaine de valeurs | La valeur est-elle valide pour le métier ? | Refuser et enregistrer le motif |
+| Variation inhabituelle | Est-ce une anomalie ou une volatilité réelle ? | Vérification ou limite d'exposition |
+| Disponibilité | Le contrat ou la réponse est-il accessible ? | Appliquer la politique de secours documentée |
+
+### 22.4 Cas particulier des réseaux à séquenceur
+
+Sur certaines solutions de couche 2, la disponibilité et l'état du séquenceur affectent la capacité à soumettre et inclure les transactions, et les hypothèses de sécurité pendant une panne peuvent différer du fonctionnement normal. Une application critique peut avoir besoin de vérifier un indicateur de disponibilité du séquenceur avant d'accepter des opérations sensibles, selon les recommandations applicables au réseau et au flux utilisé.
+
+Le contrôle doit préciser ce que signifie un séquenceur indisponible, le délai de grâce prévu et les actions qui restent autorisées. Ne traite pas automatiquement une donnée de secours comme aussi sûre que la donnée normale : le comportement attendu doit être spécifié et testé. Cette logique est particulièrement importante lorsqu'un prix est utilisé pour liquider une position ou autoriser un retrait.
+
+### 22.5 Concevoir le mode dégradé
+
+Il n'existe pas de stratégie de secours unique. Une application de lecture peut afficher une dernière valeur avec un horodatage explicite, tandis qu'un contrat qui décide de transferts importants peut devoir refuser l'opération lorsque la donnée n'est plus fiable. Réutiliser une ancienne valeur sans limite de durée peut transformer une panne courte en décision financière dangereuse. Suspendre toute l'application peut, à l'inverse, empêcher les actions nécessaires à la sécurité. La politique doit traiter les opérations séparément.
+
+Définis quels appels sont bloqués, qui peut lever la pause, quels événements ou alertes sont émis, quelle donnée doit être vérifiée avant reprise et comment l'incident est communiqué. Les droits d'urgence doivent être limités, surveillés et documentés. Teste aussi le cas où la source revient après une période de panne : l'application doit repartir uniquement lorsque la valeur et son horodatage répondent aux exigences écrites.
+
+### 22.6 Atelier : simuler une donnée obsolète et une valeur aberrante
+
+Dans un environnement de test, prépare des scénarios avec une valeur fraîche, une donnée trop ancienne, une réponse inaccessible, une valeur dans la mauvaise échelle, une valeur hors du domaine métier et un désaccord entre deux sources. Pour chaque scénario, écris le résultat attendu avant d'exécuter le test : transaction acceptée, refusée, mise en pause ou envoyée pour revue.
+
+Vérifie l'état final, les événements et la réponse de l'interface. Un test ne doit pas simplement s'arrêter à une exception : il doit démontrer que la position financière, les plafonds et les droits n'ont pas été modifiés de manière inattendue. Répète les tests avec des valeurs juste de part et d'autre du seuil de fraîcheur pour repérer les erreurs de comparaison et les problèmes de frontière temporelle.
+
+Le compte rendu doit identifier le réseau, l'adresse du flux de test, l'échelle, les valeurs fournies, l'horodatage, le résultat et la politique appliquée. Les adresses et paramètres utilisés en laboratoire ne doivent jamais être supposés valides pour la production. L'objectif est de valider les décisions de l'application lorsque l'entrée est défectueuse, non de prétendre simuler toutes les pannes possibles d'un fournisseur de données.
+
+## 23. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Pourquoi un contrat ne lit-il pas directement n'importe quelle API web ?
@@ -645,7 +696,7 @@ La bonne intégration d'un oracle garantit-elle la sécurité de tout le protoco
 
 **Corrigé :** Non. La logique financière, les conversions, les permissions, les contrats dépendants et les mécanismes de récupération doivent aussi être sûrs.
 
-## 23. Challenge final : revue d'un oracle de prêt
+## 24. Challenge final : revue d'un oracle de prêt
 
 ### Scénario
 

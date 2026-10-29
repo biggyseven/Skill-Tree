@@ -596,7 +596,67 @@ Un test de fumée après déploiement peut vérifier une lecture non destructive
 
 Le déploiement doit produire un dossier vérifiable : commit source, ABI, adresse et réseau, version des dépendances, tests exécutés et date de mise en ligne. Toute mise à jour de contrat, de frontend ou de fournisseur devrait vérifier que la configuration reste cohérente.
 
-## 25. Dix questions d'entraînement avec corrigé
+## 25. Gérer les états asynchrones, les réorganisations et la reprise d'une DApp
+
+Une DApp dépend de plusieurs composants qui ne progressent pas au même rythme : portefeuille, fournisseur RPC, réseau P2P, contrat, indexeur et interface. Une transaction peut être signée dans le portefeuille avant d'être diffusée, diffusée avant d'être incluse, puis incluse sans être immédiatement considérée comme finale. Une interface fiable représente explicitement ces états au lieu d'utiliser un seul indicateur de chargement.
+
+### 25.1 Définir une machine à états de transaction
+
+Les états doivent exprimer des faits distincts. « Préparation » signifie que l'application construit ou simule l'appel ; « attente de signature » signifie que l'utilisateur doit confirmer dans son portefeuille ; « envoyée » signifie que la soumission a retourné un hash ; « incluse » signifie qu'un reçu indique un bloc ; « confirmée » correspond à la politique métier choisie ; « finalisée » ne doit être affichée que lorsque le protocole et la logique de l'application justifient ce terme. Les états rejetés, remplacés, expirés, revertés et indéterminés doivent également être distingués.
+
+L'absence de réponse d'un fournisseur ne prouve pas que la transaction n'a pas été diffusée. Après un timeout, une nouvelle soumission aveugle peut conduire à plusieurs transactions similaires ou à une expérience confuse. Il faut tenter de retrouver l'opération par le hash déjà connu, vérifier l'état et n'offrir une nouvelle tentative que lorsque son effet est compris. Le nonce et le mécanisme de remplacement du portefeuille sont aussi pertinents.
+
+### 25.2 Compte, réseau et session du portefeuille
+
+Les changements de compte et de chaîne sont des événements de sécurité et de cohérence. Lorsqu'un utilisateur change de réseau, les contrats, soldes, nonce, frais et transactions visibles peuvent changer. La DApp doit interrompre les actions qui supposent encore l'ancien contexte, recharger les données et vérifier que l'adresse du contrat est configurée pour la chaîne active. Ne te fie pas uniquement au nom de réseau choisi dans une liste déroulante.
+
+Une session de portefeuille n'est pas toujours une identité applicative complète. Connecter un compte prouve seulement une capacité d'interaction dans le contexte de la signature acceptée ; les permissions métier peuvent nécessiter une signature spécifique, une session expirante ou une authentification supplémentaire. Les signatures de connexion doivent inclure un domaine, un objectif, un nonce et une échéance selon le protocole utilisé pour empêcher qu'une ancienne signature soit rejouée dans un autre contexte.
+
+### 25.3 Indexation et réorganisations
+
+L'interface lit souvent les données d'un indexeur parce que les contrats ne sont pas conçus pour répondre efficacement à toutes les requêtes historiques. L'indexeur ingère des événements et maintient des vues destinées à l'application. Ces vues peuvent être temporairement en retard ou contenir des données issues d'un bloc qui sera ensuite retiré de la chaîne canonique. Il faut documenter le délai attendu, la politique de réorganisation et la méthode de reconstruction.
+
+Ne mélange pas silencieusement une vue d'indexeur avec une lecture directe du contrat si leurs hauteurs diffèrent. Affiche ou journalise le contexte des données critiques, utilise des identifiants idempotents et réconcilie les états lorsqu'un événement est retiré ou réémis. Après une panne d'indexeur, la procédure doit préciser le point de reprise, la façon de détecter les événements manquants et le contrôle qui confirme que la vue a rattrapé la chaîne.
+
+### 25.4 Résilience des fournisseurs RPC
+
+Plusieurs URL ne garantissent pas nécessairement plusieurs sources indépendantes : elles peuvent partager le même fournisseur, le même nœud en amont ou la même infrastructure cloud. Pour une application critique, mesure la latence, le taux d'erreur, le retard de tête et la cohérence des réponses. Un basculement vers un autre fournisseur doit vérifier la chaîne et comparer les hashes à la hauteur pertinente avant d'accepter des données sensibles.
+
+Les appels de lecture peuvent souvent être répétés, mais les soumissions et opérations sensibles doivent suivre une stratégie particulière. Avant de réessayer, vérifie si le premier appel a créé un effet durable. Les services hors chaîne peuvent recevoir plusieurs fois un même événement, perdre une réponse après avoir effectué une écriture ou redémarrer au milieu d'un traitement : les gestionnaires doivent être idempotents et conserver un état de progression vérifiable.
+
+### 25.5 Expérience d'erreur et observabilité
+
+Les messages doivent décrire ce qui est connu, ce qui est incertain et ce que l'utilisateur peut faire. « Transaction impossible » est peu utile si le véritable problème est un mauvais réseau, une signature rejetée ou une transaction incluse puis revertée. Inversement, afficher une cause trop précise sans preuve peut tromper l'utilisateur. Les journaux techniques peuvent être plus détaillés que les messages d'interface, mais ils ne doivent pas contenir de clés privées, de secrets de session ni de données sensibles inutiles.
+
+Surveille au minimum les taux d'échec de signature, les transactions envoyées sans reçu, les délais entre diffusion et inclusion, les reverts, les retards des indexeurs et les divergences entre fournisseurs. Associe les événements à un identifiant de corrélation et au hash de transaction lorsqu'il existe. Ces métriques permettent de voir si un incident concerne un utilisateur, une chaîne, un contrat ou toute l'infrastructure.
+
+~~~mermaid
+stateDiagram-v2
+    [*] --> Preparation
+    Preparation --> AttenteSignature
+    AttenteSignature --> Rejetee: utilisateur refuse
+    AttenteSignature --> Envoyee: signature et soumission
+    Envoyee --> Inconnue: timeout RPC
+    Inconnue --> Envoyee: hash retrouvé
+    Inconnue --> Incluse: reçu retrouvé
+    Envoyee --> Incluse: reçu observé
+    Incluse --> Revert: statut échec
+    Incluse --> Confirmation: politique satisfaite
+    Confirmation --> Finalisee: finalité vérifiée
+    Incluse --> Reorganisation: bloc retiré
+    Reorganisation --> Envoyee: rechercher transaction
+    Revert --> [*]
+    Rejetee --> [*]
+    Finalisee --> [*]
+~~~
+
+### 25.6 Exercice de reprise contrôlée
+
+Simule un retard RPC dans un environnement de test, puis déconnecte temporairement l'indexeur. Vérifie que la DApp n'annonce pas à tort un échec définitif quand une soumission a peut-être réussi, qu'elle continue de distinguer les états provisoires et qu'elle ne crédite pas deux fois le même événement lors de la reprise. Restaure les services, compare leurs hauteurs, réconcilie l'état et documente les limites de la simulation.
+
+Le compte rendu indique le symptôme, l'impact visible, les horodatages, la chaîne active, le hash de transaction, les réponses des fournisseurs, les actions automatiques et le critère de retour à la normale. L'objectif est d'obtenir une application explicable pendant une panne, pas une interface qui masque l'incertitude derrière une animation de chargement.
+
+## 26. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Une DApp est-elle entièrement décentralisée parce qu'elle utilise un contrat ?
@@ -648,7 +708,7 @@ Pourquoi gérer les changements de compte et de réseau ?
 
 **Corrigé :** Ils modifient l'identité active, l'état, les contrats disponibles et la signification des transactions. L'application doit invalider les données et revalider le contexte.
 
-## 26. Challenge final : plan de résilience d'une DApp
+## 27. Challenge final : plan de résilience d'une DApp
 
 ### Scénario
 

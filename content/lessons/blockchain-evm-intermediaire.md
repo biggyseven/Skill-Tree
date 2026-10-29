@@ -568,7 +568,66 @@ Pour chaque optimisation, prépare :
 
 Si le gain est faible et que la lisibilité chute fortement, il peut être préférable de conserver la version plus claire. Si une modification réduit fortement les écritures, vérifie qu'elle n'a pas déplacé une dépendance vers un backend moins fiable ou supprimé une vérification de sécurité. Une optimisation est une décision d'architecture, pas seulement une chasse au nombre de gas.
 
-## 23. Dix questions d'entraînement avec corrigé
+## 23. Suivre une transaction de bout en bout et expliquer sa consommation de gas
+
+Comprendre le gas exige de séparer plusieurs étapes : préparation de la transaction, diffusion, inclusion dans un bloc, exécution par la machine virtuelle, création du reçu et interprétation par l'application. Une transaction peut être correctement signée mais jamais incluse ; elle peut être incluse puis revert ; elle peut réussir tout en produisant un effet métier différent de celui attendu. Le diagnostic doit donc partir de l'identité de la transaction, du réseau et du bloc, puis suivre les preuves disponibles.
+
+### 23.1 Les éléments d'une transaction et le reçu
+
+Pour une transaction de type courant sur Ethereum, vérifie au minimum le compte expéditeur, le nonce, le destinataire ou l'indicateur de création de contrat, les données d'appel, la limite de gas et les paramètres de frais. La limite est le plafond d'unités d'exécution que l'expéditeur autorise ; elle n'est pas la quantité qui sera nécessairement consommée. Le reçu donne notamment le statut, le gas utilisé, le bloc d'inclusion et les logs générés. Ces informations répondent à des questions différentes et ne doivent pas être remplacées par un simple message « terminé ».
+
+Le nonce permet d'ordonner les transactions d'un même compte. Si une transaction antérieure reste en attente, une transaction ultérieure peut rester bloquée même si ses données sont correctes. Une transaction peut aussi être remplacée par une autre utilisant le même nonce et des paramètres de frais adaptés à la politique du réseau. L'application doit suivre le hash effectivement retenu et éviter de présenter une ancienne tentative comme si elle était toujours la transaction active.
+
+### 23.2 Comprendre le modèle de frais
+
+Le gas utilisé mesure le coût en unités d'exécution selon les règles du réseau ; le prix effectif payé par unité détermine ensuite le coût monétaire. Dans le modèle EIP-1559, le montant effectif par unité dépend du prix de base du bloc et du pourboire proposé, dans les limites des paramètres de la transaction. Le prix de base est brûlé sur Ethereum, tandis que le pourboire revient au producteur de bloc selon le mécanisme prévu. Il faut vérifier les règles du réseau ciblé, car les réseaux compatibles EVM peuvent appliquer des politiques différentes.
+
+Un calcul de frais doit tenir compte de l'unité native, de la précision d'affichage et de la différence entre estimation préalable et coût constaté. Une estimation de gas ne prédit pas toutes les conditions d'exécution ; la consommation peut changer selon l'état du contrat, les données d'entrée, la branche exécutée et les écritures de stockage. L'interface devrait afficher séparément le coût estimé, la limite autorisée et le coût réel une fois le reçu disponible.
+
+### 23.3 Diagnostiquer un revert avec une trace
+
+Un reçu ayant un statut d'échec indique que l'exécution n'a pas abouti, mais pas nécessairement où la décision a échoué. Une trace d'exécution peut montrer les appels imbriqués, les données transmises, le type d'appel et l'endroit où le revert est remonté. Selon le client et les méthodes RPC disponibles, la profondeur et le format de la trace varient. Il faut conserver le hash, la chaîne, le bloc et le fournisseur interrogé pour que l'analyse puisse être reproduite.
+
+Cherche d'abord l'appel le plus profond qui a échoué, puis remonte vers l'appelant. Vérifie les conditions d'accès, les paramètres, les soldes, les allowances, les limites de gas et l'état des contrats externes à ce bloc. Le dernier message visible n'est pas toujours la cause initiale : un contrat peut intercepter ou transformer une erreur, et une simulation effectuée après coup peut voir un état différent de celui de l'exécution originale.
+
+| Symptôme | Ce qu'il faut examiner | Conclusion à éviter |
+|---|---|---|
+| Coût supérieur à l'estimation | État modifié, chemin exécuté, prix effectif | « Le réseau a forcément augmenté le gas » |
+| Revert avec message peu clair | Trace, données d'entrée, appel externe | Se fier uniquement au texte de l'interface |
+| Transaction non incluse | Nonce, frais, propagation, état du mempool | La considérer comme échouée définitivement |
+| Reçu réussi mais résultat inattendu | Événements, état après exécution, bonne adresse | Conclure que le métier est réussi |
+| Gas utilisé proche de la limite | Boucles, appels externes, données variables | Augmenter la limite sans identifier la cause |
+
+### 23.4 Optimiser avec des mesures et des invariants
+
+Avant une optimisation, établis une référence reproductible : version du compilateur, paramètres de compilation, état initial, données d'entrée, gas utilisé et effets métier. Modifie un élément à la fois et compare les résultats sur plusieurs tailles d'entrées pertinentes. Une modification qui améliore un cas nominal peut aggraver le pire cas ou rendre le code moins sûr à auditer.
+
+Les économies doivent être évaluées face à la lisibilité, aux risques et au coût de maintenance. Réduire une écriture de stockage peut être intéressant, mais contourner des contrôles de sécurité pour gagner quelques unités de gas est un mauvais compromis. Les boucles dont la taille dépend d'une entrée externe doivent faire l'objet d'une limite explicite ou d'une stratégie de traitement par lots. Une fonction qui devient inexécutable à cause d'une liste trop grande peut causer une panne métier même si elle est logiquement correcte.
+
+~~~mermaid
+flowchart TD
+    A[Hash de transaction] --> B[Vérifier chaîne et reçu]
+    B --> C{Transaction incluse ?}
+    C -->|Non| D[Étudier nonce, frais et propagation]
+    C -->|Oui| E{Statut réussi ?}
+    E -->|Non| F[Analyser revert et trace]
+    E -->|Oui| G[Comparer événements et état]
+    F --> H[Reproduire sur environnement contrôlé]
+    G --> I{Effet métier attendu ?}
+    I -->|Non| J[Examiner logique et configuration]
+    I -->|Oui| K[Documenter le résultat]
+    D --> K
+    H --> K
+    J --> K
+~~~
+
+### 23.5 Mini-laboratoire de diagnostic
+
+Choisis une transaction de test qui appelle une fonction avec au moins deux branches, par exemple un retrait autorisé et un retrait rejeté. Note l'état initial, les paramètres, le gas estimé, la limite, le hash et le reçu. Compare ensuite le chemin réussi avec le chemin qui échoue. Le rapport doit expliquer la condition qui a déclenché l'échec, les effets qui ont été annulés, les événements présents ou absents et ce que l'interface aurait dû afficher.
+
+Ne teste pas de transactions à risque sur un contrat contenant de vrais actifs. Utilise une chaîne locale ou un réseau de test que tu maîtrises. Le résultat attendu est un diagnostic reproductible par un autre développeur, pas seulement une capture d'écran affichant un nombre de gas.
+
+## 24. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 Quel est le rôle de l'EVM ?
@@ -620,7 +679,7 @@ Pourquoi le gas d'une couche 2 peut-il différer du coût total payé par l'util
 
 **Corrigé :** Le coût peut inclure l'exécution sur la couche 2 et une part des coûts de publication de données ou de règlement sur la couche de base, selon le réseau.
 
-## 24. Challenge final : diagnostiquer une transaction trop chère
+## 25. Challenge final : diagnostiquer une transaction trop chère
 
 ### Scénario
 
