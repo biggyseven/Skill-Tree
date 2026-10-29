@@ -10291,7 +10291,7 @@
     "title": "Management d'une équipe support",
     "category": "Support — Pilotage et amélioration",
     "order": 4459,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Organiser les rôles, la capacité, les compétences, la qualité de service et le développement d'une équipe support.",
     "prereqs": [
       "support-remote-avance-intermediaire"
     ],
@@ -10308,7 +10308,7 @@
     "title": "Définition des processus support",
     "category": "Support — Pilotage et amélioration",
     "order": 4460,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Concevoir, mesurer et améliorer les processus de gestion des incidents, demandes, problèmes, changements et connaissances.",
     "prereqs": [
       "support-management-expert"
     ],
@@ -10325,7 +10325,7 @@
     "title": "Optimisation de la satisfaction (CSAT/NPS)",
     "category": "Support — Pilotage et amélioration",
     "order": 4461,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Interpréter les mesures d'expérience, comprendre les biais, analyser les irritants et transformer les retours en améliorations mesurables.",
     "prereqs": [
       "support-processus-expert"
     ],
@@ -10342,7 +10342,7 @@
     "title": "Gestion de crise support",
     "category": "Support — Pilotage et amélioration",
     "order": 4462,
-    "description": "Ossature temporaire du module Support Technique. Contenu à rédiger ultérieurement.",
+    "description": "Coordonner les incidents majeurs, attribuer les rôles, piloter le rétablissement et assurer une communication de crise traçable.",
     "prereqs": [
       "support-csat-expert"
     ],
