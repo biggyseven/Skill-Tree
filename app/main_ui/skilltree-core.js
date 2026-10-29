@@ -1344,6 +1344,7 @@
               startOnLoad: false,
               securityLevel: 'strict',
               theme: document.documentElement.classList.contains('light') ? 'default' : 'dark',
+              themeVariables: { background: 'transparent' },
             });
             this._mermaidInitialized = true;
           }

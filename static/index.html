@@ -106,7 +106,7 @@
       box-shadow: none !important;
     }
 
-    /* Les figures Mermaid restent posées sur un support clair, même en thème sombre. */
+    /* Les schémas Mermaid restent transparents sur le fond naturel du lecteur. */
     .lesson-prose .mermaid,
     .lesson-prose pre.mermaid,
     .lesson-prose .mermaid-container {
@@ -116,14 +116,13 @@
       padding: clamp(.75rem, 1.8vw, 1.25rem);
       overflow-x: auto;
       overflow-y: hidden;
-      color: #1e293b;
-      background: #f8fafc !important;
-      border: 1px solid rgba(148, 163, 184, .55);
-      border-radius: 1rem;
-      box-shadow: 0 14px 32px rgba(2, 6, 23, .22), 0 2px 8px rgba(2, 6, 23, .08);
+      color: inherit;
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0;
+      box-shadow: none !important;
     }
     .lesson-prose .mermaid svg { display: block; max-width: 100%; height: auto; background: transparent !important; }
-    .lesson-prose .mermaid :where(.label, .nodeLabel, .edgeLabel) { color: #1e293b; }
     @media (prefers-reduced-motion: reduce) { .lesson-prose .mermaid { scroll-behavior: auto; } }
   </style>
 </head>

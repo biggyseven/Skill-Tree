@@ -159,8 +159,8 @@
     .lesson-prose .lesson-mermaid-viewport {
       position: relative; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box;
       overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable;
-      border: 1px solid rgb(var(--w) / .12); border-radius: .9rem;
-      background: rgb(var(--w) / .025); padding: .55rem;
+      border: 0; border-radius: 0;
+      background: transparent; padding: .55rem;
     }
     .lesson-prose .lesson-mermaid-viewport:focus-visible { outline: 2px solid rgb(var(--cyan-400)); outline-offset: 2px; }
     .lesson-prose .lesson-mermaid-stage { position: relative; display: block; min-width: 1px; min-height: 1px; }
