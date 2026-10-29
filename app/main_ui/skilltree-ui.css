@@ -605,7 +605,7 @@
     @media (min-width: 1280px) {
       header.app-main-header {
         display: grid !important;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) max-content;
         column-gap: 1rem;
       }
       header.app-main-header > div:first-child { grid-column: 1; grid-row: 1; width: auto; min-width: 0; }
@@ -615,7 +615,7 @@
       header.app-main-header .app-header-action-items > .relative { min-width: 0; }
     }
     @media (min-width: 1536px) {
-      header.app-main-header { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+      header.app-main-header { grid-template-columns: minmax(0, 1fr) auto max-content; }
       header.app-main-header > div.absolute {
         display: flex !important;
         position: static !important;
