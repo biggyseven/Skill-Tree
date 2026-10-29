@@ -856,7 +856,7 @@ Avant d'autoriser une publication, exige une compilation reproductible, une suit
 
 La décision d'accepter doit nommer les risques résiduels et la personne ou le processus qui les accepte. « Tous les tests passent » est un élément de preuve, pas une conclusion complète. La qualité dépend aussi de ce que les tests affirment, des hypothèses, des dépendances et de la capacité à observer et contenir un incident en production.
 
-## 24. Dix questions d'entraînement avec corrigé
+## 26. Dix questions d'entraînement avec corrigé
 
 ### Question 1
 À quoi sert la directive pragma ?
@@ -908,7 +908,7 @@ La compilation réussie prouve-t-elle qu'un contrat est sûr ?
 
 **Corrigé :** Non. Il faut aussi des tests, analyses, revues, contrôles des dépendances, vérification de déploiement et surveillance.
 
-## 25. Challenge final : spécifier et tester un coffre fictif
+## 27. Challenge final : spécifier et tester un coffre fictif
 
 ### Scénario
 
