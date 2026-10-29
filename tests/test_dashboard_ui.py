@@ -394,6 +394,17 @@ class DashboardUiRegressionTests(unittest.TestCase):
         self.assertIn('aria-labelledby="resume-learning-title"', DASHBOARD_HTML)
         self.assertIn('id="module-overview-title"', DASHBOARD_HTML)
 
+    def test_legacy_daily_plan_cards_are_removed_from_dashboard(self):
+        # The recommendation engine remains wired for course navigation, but the
+        # duplicate card row is intentionally absent from the redesigned dashboard.
+        self.assertIn("get planActions()", DASHBOARD_HTML)
+        self.assertIn("get planEmptyMessage()", DASHBOARD_HTML)
+        self.assertIn("get activePlanAction()", DASHBOARD_HTML)
+        self.assertNotIn('id="daily-plan-dashboard-v1"', DASHBOARD_HTML)
+        self.assertNotIn('x-text="planEmptyMessage"', DASHBOARD_HTML)
+        self.assertIn('aria-label="Indicateurs de progression"', DASHBOARD_HTML)
+        self.assertIn('aria-labelledby="resume-learning-title"', DASHBOARD_HTML)
+
     def test_daily_plan_avoids_duplicating_the_resume_and_current_path_nodes(self):
         start = DASHBOARD_HTML.index("        get planActions() {")
         end = DASHBOARD_HTML.index("        get notifications()", start)
