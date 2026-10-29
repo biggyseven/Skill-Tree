@@ -10463,12 +10463,7 @@
     "order": 4501,
     "description": "Fiche de référence pour l'identité de l'équipement, l'accès SSH, les secrets et la synchronisation NTP.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": []
   },
   {
     "id": "cmd-interfaces",
@@ -10478,12 +10473,7 @@
     "order": 4502,
     "description": "Commandes pratiques pour les ports access, les trunks 802.1Q, les VLANs et le routage inter-VLAN.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": []
   },
   {
     "id": "cmd-routage",
@@ -10493,12 +10483,7 @@
     "order": 4503,
     "description": "Référence rapide aux routes statiques, au routage par défaut et au contrôle des protocoles OSPF/EIGRP.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": []
   },
   {
     "id": "cmd-securite",
@@ -10508,12 +10493,7 @@
     "order": 4504,
     "description": "Aide-mémoire sur les ACL IPv4, les VTY, le port-security et DHCP Snooping.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": []
   },
   {
     "id": "cmd-verification",
@@ -10523,11 +10503,6 @@
     "order": 4505,
     "description": "Commandes de vérification et méthode de diagnostic progressive, avec précautions sur debug.",
     "prereqs": [],
-    "requirements": [
-      {
-        "kind": "quiz",
-        "min_score": 80
-      }
-    ]
+    "requirements": []
   }
 ]
