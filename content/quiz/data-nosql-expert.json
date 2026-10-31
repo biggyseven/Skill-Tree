@@ -1,0 +1,102 @@
+{
+  "node_id": "data-nosql-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier ttl et expiration au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "TTL et expiration doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "TTL et expiration doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier invalidation de cache au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Invalidation de cache doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Invalidation de cache doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier cohérence et durabilité au niveau expert ?",
+      "choices": [
+        "Cohérence et durabilité doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Cohérence et durabilité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier transactions et atomicité au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Transactions et atomicité doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Transactions et atomicité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier répartition et disponibilité au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Répartition et disponibilité doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Répartition et disponibilité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier sélection du bon stockage au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Sélection du bon stockage doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Sélection du bon stockage doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier modèle documentaire au niveau expert ?",
+      "choices": [
+        "Modèle documentaire doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Modèle documentaire doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Introduction à MongoDB et Redis », quelle pratique convient pour vérifier identifiants et schémas au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Identifiants et schémas doit respecter le contrat de introduction à mongodb et redis, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Identifiants et schémas doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application avec profils documentaires et un cache de lecture », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

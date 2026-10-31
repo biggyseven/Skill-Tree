@@ -20,7 +20,7 @@ class DataModuleVisibilityTests(unittest.TestCase):
 
     def test_data_courses_are_mapped_to_the_data_module(self):
         data_nodes = [node for node in self.nodes if node.get("id", "").startswith("data-")]
-        self.assertEqual(18, len(data_nodes))
+        self.assertEqual(54, len(data_nodes), "Le catalogue Data doit compter 18 thèmes sur trois niveaux.")
         self.assertTrue(all(node.get("module") == "Data & Bases de données" for node in data_nodes))
         self.assertTrue(all(node.get("category") == "Data & Bases de données" for node in data_nodes))
 

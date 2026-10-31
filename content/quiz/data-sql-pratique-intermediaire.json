@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-pratique-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier fixtures de test au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Fixtures de test doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Fixtures de test doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier transactions de test au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Transactions de test doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Transactions de test doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier migrations versionnées au niveau intermédiaire ?",
+      "choices": [
+        "Migrations versionnées doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Migrations versionnées doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier tests d'intégrité au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Tests d'intégrité doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Tests d'intégrité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier automatisation ci au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Automatisation CI doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Automatisation CI doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier gestion des secrets au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Gestion des secrets doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Gestion des secrets doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier idempotence des scripts au niveau intermédiaire ?",
+      "choices": [
+        "Idempotence des scripts doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Idempotence des scripts doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Travaux pratiques (MySQL/PostgreSQL) », quelle pratique convient pour vérifier nettoyage et rétention au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Nettoyage et rétention doit respecter le contrat de travaux pratiques (mysql/postgresql), avec résultat observable et test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Nettoyage et rétention doit être relié au besoin métier et à un contrôle vérifiable. Pour « une application locale d'inscriptions avec migrations et tests automatisés », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

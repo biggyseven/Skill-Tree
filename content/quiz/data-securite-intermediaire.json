@@ -1,0 +1,102 @@
+{
+  "node_id": "data-securite-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier moindre privilège au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Moindre privilège doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Moindre privilège doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier chiffrement en transit au niveau intermédiaire ?",
+      "choices": [
+        "Chiffrement en transit doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Chiffrement en transit doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier chiffrement au repos au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Chiffrement au repos doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Chiffrement au repos doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier gestion des clés au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Gestion des clés doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Gestion des clés doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier secrets et comptes techniques au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Secrets et comptes techniques doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Secrets et comptes techniques doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier masquage et minimisation au niveau intermédiaire ?",
+      "choices": [
+        "Masquage et minimisation doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Masquage et minimisation doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier audit et détection au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Audit et détection doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Audit et détection doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Chiffrement, RGPD et contrôle d'accès », quelle pratique convient pour vérifier rétention et effacement au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Rétention et effacement doit respecter le contrat de chiffrement, rgpd et contrôle d'accès, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Rétention et effacement doit être relié au besoin métier et à un contrôle vérifiable. Pour « protéger comptes, évaluations et données personnelles d'une plateforme », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

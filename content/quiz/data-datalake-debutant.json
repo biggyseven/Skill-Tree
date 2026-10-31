@@ -1,0 +1,102 @@
+{
+  "node_id": "data-datalake-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier stockage objet au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Stockage objet doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Stockage objet doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier zones bronze, silver et gold au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Zones bronze, silver et gold doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Zones bronze, silver et gold doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier parquet et formats colonnaires au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Parquet et formats colonnaires doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Parquet et formats colonnaires doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier catalogue et métadonnées au niveau débutant ?",
+      "choices": [
+        "Catalogue et métadonnées doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Catalogue et métadonnées doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier évolution du schéma au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Évolution du schéma doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Évolution du schéma doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier formats de tables au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Formats de tables doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Formats de tables doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier partition pruning au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Partition pruning doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Partition pruning doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Data Lakes et Lakehouse », quelle pratique convient pour vérifier compaction et petits fichiers au niveau débutant ?",
+      "choices": [
+        "Compaction et petits fichiers doit respecter le contrat de data lakes et lakehouse, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Compaction et petits fichiers doit être relié au besoin métier et à un contrôle vérifiable. Pour « assembler des données brutes de plusieurs sources dans une zone analytique gouvernée », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

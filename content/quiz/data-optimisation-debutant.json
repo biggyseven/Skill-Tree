@@ -1,0 +1,102 @@
+{
+  "node_id": "data-optimisation-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier b-tree et index classiques au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "B-tree et index classiques doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "B-tree et index classiques doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier sélectivité et cardinalité au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Sélectivité et cardinalité doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Sélectivité et cardinalité doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier index composites au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Index composites doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Index composites doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier index partiels et fonctionnels au niveau débutant ?",
+      "choices": [
+        "Index partiels et fonctionnels doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Index partiels et fonctionnels doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier plans de jointure au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Plans de jointure doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Plans de jointure doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier statistiques et histogrammes au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Statistiques et histogrammes doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Statistiques et histogrammes doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier pagination et n+1 au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Pagination et N+1 doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Pagination et N+1 doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Indexation et plans d'exécution », quelle pratique convient pour vérifier coût d'écriture au niveau débutant ?",
+      "choices": [
+        "Coût d'écriture doit respecter le contrat de indexation et plans d'exécution, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Coût d'écriture doit être relié au besoin métier et à un contrôle vérifiable. Pour « un tableau de bord dont les requêtes deviennent lentes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

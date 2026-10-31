@@ -1,0 +1,102 @@
+{
+  "node_id": "data-bigdata-intermediaire",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier partitions et parallélisme au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Partitions et parallélisme doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Partitions et parallélisme doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier shuffle au niveau intermédiaire ?",
+      "choices": [
+        "Shuffle doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Shuffle doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier formats colonnaires au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Formats colonnaires doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Formats colonnaires doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier data skew au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Data skew doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Data skew doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier tolérance aux pannes au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Tolérance aux pannes doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Tolérance aux pannes doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier gestion des ressources au niveau intermédiaire ?",
+      "choices": [
+        "Gestion des ressources doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Gestion des ressources doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier qualité des résultats distribués au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Qualité des résultats distribués doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Qualité des résultats distribués doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Architecture Hadoop et Spark », quelle pratique convient pour vérifier observabilité du job au niveau intermédiaire ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Observabilité du job doit respecter le contrat de architecture hadoop et spark, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Observabilité du job doit être relié au besoin métier et à un contrôle vérifiable. Pour « traiter des journaux volumineux afin de produire des agrégats fiables », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

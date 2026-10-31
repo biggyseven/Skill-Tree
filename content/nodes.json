@@ -8288,12 +8288,12 @@
     ]
   },
   {
-    "id": "data-sql-1-debutant",
+    "id": "data-bases-intermediaire",
     "module": "Data & Bases de données",
-    "title": "Requêtes SQL de base (SELECT, INSERT) — Débutant",
+    "title": "Concepts des bases de données relationnelles — Intermédiaire",
     "category": "Data & Bases de données",
     "order": 4341,
-    "description": "Lecture et écriture SQL paramétrées, filtres et opérations sûres.",
+    "description": "Tables, clés, contraintes, transactions et intégrité relationnelle. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
     "prereqs": [
       "data-bases-debutant"
     ],
@@ -8305,12 +8305,46 @@
     ]
   },
   {
-    "id": "data-modelisation-debutant",
+    "id": "data-bases-expert",
     "module": "Data & Bases de données",
-    "title": "Modélisation et diagrammes (MCD/MLD) — Débutant",
+    "title": "Concepts des bases de données relationnelles — Expert",
     "category": "Data & Bases de données",
     "order": 4342,
-    "description": "Entités, relations, cardinalités et passage du MCD au MLD.",
+    "description": "Tables, clés, contraintes, transactions et intégrité relationnelle. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-bases-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-sql-1-debutant",
+    "module": "Data & Bases de données",
+    "title": "Requêtes SQL de base (SELECT, INSERT) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4343,
+    "description": "Lecture et écriture SQL paramétrées, filtres et opérations sûres.",
+    "prereqs": [
+      "data-bases-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-1-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Requêtes SQL de base (SELECT, INSERT) — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4344,
+    "description": "Requêtes paramétrées, filtres, insertions et opérations sûres. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
     "prereqs": [
       "data-sql-1-debutant"
     ],
@@ -8322,12 +8356,46 @@
     ]
   },
   {
-    "id": "data-sql-2-debutant",
+    "id": "data-sql-1-expert",
     "module": "Data & Bases de données",
-    "title": "Jointures et agrégations SQL — Débutant",
+    "title": "Requêtes SQL de base (SELECT, INSERT) — Expert",
     "category": "Data & Bases de données",
-    "order": 4343,
-    "description": "Jointures, granularité, agrégats, NULL et prévention du double comptage.",
+    "order": 4345,
+    "description": "Requêtes paramétrées, filtres, insertions et opérations sûres. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-sql-1-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-modelisation-debutant",
+    "module": "Data & Bases de données",
+    "title": "Modélisation et diagrammes (MCD/MLD) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4346,
+    "description": "Entités, relations, cardinalités et passage du MCD au MLD.",
+    "prereqs": [
+      "data-sql-1-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-modelisation-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Modélisation et diagrammes (MCD/MLD) — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4347,
+    "description": "Entités, cardinalités, dépendances et évolution du modèle. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
     "prereqs": [
       "data-modelisation-debutant"
     ],
@@ -8339,12 +8407,46 @@
     ]
   },
   {
-    "id": "data-normalisation-debutant",
+    "id": "data-modelisation-expert",
     "module": "Data & Bases de données",
-    "title": "Normalisation (1NF, 2NF, 3NF) — Débutant",
+    "title": "Modélisation et diagrammes (MCD/MLD) — Expert",
     "category": "Data & Bases de données",
-    "order": 4344,
-    "description": "Dépendances fonctionnelles, formes normales et décomposition sans perte.",
+    "order": 4348,
+    "description": "Entités, cardinalités, dépendances et évolution du modèle. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-modelisation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-sql-2-debutant",
+    "module": "Data & Bases de données",
+    "title": "Jointures et agrégations SQL — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4349,
+    "description": "Jointures, granularité, agrégats, NULL et prévention du double comptage.",
+    "prereqs": [
+      "data-modelisation-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-2-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Jointures et agrégations SQL — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4350,
+    "description": "Jointures, granularité, agrégats et prévention du double comptage. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
     "prereqs": [
       "data-sql-2-debutant"
     ],
@@ -8356,14 +8458,133 @@
     ]
   },
   {
+    "id": "data-sql-2-expert",
+    "module": "Data & Bases de données",
+    "title": "Jointures et agrégations SQL — Expert",
+    "category": "Data & Bases de données",
+    "order": 4351,
+    "description": "Jointures, granularité, agrégats et prévention du double comptage. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-sql-2-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-normalisation-debutant",
+    "module": "Data & Bases de données",
+    "title": "Normalisation (1NF, 2NF, 3NF) — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4352,
+    "description": "Dépendances fonctionnelles, formes normales et décomposition sans perte.",
+    "prereqs": [
+      "data-sql-2-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-normalisation-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Normalisation (1NF, 2NF, 3NF) — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4353,
+    "description": "Dépendances fonctionnelles, formes normales et décomposition. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-normalisation-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-normalisation-expert",
+    "module": "Data & Bases de données",
+    "title": "Normalisation (1NF, 2NF, 3NF) — Expert",
+    "category": "Data & Bases de données",
+    "order": 4354,
+    "description": "Dépendances fonctionnelles, formes normales et décomposition. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-normalisation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
     "id": "data-sql-pratique-debutant",
     "module": "Data & Bases de données",
     "title": "Travaux pratiques (MySQL/PostgreSQL) — Débutant",
     "category": "Data & Bases de données",
-    "order": 4345,
+    "order": 4355,
     "description": "Laboratoire SQL reproductible, migrations, jeux d'essai et tests.",
     "prereqs": [
-      "data-normalisation-debutant"
+      "data-normalisation-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-pratique-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Travaux pratiques (MySQL/PostgreSQL) — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4356,
+    "description": "Laboratoires SQL, migrations, jeux d'essai et tests reproductibles. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-sql-pratique-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-pratique-expert",
+    "module": "Data & Bases de données",
+    "title": "Travaux pratiques (MySQL/PostgreSQL) — Expert",
+    "category": "Data & Bases de données",
+    "order": 4357,
+    "description": "Laboratoires SQL, migrations, jeux d'essai et tests reproductibles. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-sql-pratique-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-dba-role-debutant",
+    "module": "Data & Bases de données",
+    "title": "Rôle du DBA et architecture SGBD — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4358,
+    "description": "Architecture, rôles, observabilité, capacité et haute disponibilité. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-sql-pratique-expert"
     ],
     "requirements": [
       {
@@ -8377,10 +8598,44 @@
     "module": "Data & Bases de données",
     "title": "Rôle du DBA et architecture SGBD — Intermédiaire",
     "category": "Data & Bases de données",
-    "order": 4346,
+    "order": 4359,
     "description": "Architecture, rôles DBA, concurrence, observabilité et haute disponibilité.",
     "prereqs": [
-      "data-sql-pratique-debutant"
+      "data-dba-role-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-dba-role-expert",
+    "module": "Data & Bases de données",
+    "title": "Rôle du DBA et architecture SGBD — Expert",
+    "category": "Data & Bases de données",
+    "order": 4360,
+    "description": "Architecture, rôles, observabilité, capacité et haute disponibilité. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-dba-role-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-sql-avance-debutant",
+    "module": "Data & Bases de données",
+    "title": "Sous-requêtes, CTE, Procédures stockées — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4361,
+    "description": "Sous-requêtes, CTE, fonctions de fenêtre et routines stockées. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-dba-role-expert"
     ],
     "requirements": [
       {
@@ -8394,10 +8649,44 @@
     "module": "Data & Bases de données",
     "title": "Sous-requêtes, CTE, Procédures stockées — Intermédiaire",
     "category": "Data & Bases de données",
-    "order": 4347,
+    "order": 4362,
     "description": "Sous-requêtes, CTE récursives, fenêtres et routines persistantes.",
     "prereqs": [
-      "data-dba-role-intermediaire"
+      "data-sql-avance-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sql-avance-expert",
+    "module": "Data & Bases de données",
+    "title": "Sous-requêtes, CTE, Procédures stockées — Expert",
+    "category": "Data & Bases de données",
+    "order": 4363,
+    "description": "Sous-requêtes, CTE, fonctions de fenêtre et routines stockées. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-sql-avance-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-optimisation-debutant",
+    "module": "Data & Bases de données",
+    "title": "Indexation et plans d'exécution — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4364,
+    "description": "Index, plans d'exécution, statistiques et mesures de performance. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-sql-avance-expert"
     ],
     "requirements": [
       {
@@ -8411,10 +8700,44 @@
     "module": "Data & Bases de données",
     "title": "Indexation et plans d'exécution — Intermédiaire",
     "category": "Data & Bases de données",
-    "order": 4348,
+    "order": 4365,
     "description": "Index, EXPLAIN, cardinalités, statistiques et mesure de performance.",
     "prereqs": [
-      "data-sql-avance-intermediaire"
+      "data-optimisation-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-optimisation-expert",
+    "module": "Data & Bases de données",
+    "title": "Indexation et plans d'exécution — Expert",
+    "category": "Data & Bases de données",
+    "order": 4366,
+    "description": "Index, plans d'exécution, statistiques et mesures de performance. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-optimisation-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-sauvegarde-debutant",
+    "module": "Data & Bases de données",
+    "title": "Backup, PITR et restauration — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4367,
+    "description": "Sauvegardes, récupération temporelle et exercices de reprise. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-optimisation-expert"
     ],
     "requirements": [
       {
@@ -8428,10 +8751,44 @@
     "module": "Data & Bases de données",
     "title": "Backup, PITR et restauration — Intermédiaire",
     "category": "Data & Bases de données",
-    "order": 4349,
+    "order": 4368,
     "description": "RPO/RTO, sauvegardes, journaux, récupération temporelle et tests de reprise.",
     "prereqs": [
-      "data-optimisation-intermediaire"
+      "data-sauvegarde-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-sauvegarde-expert",
+    "module": "Data & Bases de données",
+    "title": "Backup, PITR et restauration — Expert",
+    "category": "Data & Bases de données",
+    "order": 4369,
+    "description": "Sauvegardes, récupération temporelle et exercices de reprise. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-sauvegarde-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-nosql-debutant",
+    "module": "Data & Bases de données",
+    "title": "Introduction à MongoDB et Redis — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4370,
+    "description": "Modèles documentaires, structures Redis, cohérence et cache. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-sauvegarde-expert"
     ],
     "requirements": [
       {
@@ -8445,10 +8802,44 @@
     "module": "Data & Bases de données",
     "title": "Introduction à MongoDB et Redis — Intermédiaire",
     "category": "Data & Bases de données",
-    "order": 4350,
+    "order": 4371,
     "description": "Modèle documentaire, structures Redis, index, cohérence et cache.",
     "prereqs": [
-      "data-sauvegarde-intermediaire"
+      "data-nosql-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-nosql-expert",
+    "module": "Data & Bases de données",
+    "title": "Introduction à MongoDB et Redis — Expert",
+    "category": "Data & Bases de données",
+    "order": 4372,
+    "description": "Modèles documentaires, structures Redis, cohérence et cache. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-nosql-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-warehouse-debutant",
+    "module": "Data & Bases de données",
+    "title": "Entrepôt de données et ETL — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4373,
+    "description": "Modèle analytique, ingestion, orchestration et qualité. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-nosql-expert"
     ],
     "requirements": [
       {
@@ -8462,10 +8853,61 @@
     "module": "Data & Bases de données",
     "title": "Entrepôt de données et ETL — Intermédiaire",
     "category": "Data & Bases de données",
-    "order": 4351,
+    "order": 4374,
     "description": "Modèle en étoile, ETL/ELT, orchestration et contrôles de qualité.",
     "prereqs": [
-      "data-nosql-intermediaire"
+      "data-warehouse-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-warehouse-expert",
+    "module": "Data & Bases de données",
+    "title": "Entrepôt de données et ETL — Expert",
+    "category": "Data & Bases de données",
+    "order": 4375,
+    "description": "Modèle analytique, ingestion, orchestration et qualité. Niveau expert : architecture, modes de panne et garanties démontrées.",
+    "prereqs": [
+      "data-warehouse-intermediaire"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-bigdata-debutant",
+    "module": "Data & Bases de données",
+    "title": "Architecture Hadoop et Spark — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4376,
+    "description": "Stockage distribué, Spark, partitionnement et résilience. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-warehouse-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-bigdata-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Architecture Hadoop et Spark — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4377,
+    "description": "Stockage distribué, Spark, partitionnement et résilience. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-bigdata-debutant"
     ],
     "requirements": [
       {
@@ -8479,15 +8921,49 @@
     "module": "Data & Bases de données",
     "title": "Architecture Hadoop et Spark — Expert",
     "category": "Data & Bases de données",
-    "order": 4352,
+    "order": 4378,
     "description": "Architecture distribuée, stockage, calcul Spark et résilience des traitements.",
     "prereqs": [
-      "data-warehouse-intermediaire"
+      "data-bigdata-intermediaire"
     ],
     "requirements": [
       {
         "kind": "quiz",
         "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-streaming-debutant",
+    "module": "Data & Bases de données",
+    "title": "Kafka et traitement en temps réel — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4379,
+    "description": "Topics, partitions, offsets, déduplication et observabilité. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-bigdata-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-streaming-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Kafka et traitement en temps réel — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4380,
+    "description": "Topics, partitions, offsets, déduplication et observabilité. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-streaming-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
       }
     ]
   },
@@ -8496,15 +8972,49 @@
     "module": "Data & Bases de données",
     "title": "Kafka et traitement en temps réel — Expert",
     "category": "Data & Bases de données",
-    "order": 4353,
+    "order": 4381,
     "description": "Topics, partitions, offsets, garanties de livraison et pipelines streaming.",
     "prereqs": [
-      "data-bigdata-expert"
+      "data-streaming-intermediaire"
     ],
     "requirements": [
       {
         "kind": "quiz",
         "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-datalake-debutant",
+    "module": "Data & Bases de données",
+    "title": "Data Lakes et Lakehouse — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4382,
+    "description": "Stockage objet, formats colonnaires et tables lakehouse. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-streaming-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-datalake-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Data Lakes et Lakehouse — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4383,
+    "description": "Stockage objet, formats colonnaires et tables lakehouse. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-datalake-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
       }
     ]
   },
@@ -8513,15 +9023,49 @@
     "module": "Data & Bases de données",
     "title": "Data Lakes et Lakehouse — Expert",
     "category": "Data & Bases de données",
-    "order": 4354,
+    "order": 4384,
     "description": "Stockage objet, formats colonnaires, tables lakehouse et gouvernance multi-moteur.",
     "prereqs": [
-      "data-streaming-expert"
+      "data-datalake-intermediaire"
     ],
     "requirements": [
       {
         "kind": "quiz",
         "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-securite-debutant",
+    "module": "Data & Bases de données",
+    "title": "Chiffrement, RGPD et contrôle d'accès — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4385,
+    "description": "Classification, autorisations, chiffrement et cycle de vie. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-datalake-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-securite-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Chiffrement, RGPD et contrôle d'accès — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4386,
+    "description": "Classification, autorisations, chiffrement et cycle de vie. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-securite-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
       }
     ]
   },
@@ -8530,15 +9074,49 @@
     "module": "Data & Bases de données",
     "title": "Chiffrement, RGPD et contrôle d'accès — Expert",
     "category": "Data & Bases de données",
-    "order": 4355,
+    "order": 4387,
     "description": "Chiffrement, gestion des clés, minimisation, droits et cycle de vie des données.",
     "prereqs": [
-      "data-datalake-expert"
+      "data-securite-intermediaire"
     ],
     "requirements": [
       {
         "kind": "quiz",
         "min_score": 85
+      }
+    ]
+  },
+  {
+    "id": "data-gouvernance-debutant",
+    "module": "Data & Bases de données",
+    "title": "Qualité, lignage et gouvernance — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4388,
+    "description": "Propriétaires, catalogue, contrats, qualité et lignage. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-securite-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-gouvernance-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Qualité, lignage et gouvernance — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4389,
+    "description": "Propriétaires, catalogue, contrats, qualité et lignage. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-gouvernance-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
       }
     ]
   },
@@ -8547,10 +9125,10 @@
     "module": "Data & Bases de données",
     "title": "Qualité, lignage et gouvernance — Expert",
     "category": "Data & Bases de données",
-    "order": 4356,
+    "order": 4390,
     "description": "Contrats de données, qualité mesurable, catalogue, lignage et responsabilité.",
     "prereqs": [
-      "data-securite-expert"
+      "data-gouvernance-intermediaire"
     ],
     "requirements": [
       {
@@ -8560,14 +9138,48 @@
     ]
   },
   {
+    "id": "data-ingestion-debutant",
+    "module": "Data & Bases de données",
+    "title": "Pipelines de données complexes — Débutant",
+    "category": "Data & Bases de données",
+    "order": 4391,
+    "description": "Ingestion, idempotence, rejeu, orchestration et observabilité. Niveau débutant : vocabulaire, premiers exemples sûrs et vérification visible.",
+    "prereqs": [
+      "data-gouvernance-expert"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
+    "id": "data-ingestion-intermediaire",
+    "module": "Data & Bases de données",
+    "title": "Pipelines de données complexes — Intermédiaire",
+    "category": "Data & Bases de données",
+    "order": 4392,
+    "description": "Ingestion, idempotence, rejeu, orchestration et observabilité. Niveau intermédiaire : cas limites, comparaison des stratégies et mesures.",
+    "prereqs": [
+      "data-ingestion-debutant"
+    ],
+    "requirements": [
+      {
+        "kind": "quiz",
+        "min_score": 80
+      }
+    ]
+  },
+  {
     "id": "data-ingestion-expert",
     "module": "Data & Bases de données",
     "title": "Pipelines de données complexes — Expert",
     "category": "Data & Bases de données",
-    "order": 4357,
+    "order": 4393,
     "description": "Orchestration, ingestion incrémentale, idempotence, rejeu et observabilité.",
     "prereqs": [
-      "data-gouvernance-expert"
+      "data-ingestion-intermediaire"
     ],
     "requirements": [
       {
@@ -8581,7 +9193,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Qu'est-ce que l'AIOps ? — Débutant",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4358,
+    "order": 4394,
     "description": "Fondamentaux de l'AIOps, données opérationnelles, cas d'usage, limites et indicateurs de valeur.",
     "prereqs": [],
     "requirements": [
@@ -8596,7 +9208,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "IA, Machine Learning, Deep Learning — Débutant",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4359,
+    "order": 4395,
     "description": "Différences entre IA, apprentissage automatique, apprentissage profond et règles déterministes.",
     "prereqs": [
       "aiops-bases-debutant"
@@ -8613,7 +9225,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Automatisation avec Python et Bash — Débutant",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4360,
+    "order": 4396,
     "description": "Scripts reproductibles, collecte de données, API, gestion des erreurs et exécution sécurisée.",
     "prereqs": [
       "aiops-ia-vs-ml-debutant"
@@ -8630,7 +9242,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Automatiser via Slack/Teams (ChatOps) — Débutant",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4361,
+    "order": 4397,
     "description": "Commandes conversationnelles, bots, webhooks, contrôles d'accès et journalisation des actions.",
     "prereqs": [
       "aiops-scripts-debutant"
@@ -8647,7 +9259,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Intent-Based Networking (IBN) — Débutant",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4362,
+    "order": 4398,
     "description": "Traduire une intention réseau en politiques vérifiables, puis observer et corriger les écarts.",
     "prereqs": [
       "aiops-chatops-debutant"
@@ -8664,7 +9276,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Outils (Ansible, Nornir) — Débutant",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4363,
+    "order": 4399,
     "description": "Choisir et utiliser Ansible et Nornir pour automatiser des opérations réseau idempotentes.",
     "prereqs": [
       "aiops-intent-debutant"
@@ -8681,7 +9293,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "ML pour la supervision réseau — Intermédiaire",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4364,
+    "order": 4400,
     "description": "Construire des jeux de données de télémétrie et appliquer des modèles ML à la supervision réseau.",
     "prereqs": [
       "aiops-tools-debutant"
@@ -8698,7 +9310,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Détection d'anomalies (Z-score, clustering) — Intermédiaire",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4365,
+    "order": 4401,
     "description": "Détecter les écarts, définir des seuils robustes et comparer les méthodes statistiques et le clustering.",
     "prereqs": [
       "aiops-ml-supervision-intermediaire"
@@ -8715,7 +9327,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Pipelines CI/CD pour le réseau — Intermédiaire",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4366,
+    "order": 4402,
     "description": "Tester, valider, déployer et revenir en arrière sur des changements d'infrastructure via des pipelines.",
     "prereqs": [
       "aiops-anomalie-intermediaire"
@@ -8732,7 +9344,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Introduction aux LLMs pour l'administration réseau — Intermédiaire",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4367,
+    "order": 4403,
     "description": "Utiliser les LLM comme assistants contrôlés pour expliquer des sorties, préparer des commandes et documenter des incidents.",
     "prereqs": [
       "aiops-automation-intermediaire"
@@ -8749,7 +9361,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Streaming Telemetry (gNMI, gRPC) — Intermédiaire",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4368,
+    "order": 4404,
     "description": "Collecter des métriques en flux, comprendre gNMI/gRPC et exploiter une télémétrie à haute fréquence.",
     "prereqs": [
       "aiops-llm-intermediaire"
@@ -8766,7 +9378,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Jumeaux numériques réseau — Intermédiaire",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4369,
+    "order": 4405,
     "description": "Modéliser un réseau, simuler les changements et comparer les résultats simulés aux observations réelles.",
     "prereqs": [
       "aiops-telemetry-intermediaire"
@@ -8783,7 +9395,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "IA générative pour le diagnostic d'incidents — Expert",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4370,
+    "order": 4406,
     "description": "Orchestrer une assistance générative avec sources vérifiables, outils contrôlés et validation humaine.",
     "prereqs": [
       "aiops-digital-twin-intermediaire"
@@ -8800,7 +9412,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Réseaux auto-cicatrisants — Expert",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4371,
+    "order": 4407,
     "description": "Concevoir une boucle de détection, décision, exécution et vérification avec garde-fous et retour arrière.",
     "prereqs": [
       "aiops-genai-expert"
@@ -8817,7 +9429,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Maintenance prédictive par IA — Expert",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4372,
+    "order": 4408,
     "description": "Estimer le risque de panne, évaluer les prédictions et organiser une maintenance fondée sur les données.",
     "prereqs": [
       "aiops-self-healing-expert"
@@ -8834,7 +9446,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Corrélation d'événements et RCA automatisée — Expert",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4373,
+    "order": 4409,
     "description": "Corréler événements et dépendances pour identifier des causes racines probables, avec niveau de confiance.",
     "prereqs": [
       "aiops-predictive-expert"
@@ -8851,7 +9463,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "MLOps pour l'infrastructure — Expert",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4374,
+    "order": 4410,
     "description": "Versionner données et modèles, déployer des pipelines ML et surveiller dérive et performance en production.",
     "prereqs": [
       "aiops-correlation-expert"
@@ -8868,7 +9480,7 @@
     "module": "AIOps & Intelligence Artificielle",
     "title": "Éthique de l'IA et biais algorithmiques — Expert",
     "category": "AIOps & Intelligence Artificielle",
-    "order": 4375,
+    "order": 4411,
     "description": "Évaluer biais, explicabilité, confidentialité, responsabilité et gouvernance des systèmes d'IA opérationnels.",
     "prereqs": [
       "aiops-mlops-expert"

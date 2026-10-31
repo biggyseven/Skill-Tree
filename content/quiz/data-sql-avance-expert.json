@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-avance-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier fonctions de fenêtre au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Fonctions de fenêtre doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Fonctions de fenêtre doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier procédures et fonctions au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Procédures et fonctions doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Procédures et fonctions doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier gestion des erreurs au niveau expert ?",
+      "choices": [
+        "Gestion des erreurs doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Gestion des erreurs doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier transactions et droits au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Transactions et droits doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Transactions et droits doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier paramétrage et sécurité au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Paramétrage et sécurité doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Paramétrage et sécurité doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier mesure des plans au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Mesure des plans doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Mesure des plans doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier sous-requêtes scalaires au niveau expert ?",
+      "choices": [
+        "Sous-requêtes scalaires doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Sous-requêtes scalaires doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Sous-requêtes, CTE, Procédures stockées », quelle pratique convient pour vérifier sous-requêtes corrélées au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Sous-requêtes corrélées doit respecter le contrat de sous-requêtes, cte, procédures stockées, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Sous-requêtes corrélées doit être relié au besoin métier et à un contrôle vérifiable. Pour « un rapport multi-étapes et un traitement transactionnel d'inscription », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

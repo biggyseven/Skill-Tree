@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sauvegarde-debutant",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier rpo et rto au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "RPO et RTO doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "RPO et RTO doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier sauvegarde logique au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Sauvegarde logique doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Sauvegarde logique doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier sauvegarde physique au niveau débutant ?",
+      "choices": [
+        "Sauvegarde physique doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Sauvegarde physique doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier pitr et journaux au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "PITR et journaux doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "PITR et journaux doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier sauvegardes complètes et incrémentales au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Sauvegardes complètes et incrémentales doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 2,
+      "explanation": "Sauvegardes complètes et incrémentales doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier intégrité de l'archive au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient.",
+        "Intégrité de l'archive doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Intégrité de l'archive doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier chiffrement et clés au niveau débutant ?",
+      "choices": [
+        "Chiffrement et clés doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 0,
+      "explanation": "Chiffrement et clés doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Backup, PITR et restauration », quelle pratique convient pour vérifier copies hors site et immuabilité au niveau débutant ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Copies hors site et immuabilité doit respecter le contrat de backup, pitr et restauration, avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite du seul fait qu'aucune exception ne survient."
+      ],
+      "answer": 1,
+      "explanation": "Copies hors site et immuabilité doit être relié au besoin métier et à un contrôle vérifiable. Pour « une base à rétablir après suppression accidentelle ou panne », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}

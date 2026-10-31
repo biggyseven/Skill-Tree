@@ -1,0 +1,102 @@
+{
+  "node_id": "data-sql-1-expert",
+  "scope": "quiz",
+  "questions": [
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler paramètres liés au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Paramètres liés doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 1,
+      "explanation": "Paramètres liés doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler tri et pagination au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Tri et pagination doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 2,
+      "explanation": "Tri et pagination doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler insert et valeurs par défaut au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée.",
+        "INSERT et valeurs par défaut doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "INSERT et valeurs par défaut doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler update sûr au niveau expert ?",
+      "choices": [
+        "UPDATE sûr doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 0,
+      "explanation": "UPDATE sûr doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler delete et rétention au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "DELETE et rétention doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 1,
+      "explanation": "DELETE et rétention doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler null et expressions au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "NULL et expressions doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 2,
+      "explanation": "NULL et expressions doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler transactions sql au niveau expert ?",
+      "choices": [
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée.",
+        "Transactions SQL doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite."
+      ],
+      "answer": 3,
+      "explanation": "Transactions SQL doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    },
+    {
+      "type": "qcm",
+      "prompt": "Dans « Requêtes SQL de base (SELECT, INSERT) », quelle pratique convient pour contrôler injection sql et audit au niveau expert ?",
+      "choices": [
+        "Injection SQL et audit doit respecter le contrat de requêtes sql de base (select, insert), avec un résultat observable et un test du cas limite.",
+        "Désactiver les contrôles pour accepter toutes les entrées.",
+        "Relancer systématiquement sans limite jusqu'à obtenir une réponse.",
+        "Déduire la réussite uniquement du fait qu'aucune exception n'est remontée."
+      ],
+      "answer": 0,
+      "explanation": "Injection SQL et audit doit être relié au besoin métier et à un contrôle vérifiable. Dans « un catalogue de formations, apprenants, inscriptions et commandes », définissez les préconditions et postconditions, testez les cas limites et documentez les limites de version."
+    }
+  ]
+}
